@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1790021696900,
+      "tag": "0000_local_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790021706532,
+      "tag": "0001_seed_local_identity",
+      "breakpoints": true
+    }
+  ]
+}
