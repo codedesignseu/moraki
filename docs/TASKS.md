@@ -62,6 +62,7 @@ Gate to move on: you use it alone for 3 days without paper backup.
 ### Found while working (P1)
 
 - [ ] P1-F1 decide the unknown-key policy for event payloads before sync pull — found during P1-01 — the P1-01 schemas use Zod's default `z.object`, which strips unknown keys. When a newer app version adds an optional payload field, an older phone that pulls, edits and pushes that event would silently drop the field. Pick strip, passthrough (`z.looseObject`) or reject per path (write vs pull) and test it — done when: a test shows an event carrying an unknown payload key survives pull, edit and push unchanged (or is rejected, whichever is decided), revisit at P1-04 at the latest
+- [ ] P1-F2 round-trip test fixture per activity module has no owner — found during P1-01 — SDD 15.3 requires a round-trip test fixture per activity module, but no task in the current build plan explicitly owns adding it. The completeness test (src/domain/activities/completeness.test.ts) checks schema and i18n key presence only, per P1-01's scope. Needs a home — likely alongside whichever task last touches each module's shape, or as its own pass once all modules have LogSheet/summarize (after P3-12). Revisit when scoping P1-11 or P3-13, whichever comes first.
 
 ---
 
