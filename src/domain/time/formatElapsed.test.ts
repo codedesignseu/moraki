@@ -8,6 +8,7 @@ describe('formatElapsed', () => {
   it.each([
     [0, '0m'],
     [59 * SECOND, '0m'],
+    [59 * MINUTE, '59m'],
     [MINUTE, '1m'],
     [42 * MINUTE, '42m'],
     [59 * MINUTE + 59 * SECOND, '59m'],

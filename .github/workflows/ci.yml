@@ -51,4 +51,6 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm test -- --ci
+      # SDD 6.6: the whole suite under three timezones. The runner defaults to UTC;
+      # TZ is set per run and a guard test fails if a worker ignores it.
+      - run: npm run test:tz
