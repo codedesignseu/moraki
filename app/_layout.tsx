@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { useColorScheme } from 'react-native';
 
+import '@/i18n';
 import { ThemeProvider, useTheme } from '@/ui/theme';
 
 export default function RootLayout() {
