@@ -9,10 +9,11 @@ node_modules/
 .expo/
 .DS_Store
 
-# Secrets — never commit real values
+# Secrets — never commit real values. Covers every file Expo and Supabase load
+# (.env, .env.local, .env.development, .env.production.local, supabase/functions/.env, …).
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # EAS / Supabase local state
 .eas/
