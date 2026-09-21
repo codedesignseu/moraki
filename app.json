@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F4EFE7"
+      "backgroundColor": "#FAF7F2"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
@@ -21,7 +21,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#F4EFE7"
+        "backgroundColor": "#FAF7F2"
       },
       "package": "eu.codedesigns.moraki"
     },
