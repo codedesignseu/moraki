@@ -42,7 +42,7 @@ Gate to move on: you use it alone for 3 days without paper backup.
 
 - [x] P1-01 `feat(domain): event types, zod payload schemas, activity module registry` — depends: P0-03 — done when: every type in SDD 4.1 has a schema with valid and invalid tests, and the registry completeness test in SDD 15.3 passes
 - [x] P1-02 `feat(domain): time utils (duration format, day buckets, tz safe)` — depends: P0-03 — done when: tests pass under three TZ values and across the 25 Oct DST change
-- [ ] P1-03 `feat(db): drizzle sqlite schema, local migrations, outbox, meta` — depends: P1-01 — done when: migrations run on fresh install and on upgrade
+- [ ] P1-03 `feat(db): drizzle sqlite schema, local migrations, outbox, meta` — depends: P1-01 — done when: migrations run on fresh install and on upgrade — status: in_progress
 - [ ] P1-04 `feat(db): events repository with insert, patch, softDelete writing outbox in one transaction` — depends: P1-03 — done when: tests prove event and outbox rows commit or roll back together
 - [ ] P1-05 `feat(domain): home state selector` — depends: P1-01, P1-02 — done when: tests cover no feeds, one feed, breast then bottle, deleted last feed, active sleep
 - [ ] P1-06 `feat(home): timer card, next side, reminder line, today strip, recent list` — depends: P0-06, P1-04, P1-05 — done when: timer ticks every 30s, updates instantly on log
