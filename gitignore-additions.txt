@@ -1,0 +1,12 @@
+# Add these lines to the .gitignore that `create-expo-app` scaffolds —
+# don't replace it, append to it.
+
+# Secrets — never commit real values
+.env
+.env.local
+.env.*.local
+
+# EAS / Supabase local state
+.eas/
+supabase/.branches
+supabase/.temp
