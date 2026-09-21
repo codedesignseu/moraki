@@ -25,7 +25,7 @@ Gate to move on: dev build installed on an iPhone and an Android.
 - [x] P0-06 `feat(ui): primitives Card, Sheet, Stepper, Segmented, Chip, Button, TimerText` — depends: P0-05 — done when: storybook-style demo route renders all primitives
 - [x] P0-07 `feat(i18n): i18next with en locale and typed keys` — depends: P0-01 — done when: no hardcoded strings lint rule on
 - [x] P0-08 `chore(supabase): init supabase project folder, local docker, env handling` — depends: P0-01 — done when: `supabase start` works, `.env.example` committed
-- [ ] P0-09 `build: eas config with development, preview, production profiles` — depends: P0-01 — done when: dev build installed on your iPhone and an Android — status: in_progress
+- [ ] P0-09 `build: eas config with development, preview, production profiles` — depends: P0-01 — done when: a development build installs on an Android device (iOS build deferred, see P0-F8) — status: in_progress
 
 ### Found while working (P0)
 
@@ -33,7 +33,29 @@ Gate to move on: dev build installed on an iPhone and an Android.
 - [x] P0-F2 `fix(deps): pin react-dom to 19.2.3 to match react` — found during P0-02 — expo-router peers resolved react-dom 19.3.0 (needs react ^19.3.0), so any second `npm install` failed with ERESOLVE — done when: `npm install` runs twice without ERESOLVE
 - [x] P0-F3 `fix(deps): pin test-renderer to ~1.2.0 so react-reconciler matches react 19.2` — found during P0-04 — RNTL 14 resolves test-renderer 1.3.0, whose react-reconciler 0.34 needs react ^19.3.0 (npm ci warns ERESOLVE, doesn't fail); react-reconciler 0.33 in test-renderer 1.2 wants ^19.2.0 — done when: `npm ls react` shows no invalid react-reconciler edge and an RNTL render test passes
 - [x] P0-F4 `fix(deps): align react-native-worklets with expo-modules-core peer range` — found during P0-F3 — expo-router pulls @expo/ui and react-native-reanimated 4.7, which resolve react-native-worklets 0.13.0; expo-modules-core 57.0.18 declares optional peer `^0.7.4 || ^0.8.0 || ^0.9.0 || ^0.10.0`. `npm ci` succeeds, `npm install` prints one ERESOLVE warning, `npm ls` reports it invalid — done when: `npm ls --all` reports no invalid edges
+- [ ] P0-F5: i18n lint doesn't catch strings in object literals defined
+      outside components (e.g. const options = [{ label: 'Wet' }]).
+      Blocks nothing now. Revisit at P1-07/P1-08, which are the first
+      tasks that will use that pattern — at that point there's a concrete
+      case to test a targeted rule against (check `label` properties on
+      object literals, not the blanket strict mode that flags style values).
+- [ ] P0-F6: no automated secret detection. Real credentials reached
+      .env.example and sat in git history from P0-01 to P0-08 without
+      anything catching it. Add gitleaks (or similar) to the pre-commit
+      hook and to CI, so a key-shaped string can't be committed. Do this
+      before P2-04, which is when auth work starts handling real keys
+      routinely.
 - [ ] P0-F7 `fix(config): move splash to expo-splash-screen plugin, drop newArchEnabled` — found during P0-09 — `npx expo-doctor` fails the app config schema check on SDK 57: top-level `splash` and `newArchEnabled` are no longer valid keys, so the splash settings are silently ignored in native builds (new arch is always on, so that key is a no-op). Needs `npx expo install expo-splash-screen` and the plugin config — done when: `npx expo-doctor` reports 21/21 checks passed and the dev build shows the #F4EFE7 splash
+- [ ] P0-F8 iOS EAS development build deferred — found during P0-09 — blocked on Code Designs
+      Apple Developer Program enrollment (D-U-N-S number requested from D&B
+      directly, pending, no fixed ETA). eas.json's development/preview/
+      production profiles are already configured for iOS in P0-09, so no
+      code changes are needed later — just running `eas device:create` and
+      `eas build --profile development --platform ios` once the account
+      exists. Revisit before any feature that needs a custom dev client on
+      iOS (background sync, push notification delivery), or before TestFlight/
+      App Store submission — whichever comes first. Until then, iOS testing
+      continues through Expo Go as it has since P0-01.
 
 ---
 
