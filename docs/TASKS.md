@@ -30,6 +30,7 @@ Gate to move on: dev build installed on an iPhone and an Android.
 ### Found while working (P0)
 
 - [x] P0-F1 `chore: untrack node_modules and .expo, ignore them` — found during P0-02 — done when: `git ls-files node_modules .expo` is empty
+- [x] P0-F2 `fix(deps): pin react-dom to 19.2.3 to match react` — found during P0-02 — expo-router peers resolved react-dom 19.3.0 (needs react ^19.3.0), so any second `npm install` failed with ERESOLVE — done when: `npm install` runs twice without ERESOLVE
 
 ---
 
