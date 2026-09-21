@@ -46,7 +46,7 @@
     "format:check": "prettier --check .",
     "prepare": "husky",
     "test": "jest",
-    "test:tz": "for tz in Europe/Nicosia UTC America/New_York; do echo \"TZ=$tz\"; TZ=$tz jest --ci || exit 1; done"
+    "test:tz": "for tz in Europe/Nicosia UTC America/New_York; do echo \"TZ=$tz\"; TZ=$tz EXPECTED_TZ=$tz jest --ci --verbose || exit 1; done"
   },
   "private": true,
   "lint-staged": {

@@ -10,6 +10,9 @@ import {
 // Every function takes tz explicitly. `npm run test:tz` re-runs this file under
 // TZ=Europe/Nicosia, UTC and America/New_York to prove the process timezone
 // never leaks in (SDD 6.6).
+// Shown in every test name so CI logs say which process TZ each run used.
+const PROCESS_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 const NICOSIA = 'Europe/Nicosia';
 const NEW_YORK = 'America/New_York';
 const UTC = 'UTC';
@@ -17,7 +20,7 @@ const UTC = 'UTC';
 const HOUR = 3_600_000;
 const at = (iso: string) => Date.parse(iso);
 
-describe('toWallClock and fromWallClock', () => {
+describe(`[process TZ ${PROCESS_TZ}] toWallClock and fromWallClock`, () => {
   it.each([
     [NICOSIA, '2026-07-01T09:15:00Z', { year: 2026, month: 7, day: 1, hour: 12, minute: 15 }],
     [NEW_YORK, '2026-07-01T09:15:00Z', { year: 2026, month: 7, day: 1, hour: 5, minute: 15 }],
@@ -49,7 +52,7 @@ describe('toWallClock and fromWallClock', () => {
   });
 });
 
-describe('Nicosia DST end, 25 October 2026 (04:00 EEST back to 03:00 EET)', () => {
+describe(`[process TZ ${PROCESS_TZ}] Nicosia DST end, 25 October 2026 (04:00 EEST back to 03:00 EET)`, () => {
   const firstPass = at('2026-10-25T00:30:00Z'); // 03:30 EEST, UTC+3
   const secondPass = at('2026-10-25T01:30:00Z'); // 03:30 EET, UTC+2
   const repeated = { year: 2026, month: 10, day: 25, hour: 3, minute: 30 };
@@ -103,7 +106,7 @@ describe('Nicosia DST end, 25 October 2026 (04:00 EEST back to 03:00 EET)', () =
   });
 });
 
-describe('DST gaps', () => {
+describe(`[process TZ ${PROCESS_TZ}] DST gaps`, () => {
   it('resolves a skipped Nicosia time (29 March 2026, 03:00 to 04:00) to just after the gap', () => {
     const skipped = { year: 2026, month: 3, day: 29, hour: 3, minute: 30 };
     const instant = fromWallClock(skipped, NICOSIA);
@@ -118,7 +121,7 @@ describe('DST gaps', () => {
   });
 });
 
-describe('dayBucket uses local midnight, not UTC midnight', () => {
+describe(`[process TZ ${PROCESS_TZ}] dayBucket uses local midnight, not UTC midnight`, () => {
   it('keeps a New York evening event on the local day although the UTC date differs', () => {
     const event = at('2026-06-09T23:00:00Z'); // 19:00 EDT, 9 June
     const now = at('2026-06-10T03:00:00Z'); // 23:00 EDT, 9 June; UTC already 10 June
