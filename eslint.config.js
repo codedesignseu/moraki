@@ -2,6 +2,7 @@
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 const prettierConfig = require('eslint-config-prettier/flat');
+const i18next = require('eslint-plugin-i18next');
 
 // Style properties whose numeric values are lengths or type sizes.
 const STYLE_NUMBER_KEYS =
@@ -72,6 +73,33 @@ module.exports = defineConfig([
           selector: `Property[key.name=${STYLE_NUMBER_KEYS}] > UnaryExpression > Literal`,
           message:
             'Pixel number outside src/ui/tokens.ts. Use theme.spacing, radius, size or text.',
+        },
+      ],
+    },
+  },
+  {
+    // CLAUDE.md rule 9: no user-facing string outside src/i18n. Checks JSX text and
+    // the props that carry copy; props like accessibilityRole="button" are not copy.
+    files: ['app/**/*.{ts,tsx}', 'src/**/*.{ts,tsx}'],
+    ignores: [
+      '**/*.test.{ts,tsx}',
+      // Developer-only screens labelled with token and primitive names.
+      'app/tokens.tsx',
+      'src/ui/showcase/**',
+    ],
+    plugins: { i18next },
+    rules: {
+      'i18next/no-literal-string': [
+        'error',
+        {
+          mode: 'jsx-only',
+          'jsx-attributes': {
+            include: [
+              '^(label|title|text|unit|placeholder|message|closeLabel)$',
+              '^accessibility(Label|Hint)$',
+            ],
+          },
+          message: 'User-facing string outside src/i18n. Add it to src/i18n/en.json and use t().',
         },
       ],
     },
