@@ -20,7 +20,7 @@ Gate to move on: dev build installed on an iPhone and an Android.
 - [x] P0-01 `chore: init expo app with typescript strict, expo-router, CLAUDE.md` — depends: none — done when: `npx expo start` runs, strict TS, engineering rules (SDD section 14) copied into CLAUDE.md
 - [x] P0-02 `chore: add eslint, prettier, husky, lint-staged, commitlint` — depends: P0-01 — done when: pre-commit blocks a lint error
 - [x] P0-03 `chore: add jest with rntl and a sample domain test` — depends: P0-01 — done when: `npm test` green
-- [ ] P0-04 `ci: github actions for lint, typecheck, test` — depends: P0-02, P0-03 — done when: PR shows three green checks
+- [x] P0-04 `ci: github actions for lint, typecheck, test` — depends: P0-02, P0-03 — done when: PR shows three green checks
 - [ ] P0-05 `feat(ui): design tokens, light and night themes, typography scale` — depends: P0-01 — done when: tokens file, theme provider, one sample screen in both themes
 - [ ] P0-06 `feat(ui): primitives Card, Sheet, Stepper, Segmented, Chip, Button, TimerText` — depends: P0-05 — done when: storybook-style demo route renders all primitives
 - [ ] P0-07 `feat(i18n): i18next with en locale and typed keys` — depends: P0-01 — done when: no hardcoded strings lint rule on
