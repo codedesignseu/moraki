@@ -32,7 +32,7 @@ Gate to move on: dev build installed on an iPhone and an Android.
 - [x] P0-F1 `chore: untrack node_modules and .expo, ignore them` — found during P0-02 — done when: `git ls-files node_modules .expo` is empty
 - [x] P0-F2 `fix(deps): pin react-dom to 19.2.3 to match react` — found during P0-02 — expo-router peers resolved react-dom 19.3.0 (needs react ^19.3.0), so any second `npm install` failed with ERESOLVE — done when: `npm install` runs twice without ERESOLVE
 - [x] P0-F3 `fix(deps): pin test-renderer to ~1.2.0 so react-reconciler matches react 19.2` — found during P0-04 — RNTL 14 resolves test-renderer 1.3.0, whose react-reconciler 0.34 needs react ^19.3.0 (npm ci warns ERESOLVE, doesn't fail); react-reconciler 0.33 in test-renderer 1.2 wants ^19.2.0 — done when: `npm ls react` shows no invalid react-reconciler edge and an RNTL render test passes
-- [ ] P0-F4 `fix(deps): align react-native-worklets with expo-modules-core peer range` — found during P0-F3 — expo-router pulls @expo/ui and react-native-reanimated 4.7, which resolve react-native-worklets 0.13.0; expo-modules-core 57.0.18 declares optional peer `^0.7.4 || ^0.8.0 || ^0.9.0 || ^0.10.0`. `npm ci` succeeds, `npm install` prints one ERESOLVE warning, `npm ls` reports it invalid — done when: `npm ls --all` reports no invalid edges
+- [x] P0-F4 `fix(deps): align react-native-worklets with expo-modules-core peer range` — found during P0-F3 — expo-router pulls @expo/ui and react-native-reanimated 4.7, which resolve react-native-worklets 0.13.0; expo-modules-core 57.0.18 declares optional peer `^0.7.4 || ^0.8.0 || ^0.9.0 || ^0.10.0`. `npm ci` succeeds, `npm install` prints one ERESOLVE warning, `npm ls` reports it invalid — done when: `npm ls --all` reports no invalid edges
 
 ---
 
