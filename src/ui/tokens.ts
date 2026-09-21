@@ -23,6 +23,8 @@ export const colors = {
     // Form validation only (a value out of range, a required choice missing).
     // Muted clay, not red. Never used to colour a health number (SDD 12.3).
     invalid: '#9A4B3D',
+    // Dims the screen behind a sheet. Not a text or UI colour.
+    scrim: '#2B262166',
     // Outline of a control when it is the only visual cue (3:1 non-text).
     borderStrong: '#857B6E',
     // Decorative separators only; never the sole indicator of anything.
@@ -41,6 +43,7 @@ export const colors = {
     onAccent: '#1C1814',
     surfacePressed: '#332D27',
     invalid: '#DDA08F',
+    scrim: '#0E0C0AB3',
     borderStrong: '#7A7064',
     divider: '#352F29',
   },
