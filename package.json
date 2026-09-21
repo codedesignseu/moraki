@@ -17,11 +17,15 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
+    "@testing-library/react-native": "^14.0.1",
+    "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~57.0.2",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
+    "jest": "~29.7.0",
+    "jest-expo": "~57.0.5",
     "lint-staged": "^17.5.1",
     "prettier": "^3.9.8",
     "typescript": "~6.0.3"
@@ -34,7 +38,8 @@
     "lint": "expo lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "jest"
   },
   "private": true,
   "lint-staged": {
@@ -45,5 +50,8 @@
     "*.{json,md,yml,yaml,css}": [
       "prettier --write"
     ]
+  },
+  "jest": {
+    "preset": "jest-expo"
   }
 }
