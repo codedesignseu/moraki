@@ -20,7 +20,7 @@ Gate to move on: dev build installed on an iPhone and an Android.
 - [x] P0-01 `chore: init expo app with typescript strict, expo-router, CLAUDE.md` — depends: none — done when: `npx expo start` runs, strict TS, engineering rules (SDD section 14) copied into CLAUDE.md
 - [x] P0-02 `chore: add eslint, prettier, husky, lint-staged, commitlint` — depends: P0-01 — done when: pre-commit blocks a lint error
 - [x] P0-03 `chore: add jest with rntl and a sample domain test` — depends: P0-01 — done when: `npm test` green
-- [ ] P0-04 `ci: github actions for lint, typecheck, test` — depends: P0-02, P0-03 — done when: PR shows three green checks
+- [x] P0-04 `ci: github actions for lint, typecheck, test` — depends: P0-02, P0-03 — done when: PR shows three green checks
 - [ ] P0-05 `feat(ui): design tokens, light and night themes, typography scale` — depends: P0-01 — done when: tokens file, theme provider, one sample screen in both themes
 - [ ] P0-06 `feat(ui): primitives Card, Sheet, Stepper, Segmented, Chip, Button, TimerText` — depends: P0-05 — done when: storybook-style demo route renders all primitives
 - [ ] P0-07 `feat(i18n): i18next with en locale and typed keys` — depends: P0-01 — done when: no hardcoded strings lint rule on
@@ -31,6 +31,7 @@ Gate to move on: dev build installed on an iPhone and an Android.
 
 - [x] P0-F1 `chore: untrack node_modules and .expo, ignore them` — found during P0-02 — done when: `git ls-files node_modules .expo` is empty
 - [x] P0-F2 `fix(deps): pin react-dom to 19.2.3 to match react` — found during P0-02 — expo-router peers resolved react-dom 19.3.0 (needs react ^19.3.0), so any second `npm install` failed with ERESOLVE — done when: `npm install` runs twice without ERESOLVE
+- [ ] P0-F3 `fix(deps): pin test-renderer to ~1.2.0 so react-reconciler matches react 19.2` — found during P0-04 — RNTL 14 resolves test-renderer 1.3.0, whose react-reconciler 0.34 needs react ^19.3.0 (npm ci warns ERESOLVE, doesn't fail); react-reconciler 0.33 in test-renderer 1.2 wants ^19.2.0 — done when: `npm ls react` shows no invalid react-reconciler edge and an RNTL render test passes
 
 ---
 
