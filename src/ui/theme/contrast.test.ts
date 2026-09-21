@@ -12,6 +12,15 @@ const textPairs: [ColorName, ColorName][] = [
     backgrounds.map((bg): [ColorName, ColorName] => [fg, bg]),
   ),
   ['onAccent', 'accent'],
+  ['onAccent', 'accentPressed'],
+  ...(['text', 'textMuted', 'accent'] as const).map((fg): [ColorName, ColorName] => [
+    fg,
+    'surfacePressed',
+  ]),
+  ...(['background', 'surface', 'surfaceSunken'] as const).map((bg): [ColorName, ColorName] => [
+    'invalid',
+    bg,
+  ]),
 ];
 
 // Control outlines that are the only cue for a control's edge.
@@ -19,6 +28,8 @@ const nonTextPairs: [ColorName, ColorName][] = [
   ['borderStrong', 'background'],
   ['borderStrong', 'surface'],
   ['borderStrong', 'surfaceSunken'],
+  ['accent', 'surface'],
+  ['invalid', 'surface'],
 ];
 
 describe('contrastRatio', () => {

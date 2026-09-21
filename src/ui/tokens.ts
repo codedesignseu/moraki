@@ -16,8 +16,15 @@ export const colors = {
     text: '#2B2621',
     textMuted: '#5E564C',
     accent: '#4A6550',
+    accentPressed: '#3C5442',
     accentSubtle: '#DCE4D9',
     onAccent: '#FAF6F0',
+    surfacePressed: '#E3DBCE',
+    // Form validation only (a value out of range, a required choice missing).
+    // Muted clay, not red. Never used to colour a health number (SDD 12.3).
+    invalid: '#9A4B3D',
+    // Dims the screen behind a sheet. Not a text or UI colour.
+    scrim: '#2B262166',
     // Outline of a control when it is the only visual cue (3:1 non-text).
     borderStrong: '#857B6E',
     // Decorative separators only; never the sole indicator of anything.
@@ -31,8 +38,12 @@ export const colors = {
     text: '#DDD2C2',
     textMuted: '#AFA392',
     accent: '#9BB59F',
+    accentPressed: '#B3C9B6',
     accentSubtle: '#2E3830',
     onAccent: '#1C1814',
+    surfacePressed: '#332D27',
+    invalid: '#DDA08F',
+    scrim: '#0E0C0AB3',
     borderStrong: '#7A7064',
     divider: '#352F29',
   },
@@ -63,6 +74,8 @@ export const radius = {
 export const size = {
   /** Minimum touch target, SDD section 8. Use for min height and width, never height. */
   touchTarget: 48,
+  /** Controls used one-handed while holding a baby (Stepper +/-). */
+  touchTargetLarge: 64,
   borderThin: 1,
   borderThick: 2,
 } as const;
@@ -73,6 +86,8 @@ export const size = {
  * Family is the platform system font: no font name in the app.
  */
 export const typography = {
+  // Elapsed-time display. Tabular figures keep every digit the same width.
+  timer: { fontSize: 56, lineHeight: 64, fontWeight: '500', fontVariant: ['tabular-nums'] },
   display: { fontSize: 34, lineHeight: 42, fontWeight: '600' },
   title: { fontSize: 24, lineHeight: 30, fontWeight: '600' },
   heading: { fontSize: 20, lineHeight: 26, fontWeight: '600' },
