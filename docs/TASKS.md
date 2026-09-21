@@ -40,7 +40,7 @@ Gate to move on: dev build installed on an iPhone and an Android.
 
 Gate to move on: you use it alone for 3 days without paper backup.
 
-- [ ] P1-01 `feat(domain): event types, zod payload schemas, activity module registry` — depends: P0-03 — done when: every type in SDD 4.1 has a schema with valid and invalid tests, and the registry completeness test in SDD 15.3 passes
+- [x] P1-01 `feat(domain): event types, zod payload schemas, activity module registry` — depends: P0-03 — done when: every type in SDD 4.1 has a schema with valid and invalid tests, and the registry completeness test in SDD 15.3 passes
 - [ ] P1-02 `feat(domain): time utils (duration format, day buckets, tz safe)` — depends: P0-03 — done when: tests pass under three TZ values and across the 25 Oct DST change
 - [ ] P1-03 `feat(db): drizzle sqlite schema, local migrations, outbox, meta` — depends: P1-01 — done when: migrations run on fresh install and on upgrade
 - [ ] P1-04 `feat(db): events repository with insert, patch, softDelete writing outbox in one transaction` — depends: P1-03 — done when: tests prove event and outbox rows commit or roll back together
@@ -60,6 +60,9 @@ Gate to move on: you use it alone for 3 days without paper backup.
 - [ ] P1-18 `test(e2e): maestro flows for log feed, log diaper, undo, edit` — depends: P1-12 — done when: flows pass on both simulators in CI or locally
 
 ### Found while working (P1)
+
+- [ ] P1-F1 decide the unknown-key policy for event payloads before sync pull — found during P1-01 — the P1-01 schemas use Zod's default `z.object`, which strips unknown keys. When a newer app version adds an optional payload field, an older phone that pulls, edits and pushes that event would silently drop the field. Pick strip, passthrough (`z.looseObject`) or reject per path (write vs pull) and test it — done when: a test shows an event carrying an unknown payload key survives pull, edit and push unchanged (or is rejected, whichever is decided), revisit at P1-04 at the latest
+- [ ] P1-F2 round-trip test fixture per activity module has no owner — found during P1-01 — SDD 15.3 requires a round-trip test fixture per activity module, but no task in the current build plan explicitly owns adding it. The completeness test (src/domain/activities/completeness.test.ts) checks schema and i18n key presence only, per P1-01's scope. Needs a home — likely alongside whichever task last touches each module's shape, or as its own pass once all modules have LogSheet/summarize (after P3-12). Revisit when scoping P1-11 or P3-13, whichever comes first.
 
 ---
 

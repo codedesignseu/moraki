@@ -1,5 +1,37 @@
 {
   "app": {
     "name": "Moraki"
+  },
+  "activity": {
+    "feed_bottle": {
+      "label": "Bottle"
+    },
+    "feed_breast": {
+      "label": "Breastfeed"
+    },
+    "diaper": {
+      "label": "Diaper"
+    },
+    "sleep": {
+      "label": "Sleep"
+    },
+    "pump": {
+      "label": "Pump"
+    },
+    "stock_adjust": {
+      "label": "Stock adjustment"
+    },
+    "health": {
+      "label": "Health note"
+    },
+    "medication": {
+      "label": "Medication"
+    },
+    "weight": {
+      "label": "Weight"
+    },
+    "appointment": {
+      "label": "Appointment"
+    }
   }
 }

@@ -15,7 +15,8 @@
     "react-i18next": "^17.0.14",
     "react-native": "0.86.3",
     "react-native-safe-area-context": "~5.7.0",
-    "react-native-screens": "~4.26.0"
+    "react-native-screens": "~4.26.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.3",
