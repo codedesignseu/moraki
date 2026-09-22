@@ -159,15 +159,12 @@ describe('deleting an entry (P1-12)', () => {
     expect(allOutbox().at(-1)).toMatchObject({ op: 'delete', notBefore: NOW + UNDO_WINDOW_MS });
   });
 
-  it('deletes both parts of a mixed feed together (not editable until part C2), and Undo restores both', async () => {
+  it('deletes both parts of a mixed feed together, and Undo restores both', async () => {
     const [a, b] = h.repo.insertGroup([
       { type: 'feed_bottle', occurredAt: NOW - HOUR, payload: { ml: 60, milk: 'formula' } },
       { type: 'feed_breast', occurredAt: NOW - HOUR, payload: { side: 'left' } },
     ]);
     await openFromHistory(a!.id);
-    expect(
-      screen.getByText('Editing this kind of entry comes later. You can delete it.'),
-    ).toBeOnTheScreen();
     await press('Delete entry');
     expect(h.repo.list()).toEqual([]);
     await press('Undo');
@@ -177,5 +174,141 @@ describe('deleting an entry (P1-12)', () => {
         .map((e) => e.id)
         .sort(),
     ).toEqual([a!.id, b!.id].sort());
+  });
+});
+
+describe('editing feeds and sleeps (P1-12 part C2)', () => {
+  const step = async (label: string, actionName: 'increment' | 'decrement', times = 1) => {
+    for (let i = 0; i < times; i += 1) {
+      await fireEvent(screen.getByLabelText(label), 'accessibilityAction', {
+        nativeEvent: { actionName },
+      });
+    }
+  };
+
+  it('edits a bottle feed amount and milk, and Undo restores it exactly', async () => {
+    const { id } = h.repo.insert({
+      type: 'feed_bottle',
+      occurredAt: NOW - HOUR,
+      payload: { ml: 90, milk: 'formula' },
+    });
+    const before = row(id);
+    await openFromHistory(id);
+    await step('Amount', 'increment');
+    await fireEvent.press(
+      within(screen.getByLabelText('Milk')).getByRole('radio', { name: 'Breast milk' }),
+    );
+    await press('Save');
+
+    expect(h.repo.get(id)?.payload).toEqual({ ml: 100, milk: 'breast' });
+    await press('Undo');
+    expect(row(id)).toEqual({ ...before, updatedBy: before!.updatedBy });
+  });
+
+  it("keeps a logged feed's kind: the kind selector is disabled", async () => {
+    const { id } = h.repo.insert({
+      type: 'feed_bottle',
+      occurredAt: NOW - HOUR,
+      payload: { ml: 90, milk: 'formula' },
+    });
+    await openFromHistory(id);
+    const kinds = within(screen.getByLabelText('Feed type'));
+    for (const name of ['Bottle', 'Breast', 'Both']) {
+      expect(kinds.getByRole('radio', { name })).toBeDisabled();
+    }
+    await fireEvent.press(kinds.getByRole('radio', { name: 'Breast' }));
+    expect(screen.queryByLabelText('Fed for')).toBeNull();
+  });
+
+  it('edits both parts of a mixed feed in one save, and one Undo restores both exactly', async () => {
+    const [bottle, breast] = h.repo.insertGroup([
+      { type: 'feed_bottle', occurredAt: NOW - HOUR, payload: { ml: 60, milk: 'formula' } },
+      {
+        type: 'feed_breast',
+        occurredAt: NOW - HOUR,
+        endedAt: NOW - HOUR + 15 * MIN,
+        payload: { side: 'left' },
+      },
+    ]);
+    const before = [row(bottle!.id), row(breast!.id)];
+    await openFromHistory(breast!.id);
+    expect(screen.getByLabelText('Fed for')).toHaveAccessibilityValue({ now: 15 });
+    await step('Amount', 'increment', 2);
+    await fireEvent.press(
+      within(screen.getByLabelText('Side')).getByRole('radio', { name: 'Right' }),
+    );
+    await step('Fed for', 'increment');
+    await step('Move time', 'decrement', 2);
+    await press('Save');
+
+    const start = NOW - HOUR - 10 * MIN;
+    expect(h.repo.get(bottle!.id)).toMatchObject({
+      occurredAt: start,
+      payload: { ml: 80, milk: 'formula' },
+    });
+    expect(h.repo.get(breast!.id)).toMatchObject({
+      occurredAt: start,
+      endedAt: start + 20 * MIN,
+      payload: { side: 'right' },
+    });
+    expect(toast()).toHaveTextContent('Entry updated');
+
+    await press('Undo');
+    expect([row(bottle!.id), row(breast!.id)].map((r) => r?.payload)).toEqual(
+      before.map((r) => r?.payload),
+    );
+    expect([row(bottle!.id), row(breast!.id)].map((r) => [r?.occurredAt, r?.endedAt])).toEqual(
+      before.map((r) => [r?.occurredAt, r?.endedAt]),
+    );
+  });
+
+  it("changes a breastfeed's duration, and today's breastfeeding time follows", async () => {
+    const { id } = h.repo.insert({
+      type: 'feed_breast',
+      occurredAt: NOW - HOUR,
+      endedAt: NOW - HOUR + 15 * MIN,
+      payload: { side: 'left' },
+    });
+    await openFromHistory(id);
+    await step('Fed for', 'increment', 3);
+    await press('Save');
+    expect(h.repo.get(id)).toMatchObject({
+      occurredAt: NOW - HOUR,
+      endedAt: NOW - HOUR + 30 * MIN,
+    });
+    await press(/Home/);
+    expect(screen.getByLabelText('Breastfeeding: 30m')).toBeOnTheScreen();
+  });
+
+  it("moves a finished sleep's start and changes how long it lasted", async () => {
+    const { id } = h.repo.insert({
+      type: 'sleep',
+      occurredAt: NOW - 3 * HOUR,
+      endedAt: NOW - 2 * HOUR,
+      payload: {},
+    });
+    const before = row(id);
+    await openFromHistory(id);
+    expect(screen.getByText('Ended: 10:00')).toBeOnTheScreen();
+    await step('Move start', 'decrement', 6);
+    await step('Slept for', 'increment', 2);
+    expect(screen.getByText('Started: Wed 1 Jul, 08:30')).toBeOnTheScreen();
+    expect(screen.getByText('Ended: 09:40')).toBeOnTheScreen();
+    await press('Save');
+    expect(h.repo.get(id)).toMatchObject({
+      occurredAt: NOW - 3 * HOUR - 30 * MIN,
+      endedAt: NOW - 3 * HOUR + 40 * MIN,
+    });
+    await press('Undo');
+    expect(row(id)).toEqual({ ...before, updatedBy: before!.updatedBy });
+  });
+
+  it("won't move a running sleep's start into the future", async () => {
+    const { id } = h.repo.insert({ type: 'sleep', occurredAt: NOW - 20 * MIN, payload: {} });
+    await openFromHistory(id);
+    await step('Move start', 'increment', 10);
+    expect(screen.getByText('Started: Wed 1 Jul, 12:00')).toBeOnTheScreen();
+    await press('Save');
+    expect(h.repo.get(id)).toMatchObject({ occurredAt: NOW, endedAt: null });
   });
 });

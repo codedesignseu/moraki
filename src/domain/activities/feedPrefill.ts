@@ -71,3 +71,33 @@ export function feedPrefill(
         : FIRST_FEED_DEFAULTS.breastMinutes,
   };
 }
+
+/** A logged feed (one event, or a mixed feed's two) as the feed sheet edits it (P1-12). */
+export type FeedEditTarget = {
+  form: FeedPrefill;
+  /** When the feed started: the earliest of its parts. */
+  start: number;
+  bottle: Event<FeedBottlePayload> | null;
+  breast: Event<FeedBreastPayload> | null;
+};
+
+/** Reads a feed's live parts back into the sheet's form, or null if it has none. */
+export function feedEditTarget(parts: readonly Event<unknown>[]): FeedEditTarget | null {
+  const live = parts.filter((e) => e.deletedAt === null).filter(isFeed);
+  const bottle = live.find((e): e is Event<FeedBottlePayload> => !isBreastFeed(e)) ?? null;
+  const breast = live.find(isBreastFeed) ?? null;
+  if (!bottle && !breast) return null;
+  const duration = breast ? breastDurationMs(breast) : 0;
+  return {
+    form: {
+      kind: bottle && breast ? 'mixed' : breast ? 'breast' : 'bottle',
+      ml: bottle?.payload.ml ?? FIRST_FEED_DEFAULTS.ml,
+      milk: bottle?.payload.milk ?? FIRST_FEED_DEFAULTS.milk,
+      side: breast?.payload.side ?? FIRST_FEED_DEFAULTS.side,
+      breastMinutes: duration > 0 ? toStepperMinutes(duration) : FIRST_FEED_DEFAULTS.breastMinutes,
+    },
+    start: Math.min(...live.map((e) => e.occurredAt)),
+    bottle,
+    breast,
+  };
+}

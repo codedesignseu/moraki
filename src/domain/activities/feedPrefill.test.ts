@@ -1,5 +1,5 @@
 import type { Event, EventType } from './contract';
-import { feedPrefill, FIRST_FEED_DEFAULTS } from './feedPrefill';
+import { feedEditTarget, feedPrefill, FIRST_FEED_DEFAULTS } from './feedPrefill';
 
 let n = 0;
 function ev<P>(
@@ -94,5 +94,46 @@ describe('feedPrefill', () => {
 
   it('falls back to 15 minutes when the last breastfeed has no duration', () => {
     expect(feedPrefill([ev('feed_breast', 0, { side: 'left' })], null).breastMinutes).toBe(15);
+  });
+});
+
+describe('feedEditTarget', () => {
+  const min = 60_000;
+
+  it('reads a mixed feed back into the form, starting at its earliest part', () => {
+    const parts = [
+      ev('feed_bottle', 10 * min, { ml: 70, milk: 'breast' }, { groupId: 'g' }),
+      ev('feed_breast', 5 * min, { side: 'right' }, { groupId: 'g', endedAt: 25 * min }),
+    ];
+    const target = feedEditTarget(parts);
+    expect(target?.form).toEqual({
+      kind: 'mixed',
+      ml: 70,
+      milk: 'breast',
+      side: 'right',
+      breastMinutes: 20,
+    });
+    expect(target?.start).toBe(5 * min);
+    expect(target?.bottle?.id).toBe(parts[0]?.id);
+    expect(target?.breast?.id).toBe(parts[1]?.id);
+  });
+
+  it('reads a bottle-only feed, filling breast fields with defaults', () => {
+    const target = feedEditTarget([ev('feed_bottle', 0, { ml: 110, milk: 'formula' })]);
+    expect(target?.form).toEqual({
+      kind: 'bottle',
+      ml: 110,
+      milk: 'formula',
+      side: FIRST_FEED_DEFAULTS.side,
+      breastMinutes: FIRST_FEED_DEFAULTS.breastMinutes,
+    });
+    expect(target?.breast).toBeNull();
+  });
+
+  it('ignores deleted parts, and returns null when nothing is left', () => {
+    expect(
+      feedEditTarget([ev('feed_bottle', 0, { ml: 90, milk: 'formula' }, { deletedAt: 1 })]),
+    ).toBeNull();
+    expect(feedEditTarget([ev('diaper', 0, { kind: 'wet' })])).toBeNull();
   });
 });
