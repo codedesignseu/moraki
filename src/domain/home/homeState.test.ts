@@ -102,6 +102,39 @@ describe('selectHomeState', () => {
     expect(state.today).toMatchObject({ feeds: 1, ml: 60 });
   });
 
+  it('keeps a combined feed as one feed with separate bottle mL and breastfeeding totals', () => {
+    const state = home([
+      bottle(NOW - HOUR, 60, { groupId: 'g1' }),
+      ev(
+        'feed_breast',
+        NOW - HOUR,
+        { side: 'left' },
+        { groupId: 'g1', endedAt: NOW - HOUR + 12 * MIN },
+      ),
+    ]);
+    expect(state.today).toMatchObject({ feeds: 1, ml: 60, breastMs: 12 * MIN });
+  });
+
+  it('adds breastfeeding time across feeds without mixing it into mL', () => {
+    const state = home([
+      ev('feed_breast', NOW - 3 * HOUR, { side: 'left' }, { endedAt: NOW - 3 * HOUR + 10 * MIN }),
+      // Per-side seconds win over start and end: pauses aren't feeding time.
+      ev(
+        'feed_breast',
+        NOW - 2 * HOUR,
+        { side: 'both', left_s: 300, right_s: 420 },
+        { endedAt: NOW - HOUR },
+      ),
+      bottle(NOW - HOUR, 90),
+    ]);
+    expect(state.today).toMatchObject({ feeds: 3, ml: 90, breastMs: 10 * MIN + 12 * MIN });
+  });
+
+  it('counts a breast feed with no duration recorded as 0 breastfeeding time, not a guess', () => {
+    const state = home([ev('feed_breast', NOW - HOUR, { side: 'right' })]);
+    expect(state.today).toMatchObject({ feeds: 1, ml: 0, breastMs: 0 });
+  });
+
   it('today starts at local midnight, not 24 hours ago or UTC midnight', () => {
     // Local midnight on 25 Oct is 21:00Z on the 24th (EEST); this is a 25 hour day.
     const justAfterMidnight = bottle(Date.parse('2026-10-24T21:00:00Z'), 30);

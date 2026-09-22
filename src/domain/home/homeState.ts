@@ -30,8 +30,18 @@ export type HomeState = {
   /** UTC epoch ms. */
   reminderAt: number | null;
   secondReminderAt: number | null;
-  /** feeds, ml, wet and dirty since local midnight; sleep over the last 24 hours. */
-  today: { feeds: number; ml: number; wet: number; dirty: number; sleepMs24h: number };
+  /**
+   * feeds, bottle ml, breastfeeding time, wet and dirty since local midnight;
+   * sleep over the last 24 hours. ml and breastMs are separate totals.
+   */
+  today: {
+    feeds: number;
+    ml: number;
+    breastMs: number;
+    wet: number;
+    dirty: number;
+    sleepMs24h: number;
+  };
   activeSleep: Event<SleepPayload> | null;
   /** The most recently logged live entry. */
   lastEntry: { type: EventType; by: string; at: number } | null;
@@ -91,6 +101,7 @@ export function selectHomeState(
     today: {
       feeds: new Set(stats.feedIds).size,
       ml: stats.ml,
+      breastMs: stats.breastMs,
       wet: stats.wet,
       dirty: stats.dirty,
       sleepMs24h,
