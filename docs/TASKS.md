@@ -28,6 +28,9 @@ to it whenever a task's done-when can only be met on a device.
 - [ ] P1-09: start a sleep, force-quit the app, reopen it a few minutes later,
       and check the running sleep card shows the right time and Stop works.
       P1-09 stays `in_progress` until this passes.
+- [ ] P1-11: with 2,000 events in the database, scroll the history timeline on the
+      Android phone and check it holds 60fps (Android GPU rendering profile or
+      the performance monitor). P1-11 stays `in_progress` until this passes.
 
 ---
 
@@ -68,7 +71,7 @@ Gate to move on: you use it alone for 3 days without paper backup.
 - [x] P1-08 `feat(log): diaper sheet, one tap save` — depends: P1-04 — done when: wet, dirty, both each save in one tap from the sheet
 - [ ] P1-09 `feat(log): sleep start, stop, manual entry, running sleep card` — depends: P1-04 — done when: running sleep survives app kill — status: in_progress (kill simulated in tests by reopening the stored database from scratch; a real kill on a device with the new dev build is still to verify)
 - [x] P1-10 `feat(log): health note and medication sheets` — depends: P1-04 — done when: temp range validated, note length capped
-- [ ] P1-11 `feat(history): timeline grouped by day with filters` — depends: P1-04 — done when: 2,000 events scroll at 60fps on the Android test phone
+- [ ] P1-11 `feat(history): timeline grouped by day with filters` — depends: P1-04 — done when: 2,000 events scroll at 60fps on the Android test phone — status: in_progress
 - [ ] P1-12 `feat(entry): edit sheet and delete, undo toast on every save` — depends: P1-04, P1-11 — done when: undo within 6s restores exact prior state
 - [ ] P1-13 `feat(domain): reminder computation` — depends: P1-05 — done when: tests for recalculation on new feed, edit of last feed, delete of last feed, second reminder
 - [ ] P1-14 `feat(notifications): permission flow and local scheduler bound to reminder computation` — depends: P1-13, P0-09 — done when: on a real phone: log feed, lock, notification arrives at the right minute, relog moves it
