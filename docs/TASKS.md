@@ -114,7 +114,7 @@ Gate to move on: you use it alone for 3 days without paper backup.
 Gate to move on: two phones in airplane mode log 20 entries each, reconnect, both screens match.
 
 - [x] P2-01 `feat(db-server): migrations for households, memberships, babies, events, invites, seq trigger` — depends: P0-08 — done when: `supabase db reset` builds schema from zero — done: reset from zero applies the one migration; 60 pgTAP tests and a two-session race check pass locally
-- [ ] P2-02 `feat(db-server): rls policies and helper functions` — depends: P2-01 — done when: policies match SDD table 4.3
+- [ ] P2-02 `feat(db-server): rls policies and helper functions` — depends: P2-01 — done when: policies match SDD table 4.3 — status: in_progress
 - [ ] P2-03 `test(db-server): pgtap tests for every rls cell` — depends: P2-02 — done when: a viewer can't insert, a stranger can't select, CI runs them
 - [ ] P2-04 `feat(auth): email otp sign in, session in securestore` — depends: P0-08 — done when: sign in, kill app, still signed in
 - [ ] P2-05 `feat(household): create_household rpc and onboarding flow with baby details` — depends: P2-02, P2-04 — done when: new user ends on home with an empty baby
