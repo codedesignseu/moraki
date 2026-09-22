@@ -48,7 +48,7 @@ describe('history timeline', () => {
       list()
         .getAllByRole('header')
         .map((hdr) => hdr.props.children),
-    ).toEqual(['Today', 'Yesterday', 'Friday, October 23']);
+    ).toEqual(['Today', 'Yesterday', 'Friday 23 October']);
     expect(rowTitles()).toEqual(['Bottle', 'Diaper', 'Bottle', 'Medication']);
     expect(list().getByText('120 mL formula')).toBeOnTheScreen();
     expect(list().getByText('21:00')).toBeOnTheScreen();

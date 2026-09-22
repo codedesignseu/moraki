@@ -5,6 +5,7 @@ import { useEvents, useEventsRepository } from '@/db/react';
 import type { HistoryGroup } from '@/domain/activities';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { selectHistory } from '@/domain/history/historySections';
+import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 import { useNow } from '@/ui/useNow';
@@ -33,7 +34,7 @@ export function useHistory() {
 
   const days = useMemo(() => {
     const me = repository.currentUserId();
-    const dateFormat = new Intl.DateTimeFormat(i18n.language, {
+    const dateFormat = new Intl.DateTimeFormat(dateLocale(i18n.language), {
       weekday: 'long',
       day: 'numeric',
       month: 'long',

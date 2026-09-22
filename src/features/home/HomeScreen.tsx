@@ -58,6 +58,7 @@ export function HomeScreen({ actions }: { actions?: ReactNode }) {
         <View style={s.strip}>
           <Stat label={t('home.today.feeds')} value={home.today.feeds} />
           <Stat label={t('home.today.ml')} value={home.today.ml} />
+          <Stat label={t('home.today.breastfeeding')} value={home.today.breastfeeding} />
           <Stat label={t('home.today.wet')} value={home.today.wet} />
           <Stat label={t('home.today.dirty')} value={home.today.dirty} />
         </View>
@@ -78,7 +79,7 @@ export function HomeScreen({ actions }: { actions?: ReactNode }) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value }: { label: string; value: number | string }) {
   const theme = useTheme();
   const s = styles(theme);
   return (
