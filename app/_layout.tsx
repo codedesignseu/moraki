@@ -1,28 +1,32 @@
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, useColorScheme, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { openAppDatabase } from '@/db/client';
 import { UndoProvider } from '@/db/undo';
+import { NightModeTheme, PreferredNightModeTheme } from '@/features/settings/NightModeTheme';
 import { DatabaseGate } from '@/features/startup/DatabaseGate';
 import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
 import { WEB_STAND_IN } from '@/db/standIn';
+import { DEFAULT_NIGHT_MODE } from '@/domain/time/night';
 import { Notice } from '@/ui/primitives';
-import { ThemeProvider, useTheme } from '@/ui/theme';
+import { useTheme } from '@/ui/theme';
 
 export default function RootLayout() {
-  // Follows the OS for now. The night mode setting (auto 21:00 to 06:00, on, off) is P1-16.
-  const scheme = useColorScheme() === 'dark' ? 'night' : 'light';
+  // The stored night mode is in the database, so the brief startup screen
+  // uses the default (auto) until it opens.
   return (
-    <ThemeProvider scheme={scheme}>
+    <NightModeTheme mode={DEFAULT_NIGHT_MODE}>
       <DatabaseGate open={openAppDatabase}>
-        <UndoProvider>
-          <ThemedStack />
-          <UndoToast />
-        </UndoProvider>
+        <PreferredNightModeTheme>
+          <UndoProvider>
+            <ThemedStack />
+            <UndoToast />
+          </UndoProvider>
+        </PreferredNightModeTheme>
       </DatabaseGate>
-    </ThemeProvider>
+    </NightModeTheme>
   );
 }
 

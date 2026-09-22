@@ -6,6 +6,8 @@ import { openDatabaseSync } from 'expo-sqlite';
 import { newId } from '@/domain/ids';
 
 import migrations from './migrations/migrations';
+import type { AppRepositories } from './react';
+import { createDevicePrefsRepository } from './repositories/devicePrefs';
 import { createEventsRepository } from './repositories/events';
 import * as schema from './schema';
 
@@ -34,9 +36,9 @@ export function createAppEventsRepository(db: LocalDb) {
   });
 }
 
-/** Opens the database, brings it to the latest schema, and returns the repository. */
-export async function openAppDatabase() {
+/** Opens the database, brings it to the latest schema, and returns the repositories. */
+export async function openAppDatabase(): Promise<AppRepositories> {
   const db = openLocalDb();
   await migrateLocalDb(db);
-  return createAppEventsRepository(db);
+  return { events: createAppEventsRepository(db), devicePrefs: createDevicePrefsRepository(db) };
 }

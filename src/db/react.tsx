@@ -2,7 +2,15 @@ import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNod
 
 import type { Event } from '@/domain/activities';
 
+import type {
+  DevicePrefName,
+  DevicePrefsRepository,
+  DevicePrefValue,
+} from './repositories/devicePrefs';
 import type { EventsRepository } from './repositories/events';
+
+/** What the app gets once the database is open and migrated. */
+export type AppRepositories = { events: EventsRepository; devicePrefs: DevicePrefsRepository };
 
 const EventsRepositoryContext = createContext<EventsRepository | null>(null);
 
@@ -37,4 +45,26 @@ export function useEvents(): Event<unknown>[] {
   // `version` is the change signal: re-read after every committed write.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(() => repository.list(), [repository, version]);
+}
+
+const DevicePrefsContext = createContext<DevicePrefsRepository | null>(null);
+
+export function DevicePrefsProvider({
+  repository,
+  children,
+}: {
+  repository: DevicePrefsRepository;
+  children: ReactNode;
+}) {
+  return <DevicePrefsContext.Provider value={repository}>{children}</DevicePrefsContext.Provider>;
+}
+
+/** A per-device setting, live from SQLite, and a setter that stores it. */
+export function useDevicePref<N extends DevicePrefName>(
+  name: N,
+): [DevicePrefValue<N>, (value: DevicePrefValue<N>) => void] {
+  const prefs = useContext(DevicePrefsContext);
+  if (!prefs) throw new Error('useDevicePref needs a DevicePrefsProvider');
+  const value = useSyncExternalStore(prefs.subscribe, () => prefs.get(name));
+  return [value, (next) => prefs.set(name, next)];
 }

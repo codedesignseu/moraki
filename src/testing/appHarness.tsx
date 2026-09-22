@@ -7,6 +7,7 @@ import { randomBytes } from 'node:crypto';
 
 import History from '../../app/(tabs)/history';
 import Home from '../../app/(tabs)/index';
+import Settings from '../../app/(tabs)/settings';
 import TabsLayout from '../../app/(tabs)/_layout';
 import EditEntry from '../../app/entry/[id]';
 import LogDiaper from '../../app/log/diaper';
@@ -14,16 +15,23 @@ import LogFeed from '../../app/log/feed';
 import LogHealth from '../../app/log/health';
 import LogMedication from '../../app/log/medication';
 import LogSleep from '../../app/log/sleep';
-import { EventsRepositoryProvider } from '@/db/react';
+import { DevicePrefsProvider, EventsRepositoryProvider } from '@/db/react';
 import { UndoProvider } from '@/db/undo';
+import {
+  createDevicePrefsRepository,
+  type DevicePrefsRepository,
+} from '@/db/repositories/devicePrefs';
 import { createEventsRepository, type EventsRepository } from '@/db/repositories/events';
 import { createMemoryDb, type MemoryDb } from '@/db/testing/memoryDb';
 import { newId } from '@/domain/ids';
+import { PreferredNightModeTheme } from '@/features/settings/NightModeTheme';
 import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
-import { ThemeProvider } from '@/ui/theme';
 
-export type Harness = { repo: EventsRepository; mem: MemoryDb };
+export type Harness = { repo: EventsRepository; prefs: DevicePrefsRepository; mem: MemoryDb };
+
+// Each harness's prefs, so renderApp(repo) finds the ones on the same database.
+const prefsFor = new WeakMap<EventsRepository, DevicePrefsRepository>();
 
 /** A fresh database and repository, with fake timers starting at `now`. */
 export async function createHarness(now: number, bytes?: Uint8Array): Promise<Harness> {
@@ -34,21 +42,27 @@ export async function createHarness(now: number, bytes?: Uint8Array): Promise<Ha
     now: Date.now,
     newId: (at) => newId(at, () => new Uint8Array(randomBytes(16))),
   });
-  return { repo, mem };
+  const prefs = createDevicePrefsRepository(mem.db);
+  prefsFor.set(repo, prefs);
+  return { repo, prefs, mem };
 }
 
-/** Renders the app's routes, starting on home. */
+/** Renders the app's routes, starting on home, themed by the night mode setting as in the app. */
 export function renderApp(repo: EventsRepository) {
+  const prefs = prefsFor.get(repo);
+  if (!prefs) throw new Error('renderApp needs a repository from createHarness');
   function TestLayout() {
     return (
-      <ThemeProvider scheme="light">
-        <EventsRepositoryProvider repository={repo}>
-          <UndoProvider>
-            <Stack />
-            <UndoToast />
-          </UndoProvider>
-        </EventsRepositoryProvider>
-      </ThemeProvider>
+      <EventsRepositoryProvider repository={repo}>
+        <DevicePrefsProvider repository={prefs!}>
+          <PreferredNightModeTheme>
+            <UndoProvider>
+              <Stack />
+              <UndoToast />
+            </UndoProvider>
+          </PreferredNightModeTheme>
+        </DevicePrefsProvider>
+      </EventsRepositoryProvider>
     );
   }
   return renderRouter({
@@ -56,6 +70,7 @@ export function renderApp(repo: EventsRepository) {
     '(tabs)/_layout': TabsLayout,
     '(tabs)/index': Home,
     '(tabs)/history': History,
+    '(tabs)/settings': Settings,
     'log/feed': LogFeed,
     'log/diaper': LogDiaper,
     'entry/[id]': EditEntry,
