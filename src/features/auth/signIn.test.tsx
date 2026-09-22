@@ -34,7 +34,7 @@ async function signInThroughTheApp(code = '123456') {
   await type('Email', ` ${EMAIL.toUpperCase()} `);
   await press('Send code');
   expect(
-    await screen.findByText(`We sent a 6-digit code to ${EMAIL.toUpperCase()}.`),
+    await screen.findByText(`We sent a sign-in code to ${EMAIL.toUpperCase()}.`),
   ).toBeOnTheScreen();
   await type('Code', code);
   await press('Sign in');
@@ -103,13 +103,42 @@ describe('sign in with an emailed code', () => {
     await type('Code', '12a3');
     expect(screen.getByLabelText('Code').props.value).toBe('123');
     await press('Sign in');
-    expect(screen.getByText('Enter all 6 digits.')).toBeOnTheScreen();
+    expect(screen.getByText('Enter the whole code from the email.')).toBeOnTheScreen();
 
     await type('Code', '000000');
     await press('Sign in');
     expect(
       await screen.findByText('That code is wrong or has expired. Send a new code to try again.'),
     ).toBeOnTheScreen();
+  });
+
+  it('takes a longer code, for a project that sends more than six digits', async () => {
+    // Supabase allows 6 to 10; ours is set to 6, but a project set to 8 must work.
+    const server = authServer();
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
+    await press('Sign in');
+    await type('Email', EMAIL);
+    await press('Send code');
+    await type('Code', '12345678');
+    await press('Sign in');
+
+    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(server.calls.filter((c) => c.path === '/auth/v1/verify')).toEqual([
+      { path: '/auth/v1/verify', body: expect.objectContaining({ token: '12345678' }) },
+    ]);
+  });
+
+  it('still asks for the rest of a code that is too short', async () => {
+    const server = authServer();
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
+    await press('Sign in');
+    await type('Email', EMAIL);
+    await press('Send code');
+    await type('Code', '1234');
+    await press('Sign in');
+
+    expect(screen.getByText('Enter the whole code from the email.')).toBeOnTheScreen();
+    expect(server.calls.some((c) => c.path === '/auth/v1/verify')).toBe(false);
   });
 
   it('says signing in needs a connection when offline', async () => {

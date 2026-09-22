@@ -19,7 +19,7 @@ async function codeSentTo(email: string): Promise<string> {
     if (messages[0]) {
       const message = await fetch(`${MAIL}/api/v1/message/${messages[0].ID}`);
       const { Text, HTML } = (await message.json()) as { Text: string; HTML: string };
-      const code = /\b(\d{6})\b/.exec(Text || HTML)?.[1];
+      const code = /\b(\d{6,10})\b/.exec(Text || HTML)?.[1];
       if (code) return code;
     }
     await new Promise((resolve) => setTimeout(resolve, 250));
