@@ -4,7 +4,7 @@ import { META_KEYS } from '../meta';
 import { events, meta, outbox } from '../schema';
 import { createMemoryDb, testDeps, type MemoryDb } from '../testing/memoryDb';
 import type { EventWriteError } from './events';
-import { createEventsRepository } from './events';
+import { createEventsRepository, UNDO_WINDOW_MS } from './events';
 
 const V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const bottle = { type: 'feed_bottle' as const, occurredAt: Date.UTC(2026, 9, 25, 8, 30) };
@@ -388,5 +388,143 @@ describe('insertGroup', () => {
     expect(() => repo.insertGroup(pair)).toThrow('forced failure');
     expect(count('events')).toBe(0);
     expect(count('outbox')).toBe(0);
+  });
+});
+
+describe('undo support (P1-12)', () => {
+  const allOutbox = () => mem.db.select().from(outbox).all();
+  const row = (id: string) => mem.db.select().from(events).where(eq(events.id, id)).get();
+
+  it('holds delete ops back from sync for the undo window; other ops go straight away', () => {
+    const { id } = repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    repo.patch(id, { payload: { ml: 100 } });
+    repo.softDelete(id);
+    expect(allOutbox().map((op) => [op.op, op.notBefore])).toEqual([
+      ['insert', null],
+      ['patch', null],
+      ['delete', deps.now() + UNDO_WINDOW_MS],
+    ]);
+  });
+
+  it('deletes several events together, or none of them', () => {
+    const [a, b] = repo.insertGroup([
+      { type: 'feed_bottle', occurredAt: bottle.occurredAt, payload: { ml: 30, milk: 'breast' } },
+      { type: 'feed_breast', occurredAt: bottle.occurredAt, payload: { side: 'left' } },
+    ]);
+    mem.sqlite.run(
+      "CREATE TRIGGER fail_second_delete BEFORE INSERT ON outbox WHEN NEW.op = 'delete' AND (SELECT count(*) FROM outbox WHERE op = 'delete') >= 1 BEGIN SELECT RAISE(ABORT, 'forced failure'); END",
+    );
+    expect(() => repo.softDelete([a!.id, b!.id])).toThrow('forced failure');
+    expect(repo.list()).toHaveLength(2);
+  });
+
+  it('removes an optional field with unset, and sends it as unset', () => {
+    const { id } = repo.insert({
+      type: 'health',
+      occurredAt: bottle.occurredAt,
+      payload: { note: 'Warm', temp_c: 37.9 },
+    });
+    repo.patch(id, { unset: ['temp_c'] });
+    expect(repo.get(id)?.payload).toEqual({ note: 'Warm' });
+    expect(outboxRows()[1]?.body).toEqual(expect.objectContaining({ unset: ['temp_c'] }));
+  });
+
+  it('refuses to unset a field this version does not know, or a required one', () => {
+    const { id } = repo.insert({
+      type: 'medication',
+      occurredAt: bottle.occurredAt,
+      payload: { name: 'Vit D' },
+    });
+    mem.db
+      .update(events)
+      .set({ payload: { name: 'Vit D', brand: 'x' } })
+      .where(eq(events.id, id))
+      .run();
+    expect(() => repo.patch(id, { unset: ['brand'] })).toThrow(
+      expect.objectContaining({ reason: 'unknown_fields' }) as EventWriteError,
+    );
+    expect(() => repo.patch(id, { unset: ['name'] })).toThrow(
+      expect.objectContaining({ reason: 'invalid_payload' }) as EventWriteError,
+    );
+    expect(row(id)?.payload).toEqual({ name: 'Vit D', brand: 'x' });
+  });
+
+  it('undoes an edit exactly, with one compensating patch that also removes added fields', () => {
+    const { id } = repo.insert({
+      type: 'health',
+      occurredAt: bottle.occurredAt,
+      payload: { note: 'Warm' },
+    });
+    const [before] = repo.snapshot([id]);
+    deps.advance(1_000);
+    repo.patch(id, {
+      payload: { note: 'Warmer', temp_c: 38.1 },
+      occurredAt: bottle.occurredAt - 600_000,
+    });
+    deps.advance(1_000);
+    repo.revert([before!]);
+
+    expect(row(id)).toEqual({ ...before, updatedBy: before!.updatedBy });
+    expect(outboxRows().at(-1)).toEqual(
+      expect.objectContaining({
+        op: 'patch',
+        body: expect.objectContaining({
+          payload: { note: 'Warm' },
+          unset: ['temp_c'],
+          occurred_at: bottle.occurredAt,
+        }),
+      }),
+    );
+  });
+
+  it('undoes a delete inside the window exactly: row and outbox as before, nothing sent', () => {
+    const { id } = repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    const [before] = repo.snapshot([id]);
+    const outboxBefore = allOutbox();
+    repo.softDelete(id);
+    deps.advance(UNDO_WINDOW_MS - 1);
+    repo.revert([before!]);
+
+    expect(row(id)).toEqual(before);
+    expect(allOutbox()).toEqual(outboxBefore);
+    expect(repo.list().map((e) => e.id)).toEqual([id]);
+  });
+
+  it('refuses to undo a delete once the window has passed, and changes nothing', () => {
+    const { id } = repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    const [before] = repo.snapshot([id]);
+    repo.softDelete(id);
+    deps.advance(UNDO_WINDOW_MS);
+    expect(() => repo.revert([before!])).toThrow(
+      expect.objectContaining({ reason: 'not_undoable' }) as EventWriteError,
+    );
+    expect(repo.list()).toEqual([]);
+    expect(allOutbox().at(-1)?.op).toBe('delete');
+  });
+
+  it('undoes a group all or nothing', () => {
+    const [a, b] = repo.insertGroup([
+      { type: 'feed_bottle', occurredAt: bottle.occurredAt, payload: { ml: 30, milk: 'breast' } },
+      { type: 'feed_breast', occurredAt: bottle.occurredAt, payload: { side: 'left' } },
+    ]);
+    const snaps = repo.snapshot([a!.id, b!.id]);
+    repo.softDelete([a!.id, b!.id]);
+    repo.revert(snaps);
+    expect(repo.list()).toHaveLength(2);
+
+    // Now make the second one impossible to undo: nothing of the group comes back.
+    repo.softDelete([a!.id, b!.id]);
+    mem.db.update(outbox).set({ notBefore: deps.now() }).where(eq(outbox.entityId, b!.id)).run();
+    expect(() => repo.revert(snaps)).toThrow(
+      expect.objectContaining({ reason: 'not_undoable' }) as EventWriteError,
+    );
+    expect(repo.list()).toEqual([]);
+  });
+
+  it('does nothing for a snapshot that already matches', () => {
+    const { id } = repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    const count = allOutbox().length;
+    repo.revert(repo.snapshot([id]));
+    expect(allOutbox()).toHaveLength(count);
   });
 });

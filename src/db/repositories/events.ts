@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, isNull } from 'drizzle-orm';
 
 import { getActivity, type Event, type EventType } from '@/domain/activities';
 
@@ -24,12 +24,29 @@ export type EventChanges = {
   endedAt?: number | null;
   /** Only the payload fields that change. Merged onto the stored payload. */
   payload?: Record<string, unknown>;
+  /**
+   * Optional payload fields to remove, e.g. a cleared temperature. Only fields
+   * this app version knows can be removed, so a newer app's fields are never
+   * dropped (P1-F1). Sent to the server as `unset`.
+   */
+  unset?: readonly string[];
 };
+
+/** How long a save can be undone (P1-12). Deletes are held back from sync this long. */
+export const UNDO_WINDOW_MS = 6_000;
+
+/** An event row exactly as stored, captured before a change so it can be undone. */
+export type EventSnapshot = typeof events.$inferSelect;
 
 export class EventWriteError extends Error {
   constructor(
     readonly reason:
-      'unknown_type' | 'invalid_payload' | 'unknown_fields' | 'not_found' | 'deleted',
+      | 'unknown_type'
+      | 'invalid_payload'
+      | 'unknown_fields'
+      | 'not_found'
+      | 'deleted'
+      | 'not_undoable',
     message: string,
   ) {
     super(message);
@@ -98,6 +115,24 @@ function toEvent(row: EventRow): Event<unknown> | null {
     updatedBy: row.updatedBy,
     clientCreatedAt: row.clientCreatedAt,
     deletedAt: row.deletedAt,
+  };
+}
+
+/** The outbox op for a patch, in the server's column names (SDD 5.2). */
+function patchOp(id: string, userId: string, changes: EventChanges, now: number) {
+  return {
+    entity: 'event' as const,
+    entityId: id,
+    op: 'patch' as const,
+    body: JSON.stringify({
+      id,
+      updated_by: userId,
+      ...(changes.payload && { payload: changes.payload }),
+      ...(changes.unset && changes.unset.length > 0 && { unset: changes.unset }),
+      ...(changes.occurredAt !== undefined && { occurred_at: changes.occurredAt }),
+      ...(changes.endedAt !== undefined && { ended_at: changes.endedAt }),
+    }),
+    createdAt: now,
   };
 }
 
@@ -198,56 +233,151 @@ export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
         throw new EventWriteError('deleted', `Event ${id} is deleted`);
       }
       const base = isRecord(current.payload) ? current.payload : {};
-      const payload = changes.payload ? { ...base, ...changes.payload } : base;
-      validate(current.type, payload, Object.keys(changes.payload ?? {}));
+      const unset = changes.unset ?? [];
+      if (unset.length > 0) {
+        // Fields this version knows are the ones its schema keeps from the stored payload.
+        const parsed = moduleFor(current.type).schema.safeParse(base);
+        const known = parsed.success && isRecord(parsed.data) ? parsed.data : {};
+        const unknownUnset = unset.filter((key) => !(key in known) && key in base);
+        if (unknownUnset.length > 0) {
+          throw new EventWriteError('unknown_fields', `Cannot remove ${unknownUnset.join(', ')}`);
+        }
+      }
+      const merged: Record<string, unknown> = { ...base, ...(changes.payload ?? {}) };
+      for (const key of unset) delete merged[key];
+      validate(current.type, merged, Object.keys(changes.payload ?? {}));
 
       const now = deps.now();
       const { userId } = me();
-      const update = {
-        payload,
-        updatedBy: userId,
-        ...(changes.occurredAt !== undefined && { occurredAt: changes.occurredAt }),
-        ...(changes.endedAt !== undefined && { endedAt: changes.endedAt }),
-      };
       db.transaction((tx) => {
-        tx.update(events).set(update).where(eq(events.id, id)).run();
-        tx.insert(outbox)
-          .values({
-            entity: 'event',
-            entityId: id,
-            op: 'patch',
-            body: JSON.stringify({
-              id,
-              updated_by: userId,
-              ...(changes.payload && { payload: changes.payload }),
-              ...(changes.occurredAt !== undefined && { occurred_at: changes.occurredAt }),
-              ...(changes.endedAt !== undefined && { ended_at: changes.endedAt }),
-            }),
-            createdAt: now,
+        tx.update(events)
+          .set({
+            payload: merged,
+            updatedBy: userId,
+            ...(changes.occurredAt !== undefined && { occurredAt: changes.occurredAt }),
+            ...(changes.endedAt !== undefined && { endedAt: changes.endedAt }),
           })
+          .where(eq(events.id, id))
+          .run();
+        tx.insert(outbox)
+          .values(patchOp(id, userId, changes, now))
           .run();
       });
       changed();
       return toEvent(stored(id)) as Event<unknown>;
     },
 
-    /** Soft delete only (rule 7). Deleting an already deleted event does nothing. */
-    softDelete(id: string): void {
-      const current = stored(id);
-      if (current.deletedAt !== null) return;
+    /**
+     * Soft delete only (rule 7), of one event or several together (a mixed
+     * feed's bottle and breast parts). Already deleted events are skipped. The
+     * delete ops are held back from sync for the undo window.
+     */
+    softDelete(ids: string | readonly string[]): void {
+      const live = (typeof ids === 'string' ? [ids] : ids)
+        .map(stored)
+        .filter((row) => row.deletedAt === null);
+      if (live.length === 0) return;
       const now = deps.now();
       const { userId } = me();
       db.transaction((tx) => {
-        tx.update(events).set({ deletedAt: now, updatedBy: userId }).where(eq(events.id, id)).run();
-        tx.insert(outbox)
-          .values({
-            entity: 'event',
-            entityId: id,
-            op: 'delete',
-            body: JSON.stringify({ id, deleted_at: now, updated_by: userId }),
-            createdAt: now,
-          })
-          .run();
+        for (const row of live) {
+          tx.update(events)
+            .set({ deletedAt: now, updatedBy: userId })
+            .where(eq(events.id, row.id))
+            .run();
+          tx.insert(outbox)
+            .values({
+              entity: 'event',
+              entityId: row.id,
+              op: 'delete',
+              body: JSON.stringify({ id: row.id, deleted_at: now, updated_by: userId }),
+              createdAt: now,
+              notBefore: now + UNDO_WINDOW_MS,
+            })
+            .run();
+        }
+      });
+      changed();
+    },
+
+    /** Rows exactly as stored now, to hand back to `revert` for an undo. */
+    snapshot(ids: readonly string[]): EventSnapshot[] {
+      return ids.map((id) => ({ ...stored(id) }));
+    },
+
+    /**
+     * Undo (P1-12): puts each event back exactly as in its snapshot.
+     * - A delete still inside its undo window is cancelled: the held delete op
+     *   is removed, so the server never sees it (there, delete is final).
+     * - Changed fields are written back with one compensating patch, removing
+     *   fields that were added, so every phone ends up where this one started.
+     * Throws `not_undoable` if a delete's window has passed. All or nothing.
+     */
+    revert(snapshots: readonly EventSnapshot[]): void {
+      const now = deps.now();
+      const { userId } = me();
+      db.transaction((tx) => {
+        for (const before of snapshots) {
+          const current = tx.select().from(events).where(eq(events.id, before.id)).get();
+          if (!current) throw new EventWriteError('not_found', `No event ${before.id}`);
+
+          if (current.deletedAt !== null && before.deletedAt === null) {
+            const held = tx
+              .select({ id: outbox.id })
+              .from(outbox)
+              .where(
+                and(
+                  eq(outbox.entityId, before.id),
+                  eq(outbox.op, 'delete'),
+                  gt(outbox.notBefore, now),
+                ),
+              )
+              .all();
+            if (held.length === 0) {
+              throw new EventWriteError('not_undoable', `Delete of ${before.id} can't be undone`);
+            }
+            tx.delete(outbox)
+              .where(
+                inArray(
+                  outbox.id,
+                  held.map((op) => op.id),
+                ),
+              )
+              .run();
+            tx.update(events)
+              .set({ deletedAt: null, updatedBy: before.updatedBy })
+              .where(eq(events.id, before.id))
+              .run();
+          }
+
+          const was = isRecord(before.payload) ? before.payload : {};
+          const is = isRecord(current.payload) ? current.payload : {};
+          const payload = Object.fromEntries(
+            Object.entries(was).filter(
+              ([key, value]) => JSON.stringify(is[key]) !== JSON.stringify(value),
+            ),
+          );
+          const unset = Object.keys(is).filter((key) => !(key in was));
+          const changes: EventChanges = {
+            ...(Object.keys(payload).length > 0 && { payload }),
+            ...(unset.length > 0 && { unset }),
+            ...(current.occurredAt !== before.occurredAt && { occurredAt: before.occurredAt }),
+            ...(current.endedAt !== before.endedAt && { endedAt: before.endedAt }),
+          };
+          if (Object.keys(changes).length === 0) continue;
+          tx.update(events)
+            .set({
+              payload: before.payload,
+              occurredAt: before.occurredAt,
+              endedAt: before.endedAt,
+              updatedBy: userId,
+            })
+            .where(eq(events.id, before.id))
+            .run();
+          tx.insert(outbox)
+            .values(patchOp(before.id, userId, changes, now))
+            .run();
+        }
       });
       changed();
     },

@@ -15,6 +15,13 @@
       "when": 1790021706532,
       "tag": "0001_seed_local_identity",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790076069758,
+      "tag": "0002_outbox_not_before",
+      "breakpoints": true
     }
   ]
 }
