@@ -429,6 +429,36 @@ describe('undo support (P1-12)', () => {
     expect(outboxRows()[1]?.body).toEqual(expect.objectContaining({ unset: ['temp_c'] }));
   });
 
+  it('tells untouched, changed and cleared fields apart in one patch; null is not a clear', () => {
+    const { id } = repo.insert({
+      type: 'health',
+      occurredAt: bottle.occurredAt,
+      payload: { note: 'Warm', temp_c: 37.9, tags: ['cough'] },
+    });
+    // note: untouched (absent from payload and unset); temp_c: changed; tags: cleared.
+    repo.patch(id, { payload: { temp_c: 38.2 }, unset: ['tags'] });
+
+    expect(mem.db.select().from(events).where(eq(events.id, id)).get()?.payload).toEqual({
+      note: 'Warm',
+      temp_c: 38.2,
+    });
+    expect(outboxRows()[1]?.body).toEqual(
+      expect.objectContaining({ payload: { temp_c: 38.2 }, unset: ['tags'] }),
+    );
+    expect(outboxRows()[1]?.body).not.toHaveProperty('payload.note');
+
+    // Clearing is only ever `unset`: a null value is invalid, and nothing is written.
+    const ops = outboxRows().length;
+    expect(() => repo.patch(id, { payload: { temp_c: null } })).toThrow(
+      expect.objectContaining({ reason: 'invalid_payload' }) as EventWriteError,
+    );
+    expect(mem.db.select().from(events).where(eq(events.id, id)).get()?.payload).toEqual({
+      note: 'Warm',
+      temp_c: 38.2,
+    });
+    expect(outboxRows()).toHaveLength(ops);
+  });
+
   it('refuses to unset a field this version does not know, or a required one', () => {
     const { id } = repo.insert({
       type: 'medication',
