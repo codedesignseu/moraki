@@ -188,6 +188,7 @@
   "tabs": {
     "home": "Home",
     "history": "History",
+    "insights": "Trends",
     "settings": "Settings"
   },
   "history": {
@@ -243,6 +244,33 @@
       "autoHint": "Dark screens from 21:00 to 06:00.",
       "onHint": "Dark screens all day.",
       "offHint": "Light screens all day."
+    }
+  },
+  "insights": {
+    "today": "Today",
+    "barLabel": "{{day}}: {{value}}",
+    "ml": "{{value}} mL",
+    "total": "7 days: {{value}}",
+    "none": "Not enough entries yet",
+    "bottle": {
+      "title": "Bottle milk"
+    },
+    "breast": {
+      "title": "Breastfeeding"
+    },
+    "averages": {
+      "title": "Averages, last 7 days",
+      "bottle": "Average bottle",
+      "interval": "Average time between feeds"
+    },
+    "days": {
+      "title": "Day by day",
+      "day": "Day",
+      "feeds": "Feeds",
+      "wet": "Wet",
+      "dirty": "Dirty",
+      "sleep": "Sleep",
+      "total": "7 days"
     }
   }
 }

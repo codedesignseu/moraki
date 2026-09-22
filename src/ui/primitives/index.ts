@@ -1,3 +1,5 @@
+export type { Bar } from './BarChart';
+export { BarChart } from './BarChart';
 export { Button } from './Button';
 export { Card } from './Card';
 export { Chip } from './Chip';

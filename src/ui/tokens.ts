@@ -78,6 +78,8 @@ export const size = {
   touchTargetLarge: 64,
   borderThin: 1,
   borderThick: 2,
+  /** Plot height of a bar chart; the tallest bar fills it. */
+  chartHeight: 160,
 } as const;
 
 /**

@@ -7,6 +7,7 @@ import { randomBytes } from 'node:crypto';
 
 import History from '../../app/(tabs)/history';
 import Home from '../../app/(tabs)/index';
+import Insights from '../../app/(tabs)/insights';
 import Settings from '../../app/(tabs)/settings';
 import TabsLayout from '../../app/(tabs)/_layout';
 import EditEntry from '../../app/entry/[id]';
@@ -70,6 +71,7 @@ export function renderApp(repo: EventsRepository) {
     '(tabs)/_layout': TabsLayout,
     '(tabs)/index': Home,
     '(tabs)/history': History,
+    '(tabs)/insights': Insights,
     '(tabs)/settings': Settings,
     'log/feed': LogFeed,
     'log/diaper': LogDiaper,
