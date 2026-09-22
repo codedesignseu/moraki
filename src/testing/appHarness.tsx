@@ -16,7 +16,10 @@ import LogFeed from '../../app/log/feed';
 import LogHealth from '../../app/log/health';
 import LogMedication from '../../app/log/medication';
 import LogSleep from '../../app/log/sleep';
+import Invite from '../../app/invite';
+import Join from '../../app/join/[code]';
 import HouseholdSetup from '../../app/onboarding/household';
+import JoinWithCode from '../../app/onboarding/join';
 import SignIn from '../../app/onboarding/sign-in';
 import { DevicePrefsProvider, EventsRepositoryProvider } from '@/db/react';
 import { UndoProvider } from '@/db/undo';
@@ -57,7 +60,10 @@ export async function createHarness(now: number, bytes?: Uint8Array): Promise<Ha
  * as in the app. Without `auth`, the build has no Supabase settings and sign
  * in isn't offered.
  */
-export function renderApp(repo: EventsRepository, { auth = null }: { auth?: Auth | null } = {}) {
+export function renderApp(
+  repo: EventsRepository,
+  { auth = null, initialUrl }: { auth?: Auth | null; initialUrl?: string } = {},
+) {
   const prefs = prefsFor.get(repo);
   if (!prefs) throw new Error('renderApp needs a repository from createHarness');
   function TestLayout() {
@@ -76,20 +82,26 @@ export function renderApp(repo: EventsRepository, { auth = null }: { auth?: Auth
       </EventsRepositoryProvider>
     );
   }
-  return renderRouter({
-    _layout: TestLayout,
-    '(tabs)/_layout': TabsLayout,
-    '(tabs)/index': Home,
-    '(tabs)/history': History,
-    '(tabs)/insights': Insights,
-    '(tabs)/settings': Settings,
-    'log/feed': LogFeed,
-    'log/diaper': LogDiaper,
-    'entry/[id]': EditEntry,
-    'log/sleep': LogSleep,
-    'log/health': LogHealth,
-    'log/medication': LogMedication,
-    'onboarding/sign-in': SignIn,
-    'onboarding/household': HouseholdSetup,
-  });
+  return renderRouter(
+    {
+      _layout: TestLayout,
+      '(tabs)/_layout': TabsLayout,
+      '(tabs)/index': Home,
+      '(tabs)/history': History,
+      '(tabs)/insights': Insights,
+      '(tabs)/settings': Settings,
+      'log/feed': LogFeed,
+      'log/diaper': LogDiaper,
+      'entry/[id]': EditEntry,
+      'log/sleep': LogSleep,
+      'log/health': LogHealth,
+      'log/medication': LogMedication,
+      'onboarding/sign-in': SignIn,
+      'onboarding/household': HouseholdSetup,
+      'onboarding/join': JoinWithCode,
+      'join/[code]': Join,
+      invite: Invite,
+    },
+    initialUrl ? { initialUrl } : {},
+  );
 }

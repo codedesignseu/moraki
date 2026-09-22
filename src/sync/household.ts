@@ -1,4 +1,5 @@
 import type { Auth } from './auth';
+import type { MemberRole } from './invites';
 
 export const RELATIONS = ['mother', 'father', 'grandparent', 'caregiver', 'other'] as const;
 export type Relation = (typeof RELATIONS)[number];
@@ -17,6 +18,8 @@ export type AccountHousehold = {
   householdId: string;
   babyId: string;
   babyName: string;
+  /** What this account may do in it (SDD 4.3). */
+  role: MemberRole;
 };
 
 export class HouseholdError extends Error {
@@ -57,23 +60,40 @@ export async function createHousehold(
     birth_weight_g: input.birthWeightG,
   });
   if (error) throw failure(error);
-  return { userId, householdId, babyId, babyName: input.babyName.trim() };
+  return { userId, householdId, babyId, babyName: input.babyName.trim(), role: 'owner' };
 }
 
 /**
  * The household the signed-in account already belongs to, if any: after a
- * reinstall, or on a second phone. RLS only returns the caller's own babies.
+ * reinstall, on a second phone, or after joining one elsewhere. RLS returns
+ * only the caller's own membership and their household's babies.
  */
 export async function findHousehold(auth: Auth, userId: string): Promise<AccountHousehold | null> {
-  const { data, error } = await auth.client
+  const membership = await auth.client
+    .from('memberships')
+    .select('household_id, role')
+    .eq('user_id', userId)
+    .limit(1);
+  if (membership.error) throw failure(membership.error);
+  const mine = (membership.data as { household_id: string; role: MemberRole }[])[0];
+  if (!mine) return null;
+
+  const babies = await auth.client
     .from('babies')
-    .select('id, name, household_id')
+    .select('id, name')
+    .eq('household_id', mine.household_id)
     .is('deleted_at', null)
     .order('updated_at')
     .limit(1);
-  if (error) throw failure(error);
-  const baby = (data as { id: string; name: string; household_id: string }[])[0];
+  if (babies.error) throw failure(babies.error);
+  const baby = (babies.data as { id: string; name: string }[])[0];
   return baby
-    ? { userId, householdId: baby.household_id, babyId: baby.id, babyName: baby.name }
+    ? {
+        userId,
+        householdId: mine.household_id,
+        babyId: baby.id,
+        babyName: baby.name,
+        role: mine.role,
+      }
     : null;
 }

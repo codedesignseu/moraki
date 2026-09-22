@@ -29,6 +29,7 @@ export const DEVICE_PREFS = {
         householdId: z.uuid(),
         babyId: z.uuid(),
         babyName: z.string().min(1),
+        role: z.enum(['owner', 'caregiver', 'viewer']),
       })
       .nullable(),
     default: null,

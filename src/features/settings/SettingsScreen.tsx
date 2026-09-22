@@ -15,9 +15,13 @@ import { useTheme, type Theme } from '@/ui/theme';
 export function SettingsScreen({
   onSignIn,
   onSetUpHousehold,
+  onJoinHousehold,
+  onInvite,
 }: {
   onSignIn: () => void;
   onSetUpHousehold: () => void;
+  onJoinHousehold: () => void;
+  onInvite: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -37,13 +41,27 @@ export function SettingsScreen({
                 {t('settings.account.signedInAs', { email: state.user.email ?? '' })}
               </Text>
               {household ? (
-                <Text style={theme.text.body}>
-                  {t('settings.account.household', { name: household.babyName })}
-                </Text>
+                <>
+                  <Text style={theme.text.body}>
+                    {t('settings.account.household', { name: household.babyName })}
+                  </Text>
+                  {household.role === 'owner' && (
+                    <Button
+                      label={t('settings.account.invite')}
+                      variant="secondary"
+                      onPress={onInvite}
+                    />
+                  )}
+                </>
               ) : (
                 <>
                   <Text style={s.muted}>{t('settings.account.setUpHint')}</Text>
                   <Button label={t('settings.account.setUpHousehold')} onPress={onSetUpHousehold} />
+                  <Button
+                    label={t('settings.account.joinHousehold')}
+                    variant="secondary"
+                    onPress={onJoinHousehold}
+                  />
                 </>
               )}
               <Button

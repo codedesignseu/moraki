@@ -253,7 +253,9 @@
       "signOut": "Sign out",
       "household": "Household: {{name}}",
       "setUpHousehold": "Set up your household",
-      "setUpHint": "Add your baby to create a household. Entries already on this phone stay here for now."
+      "setUpHint": "Add your baby to create a household. Entries already on this phone stay here for now.",
+      "invite": "Invite a caregiver",
+      "joinHousehold": "Join with a code"
     }
   },
   "insights": {
@@ -334,6 +336,59 @@
       "offline": "You’re offline. Setting up a household needs a connection.",
       "signed_out": "Sign in first.",
       "unknown": "Couldn’t set up the household. Try again."
+    }
+  },
+  "invite": {
+    "title": "Invite a caregiver",
+    "ownerOnly": "Only the household owner can invite someone.",
+    "roleTitle": "What they can do",
+    "role": {
+      "caregiver": "Log entries",
+      "viewer": "View only"
+    },
+    "roleHint": {
+      "caregiver": "They can log entries and edit them, like you.",
+      "viewer": "They can see everything but log nothing."
+    },
+    "create": "Create invite",
+    "createAnother": "Create another invite",
+    "codeTitle": "Their code",
+    "codeLabel": "Invite code {{code}}",
+    "expires": "Works until {{date}}",
+    "singleUse": "One person can use this code, once.",
+    "share": "Share link",
+    "shareMessage": "Join me on Moraki to help track our baby: {{link}}\nOr open Moraki and enter the code {{code}}.",
+    "problem": {
+      "offline": "You’re offline. Creating an invite needs a connection.",
+      "signed_out": "Sign in first.",
+      "not_found": "Couldn’t create an invite. Try again.",
+      "used": "Couldn’t create an invite. Try again.",
+      "expired": "Couldn’t create an invite. Try again.",
+      "already_in_household": "Couldn’t create an invite. Try again.",
+      "unknown": "Couldn’t create an invite. Try again."
+    }
+  },
+  "join": {
+    "title": "Join a household",
+    "intro": "Enter the code from the invite, and the name the others will see.",
+    "code": "Invite code",
+    "yourName": "Your name",
+    "yourNameHint": "Shown next to the entries you log.",
+    "join": "Join",
+    "done": "Go to home",
+    "signInFirst": "Sign in to join this household.",
+    "signIn": "Sign in",
+    "alreadyIn": "You’re already in {{name}}’s household. One household per account for now.",
+    "problem": {
+      "short_code": "The code is 8 characters.",
+      "display_name": "Enter your name.",
+      "not_found": "No invite with that code. Check it, or ask for a new one.",
+      "used": "That invite has already been used. Ask for a new one.",
+      "expired": "That invite has expired. Ask for a new one.",
+      "already_in_household": "You’re already in a household.",
+      "signed_out": "Sign in first.",
+      "offline": "You’re offline. Joining needs a connection.",
+      "unknown": "Couldn’t join. Try again."
     }
   }
 }
