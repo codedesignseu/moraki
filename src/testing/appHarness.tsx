@@ -8,6 +8,8 @@ import { randomBytes } from 'node:crypto';
 import Home from '../../app/index';
 import LogDiaper from '../../app/log/diaper';
 import LogFeed from '../../app/log/feed';
+import LogHealth from '../../app/log/health';
+import LogMedication from '../../app/log/medication';
 import LogSleep from '../../app/log/sleep';
 import { EventsRepositoryProvider } from '@/db/react';
 import { createEventsRepository, type EventsRepository } from '@/db/repositories/events';
@@ -47,5 +49,7 @@ export function renderApp(repo: EventsRepository) {
     'log/feed': LogFeed,
     'log/diaper': LogDiaper,
     'log/sleep': LogSleep,
+    'log/health': LogHealth,
+    'log/medication': LogMedication,
   });
 }

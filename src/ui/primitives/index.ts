@@ -6,4 +6,5 @@ export type { SegmentedOption } from './Segmented';
 export { Segmented } from './Segmented';
 export { Sheet, SheetPanel } from './Sheet';
 export { Stepper } from './Stepper';
+export { TextField } from './TextField';
 export { TimerText } from './TimerText';
