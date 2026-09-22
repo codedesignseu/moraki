@@ -244,6 +244,13 @@
       "autoHint": "Dark screens from 21:00 to 06:00.",
       "onHint": "Dark screens all day.",
       "offHint": "Light screens all day."
+    },
+    "account": {
+      "title": "Account",
+      "signedOutHint": "Sign in to get ready for sharing with other caregivers. Your entries stay on this phone.",
+      "signIn": "Sign in",
+      "signedInAs": "Signed in as {{email}}",
+      "signOut": "Sign out"
     }
   },
   "insights": {
@@ -271,6 +278,25 @@
       "dirty": "Dirty",
       "sleep": "Sleep",
       "total": "7 days"
+    }
+  },
+  "signIn": {
+    "title": "Sign in",
+    "intro": "Enter your email and we'll send you a 6-digit code. No password needed.",
+    "email": "Email",
+    "sendCode": "Send code",
+    "codeSent": "We sent a 6-digit code to {{email}}.",
+    "code": "Code",
+    "verify": "Sign in",
+    "resend": "Send a new code",
+    "changeEmail": "Use a different email",
+    "problem": {
+      "invalid_email": "Check the email address.",
+      "short_code": "Enter all 6 digits.",
+      "invalid_code": "That code is wrong or has expired. Send a new code to try again.",
+      "rate_limited": "Too many attempts. Wait a few minutes, then try again.",
+      "offline": "You're offline. Signing in needs a connection.",
+      "unknown": "Couldn't sign in. Try again."
     }
   }
 }

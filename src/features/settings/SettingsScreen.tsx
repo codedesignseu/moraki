@@ -3,21 +3,45 @@ import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import { useDevicePref } from '@/db/react';
 import { NIGHT_MODES } from '@/domain/time/night';
-import { Card, Segmented } from '@/ui/primitives';
+import { useAuth } from '@/sync/AuthProvider';
+import { Button, Card, Segmented } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 /**
- * Settings (SDD 7). Night mode for now; reminders, caregivers, the report and
- * the rest join as their tasks land.
+ * Settings (SDD 7). Account and night mode for now; reminders, caregivers,
+ * the report and the rest join as their tasks land.
  */
-export function SettingsScreen() {
+export function SettingsScreen({ onSignIn }: { onSignIn: () => void }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   const [nightMode, setNightMode] = useDevicePref('nightMode');
+  const { auth, state } = useAuth();
 
   return (
     <ScrollView contentContainerStyle={s.content}>
+      {(state.status === 'signedIn' || state.status === 'signedOut') && (
+        <Card testID="settings-account">
+          <Text style={theme.text.heading}>{t('settings.account.title')}</Text>
+          {state.status === 'signedIn' ? (
+            <>
+              <Text style={theme.text.body}>
+                {t('settings.account.signedInAs', { email: state.user.email ?? '' })}
+              </Text>
+              <Button
+                label={t('settings.account.signOut')}
+                variant="secondary"
+                onPress={() => void auth?.signOut()}
+              />
+            </>
+          ) : (
+            <>
+              <Text style={s.muted}>{t('settings.account.signedOutHint')}</Text>
+              <Button label={t('settings.account.signIn')} onPress={onSignIn} />
+            </>
+          )}
+        </Card>
+      )}
       <Card testID="settings-night-mode">
         <Text style={theme.text.heading}>{t('settings.nightMode.title')}</Text>
         <Segmented

@@ -70,3 +70,12 @@ jobs:
       - run: supabase test db
       # Two sessions racing on one household's seq (P2-01); pgTAP can't do this.
       - run: supabase/scripts/event-seq-race.sh
+      # Email OTP against the real auth server and mail catcher (P2-04).
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: |
+          export MORAKI_LOCAL_PUBLISHABLE_KEY=$(supabase status -o env | grep '^PUBLISHABLE_KEY=' | cut -d= -f2- | tr -d '"')
+          npm run test:local

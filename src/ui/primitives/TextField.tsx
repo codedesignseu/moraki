@@ -1,4 +1,11 @@
-import { StyleSheet, Text, TextInput, View, type KeyboardTypeOptions } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  type KeyboardTypeOptions,
+  type TextInputProps,
+} from 'react-native';
 
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
@@ -12,6 +19,10 @@ type Props = {
   maxLength?: number | undefined;
   multiline?: boolean | undefined;
   keyboardType?: KeyboardTypeOptions | undefined;
+  /** Lets the system offer an email address or an emailed code. */
+  autoComplete?: TextInputProps['autoComplete'];
+  textContentType?: TextInputProps['textContentType'];
+  autoCapitalize?: TextInputProps['autoCapitalize'];
   /** Small helper text under the field, e.g. a character count. The caller's copy. */
   hint?: string | undefined;
   /** Marks the field invalid. The message itself is the caller's. */
@@ -27,6 +38,9 @@ export function TextField({
   maxLength,
   multiline = false,
   keyboardType,
+  autoComplete,
+  textContentType,
+  autoCapitalize,
   hint,
   invalid = false,
   message,
@@ -46,6 +60,9 @@ export function TextField({
         maxLength={maxLength}
         multiline={multiline}
         keyboardType={keyboardType}
+        autoComplete={autoComplete}
+        textContentType={textContentType}
+        autoCapitalize={autoCapitalize}
         placeholderTextColor={theme.colors.textMuted}
         style={[theme.text.body, s.input, multiline && s.multiline, invalid && s.invalid]}
       />

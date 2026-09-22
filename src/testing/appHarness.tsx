@@ -16,6 +16,7 @@ import LogFeed from '../../app/log/feed';
 import LogHealth from '../../app/log/health';
 import LogMedication from '../../app/log/medication';
 import LogSleep from '../../app/log/sleep';
+import SignIn from '../../app/onboarding/sign-in';
 import { DevicePrefsProvider, EventsRepositoryProvider } from '@/db/react';
 import { UndoProvider } from '@/db/undo';
 import {
@@ -25,6 +26,8 @@ import {
 import { createEventsRepository, type EventsRepository } from '@/db/repositories/events';
 import { createMemoryDb, type MemoryDb } from '@/db/testing/memoryDb';
 import { newId } from '@/domain/ids';
+import type { Auth } from '@/sync/auth';
+import { AuthProvider } from '@/sync/AuthProvider';
 import { PreferredNightModeTheme } from '@/features/settings/NightModeTheme';
 import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
@@ -48,8 +51,12 @@ export async function createHarness(now: number, bytes?: Uint8Array): Promise<Ha
   return { repo, prefs, mem };
 }
 
-/** Renders the app's routes, starting on home, themed by the night mode setting as in the app. */
-export function renderApp(repo: EventsRepository) {
+/**
+ * Renders the app's routes, starting on home, themed by the night mode setting
+ * as in the app. Without `auth`, the build has no Supabase settings and sign
+ * in isn't offered.
+ */
+export function renderApp(repo: EventsRepository, { auth = null }: { auth?: Auth | null } = {}) {
   const prefs = prefsFor.get(repo);
   if (!prefs) throw new Error('renderApp needs a repository from createHarness');
   function TestLayout() {
@@ -57,10 +64,12 @@ export function renderApp(repo: EventsRepository) {
       <EventsRepositoryProvider repository={repo}>
         <DevicePrefsProvider repository={prefs!}>
           <PreferredNightModeTheme>
-            <UndoProvider>
-              <Stack />
-              <UndoToast />
-            </UndoProvider>
+            <AuthProvider auth={auth}>
+              <UndoProvider>
+                <Stack />
+                <UndoToast />
+              </UndoProvider>
+            </AuthProvider>
           </PreferredNightModeTheme>
         </DevicePrefsProvider>
       </EventsRepositoryProvider>
@@ -79,5 +88,6 @@ export function renderApp(repo: EventsRepository) {
     'log/sleep': LogSleep,
     'log/health': LogHealth,
     'log/medication': LogMedication,
+    'onboarding/sign-in': SignIn,
   });
 }
