@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@/ui/theme';
 
-/** Home, History and Settings (SDD 7). Insights joins when its task lands. */
+/** Home, History, Trends and Settings (SDD 7). */
 export default function TabsLayout() {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -39,6 +39,16 @@ export default function TabsLayout() {
           tabBarLabel: t('tabs.history'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="time-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="insights"
+        options={{
+          title: t('tabs.insights'),
+          tabBarLabel: t('tabs.insights'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="bar-chart-outline" color={color} size={size} />
           ),
         }}
       />

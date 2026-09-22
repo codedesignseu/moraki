@@ -13,6 +13,10 @@ export function isFeed(e: Event<unknown>): e is FeedEvent {
   return e.type === 'feed_bottle' || e.type === 'feed_breast';
 }
 
+export function isBottleFeed(e: Event<unknown>): e is Event<FeedBottlePayload> {
+  return e.type === 'feed_bottle';
+}
+
 export function isBreastFeed(e: Event<unknown>): e is Event<FeedBreastPayload> {
   return e.type === 'feed_breast';
 }
