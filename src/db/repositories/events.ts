@@ -68,11 +68,23 @@ function validate(type: string, payload: unknown, writtenKeys: string[]): void {
   }
 }
 
-/** A stored row as the domain sees it, or null if its payload no longer validates. */
+/**
+ * A stored row as the domain sees it, or null if it can't be shown: its type
+ * has no activity module, or its payload no longer validates. Such a row is
+ * never shown half-parsed, but it doesn't vanish silently either: a warning
+ * names its id. Only the id, never the payload (rule 8).
+ */
 function toEvent(row: EventRow): Event<unknown> | null {
   const module = getActivity(row.type as EventType);
-  const parsed = module?.schema.safeParse(row.payload);
-  if (!module || !parsed?.success) return null;
+  if (!module) {
+    console.warn(`[moraki] Event ${row.id} skipped: no activity module for its type`);
+    return null;
+  }
+  const parsed = module.schema.safeParse(row.payload);
+  if (!parsed.success) {
+    console.warn(`[moraki] Event ${row.id} skipped: stored payload failed validation`);
+    return null;
+  }
   return {
     id: row.id,
     householdId: row.householdId,
@@ -225,15 +237,18 @@ export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
     },
 
     /**
-     * Live events for the current baby, newest first. Rows whose payload no
-     * longer validates are left out rather than shown half-parsed.
+     * Live events for the current baby, newest first by when they happened.
+     * Events at the same instant are ordered by id so every phone that has the
+     * same events shows them in the same order (SDD 5.5); insertion order would
+     * differ between phones. Rows that can't be shown are left out, with a
+     * warning (see toEvent).
      */
     list(): Event<unknown>[] {
       return db
         .select()
         .from(events)
         .where(and(eq(events.babyId, me().babyId), isNull(events.deletedAt)))
-        .orderBy(desc(events.occurredAt))
+        .orderBy(desc(events.occurredAt), desc(events.id))
         .all()
         .map(toEvent)
         .filter((event): event is Event<unknown> => event !== null);

@@ -245,3 +245,97 @@ describe('reads and change notifications', () => {
     expect(event).toMatchObject({ householdId: 'real-household', createdBy: 'real-user' });
   });
 });
+
+describe('list order', () => {
+  // Controlled ids so id order and insertion order disagree on purpose.
+  const idA = '01999999-0000-7000-8000-00000000000a';
+  const idB = '01999999-0000-7000-8000-00000000000b';
+
+  function repoWithIds(db: MemoryDb['db'], ids: string[]) {
+    const queue = [...ids];
+    return createEventsRepository(db, {
+      now: deps.now,
+      newId: () => queue.shift() ?? 'unexpected',
+    });
+  }
+
+  it('orders by when events happened, not by id: a backfilled entry sorts below a newer one', () => {
+    const recent = repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    deps.advance(60_000);
+    // Logged later (so a larger v7 id) but it happened two hours earlier.
+    const backfilled = repo.insert({
+      ...bottle,
+      occurredAt: bottle.occurredAt - 7_200_000,
+      payload: { ml: 60, milk: 'formula' },
+    });
+    expect(backfilled.id > recent.id).toBe(true);
+    expect(repo.list().map((e) => e.id)).toEqual([recent.id, backfilled.id]);
+  });
+
+  it('orders events at the same instant, logged in the same millisecond, the same way on every phone', async () => {
+    // Same occurred time and the same clock millisecond: nothing but the id tells them apart.
+    const payloads = [
+      { type: 'diaper' as const, occurredAt: bottle.occurredAt, payload: { kind: 'wet' } },
+      {
+        type: 'feed_bottle' as const,
+        occurredAt: bottle.occurredAt,
+        payload: { ml: 30, milk: 'breast' },
+      },
+    ];
+    // Phone 1 writes A then B; phone 2 ends up with the same rows in the opposite order.
+    const phone1 = repoWithIds(mem.db, [idA, idB]);
+    phone1.insert(payloads[0]!);
+    phone1.insert(payloads[1]!);
+    const other = await createMemoryDb();
+    const phone2 = repoWithIds(other.db, [idB, idA]);
+    phone2.insert(payloads[1]!);
+    phone2.insert(payloads[0]!);
+
+    const order1 = phone1.list().map((e) => e.id);
+    const order2 = phone2.list().map((e) => e.id);
+    expect(order1).toEqual([idB, idA]);
+    expect(order2).toEqual(order1);
+    expect(phone1.list().map((e) => e.id)).toEqual(order1);
+  });
+});
+
+describe('rows that can no longer be shown', () => {
+  let warn: jest.SpyInstance;
+  beforeEach(() => {
+    warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    warn.mockRestore();
+  });
+
+  it('skips a row whose stored payload fails validation, with a warning naming its id', () => {
+    const good = repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    const bad = repo.insert({ ...bottle, payload: { ml: 91, milk: 'formula' } });
+    mem.db
+      .update(events)
+      .set({ payload: { ml: 5000, milk: 'formula' } })
+      .where(eq(events.id, bad.id))
+      .run();
+
+    expect(repo.list().map((e) => e.id)).toEqual([good.id]);
+    expect(repo.get(bad.id)).toBeNull();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(bad.id));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('failed validation'));
+    // The payload itself never reaches the log (rule 8).
+    expect(warn.mock.calls.flat().join(' ')).not.toMatch(/5000|formula/);
+  });
+
+  it('skips a row whose type has no activity module, with a warning naming its id', () => {
+    const e = repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    mem.db.update(events).set({ type: 'bath' }).where(eq(events.id, e.id)).run();
+    expect(repo.list()).toEqual([]);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(e.id));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('no activity module'));
+  });
+
+  it('warns about nothing when every row is valid', () => {
+    repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    repo.list();
+    expect(warn).not.toHaveBeenCalled();
+  });
+});
