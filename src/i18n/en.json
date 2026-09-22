@@ -41,10 +41,18 @@
       "label": "Stock adjustment"
     },
     "health": {
-      "label": "Health note"
+      "label": "Health note",
+      "summary": {
+        "temp": "{{temp}} °C",
+        "note": "{{note}}"
+      }
     },
     "medication": {
-      "label": "Medication"
+      "label": "Medication",
+      "summary": {
+        "withDose": "{{name}}, {{dose}}",
+        "nameOnly": "{{name}}"
+      }
     },
     "weight": {
       "label": "Weight"
@@ -88,7 +96,9 @@
     "logFeed": "Log feed",
     "actions": {
       "diaper": "Diaper",
-      "sleep": "Sleep"
+      "sleep": "Sleep",
+      "health": "Health note",
+      "medication": "Medication"
     },
     "sleep": {
       "label": "Sleeping since {{time}}",
@@ -141,6 +151,31 @@
         "range": "{{from}} to {{to}}",
         "save": "Save past sleep"
       }
+    },
+    "characters": "{{count}} of {{max}} characters",
+    "health": {
+      "title": "Health note",
+      "note": "Note",
+      "noteMissing": "Add a note to save this entry.",
+      "temperature": "Temperature in °C (optional)",
+      "tempFormat": "Enter the temperature as a number, like 37.5.",
+      "tempRange": "Enter a temperature from {{min}} to {{max}} °C.",
+      "tags": "Tags (optional)",
+      "tag": {
+        "rash": "Rash",
+        "vomiting": "Vomiting",
+        "cough": "Cough",
+        "congestion": "Congestion",
+        "fussy": "Fussy",
+        "jaundice": "Jaundice",
+        "other": "Other"
+      }
+    },
+    "medication": {
+      "title": "Medication",
+      "name": "Medication name",
+      "nameMissing": "Add the medication name to save this entry.",
+      "dose": "Dose (optional)"
     }
   },
   "dev": {

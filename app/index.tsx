@@ -24,6 +24,16 @@ export default function Home() {
               variant="secondary"
               onPress={() => router.push('/log/sleep')}
             />
+            <Button
+              label={t('home.actions.health')}
+              variant="secondary"
+              onPress={() => router.push('/log/health')}
+            />
+            <Button
+              label={t('home.actions.medication')}
+              variant="secondary"
+              onPress={() => router.push('/log/medication')}
+            />
           </>
         }
       />

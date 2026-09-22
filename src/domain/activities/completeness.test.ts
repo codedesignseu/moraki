@@ -23,7 +23,8 @@ function lookup(locale: unknown, key: string): unknown {
 //
 // icon       P1-06 defines IconName for the home grid; every type needs one
 //            by P1-11, since history rows show all types.
-// summarize  P1-06 home recent list first (bottle, breast, diaper, sleep);
+// summarize  P1-06 home recent list first (bottle, breast, diaper, sleep),
+//            health and medication from P1-10;
 //            every type by P1-11 history. Checked below for modules that have it.
 // LogSheet   feed_bottle, feed_breast P1-07 · diaper P1-08 · sleep P1-09 ·
 //            health, medication P1-10 · pump P3-02 · stock_adjust P3-03 ·
@@ -58,6 +59,14 @@ describe('activity registry completeness', () => {
     feed_bottle: ['breast', 'formula', 'mixed'].map((milk) => [{ ml: 90, milk }, null]),
     feed_breast: ['left', 'right', 'both'].map((side) => [{ side }, null]),
     diaper: ['wet', 'dirty', 'both'].map((kind) => [{ kind }, null]),
+    health: [
+      [{ note: 'Warm', temp_c: 37.8 }, null],
+      [{ note: 'Rash on cheek' }, null],
+    ],
+    medication: [
+      [{ name: 'Vitamin D', dose: '1 drop' }, null],
+      [{ name: 'Vitamin D' }, null],
+    ],
     sleep: [
       [{}, null],
       [{}, 3_600_000],
