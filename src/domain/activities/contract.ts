@@ -45,8 +45,24 @@ type Placeholder<Name extends string> = { readonly __placeholder: Name };
 export type IconName = Placeholder<'IconName'>;
 /** Replaced by the log sheets (P1-07 onwards). */
 export type LogSheetProps<P> = Placeholder<'LogSheetProps'> & { readonly __payload?: P };
-/** Replaced by the today strip and insights (P1-06, P1-17). */
-export type Stats = Placeholder<'Stats'>;
+/**
+ * Totals one day's events add up to (home today strip, SDD 6.1). A feed logged
+ * as a bottle plus a breast event shares a group id and counts once, so feeds
+ * are collected as ids and counted when read. Bottle millilitres and
+ * breastfeeding time are separate totals, each from its own side of a combined
+ * feed, and never added together. Insights (P1-17) may extend this.
+ */
+export type Stats = {
+  feedIds: readonly string[];
+  /** Bottle millilitres only. */
+  ml: number;
+  /** Breastfeeding time only, in milliseconds. */
+  breastMs: number;
+  wet: number;
+  dirty: number;
+};
+
+export const EMPTY_STATS: Stats = { feedIds: [], ml: 0, breastMs: 0, wet: 0, dirty: 0 };
 /** Replaced by the milk stock fold (SDD 6.3). */
 export type Stock = Placeholder<'Stock'>;
 /** Replaced by reports (SDD 6.5). */
