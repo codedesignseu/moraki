@@ -301,7 +301,8 @@
       "invalid_code": "That code is wrong or has expired. Send a new code to try again.",
       "rate_limited": "Too many attempts. Wait a few minutes, then try again.",
       "offline": "You're offline. Signing in needs a connection.",
-      "unknown": "Couldn't sign in. Try again."
+      "unknown": "Couldn't sign in. Try again.",
+      "server": "Moraki couldn’t send the code just now. Try again in a minute."
     }
   },
   "householdSetup": {

@@ -114,6 +114,30 @@ describe('email OTP sign in', () => {
     );
   });
 
+  it("says the server couldn't send it, not that the phone is offline", async () => {
+    // A project that can't send the email answers 500. supabase-js calls that
+    // a retryable fetch error, the same name it uses when nothing came back.
+    const failing = (async () =>
+      new Response(
+        JSON.stringify({ code: 'unexpected_failure', msg: 'Error sending magic link email' }),
+        {
+          status: 500,
+          headers: { 'content-type': 'application/json' },
+        },
+      )) as unknown as typeof fetch;
+    await expect(launch(keychain().store, failing).requestCode(EMAIL)).rejects.toEqual(
+      new AuthError('server'),
+    );
+  });
+
+  it('says the same for a gateway that is having trouble', async () => {
+    const gateway = (async () =>
+      new Response('bad gateway', { status: 502 })) as unknown as typeof fetch;
+    await expect(launch(keychain().store, gateway).requestCode(EMAIL)).rejects.toEqual(
+      new AuthError('server'),
+    );
+  });
+
   it('reports too many requests', async () => {
     const limited = (async () =>
       new Response(JSON.stringify({ code: 'over_email_send_rate_limit' }), {
