@@ -1,6 +1,6 @@
 import { resources } from '@/i18n';
 
-import { EVENT_TYPES, listActivities, type Event, type EventType } from '.';
+import { EVENT_TYPES, HISTORY_GROUPS, listActivities, type Event, type EventType } from '.';
 
 /** Walks a dotted key through a locale's nested JSON. */
 function lookup(locale: unknown, key: string): unknown {
@@ -21,6 +21,7 @@ function lookup(locale: unknown, key: string): unknown {
 // docs/TASKS.md) are below. When a field's last task lands, make it required
 // in contract.ts and add its check here.
 //
+// historyGroup  required of every module from P1-11 (checked below).
 // icon       P1-06 defines IconName for the home grid; every type needs one
 //            by P1-11, since history rows show all types.
 // summarize  P1-06 home recent list first (bottle, breast, diaper, sleep),
@@ -40,6 +41,13 @@ describe('activity registry completeness', () => {
   it.each(modules.map((m) => [m.type, m] as const))('%s has a schema', (_type, module) => {
     expect(typeof module.schema.safeParse).toBe('function');
   });
+
+  it.each(modules.map((m) => [m.type, m] as const))(
+    '%s belongs to a history filter group',
+    (_type, module) => {
+      expect(HISTORY_GROUPS).toContain(module.historyGroup);
+    },
+  );
 
   const locales = Object.entries(resources).map(
     ([lang, { translation }]) => [lang, translation] as const,

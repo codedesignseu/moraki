@@ -17,4 +17,5 @@ export const appointmentModule: ActivityModule<AppointmentPayload> = {
   type: 'appointment',
   schema: appointmentSchema,
   i18nKey: 'activity.appointment.label',
+  historyGroup: 'other',
 };

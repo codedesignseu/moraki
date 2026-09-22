@@ -1,27 +1,18 @@
 import { useMemo } from 'react';
 
 import { useEvents, useEventsRepository } from '@/db/react';
-import { getActivity, type EventType, type Summary } from '@/domain/activities';
+import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { DEFAULT_HOME_SETTINGS, selectHomeState } from '@/domain/home/homeState';
 import { formatClock } from '@/domain/time/formatClock';
 import { formatElapsed } from '@/domain/time/formatElapsed';
-import { dayBucket } from '@/domain/time/zoned';
 
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
-import { useNow } from './useNow';
+import { useNow } from '@/ui/useNow';
 
 export const TIMER_TICK_MS = 30_000;
 const RECENT_COUNT = 6;
 
-export type RecentRow = {
-  id: string;
-  type: EventType;
-  labelKey: string;
-  summary: Summary | null;
-  time: string;
-  daysAgo: number;
-  byYou: boolean;
-};
+export type RecentRow = EntryRow;
 
 export type ActiveSleep = { id: string; elapsed: string; startedAt: string };
 
@@ -68,18 +59,7 @@ export function useHome(): HomeViewModel {
       stopSleep: (id: string) => {
         repository.patch(id, { endedAt: Date.now() });
       },
-      recent: events.slice(0, RECENT_COUNT).map((e) => {
-        const module = getActivity(e.type);
-        return {
-          id: e.id,
-          type: e.type,
-          labelKey: module?.i18nKey ?? '',
-          summary: module?.summarize?.(e) ?? null,
-          time: formatClock(e.occurredAt, tz),
-          daysAgo: dayBucket(e.occurredAt, now, tz).daysAgo,
-          byYou: e.createdBy === me,
-        };
-      }),
+      recent: events.slice(0, RECENT_COUNT).map((e) => describeEntry(e, now, tz, me)),
     };
   }, [events, now, tz, repository]);
 }

@@ -19,6 +19,11 @@ export const EVENT_TYPES = [
 
 export type EventType = (typeof EVENT_TYPES)[number];
 
+/** The history filter chips (P1-11). Each activity says which one it belongs to. */
+export const HISTORY_GROUPS = ['feeds', 'diapers', 'sleep', 'health', 'other'] as const;
+
+export type HistoryGroup = (typeof HISTORY_GROUPS)[number];
+
 /**
  * One row of the events table (SDD 4.2) as the domain sees it. Times are UTC
  * epoch milliseconds (rule 5); the db layer maps columns to this shape.
@@ -103,6 +108,8 @@ export type ActivityModule<P> = {
   /** Label key in src/i18n, never a literal string. */
   i18nKey: string;
   icon?: IconName;
+  /** Which history filter chip shows it (P1-11). Checked by the completeness test. */
+  historyGroup?: HistoryGroup;
   /** Present when the module appears on the home grid. */
   quickAction?: { order: number };
   LogSheet?: LogSheetComponent<P>;

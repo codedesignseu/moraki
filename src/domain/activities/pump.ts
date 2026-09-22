@@ -13,4 +13,5 @@ export const pumpModule: ActivityModule<PumpPayload> = {
   type: 'pump',
   schema: pumpSchema,
   i18nKey: 'activity.pump.label',
+  historyGroup: 'other',
 };

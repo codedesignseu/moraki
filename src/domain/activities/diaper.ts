@@ -17,6 +17,7 @@ export const diaperModule: ActivityModule<DiaperPayload> = {
   type: 'diaper',
   schema: diaperSchema,
   i18nKey: 'activity.diaper.label',
+  historyGroup: 'diapers',
   summarize: (e) => ({ key: `activity.diaper.summary.${e.payload.kind}` }),
   contributes: {
     stats: (acc, e) => ({

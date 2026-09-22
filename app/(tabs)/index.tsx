@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { HomeScreen } from '@/features/home/HomeScreen';
@@ -9,7 +9,6 @@ export default function Home() {
   const router = useRouter();
   return (
     <>
-      <Stack.Screen options={{ title: t('app.name') }} />
       <HomeScreen
         actions={
           <>
