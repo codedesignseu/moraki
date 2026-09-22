@@ -74,6 +74,23 @@ export const outbox = sqliteTable('outbox', {
   notBefore: integer('not_before'),
 });
 
+/**
+ * Ops the server refused for good (SDD 5.2): wrong household, a payload it
+ * won't take, gone. They leave the outbox so they can't block it, and the
+ * sync status screen (P2-13) lists them from here.
+ */
+export const syncErrors = sqliteTable('sync_errors', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  entity: text('entity', { enum: ['event', 'baby'] }).notNull(),
+  entityId: text('entity_id').notNull(),
+  op: text('op', { enum: ['insert', 'patch', 'delete'] }).notNull(),
+  body: text('body').notNull(),
+  /** The server's reason: not_found, forbidden or invalid (SDD 5.2, P2-07). */
+  reason: text('reason').notNull(),
+  attempts: integer('attempts').notNull().default(0),
+  failedAt: integer('failed_at').notNull(),
+});
+
 export const meta = sqliteTable('meta', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),

@@ -2,7 +2,9 @@ import { render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
 import { useDevicePref, useEventsRepository, type AppRepositories } from '@/db/react';
+import { readLinkedIdentity } from '@/db/identity';
 import { createDevicePrefsRepository } from '@/db/repositories/devicePrefs';
+import { createOutboxRepository } from '@/db/repositories/outbox';
 import { createEventsRepository } from '@/db/repositories/events';
 import { createMemoryDb, testDeps } from '@/db/testing/memoryDb';
 import '@/i18n';
@@ -30,7 +32,14 @@ describe('DatabaseGate', () => {
     const { db } = await createMemoryDb();
     const events = createEventsRepository(db, testDeps());
     const devicePrefs = createDevicePrefsRepository(db);
-    await renderGate(() => Promise.resolve({ events, devicePrefs }));
+    await renderGate(() =>
+      Promise.resolve({
+        events,
+        devicePrefs,
+        outbox: createOutboxRepository(db),
+        linked: () => readLinkedIdentity(db),
+      }),
+    );
     expect(await screen.findByText('app')).toBeOnTheScreen();
   });
 

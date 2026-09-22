@@ -2,7 +2,12 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { DevicePrefsProvider, EventsRepositoryProvider, type AppRepositories } from '@/db/react';
+import {
+  DevicePrefsProvider,
+  EventsRepositoryProvider,
+  SyncRepositoriesProvider,
+  type AppRepositories,
+} from '@/db/react';
 import { useTheme } from '@/ui/theme';
 
 type State =
@@ -39,7 +44,9 @@ export function DatabaseGate({
     return (
       <EventsRepositoryProvider repository={state.repositories.events}>
         <DevicePrefsProvider repository={state.repositories.devicePrefs}>
-          {children}
+          <SyncRepositoriesProvider repositories={state.repositories}>
+            {children}
+          </SyncRepositoriesProvider>
         </DevicePrefsProvider>
       </EventsRepositoryProvider>
     );

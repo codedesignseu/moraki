@@ -9,6 +9,7 @@ import {
 
 import type { Event } from '@/domain/activities';
 
+import type { OutboxRepository } from './repositories/outbox';
 import type {
   DevicePrefName,
   DevicePrefsRepository,
@@ -17,7 +18,13 @@ import type {
 import type { EventsRepository } from './repositories/events';
 
 /** What the app gets once the database is open and migrated. */
-export type AppRepositories = { events: EventsRepository; devicePrefs: DevicePrefsRepository };
+export type AppRepositories = {
+  events: EventsRepository;
+  devicePrefs: DevicePrefsRepository;
+  outbox: OutboxRepository;
+  /** The server household and user this phone is linked to, null before P2-11. */
+  linked: () => { householdId: string; userId: string } | null;
+};
 
 const EventsRepositoryContext = createContext<EventsRepository | null>(null);
 
@@ -75,4 +82,31 @@ export function useDevicePref<N extends DevicePrefName>(
   const value = useSyncExternalStore(prefs.subscribe, () => prefs.get(name));
   const set = useCallback((next: DevicePrefValue<N>) => prefs.set(name, next), [prefs, name]);
   return [value, set];
+}
+
+const OutboxContext = createContext<AppRepositories | null>(null);
+
+export function SyncRepositoriesProvider({
+  repositories,
+  children,
+}: {
+  repositories: AppRepositories;
+  children: ReactNode;
+}) {
+  return <OutboxContext.Provider value={repositories}>{children}</OutboxContext.Provider>;
+}
+
+function useRepositories(): AppRepositories {
+  const repositories = useContext(OutboxContext);
+  if (!repositories) throw new Error('useOutboxRepository needs a SyncRepositoriesProvider');
+  return repositories;
+}
+
+export function useOutboxRepository(): OutboxRepository {
+  return useRepositories().outbox;
+}
+
+/** Reads the linked identity fresh each time; P2-11 writes it. */
+export function useLinkedIdentity(): AppRepositories['linked'] {
+  return useRepositories().linked;
 }

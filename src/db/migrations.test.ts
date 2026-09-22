@@ -85,7 +85,14 @@ describe('local migrations: fresh install', () => {
     const { sqlite, db } = open();
     migrate(db, { migrationsFolder: MIGRATIONS });
 
-    expect(tables(sqlite)).toEqual(['babies', 'events', 'memberships', 'meta', 'outbox']);
+    expect(tables(sqlite)).toEqual([
+      'babies',
+      'events',
+      'memberships',
+      'meta',
+      'outbox',
+      'sync_errors',
+    ]);
     expect(columns(sqlite, 'events')).toEqual([
       'id',
       'household_id',

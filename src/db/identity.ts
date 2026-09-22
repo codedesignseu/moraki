@@ -39,3 +39,21 @@ export function readIdentity(db: SyncDb): Identity {
   }
   return { householdId, babyId, userId };
 }
+
+/**
+ * The real household and user from sign in, once P2-11 has linked this phone
+ * (SDD 4.4's meta keys). Null while the phone is still on the placeholder ids
+ * migration 0001 seeded: its entries belong to no server household yet, so
+ * pushing them would only be refused (P2-F4).
+ */
+export function readLinkedIdentity(db: SyncDb): { householdId: string; userId: string } | null {
+  const rows = db
+    .select()
+    .from(meta)
+    .where(inArray(meta.key, [META_KEYS.householdId, META_KEYS.userId]))
+    .all();
+  const value = (key: string) => rows.find((row) => row.key === key)?.value;
+  const householdId = value(META_KEYS.householdId);
+  const userId = value(META_KEYS.userId);
+  return householdId && userId ? { householdId, userId } : null;
+}
