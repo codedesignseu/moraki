@@ -23,4 +23,5 @@ registerActivity(weightModule);
 registerActivity(appointmentModule);
 
 export * from './contract';
+export * from './queries';
 export { getActivity, listActivities, registerActivity } from './registry';

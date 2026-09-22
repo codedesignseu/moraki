@@ -17,4 +17,11 @@ export const diaperModule: ActivityModule<DiaperPayload> = {
   type: 'diaper',
   schema: diaperSchema,
   i18nKey: 'activity.diaper.label',
+  contributes: {
+    stats: (acc, e) => ({
+      ...acc,
+      wet: acc.wet + (e.payload.kind === 'dirty' ? 0 : 1),
+      dirty: acc.dirty + (e.payload.kind === 'wet' ? 0 : 1),
+    }),
+  },
 };

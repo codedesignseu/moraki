@@ -15,4 +15,7 @@ export const feedBreastModule: ActivityModule<FeedBreastPayload> = {
   type: 'feed_breast',
   schema: feedBreastSchema,
   i18nKey: 'activity.feed_breast.label',
+  contributes: {
+    stats: (acc, e) => ({ ...acc, feedIds: [...acc.feedIds, e.groupId ?? e.id] }),
+  },
 };
