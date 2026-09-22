@@ -11,7 +11,16 @@ export default function Home() {
     <>
       <Stack.Screen options={{ title: t('app.name') }} />
       <HomeScreen
-        actions={<Button label={t('home.logFeed')} onPress={() => router.push('/log/feed')} />}
+        actions={
+          <>
+            <Button label={t('home.logFeed')} onPress={() => router.push('/log/feed')} />
+            <Button
+              label={t('home.actions.diaper')}
+              variant="secondary"
+              onPress={() => router.push('/log/diaper')}
+            />
+          </>
+        }
       />
     </>
   );

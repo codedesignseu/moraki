@@ -1,16 +1,8 @@
-import { Stack } from 'expo-router';
-import { fireEvent, renderRouter, screen, within } from 'expo-router/testing-library';
-import { randomBytes } from 'node:crypto';
+import { fireEvent, screen, within } from 'expo-router/testing-library';
 
-import LogFeed from '../../../app/log/feed';
-import Home from '../../../app/index';
-import { EventsRepositoryProvider } from '@/db/react';
-import { createEventsRepository, type EventsRepository } from '@/db/repositories/events';
-import { createMemoryDb } from '@/db/testing/memoryDb';
+import type { EventsRepository } from '@/db/repositories/events';
 import type { Event } from '@/domain/activities';
-import { newId } from '@/domain/ids';
-import '@/i18n';
-import { ThemeProvider } from '@/ui/theme';
+import { createHarness, renderApp as renderRoutes } from '@/testing/appHarness';
 
 jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
 
@@ -21,31 +13,14 @@ const NOW = Date.parse('2026-07-01T09:00:00Z');
 let repo: EventsRepository;
 
 beforeEach(async () => {
-  jest.useRealTimers();
-  const { db } = await createMemoryDb();
-  jest.useFakeTimers({ now: NOW });
-  repo = createEventsRepository(db, {
-    now: Date.now,
-    newId: (at) => newId(at, () => new Uint8Array(randomBytes(16))),
-  });
+  ({ repo } = await createHarness(NOW));
 });
 
 afterEach(() => {
   jest.useRealTimers();
 });
 
-// The real app routes, with a test database in place of expo-sqlite.
-function TestLayout() {
-  return (
-    <ThemeProvider scheme="light">
-      <EventsRepositoryProvider repository={repo}>
-        <Stack />
-      </EventsRepositoryProvider>
-    </ThemeProvider>
-  );
-}
-
-const renderApp = () => renderRouter({ _layout: TestLayout, index: Home, 'log/feed': LogFeed });
+const renderApp = () => renderRoutes(repo);
 
 /** Home, then tap Log feed: the sheet as a caregiver reaches it. */
 async function openSheet() {

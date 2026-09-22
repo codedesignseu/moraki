@@ -39,7 +39,7 @@ export function HomeScreen({ actions }: { actions?: ReactNode }) {
         )}
       </Card>
 
-      {actions}
+      {actions && <View style={s.actions}>{actions}</View>}
 
       <Card testID="home-today">
         <Text style={theme.text.heading}>{t('home.today.title')}</Text>
@@ -105,6 +105,7 @@ function Row({ row, t }: { row: RecentRow; t: Translate }) {
 const styles = (theme: Theme) =>
   StyleSheet.create({
     screen: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+    actions: { gap: theme.spacing.md },
     muted: { ...theme.text.label, color: theme.colors.textMuted },
     strip: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.lg },
     stat: { minWidth: theme.size.touchTargetLarge, alignItems: 'flex-start' },

@@ -85,7 +85,10 @@
       "yesterday": "Yesterday {{time}}",
       "daysAgo": "{{count}} days ago, {{time}}"
     },
-    "logFeed": "Log feed"
+    "logFeed": "Log feed",
+    "actions": {
+      "diaper": "Diaper"
+    }
   },
   "log": {
     "save": "Save",
@@ -112,6 +115,13 @@
         "right": "Right",
         "both": "Both"
       }
+    },
+    "diaper": {
+      "title": "Diaper",
+      "wet": "Wet",
+      "dirty": "Dirty",
+      "both": "Wet and dirty",
+      "hint": "Saves straight away"
     }
   }
 }
