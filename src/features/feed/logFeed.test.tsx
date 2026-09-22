@@ -2,6 +2,7 @@ import { fireEvent, screen, within } from 'expo-router/testing-library';
 
 import type { EventsRepository } from '@/db/repositories/events';
 import type { Event } from '@/domain/activities';
+import { selectHomeState } from '@/domain/home/homeState';
 import { createHarness, renderApp as renderRoutes } from '@/testing/appHarness';
 
 jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
@@ -103,5 +104,81 @@ describe('logging a feed', () => {
     );
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
     expect(feeds()[0]).toMatchObject({ payload: { ml: 100, milk: 'breast' } });
+  });
+
+  describe('breastfeed duration (P1-19)', () => {
+    const today = () =>
+      selectHomeState(repo.list(), Date.now(), 'Europe/Nicosia', {
+        reminderIntervalMin: 180,
+        secondReminderMin: null,
+      }).today;
+    const choose = async (group: string, option: string) =>
+      fireEvent.press(within(screen.getByLabelText(group)).getByRole('radio', { name: option }));
+    const step = async (label: string, actionName: 'increment' | 'decrement') =>
+      fireEvent(screen.getByLabelText(label), 'accessibilityAction', {
+        nativeEvent: { actionName },
+      });
+
+    it('saves a breastfeed as ending now and starting "Fed for" minutes ago', async () => {
+      await openSheet();
+      await choose('Feed type', 'Breast');
+      expect(screen.getByLabelText('Fed for')).toHaveAccessibilityValue({ now: 15 });
+      // The sheet shows the times it will save: 11:45 to 12:00 local.
+      expect(screen.getByText('11:45 to 12:00')).toBeOnTheScreen();
+      await step('Fed for', 'increment');
+      expect(screen.getByText('11:40 to 12:00')).toBeOnTheScreen();
+      await step('Fed for', 'decrement');
+      await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+
+      expect(feeds()[0]).toMatchObject({
+        type: 'feed_breast',
+        occurredAt: NOW - 15 * MIN,
+        endedAt: NOW,
+      });
+      expect(today()).toMatchObject({ feeds: 1, ml: 0, breastMs: 15 * MIN });
+      // "Since last feed" counts from when the feed started.
+      expect(screen.getByRole('timer')).toHaveTextContent('15m');
+    });
+
+    it('saves a changed duration', async () => {
+      await openSheet();
+      await choose('Feed type', 'Breast');
+      await step('Fed for', 'increment');
+      await step('Fed for', 'increment');
+      await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+      expect(today().breastMs).toBe(25 * MIN);
+    });
+
+    it('starts both parts of a mixed feed when the session started, adding mL and minutes separately', async () => {
+      await openSheet();
+      await choose('Feed type', 'Both');
+      await step('Fed for', 'decrement');
+      await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+
+      const [a, b] = feeds();
+      expect(a?.occurredAt).toBe(NOW - 10 * MIN);
+      expect(b?.occurredAt).toBe(NOW - 10 * MIN);
+      expect(feeds().find((e) => e.type === 'feed_breast')?.endedAt).toBe(NOW);
+      expect(feeds().find((e) => e.type === 'feed_bottle')?.endedAt).toBeNull();
+      expect(today()).toMatchObject({ feeds: 1, ml: 90, breastMs: 10 * MIN });
+    });
+
+    it('opens with the last breastfeed duration', async () => {
+      repo.insert({
+        type: 'feed_breast',
+        occurredAt: NOW - 3 * HOUR,
+        endedAt: NOW - 3 * HOUR + 20 * MIN,
+        payload: { side: 'left' },
+      });
+      await openSheet();
+      expect(screen.getByLabelText('Fed for')).toHaveAccessibilityValue({ now: 20 });
+    });
+
+    it('does not show the duration for a bottle-only feed, which still saves at the time the sheet opened', async () => {
+      await openSheet();
+      expect(screen.queryByLabelText('Fed for')).toBeNull();
+      await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+      expect(feeds()[0]).toMatchObject({ type: 'feed_bottle', occurredAt: NOW, endedAt: null });
+    });
   });
 });
