@@ -64,7 +64,7 @@
     "prepare": "husky",
     "test": "jest",
     "test:tz": "for tz in Europe/Nicosia UTC America/New_York; do echo \"TZ=$tz\"; TZ=$tz EXPECTED_TZ=$tz jest --ci --verbose || exit 1; done",
-    "test:local": "MORAKI_LOCAL_SUPABASE=1 jest --config jest.local.config.js"
+    "test:local": "MORAKI_LOCAL_SUPABASE=1 jest --config jest.local.config.js --forceExit"
   },
   "private": true,
   "lint-staged": {

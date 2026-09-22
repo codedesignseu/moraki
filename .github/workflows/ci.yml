@@ -58,6 +58,8 @@ jobs:
   db:
     name: db
     runs-on: ubuntu-latest
+    # A hung step should fail, not sit for six hours.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: supabase/setup-cli@v3
