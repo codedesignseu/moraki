@@ -34,3 +34,14 @@ export function lastMedication(events: readonly Event<unknown>[]): MedicationPay
   );
   return last?.payload ?? null;
 }
+
+/** The latest live bottle or breast feed by when it happened (SDD 6.1), or null. */
+export function latestFeed(events: readonly Event<unknown>[]): FeedEvent | null {
+  return events
+    .filter((e) => e.deletedAt === null)
+    .filter(isFeed)
+    .reduce<FeedEvent | null>(
+      (best, e) => (best === null || e.occurredAt > best.occurredAt ? e : best),
+      null,
+    );
+}

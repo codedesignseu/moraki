@@ -74,10 +74,30 @@ export type Stock = Placeholder<'Stock'>;
 export type Range = Placeholder<'Range'>;
 /** Replaced by reports (SDD 6.5). */
 export type ReportSection = Placeholder<'ReportSection'>;
-/** Replaced by reminder computation (P1-13). */
-export type Settings = Placeholder<'Settings'>;
-/** Replaced by reminder computation (P1-13). */
-export type ScheduledReminder = Placeholder<'ScheduledReminder'>;
+/** What reminder computation needs (SDD 6.2, P1-13). */
+export type Settings = {
+  /** Reminders on for this user on this device (P1-15 toggle). */
+  enabled: boolean;
+  /** Household feed interval in minutes (SDD 4.2, 60..480, default 180). */
+  intervalMin: number;
+  /** Optional second reminder after the first, in minutes (15..120), or null. */
+  secondReminderMin: number | null;
+};
+
+/**
+ * A local notification to schedule (SDD 6.2). Text is an i18n key plus values
+ * and never carries amounts or health data: it shows on a lock screen (rule 8).
+ */
+export type ScheduledReminder = {
+  /** Stable, so the scheduler replaces rather than duplicates (e.g. `feed:first`). */
+  id: string;
+  /** Cancelled and rescheduled together on every change. */
+  category: 'feed';
+  /** UTC epoch ms. */
+  at: number;
+  bodyKey: string;
+  values?: Record<string, string>;
+};
 
 /** An i18n key and its interpolation values. */
 export type Summary = { key: string; values?: Record<string, string | number> };

@@ -76,7 +76,7 @@ Gate to move on: you use it alone for 3 days without paper backup.
 - [x] P1-10 `feat(log): health note and medication sheets` — depends: P1-04 — done when: temp range validated, note length capped
 - [ ] P1-11 `feat(history): timeline grouped by day with filters` — depends: P1-04 — done when: 2,000 events scroll at 60fps on the Android test phone — status: in_progress (built and tested; the 60fps scroll check is on the Waiting on device list)
 - [x] P1-12 `feat(entry): edit sheet and delete, undo toast on every save` — depends: P1-04, P1-11 — done when: undo within 6s restores exact prior state
-- [ ] P1-13 `feat(domain): reminder computation` — depends: P1-05 — done when: tests for recalculation on new feed, edit of last feed, delete of last feed, second reminder — status: in_progress
+- [x] P1-13 `feat(domain): reminder computation` — depends: P1-05 — done when: tests for recalculation on new feed, edit of last feed, delete of last feed, second reminder
 - [ ] P1-14 `feat(notifications): permission flow and local scheduler bound to reminder computation` — depends: P1-13, P0-09 — done when: on a real phone: log feed, lock, notification arrives at the right minute, relog moves it
 - [ ] P1-15 `feat(settings): reminder interval, second reminder, per-device reminders toggle` — depends: P1-14 — done when: changing interval reschedules immediately
 - [ ] P1-16 `feat(ui): night mode auto, on, off` — depends: P0-05 — done when: switches at 21:00 and 06:00 without restart
