@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import { BREAST_MINUTES, type FeedKind, type FeedPrefill } from '@/domain/activities';
-import { Button, Segmented, Stepper } from '@/ui/primitives';
+import { Button, Segmented, Stepper, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useFeedSheet } from './useFeedSheet';
@@ -12,11 +12,11 @@ const ML_MIN = 10;
 const ML_MAX = 400;
 
 /** Log a bottle, breast or mixed feed. Opens prefilled; Save is the only required tap. */
-export function FeedSheet({ onDone }: { onDone: () => void }) {
+export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: string }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
-  const { form, when, update, save } = useFeedSheet();
+  const { form, when, update, save, editing, shift, setShift, newStart } = useFeedSheet(entryId);
 
   const kinds: { value: FeedKind; label: string }[] = [
     { value: 'bottle', label: t('log.feed.kind.bottle') },
@@ -38,14 +38,26 @@ export function FeedSheet({ onDone }: { onDone: () => void }) {
 
   return (
     <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-      <Text style={s.muted}>
-        {'at' in when ? t('log.time', { time: when.at }) : t('log.feed.range', when)}
-      </Text>
+      {editing ? (
+        <TimeShiftField
+          label={t('entry.moveTime')}
+          minutes={shift}
+          onChange={setShift}
+          unit={t('entry.minutes')}
+          result={t('entry.newTime', { time: newStart })}
+        />
+      ) : (
+        <Text style={s.muted}>
+          {'at' in when ? t('log.time', { time: when.at }) : t('log.feed.range', when)}
+        </Text>
+      )}
       <Segmented
         options={kinds}
         value={form.kind}
         onChange={(kind) => update({ kind })}
         accessibilityLabel={t('log.feed.kind.label')}
+        // A logged feed keeps its kind; to change it, delete and log again.
+        disabled={editing}
       />
       {hasBottle && (
         <>

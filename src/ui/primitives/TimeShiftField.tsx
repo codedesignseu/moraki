@@ -16,10 +16,12 @@ type Props = {
   unit: string;
   /** The resulting time, already formatted, e.g. "New time: Fri 23 Oct, 13:50". */
   result: string;
+  /** Latest allowed shift in minutes, e.g. so a running sleep can't start in the future. */
+  max?: number | undefined;
 };
 
 /** Moves an entry's time earlier or later without a date picker. */
-export function TimeShiftField({ label, minutes, onChange, unit, result }: Props) {
+export function TimeShiftField({ label, minutes, onChange, unit, result, max }: Props) {
   const theme = useTheme();
   const s = styles(theme);
   return (
@@ -30,7 +32,7 @@ export function TimeShiftField({ label, minutes, onChange, unit, result }: Props
         onChange={onChange}
         step={TIME_SHIFT.step}
         min={TIME_SHIFT.min}
-        max={TIME_SHIFT.max}
+        max={Math.min(max ?? TIME_SHIFT.max, TIME_SHIFT.max)}
         unit={unit}
         accessibilityLabel={label}
       />

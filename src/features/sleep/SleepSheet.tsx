@@ -4,10 +4,19 @@ import { ScrollView, StyleSheet, Text } from 'react-native';
 import { Button, Card, Stepper } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
+import { SleepEditForm } from './SleepEditForm';
 import { PAST_SLEEP, useSleepSheet } from './useSleepSheet';
 
-/** Start or stop the running sleep in one tap, or add a sleep that already happened. */
-export function SleepSheet({ onDone }: { onDone: () => void }) {
+/**
+ * Start or stop the running sleep in one tap, or add a sleep that already
+ * happened. With `entryId` it edits that sleep instead (P1-12).
+ */
+export function SleepSheet({ onDone, entryId }: { onDone: () => void; entryId?: string }) {
+  if (entryId) return <SleepEditForm entryId={entryId} onDone={onDone} />;
+  return <LogSleep onDone={onDone} />;
+}
+
+function LogSleep({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);

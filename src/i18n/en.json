@@ -222,6 +222,9 @@
     "delete": "Delete entry",
     "notEditable": "Editing this kind of entry comes later. You can delete it.",
     "gone": "This entry no longer exists.",
-    "openHint": "Opens this entry to edit or delete it"
+    "openHint": "Opens this entry to edit or delete it",
+    "moveStart": "Move start",
+    "started": "Started: {{time}}",
+    "ended": "Ended: {{time}}"
   }
 }

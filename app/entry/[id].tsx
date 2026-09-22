@@ -7,8 +7,10 @@ import { useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
 import { getActivity, type EventType } from '@/domain/activities';
 import { DiaperSheet } from '@/features/diaper/DiaperSheet';
+import { FeedSheet } from '@/features/feed/FeedSheet';
 import { HealthSheet } from '@/features/health/HealthSheet';
 import { MedicationSheet } from '@/features/health/MedicationSheet';
+import { SleepSheet } from '@/features/sleep/SleepSheet';
 import { Button } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
@@ -18,13 +20,13 @@ type Editor = ComponentType<{ entryId: string; onDone: () => void }>;
  * The sheet that edits each activity (P1-12): the same sheet used to log it,
  * opened on the entry. This is where the SDD 15.2 `LogSheet` lives, since
  * domain modules can't import React. Exhaustive over EventType, so a new
- * activity must choose a sheet or null here. Feed and sleep join in P1-12 C2.
+ * activity must choose a sheet or null here.
  */
 const EDITORS: Record<EventType, Editor | null> = {
-  feed_bottle: null,
-  feed_breast: null,
+  feed_bottle: FeedSheet,
+  feed_breast: FeedSheet,
   diaper: DiaperSheet,
-  sleep: null,
+  sleep: SleepSheet,
   pump: null,
   stock_adjust: null,
   health: HealthSheet,
