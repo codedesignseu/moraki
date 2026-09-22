@@ -15,7 +15,9 @@ import { newId } from '@/domain/ids';
 
 import migrations from './migrations/migrations';
 import type { AppRepositories } from './react';
+import { readLinkedIdentity } from './identity';
 import { createDevicePrefsRepository } from './repositories/devicePrefs';
+import { createOutboxRepository } from './repositories/outbox';
 import { createEventsRepository } from './repositories/events';
 import * as schema from './schema';
 
@@ -36,5 +38,7 @@ export async function openAppDatabase(): Promise<AppRepositories> {
       newId: (now) => newId(now, () => getRandomBytes(16)),
     }),
     devicePrefs: createDevicePrefsRepository(db),
+    outbox: createOutboxRepository(db),
+    linked: () => readLinkedIdentity(db),
   };
 }

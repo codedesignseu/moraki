@@ -7,7 +7,9 @@ import { newId } from '@/domain/ids';
 
 import migrations from './migrations/migrations';
 import type { AppRepositories } from './react';
+import { readLinkedIdentity } from './identity';
 import { createDevicePrefsRepository } from './repositories/devicePrefs';
+import { createOutboxRepository } from './repositories/outbox';
 import { createEventsRepository } from './repositories/events';
 import * as schema from './schema';
 
@@ -40,5 +42,10 @@ export function createAppEventsRepository(db: LocalDb) {
 export async function openAppDatabase(): Promise<AppRepositories> {
   const db = openLocalDb();
   await migrateLocalDb(db);
-  return { events: createAppEventsRepository(db), devicePrefs: createDevicePrefsRepository(db) };
+  return {
+    events: createAppEventsRepository(db),
+    devicePrefs: createDevicePrefsRepository(db),
+    outbox: createOutboxRepository(db),
+    linked: () => readLinkedIdentity(db),
+  };
 }

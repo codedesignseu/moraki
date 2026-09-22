@@ -22,6 +22,13 @@
       "when": 1790076069758,
       "tag": "0002_outbox_not_before",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1790103942120,
+      "tag": "0003_sync_errors",
+      "breakpoints": true
     }
   ]
 }

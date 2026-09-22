@@ -66,6 +66,7 @@ export function authServer(
     /** The account's membership, if it has one. Defaults to owner of the babies' household. */
     memberships?: { household_id: string; role: 'owner' | 'caregiver' | 'viewer' }[];
     createInvite?: () => Response;
+    pushEvents?: (ops: { op: string; body: { id: string } }[]) => Response;
     acceptInvite?: () => Response;
     createHousehold?: () => Response;
   } = {},
@@ -102,6 +103,21 @@ export function authServer(
               role: 'owner',
             })),
         );
+      case '/rest/v1/rpc/push_events': {
+        const ops = (body.ops ?? []) as { op: string; body: { id: string } }[];
+        return (
+          options.pushEvents?.(ops) ??
+          json(
+            200,
+            ops.map((entry) => ({
+              id: entry.body.id,
+              op: entry.op,
+              status: 'applied',
+              reason: null,
+            })),
+          )
+        );
+      }
       case '/rest/v1/rpc/create_invite':
         return (
           options.createInvite?.() ??

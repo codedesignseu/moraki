@@ -10,6 +10,7 @@ import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
 import { WEB_STAND_IN } from '@/db/standIn';
 import { AuthProvider, createAppAuth } from '@/sync/AuthProvider';
+import { SyncProvider } from '@/sync/SyncProvider';
 import { DEFAULT_NIGHT_MODE } from '@/domain/time/night';
 import { Notice } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
@@ -25,10 +26,12 @@ export default function RootLayout() {
       <DatabaseGate open={openAppDatabase}>
         <PreferredNightModeTheme>
           <AuthProvider auth={appAuth}>
-            <UndoProvider>
-              <ThemedStack />
-              <UndoToast />
-            </UndoProvider>
+            <SyncProvider>
+              <UndoProvider>
+                <ThemedStack />
+                <UndoToast />
+              </UndoProvider>
+            </SyncProvider>
           </AuthProvider>
         </PreferredNightModeTheme>
       </DatabaseGate>
