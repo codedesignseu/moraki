@@ -19,6 +19,14 @@ export function watchHousehold(
   householdId: string,
   handlers: { onPing: () => void; onConnected: () => void },
 ): { close: () => void } {
+  // Realtime checks row level security with the signed-in token, and the
+  // client hands it over only when it notices the session for itself. Hand it
+  // over here too: a subscription that registers without one is simply told
+  // nothing, and says nothing about why.
+  void auth.client.auth.getSession().then(({ data }) => {
+    if (data.session) void auth.client.realtime.setAuth(data.session.access_token);
+  });
+
   const channel: RealtimeChannel = auth.client
     .channel(`household:${householdId}`)
     .on(

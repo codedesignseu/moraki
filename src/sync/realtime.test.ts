@@ -17,6 +17,7 @@ function client() {
       return channel;
     },
   };
+  const setAuth = jest.fn();
   const auth = {
     client: {
       channel: (name: string) => {
@@ -24,9 +25,11 @@ function client() {
         return channel;
       },
       removeChannel: (c: unknown) => calls.removed.push(c),
+      auth: { getSession: async () => ({ data: { session: { access_token: 'token-abc' } } }) },
+      realtime: { setAuth },
     },
   } as unknown as Auth;
-  return { auth, calls, ping: () => notify?.(), status: (s: string) => statusOf?.(s) };
+  return { auth, calls, setAuth, ping: () => notify?.(), status: (s: string) => statusOf?.(s) };
 }
 
 describe('listening for changes in the household', () => {
@@ -67,6 +70,14 @@ describe('listening for changes in the household', () => {
 
     fake.status('SUBSCRIBED'); // the socket came back and rejoined
     expect(onConnected).toHaveBeenCalledTimes(2);
+  });
+
+  it('gives realtime the signed-in token, so it is told anything at all', async () => {
+    const fake = client();
+    watchHousehold(fake.auth, 'h1', { onPing: () => {}, onConnected: () => {} });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(fake.setAuth).toHaveBeenCalledWith('token-abc');
   });
 
   it('lets go of the channel when it is closed', () => {
