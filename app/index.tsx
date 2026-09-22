@@ -1,14 +1,18 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { HomeScreen } from '@/features/home/HomeScreen';
+import { Button } from '@/ui/primitives';
 
 export default function Home() {
   const { t } = useTranslation();
+  const router = useRouter();
   return (
     <>
       <Stack.Screen options={{ title: t('app.name') }} />
-      <HomeScreen />
+      <HomeScreen
+        actions={<Button label={t('home.logFeed')} onPress={() => router.push('/log/feed')} />}
+      />
     </>
   );
 }

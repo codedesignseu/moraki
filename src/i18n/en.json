@@ -84,6 +84,34 @@
       "other": "Another caregiver",
       "yesterday": "Yesterday {{time}}",
       "daysAgo": "{{count}} days ago, {{time}}"
+    },
+    "logFeed": "Log feed"
+  },
+  "log": {
+    "save": "Save",
+    "time": "At {{time}}",
+    "feed": {
+      "title": "Feed",
+      "amount": "Amount",
+      "unit": "mL",
+      "kind": {
+        "label": "Feed type",
+        "bottle": "Bottle",
+        "breast": "Breast",
+        "mixed": "Both"
+      },
+      "milk": {
+        "label": "Milk",
+        "breast": "Breast milk",
+        "formula": "Formula",
+        "mixed": "Mixed"
+      },
+      "side": {
+        "label": "Side",
+        "left": "Left",
+        "right": "Right",
+        "both": "Both"
+      }
     }
   }
 }

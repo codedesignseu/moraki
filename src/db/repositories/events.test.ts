@@ -339,3 +339,54 @@ describe('rows that can no longer be shown', () => {
     expect(warn).not.toHaveBeenCalled();
   });
 });
+
+describe('insertGroup', () => {
+  const pair = [
+    {
+      type: 'feed_bottle' as const,
+      occurredAt: bottle.occurredAt,
+      payload: { ml: 30, milk: 'breast' },
+    },
+    { type: 'feed_breast' as const, occurredAt: bottle.occurredAt, payload: { side: 'left' } },
+  ];
+
+  it('writes every event with one shared group id and one outbox op each', () => {
+    const [a, b] = repo.insertGroup(pair);
+    expect(a?.groupId).toMatch(V7);
+    expect(b?.groupId).toBe(a?.groupId);
+    expect(outboxRows().map((row) => [row.op, row.entityId, row.body.group_id])).toEqual([
+      ['insert', a?.id, a?.groupId],
+      ['insert', b?.id, a?.groupId],
+    ]);
+  });
+
+  it('writes nothing if any event in the group is invalid', () => {
+    expect(() =>
+      repo.insertGroup([pair[0]!, { ...pair[1]!, payload: { side: 'middle' } }]),
+    ).toThrow(expect.objectContaining({ reason: 'invalid_payload' }) as EventWriteError);
+    expect(count('events')).toBe(0);
+  });
+
+  it('writes nothing from the group when the second event row fails', () => {
+    // Event 1 and its outbox op are written before event 2 fails: all must roll back.
+    mem.sqlite.run(
+      "CREATE TRIGGER fail_second_event BEFORE INSERT ON events WHEN (SELECT count(*) FROM events) >= 1 BEGIN SELECT RAISE(ABORT, 'forced failure'); END",
+    );
+    const listener = jest.fn();
+    repo.subscribe(listener);
+    expect(() => repo.insertGroup(pair)).toThrow('forced failure');
+    expect(count('events')).toBe(0);
+    expect(count('outbox')).toBe(0);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it('rolls the whole group back when a later write fails', () => {
+    // Fail only the second outbox insert: the first event and op must roll back too.
+    mem.sqlite.run(
+      "CREATE TRIGGER fail_second BEFORE INSERT ON outbox WHEN (SELECT count(*) FROM outbox) >= 1 BEGIN SELECT RAISE(ABORT, 'forced failure'); END",
+    );
+    expect(() => repo.insertGroup(pair)).toThrow('forced failure');
+    expect(count('events')).toBe(0);
+    expect(count('outbox')).toBe(0);
+  });
+});

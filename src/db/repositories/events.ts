@@ -123,29 +123,34 @@ export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
     return row;
   }
 
-  return {
-    insert(input: NewEvent): Event<unknown> {
-      const writtenKeys = isRecord(input.payload) ? Object.keys(input.payload) : [];
-      validate(input.type, input.payload, writtenKeys);
-      const now = deps.now();
-      const { householdId, babyId, userId } = me();
-      const row: EventRow = {
-        id: deps.newId(now),
-        householdId,
-        babyId,
-        type: input.type,
-        occurredAt: input.occurredAt,
-        endedAt: input.endedAt ?? null,
-        payload: input.payload,
-        groupId: input.groupId ?? null,
-        createdBy: userId,
-        updatedBy: userId,
-        clientCreatedAt: now,
-        serverUpdatedAt: null,
-        seq: null,
-        deletedAt: null,
-      };
-      db.transaction((tx) => {
+  function insertAll(inputs: NewEvent[], groupId: string | null): Event<unknown>[] {
+    for (const input of inputs) {
+      validate(
+        input.type,
+        input.payload,
+        isRecord(input.payload) ? Object.keys(input.payload) : [],
+      );
+    }
+    const now = deps.now();
+    const { householdId, babyId, userId } = me();
+    const rows: EventRow[] = inputs.map((input) => ({
+      id: deps.newId(now),
+      householdId,
+      babyId,
+      type: input.type,
+      occurredAt: input.occurredAt,
+      endedAt: input.endedAt ?? null,
+      payload: input.payload,
+      groupId,
+      createdBy: userId,
+      updatedBy: userId,
+      clientCreatedAt: now,
+      serverUpdatedAt: null,
+      seq: null,
+      deletedAt: null,
+    }));
+    db.transaction((tx) => {
+      for (const row of rows) {
         tx.insert(events).values(row).run();
         tx.insert(outbox)
           .values({
@@ -168,9 +173,23 @@ export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
             createdAt: now,
           })
           .run();
-      });
-      changed();
-      return toEvent(row) as Event<unknown>;
+      }
+    });
+    changed();
+    return rows.map((row) => toEvent(row) as Event<unknown>);
+  }
+
+  return {
+    insert(input: NewEvent): Event<unknown> {
+      return insertAll([input], input.groupId ?? null)[0] as Event<unknown>;
+    },
+
+    /**
+     * Several events logged as one thing, e.g. a bottle plus breast feed (SDD
+     * 4.1): they share a new group id and commit together or not at all.
+     */
+    insertGroup(inputs: NewEvent[]): Event<unknown>[] {
+      return insertAll(inputs, deps.newId(deps.now()));
     },
 
     patch(id: string, changes: EventChanges): Event<unknown> {

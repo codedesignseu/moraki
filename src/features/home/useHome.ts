@@ -7,7 +7,7 @@ import { formatClock } from '@/domain/time/formatClock';
 import { formatElapsed } from '@/domain/time/formatElapsed';
 import { dayBucket } from '@/domain/time/zoned';
 
-import { deviceTimeZone } from './deviceTimeZone';
+import { deviceTimeZone } from '@/ui/deviceTimeZone';
 import { useNow } from './useNow';
 
 export const TIMER_TICK_MS = 30_000;
