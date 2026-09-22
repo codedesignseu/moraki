@@ -115,6 +115,28 @@ describe('HomeScreen', () => {
     expect(screen.getByText('Sleep in the last 24h: 2h 0m')).toBeOnTheScreen();
   });
 
+  it('shows breastfeeding time next to bottle mL, as separate figures (P1-F10)', async () => {
+    repo.insertGroup([
+      { type: 'feed_bottle', occurredAt: NOW - HOUR, payload: { ml: 90, milk: 'formula' } },
+      {
+        type: 'feed_breast',
+        occurredAt: NOW - HOUR,
+        endedAt: NOW - 35 * MIN,
+        payload: { side: 'left' },
+      },
+    ]);
+    await renderHome();
+    expect(screen.getByLabelText('Feeds: 1')).toBeOnTheScreen();
+    expect(screen.getByLabelText('mL: 90')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Breastfeeding: 25m')).toBeOnTheScreen();
+  });
+
+  it('shows 0m breastfeeding on a day without any', async () => {
+    bottle(NOW - HOUR, 60);
+    await renderHome();
+    expect(screen.getByLabelText('Breastfeeding: 0m')).toBeOnTheScreen();
+  });
+
   it('lists the 6 most recent entries, newest first, with time and author', async () => {
     for (let i = 1; i <= 8; i += 1) bottle(NOW - i * HOUR, 10 * i);
     await renderHome();

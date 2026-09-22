@@ -83,7 +83,8 @@
       "ml": "mL",
       "wet": "Wet",
       "dirty": "Dirty",
-      "sleep24h": "Sleep in the last 24h: {{duration}}"
+      "sleep24h": "Sleep in the last 24h: {{duration}}",
+      "breastfeeding": "Breastfeeding"
     },
     "recent": {
       "title": "Recent",

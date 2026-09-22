@@ -20,7 +20,15 @@ export type HomeViewModel = {
   sinceLastFeed: string | null;
   nextSide: 'left' | 'right' | null;
   reminder: { time: string; passed: boolean } | null;
-  today: { feeds: number; ml: number; wet: number; dirty: number; sleep: string };
+  /** Bottle mL and breastfeeding time are separate figures, never combined. */
+  today: {
+    feeds: number;
+    ml: number;
+    breastfeeding: string;
+    wet: number;
+    dirty: number;
+    sleep: string;
+  };
   recent: RecentRow[];
   activeSleep: ActiveSleep | null;
   /** Ends the running sleep now. */
@@ -47,7 +55,14 @@ export function useHome(): HomeViewModel {
         state.reminderAt === null
           ? null
           : { time: formatClock(state.reminderAt, tz), passed: state.reminderAt <= now },
-      today: { ...state.today, sleep: formatElapsed(state.today.sleepMs24h) },
+      today: {
+        feeds: state.today.feeds,
+        ml: state.today.ml,
+        breastfeeding: formatElapsed(state.today.breastMs),
+        wet: state.today.wet,
+        dirty: state.today.dirty,
+        sleep: formatElapsed(state.today.sleepMs24h),
+      },
       activeSleep:
         state.activeSleep === null
           ? null
