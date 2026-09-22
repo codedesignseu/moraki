@@ -67,6 +67,8 @@ export function authServer(
     memberships?: { household_id: string; role: 'owner' | 'caregiver' | 'viewer' }[];
     createInvite?: () => Response;
     pushEvents?: (ops: { op: string; body: { id: string } }[]) => Response;
+    /** Rows a pull finds; `seq` is the PostgREST filter, e.g. "gt.7". */
+    events?: (seq: string) => unknown[];
     acceptInvite?: () => Response;
     createHousehold?: () => Response;
   } = {},
@@ -92,6 +94,8 @@ export function authServer(
         return options.verify?.() ?? json(200, session(Math.floor(Date.now() / 1000) + HOUR_S));
       case '/auth/v1/logout':
         return new Response(null, { status: 204 });
+      case '/rest/v1/events':
+        return json(200, options.events?.(url.searchParams.get('seq') ?? '') ?? []);
       case '/rest/v1/babies':
         return json(200, options.babies ?? []);
       case '/rest/v1/memberships':

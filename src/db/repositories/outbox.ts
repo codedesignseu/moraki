@@ -1,7 +1,8 @@
-import { asc, inArray, isNull, lte, or, sql } from 'drizzle-orm';
+import { asc, eq, inArray, isNull, lte, or, sql } from 'drizzle-orm';
 
 import type { SyncDb } from '../identity';
-import { outbox, syncErrors } from '../schema';
+import { META_KEYS } from '../meta';
+import { meta, outbox, syncErrors } from '../schema';
 
 /** SDD 5.2: at most 100 ops per push_events call. */
 export const PUSH_BATCH = 100;
@@ -10,8 +11,9 @@ export type OutboxRow = typeof outbox.$inferSelect;
 export type SyncErrorRow = typeof syncErrors.$inferSelect;
 
 /**
- * The queue of local writes waiting for the server (SDD 4.4), and the ops the
- * server refused for good. Ops leave the outbox only when the server has
+ * The queue of local writes waiting for the server (SDD 4.4), the ops the
+ * server refused for good, and how far this phone has read the household's
+ * events (the pull cursor, SDD 5.3). Ops leave the outbox only when the server has
  * answered for them: applied or ignored means done, rejected means it moves
  * to sync_errors, and anything else stays to be tried again.
  */
@@ -100,6 +102,22 @@ export function createOutboxRepository(db: SyncDb) {
       db.update(outbox)
         .set({ attempts: sql`${outbox.attempts} + 1`, lastError: error })
         .where(inArray(outbox.id, [...ids]))
+        .run();
+      changed();
+    },
+
+    /** The highest seq this phone has taken from the server (SDD 5.3). */
+    cursor(): number {
+      const row = db.select().from(meta).where(eq(meta.key, META_KEYS.pullCursor)).get();
+      const value = Number(row?.value);
+      return Number.isFinite(value) && value > 0 ? value : 0;
+    },
+
+    /** Saved only after the rows up to it are stored, so nothing is skipped. */
+    setCursor(seq: number): void {
+      db.insert(meta)
+        .values({ key: META_KEYS.pullCursor, value: String(seq) })
+        .onConflictDoUpdate({ target: meta.key, set: { value: String(seq) } })
         .run();
       changed();
     },
