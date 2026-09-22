@@ -1,0 +1,47 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Tabs } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+
+import { useTheme } from '@/ui/theme';
+
+/** Home and History (SDD 7). Insights and Settings join when their tasks land. */
+export default function TabsLayout() {
+  const { t } = useTranslation();
+  const theme = useTheme();
+  return (
+    <Tabs
+      screenOptions={{
+        headerStyle: { backgroundColor: theme.colors.surface },
+        headerTintColor: theme.colors.text,
+        sceneStyle: { backgroundColor: theme.colors.background },
+        tabBarStyle: {
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.divider,
+        },
+        tabBarActiveTintColor: theme.colors.accent,
+        tabBarInactiveTintColor: theme.colors.textMuted,
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: t('app.name'),
+          tabBarLabel: t('tabs.home'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: t('tabs.history'),
+          tabBarLabel: t('tabs.history'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="time-outline" color={color} size={size} />
+          ),
+        }}
+      />
+    </Tabs>
+  );
+}

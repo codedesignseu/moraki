@@ -13,6 +13,7 @@ export const sleepModule: ActivityModule<SleepPayload> = {
   type: 'sleep',
   schema: sleepSchema,
   i18nKey: 'activity.sleep.label',
+  historyGroup: 'sleep',
   summarize: (e) =>
     e.endedAt === null
       ? { key: 'activity.sleep.summary.running' }

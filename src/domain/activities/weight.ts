@@ -13,4 +13,5 @@ export const weightModule: ActivityModule<WeightPayload> = {
   type: 'weight',
   schema: weightSchema,
   i18nKey: 'activity.weight.label',
+  historyGroup: 'other',
 };

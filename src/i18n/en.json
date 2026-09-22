@@ -183,5 +183,23 @@
   },
   "dev": {
     "webStandIn": "Web preview: test data only. Entries live in this browser tab and vanish on reload. This is not the phone’s database."
+  },
+  "tabs": {
+    "home": "Home",
+    "history": "History"
+  },
+  "history": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "filters": "Filter entries",
+    "empty": "Nothing logged yet",
+    "emptyFiltered": "Nothing matches these filters",
+    "group": {
+      "feeds": "Feeds",
+      "diapers": "Diapers",
+      "sleep": "Sleep",
+      "health": "Health",
+      "other": "Other"
+    }
   }
 }

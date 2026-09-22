@@ -25,7 +25,7 @@
       },
       "package": "eu.codedesigns.moraki"
     },
-    "plugins": ["expo-router", "expo-localization", "expo-sqlite"],
+    "plugins": ["expo-router", "expo-localization", "expo-sqlite", "expo-font", "expo-asset"],
     "experiments": {
       "typedRoutes": true
     }

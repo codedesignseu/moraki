@@ -5,7 +5,9 @@ import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import { randomBytes } from 'node:crypto';
 
-import Home from '../../app/index';
+import History from '../../app/(tabs)/history';
+import Home from '../../app/(tabs)/index';
+import TabsLayout from '../../app/(tabs)/_layout';
 import LogDiaper from '../../app/log/diaper';
 import LogFeed from '../../app/log/feed';
 import LogHealth from '../../app/log/health';
@@ -45,7 +47,9 @@ export function renderApp(repo: EventsRepository) {
   }
   return renderRouter({
     _layout: TestLayout,
-    index: Home,
+    '(tabs)/_layout': TabsLayout,
+    '(tabs)/index': Home,
+    '(tabs)/history': History,
     'log/feed': LogFeed,
     'log/diaper': LogDiaper,
     'log/sleep': LogSleep,

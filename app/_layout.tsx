@@ -33,7 +33,10 @@ function ThemedStack() {
           headerStyle: { backgroundColor: theme.colors.surface },
           headerTintColor: theme.colors.text,
         }}
-      />
+      >
+        {/* The tabs draw their own headers (SDD 7). */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
     </View>
   );
 }
