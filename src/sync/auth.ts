@@ -6,7 +6,7 @@ import type { SupabaseEnv } from './supabaseEnv';
 export type AuthUser = { id: string; email: string | null };
 
 /** Why a request failed, in terms the sign-in screen can explain. Never carries the address or code. */
-export type AuthFailure = 'invalid_code' | 'rate_limited' | 'offline' | 'unknown';
+export type AuthFailure = 'invalid_code' | 'rate_limited' | 'offline' | 'server' | 'unknown';
 
 export class AuthError extends Error {
   override name = 'AuthError';
@@ -43,9 +43,16 @@ function failure(error: {
   status?: number | undefined;
   code?: string | undefined;
 }): AuthError {
-  if (error.name === 'AuthRetryableFetchError' || error.status === 0)
+  // supabase-js reports a request that never reached the server and a server
+  // that answered badly as the same kind of error; only the status tells them
+  // apart. Status 0 means nothing came back, so the phone is offline. Anything
+  // from 500 up is the server itself: a project that can't send the email
+  // answers 500, and calling that "offline" sends people to check their wifi.
+  if (error.status === 0 || (error.name === 'AuthRetryableFetchError' && !error.status)) {
     return new AuthError('offline');
+  }
   if (error.status === 429 || error.code?.startsWith('over_')) return new AuthError('rate_limited');
+  if (error.status !== undefined && error.status >= 500) return new AuthError('server');
   if (
     error.code === 'otp_expired' ||
     error.code === 'invalid_credentials' ||
