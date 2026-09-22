@@ -367,6 +367,19 @@ describe('insertGroup', () => {
     expect(count('events')).toBe(0);
   });
 
+  it('writes nothing from the group when the second event row fails', () => {
+    // Event 1 and its outbox op are written before event 2 fails: all must roll back.
+    mem.sqlite.run(
+      "CREATE TRIGGER fail_second_event BEFORE INSERT ON events WHEN (SELECT count(*) FROM events) >= 1 BEGIN SELECT RAISE(ABORT, 'forced failure'); END",
+    );
+    const listener = jest.fn();
+    repo.subscribe(listener);
+    expect(() => repo.insertGroup(pair)).toThrow('forced failure');
+    expect(count('events')).toBe(0);
+    expect(count('outbox')).toBe(0);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
   it('rolls the whole group back when a later write fails', () => {
     // Fail only the second outbox insert: the first event and op must roll back too.
     mem.sqlite.run(
