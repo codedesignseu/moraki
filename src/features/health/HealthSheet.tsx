@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useEventsRepository } from '@/db/react';
+import { useUndoableSaves } from '@/db/undo';
 import {
   HEALTH_NOTE_MAX,
   HEALTH_TAGS,
@@ -27,6 +28,7 @@ export function HealthSheet({ onDone }: { onDone: () => void }) {
   const theme = useTheme();
   const s = styles(theme);
   const repository = useEventsRepository();
+  const saves = useUndoableSaves(repository);
   const [openedAt] = useState(Date.now);
   const [note, setNote] = useState('');
   const [temperature, setTemperature] = useState('');
@@ -51,7 +53,7 @@ export function HealthSheet({ onDone }: { onDone: () => void }) {
       ...(temp.kind === 'value' && { temp_c: temp.celsius }),
       ...(tags.length > 0 && { tags }),
     };
-    repository.insert({ type: 'health', occurredAt: openedAt, payload });
+    saves.insert('undo.healthSaved', { type: 'health', occurredAt: openedAt, payload });
     onDone();
   }
 

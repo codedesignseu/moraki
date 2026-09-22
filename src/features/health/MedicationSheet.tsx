@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import { useEvents, useEventsRepository } from '@/db/react';
+import { useUndoableSaves } from '@/db/undo';
 import { lastMedication } from '@/domain/activities';
 import {
   MEDICATION_DOSE_MAX,
@@ -23,6 +24,7 @@ export function MedicationSheet({ onDone }: { onDone: () => void }) {
   const theme = useTheme();
   const s = styles(theme);
   const repository = useEventsRepository();
+  const saves = useUndoableSaves(repository);
   const events = useEvents();
   const [openedAt] = useState(Date.now);
   const [last] = useState(() => lastMedication(events));
@@ -38,7 +40,7 @@ export function MedicationSheet({ onDone }: { onDone: () => void }) {
       name: name.trim(),
       ...(dose.trim() !== '' && { dose: dose.trim() }),
     };
-    repository.insert({ type: 'medication', occurredAt: openedAt, payload });
+    saves.insert('undo.medicationSaved', { type: 'medication', occurredAt: openedAt, payload });
     onDone();
   }
 

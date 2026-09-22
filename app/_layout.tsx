@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, useColorScheme, View } from 'react-native';
 
 import { openAppDatabase } from '@/db/client';
+import { UndoProvider } from '@/db/undo';
 import { DatabaseGate } from '@/features/startup/DatabaseGate';
+import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
 import { WEB_STAND_IN } from '@/db/standIn';
 import { Notice } from '@/ui/primitives';
@@ -15,7 +17,10 @@ export default function RootLayout() {
   return (
     <ThemeProvider scheme={scheme}>
       <DatabaseGate open={openAppDatabase}>
-        <ThemedStack />
+        <UndoProvider>
+          <ThemedStack />
+          <UndoToast />
+        </UndoProvider>
       </DatabaseGate>
     </ThemeProvider>
   );

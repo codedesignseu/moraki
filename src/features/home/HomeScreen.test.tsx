@@ -2,6 +2,7 @@ import { act, render, screen, within } from '@testing-library/react-native';
 import { randomBytes } from 'node:crypto';
 
 import { EventsRepositoryProvider } from '@/db/react';
+import { UndoProvider } from '@/db/undo';
 import { createEventsRepository, type EventsRepository } from '@/db/repositories/events';
 import { createMemoryDb } from '@/db/testing/memoryDb';
 import { newId } from '@/domain/ids';
@@ -37,7 +38,9 @@ const renderHome = () =>
   render(
     <ThemeProvider scheme="light">
       <EventsRepositoryProvider repository={repo}>
-        <HomeScreen />
+        <UndoProvider>
+          <HomeScreen />
+        </UndoProvider>
       </EventsRepositoryProvider>
     </ThemeProvider>,
   );

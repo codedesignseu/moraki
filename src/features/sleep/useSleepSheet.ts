@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { useEvents, useEventsRepository } from '@/db/react';
+import { useUndoableSaves } from '@/db/undo';
 import { DEFAULT_HOME_SETTINGS, selectHomeState } from '@/domain/home/homeState';
 import { formatClock } from '@/domain/time/formatClock';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
@@ -21,6 +22,7 @@ export const PAST_SLEEP = {
  */
 export function useSleepSheet() {
   const repository = useEventsRepository();
+  const saves = useUndoableSaves(repository);
   const events = useEvents();
   const tz = deviceTimeZone();
   const [openedAt] = useState(Date.now);
@@ -35,8 +37,10 @@ export function useSleepSheet() {
 
   return {
     running: running && { id: running.id, startedAt: formatClock(running.occurredAt, tz) },
-    startNow: () => repository.insert({ type: 'sleep', occurredAt: openedAt, payload: {} }),
-    stop: (id: string) => repository.patch(id, { endedAt: Date.now() }),
+    startNow: () =>
+      saves.insert('undo.sleepStarted', { type: 'sleep', occurredAt: openedAt, payload: {} }),
+    stop: (id: string) =>
+      saves.patch('undo.sleepStopped', [{ id, changes: { endedAt: Date.now() } }]),
     past: {
       startedAgo,
       setStartedAgo: (minutes: number) => {
@@ -49,7 +53,12 @@ export function useSleepSheet() {
       from: formatClock(start, tz),
       to: formatClock(end, tz),
       save: () =>
-        repository.insert({ type: 'sleep', occurredAt: start, endedAt: end, payload: {} }),
+        saves.insert('undo.sleepSaved', {
+          type: 'sleep',
+          occurredAt: start,
+          endedAt: end,
+          payload: {},
+        }),
     },
   };
 }
