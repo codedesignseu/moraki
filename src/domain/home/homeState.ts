@@ -9,6 +9,7 @@ import {
   type FeedEvent,
 } from '../activities';
 import type { SleepPayload } from '../activities/sleep';
+import { coveredMs } from '../time/intervals';
 import { dayBucket } from '../time/zoned';
 
 const MINUTE_MS = 60_000;
@@ -89,12 +90,13 @@ export function selectHomeState(
     .reduce((acc, e) => getActivity(e.type)?.contributes?.stats?.(acc, e) ?? acc, EMPTY_STATS);
 
   const sleeps = live.filter(isSleep);
-  const windowStart = now - DAY_MS;
-  const sleepMs24h = sleeps.reduce((total, e) => {
-    const start = Math.max(e.occurredAt, windowStart);
-    const end = Math.min(e.endedAt ?? now, now);
-    return total + Math.max(0, end - start);
-  }, 0);
+  // Sleeps can overlap: a past sleep entered while one was running, or the same
+  // nap logged on two phones and synced. Shared time counts once.
+  const sleepMs24h = coveredMs(
+    sleeps.map((e) => ({ start: e.occurredAt, end: e.endedAt ?? now })),
+    now - DAY_MS,
+    now,
+  );
 
   const entry = latest(live, (e) => e.clientCreatedAt);
 

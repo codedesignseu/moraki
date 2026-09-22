@@ -146,6 +146,25 @@ describe('selectHomeState', () => {
     });
   });
 
+  it('counts time shared by two overlapping sleeps once (P1-20)', () => {
+    // 07:00 to 08:30 and 08:00 to 09:00 overlap by 30 minutes: 2h, not 2h 30m.
+    const a = ev('sleep', NOW - 3 * HOUR, {}, { endedAt: NOW - 90 * MIN });
+    const b = ev('sleep', NOW - 2 * HOUR, {}, { endedAt: NOW - HOUR });
+    expect(home([a, b]).today.sleepMs24h).toBe(2 * HOUR);
+  });
+
+  it('adds nothing for a sleep entirely inside another, e.g. logged on two phones', () => {
+    const long = ev('sleep', NOW - 4 * HOUR, {}, { endedAt: NOW - HOUR });
+    const inside = ev('sleep', NOW - 3 * HOUR, {}, { endedAt: NOW - 2 * HOUR });
+    expect(home([long, inside]).today.sleepMs24h).toBe(3 * HOUR);
+  });
+
+  it('does not double count a past sleep entered over a running one', () => {
+    const running = ev('sleep', NOW - HOUR, {});
+    const pastOverlapping = ev('sleep', NOW - 90 * MIN, {}, { endedAt: NOW - 30 * MIN });
+    expect(home([running, pastOverlapping]).today.sleepMs24h).toBe(90 * MIN);
+  });
+
   it('sleep over the last 24 hours clips a sleep that started before the window', () => {
     const long = ev('sleep', NOW - 26 * HOUR, {}, { endedAt: NOW - 22 * HOUR });
     expect(home([long]).today.sleepMs24h).toBe(2 * HOUR);
