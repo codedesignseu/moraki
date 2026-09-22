@@ -116,6 +116,26 @@ export function startOfLocalDay(epochMs: number, tz: string): number {
   return fromWallClock({ year, month, day, hour: 0, minute: 0 }, tz);
 }
 
+/**
+ * The instant at `hour`:00 local time, `daysAgo` calendar days before the day
+ * containing `now`. Counted on the calendar, so a DST day is still one day.
+ */
+export function localTimeDaysAgo(now: number, daysAgo: number, hour: number, tz: string): number {
+  const today = toWallClock(now, tz);
+  // Date.UTC rolls day 0 back into the previous month; only the date is used.
+  const date = new Date(Date.UTC(today.year, today.month - 1, today.day - daysAgo));
+  return fromWallClock(
+    {
+      year: date.getUTCFullYear(),
+      month: date.getUTCMonth() + 1,
+      day: date.getUTCDate(),
+      hour,
+      minute: 0,
+    },
+    tz,
+  );
+}
+
 /** Local calendar date as `YYYY-MM-DD`, the key for grouping by day. */
 export function localDayKey(epochMs: number, tz: string): string {
   const { year, month, day } = toWallClock(epochMs, tz);

@@ -2,6 +2,7 @@ import {
   dayBucket,
   fromWallClock,
   localDayKey,
+  localTimeDaysAgo,
   offsetMinutes,
   startOfLocalDay,
   toWallClock,
@@ -146,5 +147,25 @@ describe(`[process TZ ${PROCESS_TZ}] dayBucket uses local midnight, not UTC midn
   it('gives a negative daysAgo for a future local day', () => {
     const now = at('2026-07-01T10:00:00Z');
     expect(dayBucket(at('2026-07-02T10:00:00Z'), now, UTC).daysAgo).toBe(-1);
+  });
+});
+
+describe(`[process TZ ${PROCESS_TZ}] localTimeDaysAgo`, () => {
+  it.each([
+    // now, daysAgo, hour, expected
+    ['2026-10-28T10:00:00Z', 0, 12, '2026-10-28T10:00:00Z'], // noon today, UTC+2
+    ['2026-10-28T10:00:00Z', 3, 12, '2026-10-25T10:00:00Z'], // noon on the 25-hour day, UTC+2
+    ['2026-10-28T10:00:00Z', 4, 12, '2026-10-24T09:00:00Z'], // before the change, UTC+3
+    ['2026-03-01T10:00:00Z', 1, 12, '2026-02-28T10:00:00Z'], // across a month end
+    ['2026-01-01T10:00:00Z', 1, 0, '2025-12-30T22:00:00Z'], // midnight, across a year end
+  ])('in Nicosia, from %s, %i days ago at %i:00 is %s', (now, daysAgo, hour, expected) => {
+    expect(localTimeDaysAgo(at(now), daysAgo, hour, NICOSIA)).toBe(at(expected));
+  });
+
+  it('counts days on the local calendar, not in UTC', () => {
+    // 23:30 on 28 Oct in New York is already 29 Oct in UTC.
+    expect(localTimeDaysAgo(at('2026-10-29T03:30:00Z'), 1, 12, NEW_YORK)).toBe(
+      at('2026-10-27T16:00:00Z'),
+    );
   });
 });

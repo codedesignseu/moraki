@@ -2,6 +2,8 @@
 // The main suite ignores *.local.test.ts. Real Supabase Auth, a real emailed code read
 // from the local mail server, and the RLS helpers seeing the signed-in user.
 import { createAuth } from './auth';
+import { createHousehold, findHousehold } from './household';
+import { newId } from '@/domain/ids';
 import { keychain } from '@/testing/fakeSupabaseAuth';
 
 const enabled = process.env.MORAKI_LOCAL_SUPABASE === '1';
@@ -27,7 +29,7 @@ async function codeSentTo(email: string): Promise<string> {
 (enabled ? describe : describe.skip)('email OTP against local Supabase', () => {
   jest.setTimeout(30_000);
 
-  it('signs in with the emailed code, survives a restart, and auth.uid() is the user', async () => {
+  it('signs in with the emailed code, survives a restart, auth.uid() is the user, and sets up a household', async () => {
     const env = { url: API, publishableKey: KEY };
     const email = `p2-04-${Date.now()}@example.test`;
     const { store } = keychain();
@@ -56,6 +58,44 @@ async function codeSentTo(email: string): Promise<string> {
     expect(theirs.error?.code).toBe('42501');
     const member = await client.rpc('is_member', { h: crypto.randomUUID() });
     expect(member).toMatchObject({ data: false, error: null });
+
+    // P2-05: a new user creates their household and ends with an empty baby.
+    const created = await createHousehold(
+      reopened,
+      user.id,
+      {
+        babyName: ' Ella ',
+        bornAt: Date.parse('2026-10-26T10:00:00Z'),
+        birthWeightG: 3400,
+        displayName: 'Maria',
+        relation: 'mother',
+      },
+      () => newId(Date.now(), () => crypto.getRandomValues(new Uint8Array(16))),
+    );
+    const babies = await client
+      .from('babies')
+      .select('id, name, household_id, born_at, birth_weight_g');
+    expect(babies.data).toEqual([
+      {
+        id: created.babyId,
+        name: 'Ella',
+        household_id: created.householdId,
+        born_at: '2026-10-26T10:00:00+00:00',
+        birth_weight_g: 3400,
+      },
+    ]);
+    const events = await client.from('events').select('id').eq('baby_id', created.babyId);
+    expect(events).toMatchObject({ data: [], error: null });
+    const owner = await client.rpc('is_owner', { h: created.householdId });
+    expect(owner).toMatchObject({ data: true, error: null });
+    const members = await client
+      .from('memberships')
+      .select('user_id, role, display_name, relation');
+    expect(members.data).toEqual([
+      { user_id: user.id, role: 'owner', display_name: 'Maria', relation: 'mother' },
+    ]);
+    // A reinstall finds it rather than making another.
+    expect(await findHousehold(reopened, user.id)).toEqual(created);
 
     await reopened.signOut();
     expect(await reopened.currentUser()).toBeNull();

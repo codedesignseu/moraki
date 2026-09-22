@@ -16,6 +16,23 @@ import { meta } from '../schema';
  */
 export const DEVICE_PREFS = {
   nightMode: { key: 'pref.night_mode', schema: z.enum(NIGHT_MODES), default: DEFAULT_NIGHT_MODE },
+  /**
+   * The server household the signed-in account belongs to (P2-05), so Settings
+   * can show it without the network. Only a record: this phone keeps logging
+   * under its local ids until P2-11 moves its entries into this household.
+   */
+  accountHousehold: {
+    key: 'pref.account_household',
+    schema: z
+      .object({
+        userId: z.uuid(),
+        householdId: z.uuid(),
+        babyId: z.uuid(),
+        babyName: z.string().min(1),
+      })
+      .nullable(),
+    default: null,
+  },
 } as const;
 
 export type DevicePrefName = keyof typeof DEVICE_PREFS;

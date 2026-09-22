@@ -1,6 +1,7 @@
 /// <reference types="node" />
-// Test-only: a keychain that outlives any one app process, and Supabase Auth
-// as far as email OTP needs it, so sign in can be tested end to end offline.
+// Test-only: a keychain that outlives any one app process, and Supabase as
+// far as email OTP sign in and household setup need it, so both can be tested
+// end to end without a server.
 import type { SecureKeyValueStore } from '@/sync/chunkedStorage';
 
 export const TEST_SUPABASE_ENV = {
@@ -51,7 +52,16 @@ export function session(expiresAt: number) {
 export type Call = { path: string; body: Record<string, unknown> };
 
 /** Supabase Auth, as far as email OTP needs it. */
-export function authServer(options: { verify?: () => Response } = {}) {
+export type ServerBaby = { id: string; name: string; household_id: string };
+
+export function authServer(
+  options: {
+    verify?: () => Response;
+    /** Babies the signed-in account can already see (a household made elsewhere). */
+    babies?: ServerBaby[];
+    createHousehold?: () => Response;
+  } = {},
+) {
   const calls: Call[] = [];
   const fetchImpl = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input));
@@ -69,6 +79,10 @@ export function authServer(options: { verify?: () => Response } = {}) {
         return options.verify?.() ?? json(200, session(Math.floor(Date.now() / 1000) + HOUR_S));
       case '/auth/v1/logout':
         return new Response(null, { status: 204 });
+      case '/rest/v1/babies':
+        return json(200, options.babies ?? []);
+      case '/rest/v1/rpc/create_household':
+        return options.createHousehold?.() ?? new Response(null, { status: 204 });
       default:
         return json(404, { code: 'not_found' });
     }

@@ -50,7 +50,8 @@ describe('sign in with an emailed code', () => {
 
     expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     // The address is trimmed and lower-cased before it's sent.
-    expect(server.calls.map((c) => [c.path, c.body.email])).toEqual([
+    const auth = server.calls.filter((c) => c.path.startsWith('/auth/'));
+    expect(auth.map((c) => [c.path, c.body.email])).toEqual([
       ['/auth/v1/otp', EMAIL],
       ['/auth/v1/verify', EMAIL],
     ]);
