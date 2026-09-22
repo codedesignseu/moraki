@@ -130,7 +130,7 @@ Gate to move on: two phones in airplane mode log 20 entries each, reconnect, bot
 - [x] P2-09 `feat(sync): client pull by cursor with pending-op protection` — depends: P2-08 — done when: unsent local edit survives a pull of an older server copy — done: against local Supabase, two phones share a household; the second reads back what the first logged, and its own unsent edit survives the server's older copy while the server's other correction is taken. 27 tests, and the same through the whole app
 - [ ] P2-10 `feat(sync): realtime ping, foreground, reconnect and interval triggers` — depends: P2-09 — done when: phone B updates within 3s of phone A
 - [ ] P2-11 `feat(sync): migrate local-only data into a new household on first sign in` — depends: P2-09 — done when: a P1 user keeps all history after signing up
-- [ ] P2-12 `feat(home): author on every row, last entry by line, caregivers list` — depends: P2-06, P2-10 — done when: rows read "You" or the other person's name
+- [ ] P2-12 `feat(home): author on every row, last entry by line, caregivers list` — depends: P2-06, P2-10 — done when: rows read "You" or the other person's name — status: in_progress
 - [ ] P2-13 `feat(settings): sync status screen with pending count, last sync, errors` — depends: P2-08 — done when: visible pending count goes to zero when online
 - [ ] P2-14 `test(sync): convergence property test with random interleavings` — depends: P2-09 — done when: 1,000 random runs, two simulated clients, identical derived state
 - [ ] P2-15 `test(manual): two phone airplane mode checklist in docs` — depends: P2-10 — done when: checklist passes and is committed
