@@ -14,7 +14,12 @@ type Translate = (key: string, values?: Record<string, string | number>) => stri
 export const INITIAL_ROWS = 20;
 
 /** Renders the history view model and nothing else (SDD 15.4). */
-export function HistoryScreen() {
+export function HistoryScreen({
+  onOpenEntry,
+}: {
+  /** Opens an entry to edit (P1-12). Supplied by app/ so features stay independent. */
+  onOpenEntry?: (id: string) => void;
+}) {
   const { t: typedT } = useTranslation();
   // Keys from activity modules are checked by the registry completeness test.
   const t = typedT as unknown as Translate;
@@ -53,6 +58,10 @@ export function HistoryScreen() {
           title={t(item.labelKey)}
           detail={item.summary ? t(item.summary.key, item.summary.values) : undefined}
           meta={[item.time, t(item.byYou ? 'home.recent.you' : 'home.recent.other')]}
+          {...(onOpenEntry && {
+            onPress: () => onOpenEntry(item.id),
+            accessibilityHint: t('entry.openHint'),
+          })}
         />
       )}
       ListEmptyComponent={

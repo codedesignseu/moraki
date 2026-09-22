@@ -10,7 +10,14 @@ import { useHome, type RecentRow } from './useHome';
 type Translate = (key: string, values?: Record<string, string | number>) => string;
 
 /** Renders the home view model and nothing else (SDD 15.4). */
-export function HomeScreen({ actions }: { actions?: ReactNode }) {
+export function HomeScreen({
+  actions,
+  onOpenEntry,
+}: {
+  actions?: ReactNode;
+  /** Opens an entry to edit (P1-12). Supplied by app/ so features stay independent. */
+  onOpenEntry?: (id: string) => void;
+}) {
   const { t: typedT } = useTranslation();
   // Keys from activity modules are checked by the registry completeness test.
   const t = typedT as unknown as Translate;
@@ -72,7 +79,7 @@ export function HomeScreen({ actions }: { actions?: ReactNode }) {
         {home.recent.length === 0 ? (
           <Text style={s.muted}>{t('home.recent.empty')}</Text>
         ) : (
-          home.recent.map((row) => <Row key={row.id} row={row} t={t} />)
+          home.recent.map((row) => <Row key={row.id} row={row} t={t} onOpen={onOpenEntry} />)
         )}
       </Card>
     </ScrollView>
@@ -90,7 +97,15 @@ function Stat({ label, value }: { label: string; value: number | string }) {
   );
 }
 
-function Row({ row, t }: { row: RecentRow; t: Translate }) {
+function Row({
+  row,
+  t,
+  onOpen,
+}: {
+  row: RecentRow;
+  t: Translate;
+  onOpen?: ((id: string) => void) | undefined;
+}) {
   const when =
     row.daysAgo === 0
       ? row.time
@@ -103,6 +118,7 @@ function Row({ row, t }: { row: RecentRow; t: Translate }) {
       title={t(row.labelKey)}
       detail={row.summary ? t(row.summary.key, row.summary.values) : undefined}
       meta={[when, t(row.byYou ? 'home.recent.you' : 'home.recent.other')]}
+      {...(onOpen && { onPress: () => onOpen(row.id), accessibilityHint: t('entry.openHint') })}
     />
   );
 }

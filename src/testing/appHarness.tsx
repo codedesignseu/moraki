@@ -8,6 +8,7 @@ import { randomBytes } from 'node:crypto';
 import History from '../../app/(tabs)/history';
 import Home from '../../app/(tabs)/index';
 import TabsLayout from '../../app/(tabs)/_layout';
+import EditEntry from '../../app/entry/[id]';
 import LogDiaper from '../../app/log/diaper';
 import LogFeed from '../../app/log/feed';
 import LogHealth from '../../app/log/health';
@@ -57,6 +58,7 @@ export function renderApp(repo: EventsRepository) {
     '(tabs)/history': History,
     'log/feed': LogFeed,
     'log/diaper': LogDiaper,
+    'entry/[id]': EditEntry,
     'log/sleep': LogSleep,
     'log/health': LogHealth,
     'log/medication': LogMedication,

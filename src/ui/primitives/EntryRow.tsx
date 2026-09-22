@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
@@ -9,14 +9,18 @@ type Props = {
   /** Right-hand lines, e.g. the time and who logged it. */
   meta: readonly string[];
   testID?: string;
+  /** Makes the row a button, e.g. to open the entry for editing. */
+  onPress?: () => void;
+  /** Screen reader hint when the row is a button. */
+  accessibilityHint?: string;
 };
 
 /** A logged entry in a list: what it was on the left, when and by whom on the right. */
-export function EntryRow({ title, detail, meta, testID }: Props) {
+export function EntryRow({ title, detail, meta, testID, onPress, accessibilityHint }: Props) {
   const theme = useTheme();
   const s = styles(theme);
-  return (
-    <View style={s.row} testID={testID} accessible>
+  const content = (
+    <>
       <View style={s.main}>
         <Text style={theme.text.bodyStrong}>{title}</Text>
         {detail ? <Text style={theme.text.body}>{detail}</Text> : null}
@@ -28,7 +32,25 @@ export function EntryRow({ title, detail, meta, testID }: Props) {
           </Text>
         ))}
       </View>
-    </View>
+    </>
+  );
+  if (!onPress) {
+    return (
+      <View style={s.row} testID={testID} accessible>
+        {content}
+      </View>
+    );
+  }
+  return (
+    <Pressable
+      style={({ pressed }) => [s.row, pressed && s.pressed]}
+      testID={testID}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityHint={accessibilityHint}
+    >
+      {content}
+    </Pressable>
   );
 }
 
@@ -45,4 +67,5 @@ const styles = (t: Theme) =>
     main: { flex: 1 },
     meta: { alignItems: 'flex-end' },
     muted: { ...t.text.label, color: t.colors.textMuted },
+    pressed: { backgroundColor: t.colors.surfacePressed },
   });

@@ -211,6 +211,17 @@
     "sleepStopped": "Sleep stopped",
     "sleepSaved": "Sleep saved",
     "healthSaved": "Health note saved",
-    "medicationSaved": "Medication saved"
+    "medicationSaved": "Medication saved",
+    "entryUpdated": "Entry updated",
+    "entryDeleted": "Entry deleted"
+  },
+  "entry": {
+    "moveTime": "Move time",
+    "minutes": "min",
+    "newTime": "Time: {{time}}",
+    "delete": "Delete entry",
+    "notEditable": "Editing this kind of entry comes later. You can delete it.",
+    "gone": "This entry no longer exists.",
+    "openHint": "Opens this entry to edit or delete it"
   }
 }

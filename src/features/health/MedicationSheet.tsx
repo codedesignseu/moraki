@@ -11,23 +11,33 @@ import {
   type MedicationPayload,
 } from '@/domain/activities/medication';
 import { formatClock } from '@/domain/time/formatClock';
+import { formatDateTime } from '@/domain/time/formatDateTime';
+import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
-import { Button, TextField } from '@/ui/primitives';
+import { Button, TextField, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 /**
  * A medication given now. Opens with the last medication's name and dose (SDD 7
  * last-used prefill), so a daily vitamin is one tap on Save.
  */
-export function MedicationSheet({ onDone }: { onDone: () => void }) {
-  const { t } = useTranslation();
+const MINUTE_MS = 60_000;
+
+export function MedicationSheet({ onDone, entryId }: { onDone: () => void; entryId?: string }) {
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   const repository = useEventsRepository();
   const saves = useUndoableSaves(repository);
   const events = useEvents();
   const [openedAt] = useState(Date.now);
-  const [last] = useState(() => lastMedication(events));
+  // Editing (P1-12) opens on the entry itself; logging, on the last medication.
+  const [entry] = useState(() => (entryId ? repository.get(entryId) : null));
+  const [last] = useState(() =>
+    entry ? (entry.payload as MedicationPayload) : lastMedication(events),
+  );
+  const [shift, setShift] = useState(0);
+  const tz = deviceTimeZone();
   const [name, setName] = useState(last?.name ?? '');
   const [dose, setDose] = useState(last?.dose ?? '');
   const [attempted, setAttempted] = useState(false);
@@ -40,15 +50,42 @@ export function MedicationSheet({ onDone }: { onDone: () => void }) {
       name: name.trim(),
       ...(dose.trim() !== '' && { dose: dose.trim() }),
     };
-    saves.insert('undo.medicationSaved', { type: 'medication', occurredAt: openedAt, payload });
+    if (entry) {
+      saves.patch('undo.entryUpdated', [
+        {
+          id: entry.id,
+          changes: {
+            payload,
+            ...(payload.dose === undefined && { unset: ['dose'] }),
+            ...(shift !== 0 && { occurredAt: entry.occurredAt + shift * MINUTE_MS }),
+          },
+        },
+      ]);
+    } else {
+      saves.insert('undo.medicationSaved', { type: 'medication', occurredAt: openedAt, payload });
+    }
     onDone();
   }
 
   return (
     <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-      <Text style={s.muted}>
-        {t('log.time', { time: formatClock(openedAt, deviceTimeZone()) })}
-      </Text>
+      {entry ? (
+        <TimeShiftField
+          label={t('entry.moveTime')}
+          minutes={shift}
+          onChange={setShift}
+          unit={t('entry.minutes')}
+          result={t('entry.newTime', {
+            time: formatDateTime(
+              entry.occurredAt + shift * MINUTE_MS,
+              tz,
+              dateLocale(i18n.language),
+            ),
+          })}
+        />
+      ) : (
+        <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
+      )}
       <TextField
         label={t('log.medication.name')}
         value={name}
