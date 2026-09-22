@@ -10,7 +10,7 @@ import { ThemeProvider } from '@/ui/theme';
 
 import { HomeScreen } from './HomeScreen';
 
-jest.mock('./deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
+jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
 
 const MIN = 60_000;
 const HOUR = 60 * MIN;

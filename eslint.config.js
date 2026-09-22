@@ -8,6 +8,49 @@ const i18next = require('eslint-plugin-i18next');
 const STYLE_NUMBER_KEYS =
   '/^(width|height|(min|max)(Width|Height)|(margin|padding|inset)[A-Za-z]*|gap|rowGap|columnGap|top|right|bottom|left|start|end|fontSize|lineHeight|letterSpacing|border[A-Za-z]*(Radius|Width))$/';
 
+// SDD 15.4: no component contains a hex value, a pixel number or a font name.
+const TOKEN_SELECTORS = [
+  {
+    selector: 'Literal[value=/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/]',
+    message: 'Colour literal outside src/ui/tokens.ts. Use theme.colors.',
+  },
+  {
+    selector: 'Literal[value=/^(rgb|hsl)a?\\(/i]',
+    message: 'Colour literal outside src/ui/tokens.ts. Use theme.colors.',
+  },
+  {
+    selector: "Property[key.name='fontFamily']",
+    message: 'Font name outside src/ui/tokens.ts. Use theme.text.',
+  },
+  {
+    selector: "Property[key.name='fontWeight'] Literal",
+    message: 'Font weight outside src/ui/tokens.ts. Use theme.text.',
+  },
+  {
+    selector: `Property[key.name=${STYLE_NUMBER_KEYS}] > Literal[raw=/^[1-9]|^0\\.[0-9]*[1-9]/]`,
+    message: 'Pixel number outside src/ui/tokens.ts. Use theme.spacing, radius, size or text.',
+  },
+  {
+    selector: `Property[key.name=${STYLE_NUMBER_KEYS}] > UnaryExpression > Literal`,
+    message: 'Pixel number outside src/ui/tokens.ts. Use theme.spacing, radius, size or text.',
+  },
+];
+
+// CLAUDE.md rule 9 for copy outside JSX (P0-F5): an object property that carries
+// copy, like a Segmented option's `label`, must come from t(), not a literal.
+const COPY_PROPERTY =
+  '/^(label|title|text|unit|placeholder|message|closeLabel|accessibility(Label|Hint))$/';
+const COPY_SELECTORS = [
+  {
+    selector: `Property[key.name=${COPY_PROPERTY}] > Literal[value=/[A-Za-z]/]`,
+    message: 'User-facing string outside src/i18n. Add it to src/i18n/en.json and use t().',
+  },
+  {
+    selector: `Property[key.name=${COPY_PROPERTY}] > TemplateLiteral[expressions.length=0]`,
+    message: 'User-facing string outside src/i18n. Add it to src/i18n/en.json and use t().',
+  },
+];
+
 module.exports = defineConfig([
   expoConfig,
   {
@@ -46,35 +89,7 @@ module.exports = defineConfig([
     files: ['app/**/*.{ts,tsx}', 'src/**/*.{ts,tsx}'],
     ignores: ['src/ui/tokens.ts', '**/*.test.{ts,tsx}'],
     rules: {
-      'no-restricted-syntax': [
-        'error',
-        {
-          selector: 'Literal[value=/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/]',
-          message: 'Colour literal outside src/ui/tokens.ts. Use theme.colors.',
-        },
-        {
-          selector: 'Literal[value=/^(rgb|hsl)a?\\(/i]',
-          message: 'Colour literal outside src/ui/tokens.ts. Use theme.colors.',
-        },
-        {
-          selector: "Property[key.name='fontFamily']",
-          message: 'Font name outside src/ui/tokens.ts. Use theme.text.',
-        },
-        {
-          selector: "Property[key.name='fontWeight'] Literal",
-          message: 'Font weight outside src/ui/tokens.ts. Use theme.text.',
-        },
-        {
-          selector: `Property[key.name=${STYLE_NUMBER_KEYS}] > Literal[raw=/^[1-9]|^0\\.[0-9]*[1-9]/]`,
-          message:
-            'Pixel number outside src/ui/tokens.ts. Use theme.spacing, radius, size or text.',
-        },
-        {
-          selector: `Property[key.name=${STYLE_NUMBER_KEYS}] > UnaryExpression > Literal`,
-          message:
-            'Pixel number outside src/ui/tokens.ts. Use theme.spacing, radius, size or text.',
-        },
-      ],
+      'no-restricted-syntax': ['error', ...TOKEN_SELECTORS],
     },
   },
   {
@@ -86,9 +101,13 @@ module.exports = defineConfig([
       // Developer-only screens labelled with token and primitive names.
       'app/tokens.tsx',
       'src/ui/showcase/**',
+      // The one place literal colours and sizes live.
+      'src/ui/tokens.ts',
     ],
     plugins: { i18next },
     rules: {
+      // Replaces the rule for these files, so the token selectors are repeated here.
+      'no-restricted-syntax': ['error', ...TOKEN_SELECTORS, ...COPY_SELECTORS],
       'i18next/no-literal-string': [
         'error',
         {
