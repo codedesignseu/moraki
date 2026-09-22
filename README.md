@@ -1,2 +1,58 @@
 # moraki.app
-App for 40 first days of a new born
+
+App for 40 first days of a new born.
+
+Expo (React Native, TypeScript) with a Supabase EU backend. The app is
+local-first: SQLite is what every screen reads, and sync fills it in.
+
+- What it is and why: `docs/01-research-and-poc-scope.md`
+- How it is built: `docs/02-sdd-and-build-plan.md`
+- What is next: `docs/TASKS.md`
+- How the build loop runs: `docs/04-agent-loop-guide.md`
+
+## Running it
+
+```bash
+npm install
+npm start          # Expo dev server; press w for the web preview
+npm test           # unit and screen tests
+npm run test:tz    # the same suite under three timezones, as CI runs it
+npm run lint
+```
+
+## The database and sign in
+
+The app can be pointed at either the hosted Supabase project or a local one.
+`.env` decides (copy `.env.example`); Expo bakes those values into the bundle,
+so **restart with `npx expo start -c` after changing them**.
+
+```bash
+supabase start     # local Postgres, auth and a mail catcher
+supabase db reset  # apply migrations from zero
+supabase test db   # pgTAP: schema, policies, RPCs
+npm run test:local # real sign in and invites against the local stack
+```
+
+Moraki does not use the Supabase CLI's usual ports (see `supabase/config.toml`):
+
+| What                | Where                                                   |
+| ------------------- | ------------------------------------------------------- |
+| API                 | http://127.0.0.1:55321                                  |
+| Database            | postgresql://postgres:postgres@127.0.0.1:55322/postgres |
+| Studio              | http://127.0.0.1:55323                                  |
+| Sign-in code emails | http://127.0.0.1:55324                                  |
+
+**Reading a sign-in code.** Codes come from whichever project `.env` points at,
+so read them in the same place: the local mail catcher above, or the real
+inbox for the hosted project. On this machine port 54324 belongs to a
+different project's stack, so opening it shows the wrong mailbox rather than
+an error.
+
+**Testing on a phone.** In Expo Go, `localhost` means the phone. Point `.env`
+at the Mac's LAN address (`http://192.168.x.x:55321`) and read codes at
+`http://192.168.x.x:55324`; the local stack already listens on all
+interfaces. Against the hosted project this doesn't apply, but its emails
+depend on its own SMTP settings.
+
+**Code length.** A Supabase project sends a 6 to 10 digit code, set per
+project; the local stack sends 6. The app accepts any length in that range.
