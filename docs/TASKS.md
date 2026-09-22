@@ -48,7 +48,7 @@ Gate to move on: you use it alone for 3 days without paper backup.
 - [x] P1-06 `feat(home): timer card, next side, reminder line, today strip, recent list` — depends: P0-06, P1-04, P1-05 — done when: timer ticks every 30s, updates instantly on log
 - [x] P1-07 `feat(log): feed sheet (bottle, breast, mixed) with last-used prefill` — depends: P1-04, P0-06 — done when: bottle feed in 2 taps from home
 - [x] P1-08 `feat(log): diaper sheet, one tap save` — depends: P1-04 — done when: wet, dirty, both each save in one tap from the sheet
-- [ ] P1-09 `feat(log): sleep start, stop, manual entry, running sleep card` — depends: P1-04 — done when: running sleep survives app kill
+- [ ] P1-09 `feat(log): sleep start, stop, manual entry, running sleep card` — depends: P1-04 — done when: running sleep survives app kill — status: in_progress (kill simulated in tests by reopening the stored database from scratch; a real kill on a device with the new dev build is still to verify)
 - [ ] P1-10 `feat(log): health note and medication sheets` — depends: P1-04 — done when: temp range validated, note length capped
 - [ ] P1-11 `feat(history): timeline grouped by day with filters` — depends: P1-04 — done when: 2,000 events scroll at 60fps on the Android test phone
 - [ ] P1-12 `feat(entry): edit sheet and delete, undo toast on every save` — depends: P1-04, P1-11 — done when: undo within 6s restores exact prior state

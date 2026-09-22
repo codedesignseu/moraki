@@ -23,12 +23,17 @@ export type RecentRow = {
   byYou: boolean;
 };
 
+export type ActiveSleep = { id: string; elapsed: string; startedAt: string };
+
 export type HomeViewModel = {
   sinceLastFeed: string | null;
   nextSide: 'left' | 'right' | null;
   reminder: { time: string; passed: boolean } | null;
   today: { feeds: number; ml: number; wet: number; dirty: number; sleep: string };
   recent: RecentRow[];
+  activeSleep: ActiveSleep | null;
+  /** Ends the running sleep now. */
+  stopSleep: (id: string) => void;
 };
 
 /**
@@ -52,6 +57,17 @@ export function useHome(): HomeViewModel {
           ? null
           : { time: formatClock(state.reminderAt, tz), passed: state.reminderAt <= now },
       today: { ...state.today, sleep: formatElapsed(state.today.sleepMs24h) },
+      activeSleep:
+        state.activeSleep === null
+          ? null
+          : {
+              id: state.activeSleep.id,
+              elapsed: formatElapsed(now - state.activeSleep.occurredAt),
+              startedAt: formatClock(state.activeSleep.occurredAt, tz),
+            },
+      stopSleep: (id: string) => {
+        repository.patch(id, { endedAt: Date.now() });
+      },
       recent: events.slice(0, RECENT_COUNT).map((e) => {
         const module = getActivity(e.type);
         return {
