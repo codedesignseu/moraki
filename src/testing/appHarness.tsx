@@ -8,6 +8,7 @@ import { randomBytes } from 'node:crypto';
 import Home from '../../app/index';
 import LogDiaper from '../../app/log/diaper';
 import LogFeed from '../../app/log/feed';
+import LogSleep from '../../app/log/sleep';
 import { EventsRepositoryProvider } from '@/db/react';
 import { createEventsRepository, type EventsRepository } from '@/db/repositories/events';
 import { createMemoryDb, type MemoryDb } from '@/db/testing/memoryDb';
@@ -45,5 +46,6 @@ export function renderApp(repo: EventsRepository) {
     index: Home,
     'log/feed': LogFeed,
     'log/diaper': LogDiaper,
+    'log/sleep': LogSleep,
   });
 }

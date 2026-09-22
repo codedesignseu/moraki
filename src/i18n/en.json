@@ -87,7 +87,12 @@
     },
     "logFeed": "Log feed",
     "actions": {
-      "diaper": "Diaper"
+      "diaper": "Diaper",
+      "sleep": "Sleep"
+    },
+    "sleep": {
+      "label": "Sleeping since {{time}}",
+      "stop": "Stop sleep"
     }
   },
   "log": {
@@ -122,6 +127,20 @@
       "dirty": "Dirty",
       "both": "Wet and dirty",
       "hint": "Saves straight away"
+    },
+    "sleep": {
+      "title": "Sleep",
+      "startNow": "Start sleep now",
+      "stop": "Stop sleep",
+      "runningSince": "Sleeping since {{time}}",
+      "past": {
+        "title": "Add a past sleep",
+        "startedAgo": "Started this long ago",
+        "duration": "Slept for",
+        "minutes": "min",
+        "range": "{{from}} to {{to}}",
+        "save": "Save past sleep"
+      }
     }
   }
 }

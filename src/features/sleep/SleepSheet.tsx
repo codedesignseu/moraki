@@ -1,0 +1,69 @@
+import { useTranslation } from 'react-i18next';
+import { ScrollView, StyleSheet, Text } from 'react-native';
+
+import { Button, Card, Stepper } from '@/ui/primitives';
+import { useTheme, type Theme } from '@/ui/theme';
+
+import { PAST_SLEEP, useSleepSheet } from './useSleepSheet';
+
+/** Start or stop the running sleep in one tap, or add a sleep that already happened. */
+export function SleepSheet({ onDone }: { onDone: () => void }) {
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const s = styles(theme);
+  const { running, startNow, stop, past } = useSleepSheet();
+
+  const done = (action: () => unknown) => () => {
+    action();
+    onDone();
+  };
+
+  return (
+    <ScrollView contentContainerStyle={s.content}>
+      {running ? (
+        <>
+          <Text style={theme.text.body}>
+            {t('log.sleep.runningSince', { time: running.startedAt })}
+          </Text>
+          <Button label={t('log.sleep.stop')} onPress={done(() => stop(running.id))} />
+        </>
+      ) : (
+        <Button label={t('log.sleep.startNow')} onPress={done(startNow)} />
+      )}
+
+      <Card testID="sleep-past">
+        <Text style={theme.text.heading}>{t('log.sleep.past.title')}</Text>
+        <Text style={s.muted}>{t('log.sleep.past.startedAgo')}</Text>
+        <Stepper
+          value={past.startedAgo}
+          onChange={past.setStartedAgo}
+          step={PAST_SLEEP.step}
+          min={PAST_SLEEP.startedAgo.min}
+          max={PAST_SLEEP.startedAgo.max}
+          unit={t('log.sleep.past.minutes')}
+          accessibilityLabel={t('log.sleep.past.startedAgo')}
+        />
+        <Text style={s.muted}>{t('log.sleep.past.duration')}</Text>
+        <Stepper
+          value={past.duration}
+          onChange={past.setDuration}
+          step={PAST_SLEEP.step}
+          min={PAST_SLEEP.duration.min}
+          max={past.maxDuration}
+          unit={t('log.sleep.past.minutes')}
+          accessibilityLabel={t('log.sleep.past.duration')}
+        />
+        <Text style={theme.text.body}>
+          {t('log.sleep.past.range', { from: past.from, to: past.to })}
+        </Text>
+        <Button label={t('log.sleep.past.save')} variant="secondary" onPress={done(past.save)} />
+      </Card>
+    </ScrollView>
+  );
+}
+
+const styles = (theme: Theme) =>
+  StyleSheet.create({
+    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+    muted: { ...theme.text.label, color: theme.colors.textMuted },
+  });

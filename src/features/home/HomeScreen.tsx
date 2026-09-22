@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Card, TimerText } from '@/ui/primitives';
+import { Button, Card, TimerText } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useHome, type RecentRow } from './useHome';
@@ -38,6 +38,18 @@ export function HomeScreen({ actions }: { actions?: ReactNode }) {
           </Text>
         )}
       </Card>
+
+      {home.activeSleep && (
+        <Card testID="home-sleep">
+          <Text style={s.muted}>{t('home.sleep.label', { time: home.activeSleep.startedAt })}</Text>
+          <TimerText text={home.activeSleep.elapsed} />
+          <Button
+            label={t('home.sleep.stop')}
+            variant="secondary"
+            onPress={() => home.activeSleep && home.stopSleep(home.activeSleep.id)}
+          />
+        </Card>
+      )}
 
       {actions && <View style={s.actions}>{actions}</View>}
 

@@ -19,6 +19,11 @@ export default function Home() {
               variant="secondary"
               onPress={() => router.push('/log/diaper')}
             />
+            <Button
+              label={t('home.actions.sleep')}
+              variant="secondary"
+              onPress={() => router.push('/log/sleep')}
+            />
           </>
         }
       />
