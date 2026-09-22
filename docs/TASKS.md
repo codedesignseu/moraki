@@ -115,7 +115,7 @@ Gate to move on: two phones in airplane mode log 20 entries each, reconnect, bot
 
 - [x] P2-01 `feat(db-server): migrations for households, memberships, babies, events, invites, seq trigger` — depends: P0-08 — done when: `supabase db reset` builds schema from zero — done: reset from zero applies the one migration; 60 pgTAP tests and a two-session race check pass locally
 - [x] P2-02 `feat(db-server): rls policies and helper functions` — depends: P2-01 — done when: policies match SDD table 4.3 — done: 89 pgTAP tests cover every cell of table 4.3 for owner, caregiver, viewer and stranger, plus anon; 148 database tests pass locally
-- [ ] P2-03 `test(db-server): pgtap tests for every rls cell` — depends: P2-02 — done when: a viewer can't insert, a stranger can't select, CI runs them
+- [ ] P2-03 `test(db-server): pgtap tests for every rls cell` — depends: P2-02 — done when: a viewer can't insert, a stranger can't select, CI runs them — status: in_progress
 - [ ] P2-04 `feat(auth): email otp sign in, session in securestore` — depends: P0-08 — done when: sign in, kill app, still signed in
 - [ ] P2-05 `feat(household): create_household rpc and onboarding flow with baby details` — depends: P2-02, P2-04 — done when: new user ends on home with an empty baby
 - [ ] P2-06 `feat(household): invites, create code, share link, accept_invite rpc, join route` — depends: P2-05 — done when: second phone joins through the link, role applied
