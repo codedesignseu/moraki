@@ -69,6 +69,9 @@ export const outbox = sqliteTable('outbox', {
   attempts: integer('attempts').notNull().default(0),
   lastError: text('last_error'),
   createdAt: integer('created_at').notNull(),
+  // Not pushed before this time (UTC ms). Deletes are held for the undo window,
+  // so an undone delete never reaches the server, where delete is final.
+  notBefore: integer('not_before'),
 });
 
 export const meta = sqliteTable('meta', {

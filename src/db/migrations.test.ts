@@ -111,6 +111,7 @@ describe('local migrations: fresh install', () => {
       'attempts',
       'last_error',
       'created_at',
+      'not_before',
     ]);
     expect(columns(sqlite, 'meta')).toEqual(['key', 'value']);
     expect(appliedCount(sqlite)).toBe(journal.entries.length);

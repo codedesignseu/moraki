@@ -1,0 +1,1 @@
+ALTER TABLE `outbox` ADD `not_before` integer;
