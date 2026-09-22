@@ -13,6 +13,24 @@ Source: `02-sdd-and-build-plan.md` section 10.3, version 0.3.
 
 ---
 
+## Waiting on device
+
+Checks that need real hardware. They are queued, not blocking: work continues,
+and this list is cleared in one pass once the Android phone is available. Add
+to it whenever a task's done-when can only be met on a device.
+
+- [ ] P0-09 (#9): rebase #9 onto `main` and merge it (eas.json lives there),
+      then build the Android development build from `main` and install it on
+      the phone. It must be a new build, because expo-sqlite and
+      expo-crypto (native) were added after the first EAS build. On first launch
+      also check that a fresh install reaches home, which is the first real run
+      of migrations and the database gate (P1-03, P1-06).
+- [ ] P1-09: start a sleep, force-quit the app, reopen it a few minutes later,
+      and check the running sleep card shows the right time and Stop works.
+      P1-09 stays `in_progress` until this passes.
+
+---
+
 ## Phase 0 — Foundations
 
 Gate to move on: dev build installed on an iPhone and an Android.
