@@ -3,7 +3,12 @@ import { useState } from 'react';
 import { AuthError, type AuthFailure } from '@/sync/auth';
 import { useAuth } from '@/sync/AuthProvider';
 
-export const CODE_LENGTH = 6;
+/**
+ * Supabase sends a code of 6 to 10 digits, whichever the project is set to
+ * (Auth settings, "Email OTP length"). The app takes whatever arrives rather
+ * than insisting on one length and refusing a valid code.
+ */
+export const CODE_LENGTH = { min: 6, max: 10 } as const;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export type SignInProblem = AuthFailure | 'invalid_email' | 'short_code';
@@ -41,7 +46,7 @@ export function useSignIn(onDone: () => void) {
     },
     code,
     setCode: (value: string) => {
-      setCode(value.replace(/\D/g, ''));
+      setCode(value.replace(/\D/g, '').slice(0, CODE_LENGTH.max));
       setProblem(null);
     },
     busy,
@@ -56,7 +61,7 @@ export function useSignIn(onDone: () => void) {
     },
     resendCode: () => run(() => auth!.requestCode(address)),
     verify: () => {
-      if (code.length !== CODE_LENGTH) return setProblem('short_code');
+      if (code.length < CODE_LENGTH.min) return setProblem('short_code');
       return run(async () => {
         await auth!.verifyCode(address, code);
         onDone();
