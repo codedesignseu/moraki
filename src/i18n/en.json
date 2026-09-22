@@ -226,5 +226,11 @@
     "moveStart": "Move start",
     "started": "Started: {{time}}",
     "ended": "Ended: {{time}}"
+  },
+  "reminders": {
+    "feed": {
+      "first": "Next feed may be due",
+      "second": "No feed logged since {{time}}"
+    }
   }
 }

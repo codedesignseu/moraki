@@ -2,7 +2,7 @@ import {
   EMPTY_STATS,
   getActivity,
   isBreastFeed,
-  isFeed,
+  latestFeed,
   isSleep,
   type Event,
   type EventType,
@@ -10,6 +10,7 @@ import {
 } from '../activities';
 import type { SleepPayload } from '../activities/sleep';
 import { coveredMs } from '../time/intervals';
+import { feedDueTimes } from '../reminders/feedReminders';
 import { dayBucket } from '../time/zoned';
 
 const MINUTE_MS = 60_000;
@@ -70,13 +71,11 @@ export function selectHomeState(
 ): HomeState {
   const live = events.filter((e) => e.deletedAt === null);
 
-  const lastFeed = latest(live.filter(isFeed), (e) => e.occurredAt);
-  const reminderAt =
-    lastFeed === null ? null : lastFeed.occurredAt + settings.reminderIntervalMin * MINUTE_MS;
-  const secondReminderAt =
-    reminderAt === null || settings.secondReminderMin === null
-      ? null
-      : reminderAt + settings.secondReminderMin * MINUTE_MS;
+  const lastFeed = latestFeed(live);
+  // Same calculation as the notifications (P1-13), so home and reminders agree.
+  const due = feedDueTimes(live, settings.reminderIntervalMin, settings.secondReminderMin);
+  const reminderAt = due?.first ?? null;
+  const secondReminderAt = due?.second ?? null;
 
   const lastBreast = latest(
     live.filter(isBreastFeed).filter((e) => e.occurredAt >= now - DAY_MS),
