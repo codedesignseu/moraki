@@ -63,9 +63,12 @@ jobs:
       - uses: supabase/setup-cli@v3
         with:
           version: 2.117.0
-      # Only the database and auth: auth.users backs the foreign keys.
+      # The database, auth, mail and realtime: auth.users backs the foreign
+      # keys, the sign-in tests read a real emailed code, and P2-10's test
+      # needs one phone to hear the other. (`inbucket` is not a container
+      # name any more, so excluding it did nothing.)
       - run: >-
-          supabase start -x studio,imgproxy,vector,logflare,edge-runtime,realtime,storage-api,inbucket,postgres-meta,supavisor
+          supabase start -x studio,imgproxy,vector,logflare,edge-runtime,storage-api,postgres-meta,supavisor
       # pgTAP: schema, seq trigger and every RLS cell (SDD 4.3, rule 11).
       - run: supabase test db
       # Two sessions racing on one household's seq (P2-01); pgTAP can't do this.
