@@ -47,7 +47,7 @@ Gate to move on: you use it alone for 3 days without paper backup.
 - [x] P1-05 `feat(domain): home state selector` — depends: P1-01, P1-02 — done when: tests cover no feeds, one feed, breast then bottle, deleted last feed, active sleep
 - [x] P1-06 `feat(home): timer card, next side, reminder line, today strip, recent list` — depends: P0-06, P1-04, P1-05 — done when: timer ticks every 30s, updates instantly on log
 - [x] P1-07 `feat(log): feed sheet (bottle, breast, mixed) with last-used prefill` — depends: P1-04, P0-06 — done when: bottle feed in 2 taps from home
-- [ ] P1-08 `feat(log): diaper sheet, one tap save` — depends: P1-04 — done when: wet, dirty, both each save in one tap from the sheet
+- [ ] P1-08 `feat(log): diaper sheet, one tap save` — depends: P1-04 — done when: wet, dirty, both each save in one tap from the sheet — status: in_progress
 - [ ] P1-09 `feat(log): sleep start, stop, manual entry, running sleep card` — depends: P1-04 — done when: running sleep survives app kill
 - [ ] P1-10 `feat(log): health note and medication sheets` — depends: P1-04 — done when: temp range validated, note length capped
 - [ ] P1-11 `feat(history): timeline grouped by day with filters` — depends: P1-04 — done when: 2,000 events scroll at 60fps on the Android test phone
