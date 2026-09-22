@@ -1,8 +1,12 @@
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { migrate } from 'drizzle-orm/expo-sqlite/migrator';
+import { getRandomBytes } from 'expo-crypto';
 import { openDatabaseSync } from 'expo-sqlite';
 
+import { newId } from '@/domain/ids';
+
 import migrations from './migrations/migrations';
+import { createEventsRepository } from './repositories/events';
 import * as schema from './schema';
 
 const DB_NAME = 'moraki.db';
@@ -20,4 +24,12 @@ export type LocalDb = ReturnType<typeof openLocalDb>;
  */
 export function migrateLocalDb(db: LocalDb): Promise<void> {
   return migrate(db, migrations);
+}
+
+/** The app's events repository: wall clock, and UUID v7 ids from the OS secure random source. */
+export function createAppEventsRepository(db: LocalDb) {
+  return createEventsRepository(db, {
+    now: Date.now,
+    newId: (now) => newId(now, () => getRandomBytes(16)),
+  });
 }
