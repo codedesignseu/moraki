@@ -273,7 +273,7 @@ select is_empty('select code from public.invites', 'invites select: hidden from 
 -- invites: insert owner ------------------------------------------------------------------------
 select pg_temp.login(1);
 select lives_ok($$insert into public.invites (code, household_id, created_by, expires_at)
-  values ('JKLMNPQR', 'aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', now() + interval '1 day')$$,
+  values ('JKMNPQRS', 'aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', now() + interval '1 day')$$,
   'invites insert: the owner can create one');
 select pg_temp.login(2);
 select throws_ok($$insert into public.invites (code, household_id, created_by, expires_at)
@@ -292,7 +292,7 @@ select is_empty($$update public.invites set role = 'owner' returning code$$, 'in
 select pg_temp.login(2);
 select is_empty($$delete from public.invites returning code$$, 'invites delete: no effect for a caregiver');
 select pg_temp.login(1);
-select isnt_empty($$delete from public.invites where code = 'JKLMNPQR' returning code$$, 'invites delete: the owner can revoke one');
+select isnt_empty($$delete from public.invites where code = 'JKMNPQRS' returning code$$, 'invites delete: the owner can revoke one');
 
 -- consents: self ---------------------------------------------------------------------------------------
 select pg_temp.login(2);

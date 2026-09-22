@@ -96,6 +96,7 @@ describe('household setup', () => {
       householdId: body.household_id,
       babyId: body.baby_id,
       babyName: 'Ella',
+      role: 'owner',
     });
 
     await press(/Settings/);
@@ -132,7 +133,10 @@ describe('household setup', () => {
       name: 'Leo',
       household_id: '0190a0b0-0000-7000-8000-000000000002',
     };
-    const server = await signedIn({ babies: [baby] });
+    const server = await signedIn({
+      babies: [baby],
+      memberships: [{ household_id: baby.household_id, role: 'caregiver' }],
+    });
 
     // Settings asks the server once, in the background, and remembers it.
     expect(await screen.findByText('Household: Leo')).toBeOnTheScreen();
@@ -141,6 +145,7 @@ describe('household setup', () => {
       householdId: baby.household_id,
       babyId: baby.id,
       babyName: 'Leo',
+      role: 'caregiver',
     });
     expect(server.calls.some((c) => c.path === '/rest/v1/rpc/create_household')).toBe(false);
   });
@@ -188,6 +193,7 @@ describe('household setup', () => {
       householdId: '0190a0b0-0000-7000-8000-00000000fffe',
       babyId: '0190a0b0-0000-7000-8000-00000000fffd',
       babyName: 'Someone else',
+      role: 'owner',
     });
     await signedIn();
     expect(screen.queryByText('Household: Someone else')).toBeNull();

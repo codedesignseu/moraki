@@ -8,6 +8,8 @@ export default function Settings() {
     <SettingsScreen
       onSignIn={() => router.push('/onboarding/sign-in')}
       onSetUpHousehold={() => router.push('/onboarding/household')}
+      onJoinHousehold={() => router.push('/onboarding/join')}
+      onInvite={() => router.push('/invite')}
     />
   );
 }

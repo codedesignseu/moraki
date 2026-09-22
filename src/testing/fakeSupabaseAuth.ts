@@ -11,6 +11,10 @@ export const TEST_SUPABASE_ENV = {
 export const USER_ID = '6f1c1e0a-1111-4222-8333-444455556666';
 export const EMAIL = 'parent@example.test';
 export const HOUR_S = 3600;
+export const WEEK_MS = 7 * 24 * 3600_000;
+/** The household a fake invite joins. */
+export const HOUSEHOLD_ID = '0190a0b0-0000-7000-8000-0000000000a1';
+export const BABY_ID = '0190a0b0-0000-7000-8000-0000000000b1';
 
 /** A SecureStore that outlives any one client, as the keychain outlives the app process. */
 export function keychain() {
@@ -59,6 +63,10 @@ export function authServer(
     verify?: () => Response;
     /** Babies the signed-in account can already see (a household made elsewhere). */
     babies?: ServerBaby[];
+    /** The account's membership, if it has one. Defaults to owner of the babies' household. */
+    memberships?: { household_id: string; role: 'owner' | 'caregiver' | 'viewer' }[];
+    createInvite?: () => Response;
+    acceptInvite?: () => Response;
     createHousehold?: () => Response;
   } = {},
 ) {
@@ -67,6 +75,10 @@ export function authServer(
     const url = new URL(String(input));
     const body = init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {};
     calls.push({ path: url.pathname, body });
+    // PostgREST returns a bare object, not a list, when the client asks for one.
+    const headers = new Headers(init?.headers ?? {});
+    const single = /vnd\.pgrst\.object/.test(headers.get('accept') ?? '');
+    const one = (row: unknown) => (single ? row : [row]);
     const json = (status: number, value: unknown) =>
       new Response(JSON.stringify(value), {
         status,
@@ -81,6 +93,36 @@ export function authServer(
         return new Response(null, { status: 204 });
       case '/rest/v1/babies':
         return json(200, options.babies ?? []);
+      case '/rest/v1/memberships':
+        return json(
+          200,
+          options.memberships ??
+            (options.babies ?? []).map((baby) => ({
+              household_id: baby.household_id,
+              role: 'owner',
+            })),
+        );
+      case '/rest/v1/rpc/create_invite':
+        return (
+          options.createInvite?.() ??
+          json(
+            200,
+            one({ code: 'ABCD2345', expires_at: new Date(Date.now() + WEEK_MS).toISOString() }),
+          )
+        );
+      case '/rest/v1/rpc/accept_invite':
+        return (
+          options.acceptInvite?.() ??
+          json(
+            200,
+            one({
+              household_id: HOUSEHOLD_ID,
+              role: 'caregiver',
+              baby_id: BABY_ID,
+              baby_name: 'Ella',
+            }),
+          )
+        );
       case '/rest/v1/rpc/create_household':
         return options.createHousehold?.() ?? new Response(null, { status: 204 });
       default:

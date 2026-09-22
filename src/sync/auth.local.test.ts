@@ -3,6 +3,7 @@
 // from the local mail server, and the RLS helpers seeing the signed-in user.
 import { createAuth } from './auth';
 import { createHousehold, findHousehold } from './household';
+import { acceptInvite, createInvite, inviteLink, normaliseCode } from './invites';
 import { newId } from '@/domain/ids';
 import { keychain } from '@/testing/fakeSupabaseAuth';
 
@@ -26,8 +27,21 @@ async function codeSentTo(email: string): Promise<string> {
   throw new Error('no code arrived');
 }
 
+const env = { url: API, publishableKey: KEY };
+const newUuid = () => newId(Date.now(), () => crypto.getRandomValues(new Uint8Array(16)));
+
+/** A phone: its own keychain, its own client, signed in with a real emailed code. */
+async function phone(label: string) {
+  const email = `p2-06-${label}-${Date.now()}@example.test`;
+  const auth = createAuth(env, keychain().store);
+  await auth.requestCode(email);
+  const user = await auth.verifyCode(email, await codeSentTo(email));
+  auth.setForeground(false);
+  return { auth, user };
+}
+
 (enabled ? describe : describe.skip)('email OTP against local Supabase', () => {
-  jest.setTimeout(30_000);
+  jest.setTimeout(60_000);
 
   it('signs in with the emailed code, survives a restart, auth.uid() is the user, and sets up a household', async () => {
     const env = { url: API, publishableKey: KEY };
@@ -100,5 +114,82 @@ async function codeSentTo(email: string): Promise<string> {
     await reopened.signOut();
     expect(await reopened.currentUser()).toBeNull();
     reopened.setForeground(false);
+  });
+
+  it('a second phone joins through the invite link, with the role it granted', async () => {
+    // Phone A: the owner sets up the household and invites a caregiver.
+    const a = await phone('owner');
+    const household = await createHousehold(
+      a.auth,
+      a.user.id,
+      {
+        babyName: 'Ella',
+        bornAt: Date.parse('2026-10-26T10:00:00Z'),
+        birthWeightG: null,
+        displayName: 'Maria',
+        relation: 'mother',
+      },
+      newUuid,
+    );
+    const invite = await createInvite(a.auth, household.householdId, 'caregiver');
+    expect(invite.code).toMatch(/^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{8}$/);
+    expect(invite.expiresAt).toBeGreaterThan(Date.now());
+
+    // Phone B: opens the link, reads the code from it, and joins.
+    const b = await phone('carer');
+    const fromLink = normaliseCode(inviteLink(invite.code).split('/join/')[1]!);
+    const joined = await acceptInvite(b.auth, fromLink, 'Nik', 'father');
+    expect(joined).toEqual({
+      householdId: household.householdId,
+      role: 'caregiver',
+      babyId: household.babyId,
+      babyName: 'Ella',
+    });
+    expect(await findHousehold(b.auth, b.user.id)).toEqual({ userId: b.user.id, ...joined });
+
+    // The role is real: B can log, and A sees it.
+    const logged = await b.auth.client.from('events').insert({
+      id: newUuid(),
+      household_id: household.householdId,
+      baby_id: household.babyId,
+      type: 'diaper',
+      occurred_at: new Date().toISOString(),
+      payload: { kind: 'wet' },
+      created_by: b.user.id,
+      updated_by: b.user.id,
+      client_created_at: new Date().toISOString(),
+    });
+    expect(logged.error).toBeNull();
+    const seenByOwner = await a.auth.client.from('events').select('created_by');
+    expect(seenByOwner.data).toEqual([{ created_by: b.user.id }]);
+
+    // The code is single use, and a viewer invite grants reading only.
+    const c = await phone('viewer');
+    await expect(acceptInvite(c.auth, invite.code, 'Late', null)).rejects.toMatchObject({
+      reason: 'used',
+    });
+    const viewerInvite = await createInvite(a.auth, household.householdId, 'viewer');
+    expect(await acceptInvite(c.auth, viewerInvite.code, 'Yiayia', 'grandparent')).toMatchObject({
+      role: 'viewer',
+    });
+    const refused = await c.auth.client.from('events').insert({
+      id: newUuid(),
+      household_id: household.householdId,
+      baby_id: household.babyId,
+      type: 'diaper',
+      occurred_at: new Date().toISOString(),
+      payload: { kind: 'wet' },
+      created_by: c.user.id,
+      updated_by: c.user.id,
+      client_created_at: new Date().toISOString(),
+    });
+    expect(refused.error?.code).toBe('42501');
+    const seenByViewer = await c.auth.client.from('events').select('id');
+    expect(seenByViewer.data).toHaveLength(1);
+
+    for (const p of [a, b, c]) {
+      await p.auth.signOut();
+      p.auth.setForeground(false);
+    }
   });
 });

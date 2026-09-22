@@ -2,12 +2,12 @@ import { Stack, useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { HouseholdSetupScreen } from '@/features/onboarding/HouseholdSetupScreen';
+import { JoinScreen } from '@/features/household/JoinScreen';
 
-export default function HouseholdSetup() {
+/** Joining by typing the code, for when the link can't be tapped. */
+export default function JoinWithCode() {
   const { t } = useTranslation();
   const router = useRouter();
-  // Ends on home (P2-05 done-when), whichever tab it was opened from.
   const toHome = useCallback(() => {
     // Opened from a link, there may be nothing to dismiss.
     if (router.canDismiss()) router.dismissAll();
@@ -15,8 +15,8 @@ export default function HouseholdSetup() {
   }, [router]);
   return (
     <>
-      <Stack.Screen options={{ title: t('householdSetup.title'), presentation: 'modal' }} />
-      <HouseholdSetupScreen onDone={toHome} />
+      <Stack.Screen options={{ title: t('join.title'), presentation: 'modal' }} />
+      <JoinScreen code="" onDone={toHome} onSignIn={() => router.push('/onboarding/sign-in')} />
     </>
   );
 }
