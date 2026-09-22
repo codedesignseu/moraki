@@ -2,6 +2,8 @@ import { and, desc, eq, gt, inArray, isNull } from 'drizzle-orm';
 
 import { getActivity, type Event, type EventType } from '@/domain/activities';
 
+import { protectPending, type PendingOp, type PulledEvent } from '@/domain/sync/pendingProtection';
+
 import { readIdentity, type Identity, type SyncDb } from '../identity';
 import { events, outbox } from '../schema';
 
@@ -134,6 +136,34 @@ function patchOp(id: string, userId: string, changes: EventChanges, now: number)
     }),
     createdAt: now,
   };
+}
+
+/** An outbox row as the pull rule reads it: which fields a waiting write owns. */
+function pendingOp(row: typeof outbox.$inferSelect): PendingOp {
+  const body = JSON.parse(row.body) as {
+    payload?: Record<string, unknown>;
+    unset?: string[];
+    occurred_at?: number;
+    ended_at?: number | null;
+    deleted_at?: number;
+  };
+  if (row.op === 'insert') return { op: 'insert' };
+  if (row.op === 'delete') return { op: 'delete', deletedAt: body.deleted_at ?? row.createdAt };
+  return {
+    op: 'patch',
+    ...(body.payload ? { payload: body.payload } : {}),
+    ...(body.unset ? { unset: body.unset } : {}),
+    ...(body.occurred_at !== undefined ? { occurredAt: body.occurred_at } : {}),
+    ...(body.ended_at !== undefined ? { endedAt: body.ended_at } : {}),
+  };
+}
+
+function toPulled(row: EventRow): PulledEvent {
+  return { ...row, payload: (row.payload ?? {}) as Record<string, unknown> };
+}
+
+function fromPulled(row: PulledEvent): typeof events.$inferInsert {
+  return row;
 }
 
 /**
@@ -408,6 +438,53 @@ export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
     /** The user new events are logged as: the placeholder until sign in (P2). */
     currentUserId(): string {
       return me().userId;
+    },
+
+    /**
+     * Stores events a pull brought back (SDD 5.3). Writes no outbox rows:
+     * these came from the server, they aren't ours to send. A local write
+     * still waiting keeps the fields it touches (see protectPending), so an
+     * unsent edit survives an older server copy. A payload this app can't
+     * read is skipped rather than stored (rule 6), and never blocks the rest.
+     */
+    applyFromServer(pulled: readonly PulledEvent[]): { stored: number; skipped: number } {
+      if (pulled.length === 0) return { stored: 0, skipped: 0 };
+      let stored = 0;
+      let skipped = 0;
+
+      db.transaction((tx) => {
+        for (const server of pulled) {
+          const module = getActivity(server.type as EventType);
+          if (!module || !module.schema.safeParse(server.payload).success) {
+            console.warn(`[moraki] Pulled event ${server.id} skipped: unreadable payload`);
+            skipped += 1;
+            continue;
+          }
+
+          const current = tx.select().from(events).where(eq(events.id, server.id)).get() ?? null;
+          const waiting = tx
+            .select()
+            .from(outbox)
+            .where(and(eq(outbox.entity, 'event'), eq(outbox.entityId, server.id)))
+            .orderBy(outbox.id)
+            .all()
+            .map(pendingOp);
+          const row = protectPending(server, current && toPulled(current), waiting);
+          if (row === null) {
+            skipped += 1;
+            continue;
+          }
+
+          tx.insert(events)
+            .values(fromPulled(row))
+            .onConflictDoUpdate({ target: events.id, set: fromPulled(row) })
+            .run();
+          stored += 1;
+        }
+      });
+
+      if (stored > 0) changed();
+      return { stored, skipped };
     },
 
     /** Counts committed writes; a cheap change signal for React (useSyncExternalStore). */

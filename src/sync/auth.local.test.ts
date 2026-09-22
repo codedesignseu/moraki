@@ -6,45 +6,19 @@ import { createHousehold, findHousehold } from './household';
 import { acceptInvite, createInvite, inviteLink, normaliseCode } from './invites';
 import { newId } from '@/domain/ids';
 import { keychain } from '@/testing/fakeSupabaseAuth';
-
-const enabled = process.env.MORAKI_LOCAL_SUPABASE === '1';
-const API = process.env.MORAKI_LOCAL_API_URL ?? 'http://127.0.0.1:55321';
-const MAIL = process.env.MORAKI_LOCAL_MAIL_URL ?? 'http://127.0.0.1:55324';
-const KEY = process.env.MORAKI_LOCAL_PUBLISHABLE_KEY ?? '';
-
-async function codeSentTo(email: string): Promise<string> {
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    const search = await fetch(`${MAIL}/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`);
-    const { messages } = (await search.json()) as { messages: { ID: string }[] };
-    if (messages[0]) {
-      const message = await fetch(`${MAIL}/api/v1/message/${messages[0].ID}`);
-      const { Text, HTML } = (await message.json()) as { Text: string; HTML: string };
-      const code = /\b(\d{6,10})\b/.exec(Text || HTML)?.[1];
-      if (code) return code;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 250));
-  }
-  throw new Error('no code arrived');
-}
-
-const env = { url: API, publishableKey: KEY };
-const newUuid = () => newId(Date.now(), () => crypto.getRandomValues(new Uint8Array(16)));
-
-/** A phone: its own keychain, its own client, signed in with a real emailed code. */
-async function phone(label: string) {
-  const email = `p2-06-${label}-${Date.now()}@example.test`;
-  const auth = createAuth(env, keychain().store);
-  await auth.requestCode(email);
-  const user = await auth.verifyCode(email, await codeSentTo(email));
-  auth.setForeground(false);
-  return { auth, user };
-}
+import {
+  codeSentTo,
+  LOCAL_ENABLED as enabled,
+  LOCAL_ENV,
+  newUuid,
+  phone,
+} from '@/testing/localSupabase';
 
 (enabled ? describe : describe.skip)('email OTP against local Supabase', () => {
   jest.setTimeout(60_000);
 
   it('signs in with the emailed code, survives a restart, auth.uid() is the user, and sets up a household', async () => {
-    const env = { url: API, publishableKey: KEY };
+    const env = LOCAL_ENV;
     const email = `p2-04-${Date.now()}@example.test`;
     const { store } = keychain();
 

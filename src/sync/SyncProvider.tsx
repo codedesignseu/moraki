@@ -1,15 +1,20 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 
-import { useEvents, useLinkedIdentity, useOutboxRepository } from '@/db/react';
+import { useEvents, useEventsRepository, useLinkedIdentity, useOutboxRepository } from '@/db/react';
 
 import { useAuth } from './AuthProvider';
+import { createPullEngine, type PullEngine } from './pullEngine';
 import { createPushEngine, type PushEngine, type PushStatus } from './pushEngine';
 
-const SyncContext = createContext<{ engine: PushEngine | null; status: PushStatus | null }>({
-  engine: null,
-  status: null,
-});
+/** Every 60 seconds while the app is open, as SDD 5.4's safety net. */
+export const PULL_EVERY_MS = 60_000;
+
+const SyncContext = createContext<{
+  engine: PushEngine | null;
+  pull: PullEngine | null;
+  status: PushStatus | null;
+}>({ engine: null, pull: null, status: null });
 
 const EMPTY: PushStatus = {
   pending: 0,
@@ -27,6 +32,7 @@ const EMPTY: PushStatus = {
  */
 export function SyncProvider({ children }: { children: ReactNode }) {
   const outbox = useOutboxRepository();
+  const eventsRepository = useEventsRepository();
   const linked = useLinkedIdentity();
   const { auth, state } = useAuth();
   // Re-pushes after every committed write (the events repository's signal).
@@ -37,6 +43,10 @@ export function SyncProvider({ children }: { children: ReactNode }) {
     () => createPushEngine({ linked, outbox, auth, state, now: Date.now }),
     [linked, outbox, auth, state],
   );
+  const pull = useMemo(
+    () => createPullEngine({ linked, events: eventsRepository, outbox, auth, state }),
+    [linked, eventsRepository, outbox, auth, state],
+  );
 
   useEffect(() => {
     let active = true;
@@ -44,24 +54,36 @@ export function SyncProvider({ children }: { children: ReactNode }) {
 
     const run = () => {
       if (!active) return;
-      void engine.push().then((outcome) => {
-        if (!active) return;
-        setStatus(engine.status());
-        clearTimeout(timer);
-        if (outcome.kind === 'failed') {
-          timer = setTimeout(run, outcome.retryInMs);
-          return;
-        }
-        // Anything still held (P1-12's undo window) is due later.
-        const next = outbox.nextDueAt(Date.now());
-        if (next !== null) timer = setTimeout(run, Math.max(next - Date.now(), 0));
-      });
+      void engine
+        .push()
+        // Reading follows sending (SDD 5.4): whatever the push did, this phone
+        // then catches up on what the others have logged.
+        .then(async (outcome) => {
+          await pull.pull();
+          return outcome;
+        })
+        .then((outcome) => {
+          if (!active) return;
+          setStatus(engine.status());
+          clearTimeout(timer);
+          if (outcome.kind === 'failed') {
+            timer = setTimeout(run, outcome.retryInMs);
+            return;
+          }
+          // Whichever comes first: an op whose hold (P1-12's undo window) is
+          // over, or the next safety-net read.
+          const held = outbox.nextDueAt(Date.now());
+          const wait =
+            held === null ? PULL_EVERY_MS : Math.min(Math.max(held - Date.now(), 0), PULL_EVERY_MS);
+          timer = setTimeout(run, wait);
+        });
     };
 
     run();
     const subscription = AppState.addEventListener('change', (next) => {
       if (next !== 'active') return;
       engine.resetBackoff();
+      pull.resetBackoff();
       run();
     });
     return () => {
@@ -69,9 +91,9 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       clearTimeout(timer);
       subscription.remove();
     };
-  }, [engine, outbox, events]);
+  }, [engine, pull, outbox, events]);
 
-  const value = useMemo(() => ({ engine, status }), [engine, status]);
+  const value = useMemo(() => ({ engine, pull, status }), [engine, pull, status]);
   return <SyncContext.Provider value={value}>{children}</SyncContext.Provider>;
 }
 
@@ -82,4 +104,8 @@ export function useSyncStatus(): PushStatus {
 
 export function useSyncEngine(): PushEngine | null {
   return useContext(SyncContext).engine;
+}
+
+export function usePullEngine(): PullEngine | null {
+  return useContext(SyncContext).pull;
 }
