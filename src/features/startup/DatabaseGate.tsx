@@ -2,12 +2,11 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { EventsRepositoryProvider } from '@/db/react';
-import type { EventsRepository } from '@/db/repositories/events';
+import { DevicePrefsProvider, EventsRepositoryProvider, type AppRepositories } from '@/db/react';
 import { useTheme } from '@/ui/theme';
 
 type State =
-  { status: 'opening' } | { status: 'ready'; repository: EventsRepository } | { status: 'failed' };
+  { status: 'opening' } | { status: 'ready'; repositories: AppRepositories } | { status: 'failed' };
 
 /**
  * Opens the database and runs migrations before the first screen (P1-F3).
@@ -18,7 +17,7 @@ export function DatabaseGate({
   open,
   children,
 }: {
-  open: () => Promise<EventsRepository>;
+  open: () => Promise<AppRepositories>;
   children: ReactNode;
 }) {
   const [state, setState] = useState<State>({ status: 'opening' });
@@ -28,7 +27,7 @@ export function DatabaseGate({
   useEffect(() => {
     let active = true;
     open().then(
-      (repository) => active && setState({ status: 'ready', repository }),
+      (repositories) => active && setState({ status: 'ready', repositories }),
       () => active && setState({ status: 'failed' }),
     );
     return () => {
@@ -38,7 +37,11 @@ export function DatabaseGate({
 
   if (state.status === 'ready') {
     return (
-      <EventsRepositoryProvider repository={state.repository}>{children}</EventsRepositoryProvider>
+      <EventsRepositoryProvider repository={state.repositories.events}>
+        <DevicePrefsProvider repository={state.repositories.devicePrefs}>
+          {children}
+        </DevicePrefsProvider>
+      </EventsRepositoryProvider>
     );
   }
   return (

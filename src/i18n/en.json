@@ -187,7 +187,8 @@
   },
   "tabs": {
     "home": "Home",
-    "history": "History"
+    "history": "History",
+    "settings": "Settings"
   },
   "history": {
     "today": "Today",
@@ -231,6 +232,17 @@
     "feed": {
       "first": "Next feed may be due",
       "second": "No feed logged since {{time}}"
+    }
+  },
+  "settings": {
+    "nightMode": {
+      "title": "Night mode",
+      "auto": "Auto",
+      "on": "On",
+      "off": "Off",
+      "autoHint": "Dark screens from 21:00 to 06:00.",
+      "onHint": "Dark screens all day.",
+      "offHint": "Light screens all day."
     }
   }
 }

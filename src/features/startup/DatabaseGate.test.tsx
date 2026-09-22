@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
-import { useEventsRepository } from '@/db/react';
+import { useDevicePref, useEventsRepository, type AppRepositories } from '@/db/react';
+import { createDevicePrefsRepository } from '@/db/repositories/devicePrefs';
 import { createEventsRepository } from '@/db/repositories/events';
 import { createMemoryDb, testDeps } from '@/db/testing/memoryDb';
 import '@/i18n';
@@ -11,10 +12,11 @@ import { DatabaseGate } from './DatabaseGate';
 
 function Child() {
   useEventsRepository();
+  useDevicePref('nightMode');
   return <Text>app</Text>;
 }
 
-const renderGate = (open: () => Promise<ReturnType<typeof createEventsRepository>>) =>
+const renderGate = (open: () => Promise<AppRepositories>) =>
   render(
     <ThemeProvider scheme="light">
       <DatabaseGate open={open}>
@@ -24,9 +26,11 @@ const renderGate = (open: () => Promise<ReturnType<typeof createEventsRepository
   );
 
 describe('DatabaseGate', () => {
-  it('renders the app with a repository once the database is open and migrated', async () => {
+  it('renders the app with its repositories once the database is open and migrated', async () => {
     const { db } = await createMemoryDb();
-    await renderGate(() => Promise.resolve(createEventsRepository(db, testDeps())));
+    const events = createEventsRepository(db, testDeps());
+    const devicePrefs = createDevicePrefsRepository(db);
+    await renderGate(() => Promise.resolve({ events, devicePrefs }));
     expect(await screen.findByText('app')).toBeOnTheScreen();
   });
 

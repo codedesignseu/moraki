@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@/ui/theme';
 
-/** Home and History (SDD 7). Insights and Settings join when their tasks land. */
+/** Home, History and Settings (SDD 7). Insights joins when its task lands. */
 export default function TabsLayout() {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -39,6 +39,16 @@ export default function TabsLayout() {
           tabBarLabel: t('tabs.history'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="time-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: t('tabs.settings'),
+          tabBarLabel: t('tabs.settings'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="settings-outline" color={color} size={size} />
           ),
         }}
       />

@@ -28,8 +28,8 @@ afterEach(() => {
 });
 
 describe('web preview database stand-in (client.web.ts)', () => {
-  it('opens a migrated in-memory database behind the real events repository', async () => {
-    const repo = await openAppDatabase();
+  it('opens a migrated in-memory database behind the real repositories', async () => {
+    const { events: repo, devicePrefs } = await openAppDatabase();
     expect(repo.list()).toEqual([]);
     const event = repo.insert({
       type: 'feed_bottle',
@@ -37,6 +37,8 @@ describe('web preview database stand-in (client.web.ts)', () => {
       payload: { ml: 90, milk: 'formula' },
     });
     expect(repo.list()).toEqual([event]);
+    devicePrefs.set('nightMode', 'on');
+    expect(devicePrefs.get('nightMode')).toBe('on');
   });
 
   it('uses the same migrator, migrations bundle and repository factory as the device', async () => {
@@ -51,9 +53,9 @@ describe('web preview database stand-in (client.web.ts)', () => {
   });
 
   it('starts empty every time: nothing is saved', async () => {
-    const first = await openAppDatabase();
+    const { events: first } = await openAppDatabase();
     first.insert({ type: 'diaper', occurredAt: 0, payload: { kind: 'wet' } });
-    const second = await openAppDatabase();
+    const { events: second } = await openAppDatabase();
     expect(second.list()).toEqual([]);
   });
 });

@@ -14,11 +14,13 @@ import initSqlJs from 'sql.js/dist/sql-asm.js';
 import { newId } from '@/domain/ids';
 
 import migrations from './migrations/migrations';
+import type { AppRepositories } from './react';
+import { createDevicePrefsRepository } from './repositories/devicePrefs';
 import { createEventsRepository } from './repositories/events';
 import * as schema from './schema';
 
-/** Opens a fresh in-memory database, migrates it, and returns the repository. */
-export async function openAppDatabase() {
+/** Opens a fresh in-memory database, migrates it, and returns the repositories. */
+export async function openAppDatabase(): Promise<AppRepositories> {
   console.warn(
     '[moraki] Web preview: using an in-memory stand-in database, not expo-sqlite. ' +
       'Entries are lost on reload and nothing here tests real device storage.',
@@ -28,8 +30,11 @@ export async function openAppDatabase() {
   // The expo migrator only uses the database's dialect and session, which the
   // sql.js driver shares, so this runs the device's exact migration path.
   await migrate(db as unknown as Parameters<typeof migrate>[0], migrations);
-  return createEventsRepository(db, {
-    now: Date.now,
-    newId: (now) => newId(now, () => getRandomBytes(16)),
-  });
+  return {
+    events: createEventsRepository(db, {
+      now: Date.now,
+      newId: (now) => newId(now, () => getRandomBytes(16)),
+    }),
+    devicePrefs: createDevicePrefsRepository(db),
+  };
 }
