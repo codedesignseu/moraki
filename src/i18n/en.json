@@ -129,7 +129,10 @@
         "left": "Left",
         "right": "Right",
         "both": "Both"
-      }
+      },
+      "fedFor": "Fed for",
+      "minutes": "min",
+      "range": "{{from}} to {{to}}"
     },
     "diaper": {
       "title": "Diaper",

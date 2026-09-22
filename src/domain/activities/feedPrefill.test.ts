@@ -49,6 +49,7 @@ describe('feedPrefill', () => {
       ml: 70,
       milk: 'formula',
       side: 'right',
+      breastMinutes: 15,
     });
   });
 
@@ -70,5 +71,28 @@ describe('feedPrefill', () => {
 
   it('falls back to the last breast side when there is no suggestion', () => {
     expect(feedPrefill([ev('feed_breast', 1, { side: 'both' })], null).side).toBe('both');
+  });
+
+  it('repeats the last breastfeed duration, rounded to the stepper', () => {
+    const min = 60_000;
+    const events = [ev('feed_breast', 0, { side: 'left' }, { endedAt: 17 * min })];
+    expect(feedPrefill(events, null).breastMinutes).toBe(15);
+    const perSide = [ev('feed_breast', 0, { side: 'both', left_s: 600, right_s: 780 })];
+    expect(feedPrefill(perSide, null).breastMinutes).toBe(25);
+  });
+
+  it('keeps the duration within the stepper range', () => {
+    const min = 60_000;
+    expect(
+      feedPrefill([ev('feed_breast', 0, { side: 'left' }, { endedAt: min })], null).breastMinutes,
+    ).toBe(5);
+    expect(
+      feedPrefill([ev('feed_breast', 0, { side: 'left' }, { endedAt: 200 * min })], null)
+        .breastMinutes,
+    ).toBe(90);
+  });
+
+  it('falls back to 15 minutes when the last breastfeed has no duration', () => {
+    expect(feedPrefill([ev('feed_breast', 0, { side: 'left' })], null).breastMinutes).toBe(15);
   });
 });

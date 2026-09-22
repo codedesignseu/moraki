@@ -9,6 +9,8 @@ import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 export type FeedForm = FeedPrefill;
 
+const MINUTE_MS = 60_000;
+
 /**
  * The feed sheet's state, opened with the last-used values and the current time
  * (SDD 7), so a repeat bottle feed is Log feed, then Save.
@@ -23,14 +25,20 @@ export function useFeedSheet() {
   );
 
   function save() {
+    // A breastfeed is logged when it ends: it started "Fed for" minutes before
+    // the sheet opened (P1-19). A mixed feed is one session, so its bottle part
+    // starts then too, and "since last feed" counts from the start either way.
+    const hasBreast = form.kind !== 'bottle';
+    const start = hasBreast ? openedAt - form.breastMinutes * MINUTE_MS : openedAt;
     const bottle = {
       type: 'feed_bottle' as const,
-      occurredAt: openedAt,
+      occurredAt: start,
       payload: { ml: form.ml, milk: form.milk },
     };
     const breast = {
       type: 'feed_breast' as const,
-      occurredAt: openedAt,
+      occurredAt: start,
+      endedAt: openedAt,
       payload: { side: form.side },
     };
     if (form.kind === 'mixed') repository.insertGroup([bottle, breast]);
@@ -39,7 +47,14 @@ export function useFeedSheet() {
 
   return {
     form,
-    time: formatClock(openedAt, tz),
+    /** "At 14:05" for a bottle; "13:50 to 14:05" when a breastfeed's start is back-dated. */
+    when:
+      form.kind === 'bottle'
+        ? { at: formatClock(openedAt, tz) }
+        : {
+            from: formatClock(openedAt - form.breastMinutes * MINUTE_MS, tz),
+            to: formatClock(openedAt, tz),
+          },
     update: (changes: Partial<FeedForm>) => setForm((current) => ({ ...current, ...changes })),
     save,
   };

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
-import type { FeedKind, FeedPrefill } from '@/domain/activities';
+import { BREAST_MINUTES, type FeedKind, type FeedPrefill } from '@/domain/activities';
 import { Button, Segmented, Stepper } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
@@ -16,7 +16,7 @@ export function FeedSheet({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
-  const { form, time, update, save } = useFeedSheet();
+  const { form, when, update, save } = useFeedSheet();
 
   const kinds: { value: FeedKind; label: string }[] = [
     { value: 'bottle', label: t('log.feed.kind.bottle') },
@@ -38,7 +38,9 @@ export function FeedSheet({ onDone }: { onDone: () => void }) {
 
   return (
     <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-      <Text style={s.muted}>{t('log.time', { time })}</Text>
+      <Text style={s.muted}>
+        {'at' in when ? t('log.time', { time: when.at }) : t('log.feed.range', when)}
+      </Text>
       <Segmented
         options={kinds}
         value={form.kind}
@@ -65,12 +67,24 @@ export function FeedSheet({ onDone }: { onDone: () => void }) {
         </>
       )}
       {hasBreast && (
-        <Segmented
-          options={sides}
-          value={form.side}
-          onChange={(side) => update({ side })}
-          accessibilityLabel={t('log.feed.side.label')}
-        />
+        <>
+          <Segmented
+            options={sides}
+            value={form.side}
+            onChange={(side) => update({ side })}
+            accessibilityLabel={t('log.feed.side.label')}
+          />
+          <Text style={s.muted}>{t('log.feed.fedFor')}</Text>
+          <Stepper
+            value={form.breastMinutes}
+            onChange={(breastMinutes) => update({ breastMinutes })}
+            step={BREAST_MINUTES.step}
+            min={BREAST_MINUTES.min}
+            max={BREAST_MINUTES.max}
+            unit={t('log.feed.minutes')}
+            accessibilityLabel={t('log.feed.fedFor')}
+          />
+        </>
       )}
       <Button
         label={t('log.save')}
