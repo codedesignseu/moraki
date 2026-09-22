@@ -1,11 +1,14 @@
-import { Text, View } from 'react-native';
+import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+
+import { HomeScreen } from '@/features/home/HomeScreen';
 
 export default function Home() {
   const { t } = useTranslation();
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>{t('app.name')}</Text>
-    </View>
+    <>
+      <Stack.Screen options={{ title: t('app.name') }} />
+      <HomeScreen />
+    </>
   );
 }

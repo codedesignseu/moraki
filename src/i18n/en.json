@@ -4,16 +4,35 @@
   },
   "activity": {
     "feed_bottle": {
-      "label": "Bottle"
+      "label": "Bottle",
+      "summary": {
+        "breast": "{{ml}} mL breast milk",
+        "formula": "{{ml}} mL formula",
+        "mixed": "{{ml}} mL mixed"
+      }
     },
     "feed_breast": {
-      "label": "Breastfeed"
+      "label": "Breastfeed",
+      "summary": {
+        "left": "Left side",
+        "right": "Right side",
+        "both": "Both sides"
+      }
     },
     "diaper": {
-      "label": "Diaper"
+      "label": "Diaper",
+      "summary": {
+        "wet": "Wet",
+        "dirty": "Dirty",
+        "both": "Wet and dirty"
+      }
     },
     "sleep": {
-      "label": "Sleep"
+      "label": "Sleep",
+      "summary": {
+        "running": "Sleeping now",
+        "ended": "{{duration}}"
+      }
     },
     "pump": {
       "label": "Pump"
@@ -32,6 +51,39 @@
     },
     "appointment": {
       "label": "Appointment"
+    }
+  },
+  "startup": {
+    "databaseFailed": "Moraki couldn’t open its data on this phone. Close the app and open it again. Your entries are kept."
+  },
+  "home": {
+    "timer": {
+      "label": "Since last feed",
+      "none": "No feed logged yet"
+    },
+    "nextSide": {
+      "left": "Next side: left",
+      "right": "Next side: right"
+    },
+    "reminder": {
+      "upcoming": "Feed reminder at {{time}}",
+      "passed": "Feed reminder was at {{time}}"
+    },
+    "today": {
+      "title": "Today",
+      "feeds": "Feeds",
+      "ml": "mL",
+      "wet": "Wet",
+      "dirty": "Dirty",
+      "sleep24h": "Sleep in the last 24h: {{duration}}"
+    },
+    "recent": {
+      "title": "Recent",
+      "empty": "Nothing logged yet",
+      "you": "You",
+      "other": "Another caregiver",
+      "yesterday": "Yesterday {{time}}",
+      "daysAgo": "{{count}} days ago, {{time}}"
     }
   }
 }

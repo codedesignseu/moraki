@@ -33,3 +33,10 @@ export function createAppEventsRepository(db: LocalDb) {
     newId: (now) => newId(now, () => getRandomBytes(16)),
   });
 }
+
+/** Opens the database, brings it to the latest schema, and returns the repository. */
+export async function openAppDatabase() {
+  const db = openLocalDb();
+  await migrateLocalDb(db);
+  return createAppEventsRepository(db);
+}
