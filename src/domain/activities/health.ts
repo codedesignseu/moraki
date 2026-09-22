@@ -17,11 +17,18 @@ export const HEALTH_TAGS = [
 export const HEALTH_NOTE_MAX = 500;
 export const TEMP_C = { min: 34, max: 43 } as const;
 
-export const healthSchema = z.object({
-  note: z.string().min(1).max(HEALTH_NOTE_MAX),
-  temp_c: z.number().min(TEMP_C.min).max(TEMP_C.max).optional(),
-  tags: z.array(z.enum(HEALTH_TAGS)).optional(),
-});
+/**
+ * A note, a temperature, or both: an entry with neither records nothing. This
+ * relaxes SDD 4.1, where the note was always required, so a temperature can be
+ * logged on its own (P1-F9).
+ */
+export const healthSchema = z
+  .object({
+    note: z.string().min(1).max(HEALTH_NOTE_MAX).optional(),
+    temp_c: z.number().min(TEMP_C.min).max(TEMP_C.max).optional(),
+    tags: z.array(z.enum(HEALTH_TAGS)).optional(),
+  })
+  .refine((p) => p.note !== undefined || p.temp_c !== undefined);
 
 export type HealthPayload = z.infer<typeof healthSchema>;
 
@@ -31,7 +38,7 @@ export const healthModule: ActivityModule<HealthPayload> = {
   i18nKey: 'activity.health.label',
   summarize: (e) =>
     e.payload.temp_c === undefined
-      ? { key: 'activity.health.summary.note', values: { note: preview(e.payload.note) } }
+      ? { key: 'activity.health.summary.note', values: { note: preview(e.payload.note ?? '') } }
       : { key: 'activity.health.summary.temp', values: { temp: e.payload.temp_c.toFixed(1) } },
 };
 

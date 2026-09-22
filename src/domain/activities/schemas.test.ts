@@ -106,14 +106,17 @@ const cases: Record<EventType, Cases> = {
       ['note only', { note: 'x' }],
       ['temperature edges', { note: long(500), temp_c: 34 }],
       ['upper temperature', { note: 'hot', temp_c: 43, tags: ['cough', 'fussy'] }],
+      ['temperature only (P1-F9)', { temp_c: 37.2 }],
+      ['temperature only with tags', { temp_c: 38, tags: ['cough'] }],
     ],
     invalid: [
       ['empty note', { note: '' }],
+      ['neither note nor temperature', {}],
+      ['tags only', { tags: ['rash'] }],
       ['note 501 chars', { note: long(501) }],
       ['temperature 33.9', { note: 'cold', temp_c: 33.9 }],
       ['temperature 43.1', { note: 'hot', temp_c: 43.1 }],
       ['unknown tag', { note: 'x', tags: ['sneeze'] }],
-      ['missing note', { temp_c: 37 }],
     ],
   },
   medication: {

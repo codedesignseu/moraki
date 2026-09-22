@@ -91,11 +91,40 @@ describe('health note sheet', () => {
     expect((ofType('health')[0]?.payload.note as string).length).toBe(500);
   });
 
-  it('asks for a note before saving', async () => {
+  it('saves a temperature on its own, with no note (P1-F9)', async () => {
     await open('Health note');
-    await type('Temperature in °C (optional)', '37.5');
+    await type('Temperature in °C (optional)', '37.4');
     await save();
-    expect(screen.getByRole('alert')).toHaveTextContent('Add a note to save this entry.');
+    expect(ofType('health')).toEqual([
+      expect.objectContaining({ occurredAt: NOW, payload: { temp_c: 37.4 } }),
+    ]);
+    expect(screen.getByText('37.4 °C')).toBeOnTheScreen();
+  });
+
+  it('refuses an entry with neither a note nor a temperature, and writes nothing', async () => {
+    await open('Health note');
+    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Rash' }));
+    await save();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Add a note or a temperature to save this entry.',
+    );
+    expect(ofType('health')).toEqual([]);
+    expect(outboxCount()).toBe(0);
+
+    // Either one is enough.
+    await type('Note', 'Small rash on cheek');
+    expect(screen.queryByRole('alert')).toBeNull();
+    await save();
+    expect(ofType('health')[0]?.payload).toEqual({ note: 'Small rash on cheek', tags: ['rash'] });
+  });
+
+  it('refuses a blank note on its own', async () => {
+    await open('Health note');
+    await type('Note', '   ');
+    await save();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Add a note or a temperature to save this entry.',
+    );
     expect(ofType('health')).toEqual([]);
   });
 

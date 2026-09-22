@@ -62,6 +62,7 @@ describe('activity registry completeness', () => {
     health: [
       [{ note: 'Warm', temp_c: 37.8 }, null],
       [{ note: 'Rash on cheek' }, null],
+      [{ temp_c: 37.2 }, null],
     ],
     medication: [
       [{ name: 'Vitamin D', dose: '1 drop' }, null],

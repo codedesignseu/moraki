@@ -156,7 +156,6 @@
     "health": {
       "title": "Health note",
       "note": "Note",
-      "noteMissing": "Add a note to save this entry.",
       "temperature": "Temperature in °C (optional)",
       "tempFormat": "Enter the temperature as a number, like 37.5.",
       "tempRange": "Enter a temperature from {{min}} to {{max}} °C.",
@@ -169,7 +168,8 @@
         "fussy": "Fussy",
         "jaundice": "Jaundice",
         "other": "Other"
-      }
+      },
+      "noteOrTemp": "Add a note or a temperature to save this entry."
     },
     "medication": {
       "title": "Medication",

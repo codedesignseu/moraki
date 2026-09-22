@@ -18,7 +18,7 @@ import { useTheme, type Theme } from '@/ui/theme';
 type Tag = (typeof HEALTH_TAGS)[number];
 
 /**
- * A health note: required text, optional temperature in °C and tags. Invalid
+ * A health entry: a note, a temperature in °C, or both, plus optional tags. Invalid
  * input is shown after Save is pressed and nothing is written until it's fixed.
  * Messages describe the input, never the baby's health (rule 10).
  */
@@ -34,8 +34,10 @@ export function HealthSheet({ onDone }: { onDone: () => void }) {
   const [attempted, setAttempted] = useState(false);
 
   const temp = parseTemperature(temperature);
-  const noteMissing = note.trim() === '';
+  const noteText = note.trim();
   const tempInvalid = temp.kind === 'not_a_number' || temp.kind === 'out_of_range';
+  // A note, a temperature, or both (P1-F9).
+  const nothingToSave = noteText === '' && temp.kind === 'empty';
   const tempMessage =
     temp.kind === 'out_of_range'
       ? t('log.health.tempRange', { min: TEMP_C.min.toFixed(1), max: TEMP_C.max.toFixed(1) })
@@ -43,9 +45,9 @@ export function HealthSheet({ onDone }: { onDone: () => void }) {
 
   function save() {
     setAttempted(true);
-    if (noteMissing || tempInvalid) return;
+    if (nothingToSave || tempInvalid) return;
     const payload: HealthPayload = {
-      note: note.trim(),
+      ...(noteText !== '' && { note: noteText }),
       ...(temp.kind === 'value' && { temp_c: temp.celsius }),
       ...(tags.length > 0 && { tags }),
     };
@@ -70,8 +72,8 @@ export function HealthSheet({ onDone }: { onDone: () => void }) {
         maxLength={HEALTH_NOTE_MAX}
         multiline
         hint={t('log.characters', { count: note.length, max: HEALTH_NOTE_MAX })}
-        invalid={attempted && noteMissing}
-        message={t('log.health.noteMissing')}
+        invalid={attempted && nothingToSave}
+        message={t('log.health.noteOrTemp')}
       />
       <TextField
         label={t('log.health.temperature')}
