@@ -1,0 +1,11 @@
+-- P2-10: let phones hear about changes to their household's events.
+--
+-- Realtime sends only a ping (SDD 5.4): the app always pulls afterwards and
+-- never trusts the message's contents, so nothing here decides what a phone
+-- reads. Row level security still applies to the subscription, so a phone is
+-- only told about events it could read anyway.
+--
+-- Our deletes are soft (rule 7), so they arrive as updates and carry the
+-- household id a subscription filters on. A real delete would arrive with the
+-- primary key alone, which no household filter could match.
+alter publication supabase_realtime add table public.events;

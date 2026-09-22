@@ -6,4 +6,8 @@ module.exports = {
   testMatch: ['<rootDir>/src/**/*.local.test.ts'],
   transform: { '\\.[jt]sx?$': 'babel-jest' },
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
+  // These tests hold real sockets (realtime keeps one open). Without this the
+  // run finishes but the process lingers, which would hang the CI step; with
+  // it, jest runs them one at a time and waits for the sockets to close.
+  detectOpenHandles: true,
 };
