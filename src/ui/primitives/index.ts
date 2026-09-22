@@ -9,3 +9,4 @@ export { Sheet, SheetPanel } from './Sheet';
 export { Stepper } from './Stepper';
 export { TextField } from './TextField';
 export { TimerText } from './TimerText';
+export { Toast } from './Toast';

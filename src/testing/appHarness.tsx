@@ -14,9 +14,11 @@ import LogHealth from '../../app/log/health';
 import LogMedication from '../../app/log/medication';
 import LogSleep from '../../app/log/sleep';
 import { EventsRepositoryProvider } from '@/db/react';
+import { UndoProvider } from '@/db/undo';
 import { createEventsRepository, type EventsRepository } from '@/db/repositories/events';
 import { createMemoryDb, type MemoryDb } from '@/db/testing/memoryDb';
 import { newId } from '@/domain/ids';
+import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
 import { ThemeProvider } from '@/ui/theme';
 
@@ -40,7 +42,10 @@ export function renderApp(repo: EventsRepository) {
     return (
       <ThemeProvider scheme="light">
         <EventsRepositoryProvider repository={repo}>
-          <Stack />
+          <UndoProvider>
+            <Stack />
+            <UndoToast />
+          </UndoProvider>
         </EventsRepositoryProvider>
       </ThemeProvider>
     );

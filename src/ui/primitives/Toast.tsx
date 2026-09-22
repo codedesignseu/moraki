@@ -1,0 +1,66 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import type { Theme } from '../theme';
+import { useTheme } from '../theme';
+
+type Props = {
+  message: string;
+  actionLabel: string;
+  onAction: () => void;
+};
+
+/** A short confirmation along the bottom of the screen with one action, e.g. Undo. */
+export function Toast({ message, actionLabel, onAction }: Props) {
+  const theme = useTheme();
+  const s = styles(theme);
+  return (
+    <View style={s.wrap} pointerEvents="box-none">
+      <View style={s.toast}>
+        {/* The message is announced; Undo stays its own button for screen readers. */}
+        <Text style={s.message} accessibilityRole="alert" accessibilityLiveRegion="polite">
+          {message}
+        </Text>
+        <Pressable
+          onPress={onAction}
+          accessibilityRole="button"
+          accessibilityLabel={actionLabel}
+          style={({ pressed }) => [s.action, pressed && s.pressed]}
+        >
+          <Text style={s.actionText}>{actionLabel}</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+const styles = (t: Theme) =>
+  StyleSheet.create({
+    wrap: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: t.size.touchTargetLarge + t.spacing.lg,
+      alignItems: 'center',
+      paddingHorizontal: t.spacing.lg,
+    },
+    toast: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: t.spacing.md,
+      alignSelf: 'stretch',
+      paddingLeft: t.spacing.lg,
+      paddingRight: t.spacing.xs,
+      borderRadius: t.radius.md,
+      backgroundColor: t.colors.text,
+    },
+    message: { ...t.text.body, color: t.colors.background, flex: 1 },
+    action: {
+      minHeight: t.size.touchTarget,
+      minWidth: t.size.touchTarget,
+      justifyContent: 'center',
+      paddingHorizontal: t.spacing.md,
+      borderRadius: t.radius.sm,
+    },
+    pressed: { opacity: 0.7 },
+    actionText: { ...t.text.bodyStrong, color: t.colors.background },
+  });

@@ -202,5 +202,15 @@
       "health": "Health",
       "other": "Other"
     }
+  },
+  "undo": {
+    "action": "Undo",
+    "feedSaved": "Feed saved",
+    "diaperSaved": "Diaper saved",
+    "sleepStarted": "Sleep started",
+    "sleepStopped": "Sleep stopped",
+    "sleepSaved": "Sleep saved",
+    "healthSaved": "Health note saved",
+    "medicationSaved": "Medication saved"
   }
 }

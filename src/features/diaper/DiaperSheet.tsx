@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import { useEventsRepository } from '@/db/react';
+import { useUndoableSaves } from '@/db/undo';
 import type { DiaperPayload } from '@/domain/activities/diaper';
 import { formatClock } from '@/domain/time/formatClock';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
@@ -17,6 +18,7 @@ export function DiaperSheet({ onDone }: { onDone: () => void }) {
   const theme = useTheme();
   const s = styles(theme);
   const repository = useEventsRepository();
+  const saves = useUndoableSaves(repository);
   const [openedAt] = useState(Date.now);
 
   const kinds: { value: Kind; label: string }[] = [
@@ -26,7 +28,7 @@ export function DiaperSheet({ onDone }: { onDone: () => void }) {
   ];
 
   function log(kind: Kind) {
-    repository.insert({ type: 'diaper', occurredAt: openedAt, payload: { kind } });
+    saves.insert('undo.diaperSaved', { type: 'diaper', occurredAt: openedAt, payload: { kind } });
     onDone();
   }
 

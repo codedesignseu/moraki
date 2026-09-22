@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { useEvents, useEventsRepository } from '@/db/react';
+import { useUndoableSaves } from '@/db/undo';
 import { feedPrefill, type FeedPrefill } from '@/domain/activities';
 import { DEFAULT_HOME_SETTINGS, selectHomeState } from '@/domain/home/homeState';
 import { formatClock } from '@/domain/time/formatClock';
@@ -17,6 +18,7 @@ const MINUTE_MS = 60_000;
  */
 export function useFeedSheet() {
   const repository = useEventsRepository();
+  const saves = useUndoableSaves(repository);
   const events = useEvents();
   const tz = deviceTimeZone();
   const [openedAt] = useState(Date.now);
@@ -41,8 +43,10 @@ export function useFeedSheet() {
       endedAt: openedAt,
       payload: { side: form.side },
     };
-    if (form.kind === 'mixed') repository.insertGroup([bottle, breast]);
-    else repository.insert(form.kind === 'bottle' ? bottle : breast);
+    saves.insert(
+      'undo.feedSaved',
+      form.kind === 'mixed' ? [bottle, breast] : form.kind === 'bottle' ? bottle : breast,
+    );
   }
 
   return {

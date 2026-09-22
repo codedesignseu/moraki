@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import { useEvents, useEventsRepository } from '@/db/react';
+import { useUndoableSaves } from '@/db/undo';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { DEFAULT_HOME_SETTINGS, selectHomeState } from '@/domain/home/homeState';
 import { formatClock } from '@/domain/time/formatClock';
@@ -41,6 +42,7 @@ export type HomeViewModel = {
  */
 export function useHome(): HomeViewModel {
   const repository = useEventsRepository();
+  const saves = useUndoableSaves(repository);
   const events = useEvents();
   const now = useNow(TIMER_TICK_MS);
   const tz = deviceTimeZone();
@@ -72,9 +74,9 @@ export function useHome(): HomeViewModel {
               startedAt: formatClock(state.activeSleep.occurredAt, tz),
             },
       stopSleep: (id: string) => {
-        repository.patch(id, { endedAt: Date.now() });
+        saves.patch('undo.sleepStopped', [{ id, changes: { endedAt: Date.now() } }]);
       },
       recent: events.slice(0, RECENT_COUNT).map((e) => describeEntry(e, now, tz, me)),
     };
-  }, [events, now, tz, repository]);
+  }, [events, now, tz, repository, saves]);
 }
