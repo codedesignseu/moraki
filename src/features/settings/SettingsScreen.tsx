@@ -1,10 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useDevicePref } from '@/db/react';
 import { NIGHT_MODES } from '@/domain/time/night';
 import { useAuth } from '@/sync/AuthProvider';
 import { useAccountHousehold } from '@/sync/useAccountHousehold';
+
+import { useCaregivers, type CaregiverRow } from './useCaregivers';
 import { Button, Card, Segmented } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
@@ -12,6 +14,13 @@ import { useTheme, type Theme } from '@/ui/theme';
  * Settings (SDD 7). Account and night mode for now; reminders, caregivers,
  * the report and the rest join as their tasks land.
  */
+/** Typed keys, so a new role can't quietly render nothing. */
+const ROLE_LABEL = {
+  owner: 'settings.account.role.owner',
+  caregiver: 'settings.account.role.caregiver',
+  viewer: 'settings.account.role.viewer',
+} as const;
+
 export function SettingsScreen({
   onSignIn,
   onSetUpHousehold,
@@ -29,6 +38,7 @@ export function SettingsScreen({
   const [nightMode, setNightMode] = useDevicePref('nightMode');
   const { auth, state } = useAuth();
   const { household } = useAccountHousehold();
+  const caregivers = useCaregivers();
 
   return (
     <ScrollView contentContainerStyle={s.content}>
@@ -45,6 +55,19 @@ export function SettingsScreen({
                   <Text style={theme.text.body}>
                     {t('settings.account.household', { name: household.babyName })}
                   </Text>
+                  {caregivers.length > 0 && (
+                    <View style={s.caregivers} testID="settings-caregivers">
+                      <Text style={s.muted}>{t('settings.account.caregivers')}</Text>
+                      {caregivers.map((person: CaregiverRow) => (
+                        <Text key={person.userId} style={theme.text.body}>
+                          {t('settings.account.caregiver', {
+                            name: person.you ? t('home.recent.you') : person.name,
+                            role: t(ROLE_LABEL[person.role]),
+                          })}
+                        </Text>
+                      ))}
+                    </View>
+                  )}
                   {household.role === 'owner' && (
                     <Button
                       label={t('settings.account.invite')}
@@ -99,4 +122,5 @@ const styles = (theme: Theme) =>
   StyleSheet.create({
     content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
     muted: { ...theme.text.label, color: theme.colors.textMuted },
+    caregivers: { gap: theme.spacing.xs },
   });

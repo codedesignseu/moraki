@@ -76,6 +76,9 @@ export function HomeScreen({
 
       <Card testID="home-recent">
         <Text style={theme.text.heading}>{t('home.recent.title')}</Text>
+        {home.lastEntryBy && (
+          <Text style={s.muted}>{t('home.recent.lastBy', { name: home.lastEntryBy })}</Text>
+        )}
         {home.recent.length === 0 ? (
           <Text style={s.muted}>{t('home.recent.empty')}</Text>
         ) : (
@@ -117,7 +120,7 @@ function Row({
       testID={`recent-${row.id}`}
       title={t(row.labelKey)}
       detail={row.summary ? t(row.summary.key, row.summary.values) : undefined}
-      meta={[when, t(row.byYou ? 'home.recent.you' : 'home.recent.other')]}
+      meta={[when, row.byYou ? t('home.recent.you') : (row.by ?? t('home.recent.other'))]}
       {...(onOpen && { onPress: () => onOpen(row.id), accessibilityHint: t('entry.openHint') })}
     />
   );

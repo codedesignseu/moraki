@@ -67,6 +67,8 @@ export function authServer(
     memberships?: { household_id: string; role: 'owner' | 'caregiver' | 'viewer' }[];
     createInvite?: () => Response;
     pushEvents?: (ops: { op: string; body: { id: string } }[]) => Response;
+    /** Everyone in the household, as the caregivers query returns them. */
+    caregivers?: unknown[];
     /** Rows a pull finds; `seq` is the PostgREST filter, e.g. "gt.7". */
     events?: (seq: string) => unknown[];
     acceptInvite?: () => Response;
@@ -99,6 +101,9 @@ export function authServer(
       case '/rest/v1/babies':
         return json(200, options.babies ?? []);
       case '/rest/v1/memberships':
+        if (options.caregivers && url.searchParams.get('select')?.includes('display_name')) {
+          return json(200, options.caregivers);
+        }
         return json(
           200,
           options.memberships ??

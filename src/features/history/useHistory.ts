@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useEvents, useEventsRepository } from '@/db/react';
+import { useCaregiverNames, useEvents, useEventsRepository } from '@/db/react';
 import type { HistoryGroup } from '@/domain/activities';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { selectHistory } from '@/domain/history/historySections';
@@ -29,6 +29,7 @@ export function useHistory() {
   // Only needed so "Today" rolls over at midnight; a minute is plenty.
   const now = useNow(DAY_TICK_MS);
   const tz = deviceTimeZone();
+  const names = useCaregiverNames();
   const { t, i18n } = useTranslation();
   const [groups, setGroups] = useState<ReadonlySet<HistoryGroup>>(new Set());
 
@@ -48,9 +49,9 @@ export function useHistory() {
           : section.daysAgo === 1
             ? t('history.yesterday')
             : dateFormat.format(section.events[0]?.occurredAt ?? now),
-      data: section.events.map((e) => describeEntry(e, now, tz, me)),
+      data: section.events.map((e) => describeEntry(e, now, tz, me, names)),
     }));
-  }, [events, now, tz, groups, repository, t, i18n.language]);
+  }, [events, now, tz, groups, repository, t, i18n.language, names]);
 
   return {
     days,

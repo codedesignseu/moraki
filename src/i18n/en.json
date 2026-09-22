@@ -92,7 +92,8 @@
       "you": "You",
       "other": "Another caregiver",
       "yesterday": "Yesterday {{time}}",
-      "daysAgo": "{{count}} days ago, {{time}}"
+      "daysAgo": "{{count}} days ago, {{time}}",
+      "lastBy": "Last entry by {{name}}"
     },
     "logFeed": "Log feed",
     "actions": {
@@ -255,7 +256,14 @@
       "setUpHousehold": "Set up your household",
       "setUpHint": "Add your baby to create a household. Entries already on this phone stay here for now.",
       "invite": "Invite a caregiver",
-      "joinHousehold": "Join with a code"
+      "joinHousehold": "Join with a code",
+      "caregivers": "In this household",
+      "caregiver": "{{name}} — {{role}}",
+      "role": {
+        "owner": "Owner",
+        "caregiver": "Logs entries",
+        "viewer": "Views only"
+      }
     }
   },
   "insights": {

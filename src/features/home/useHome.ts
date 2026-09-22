@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useEvents, useEventsRepository } from '@/db/react';
+import { useCaregiverNames, useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { DEFAULT_HOME_SETTINGS, selectHomeState } from '@/domain/home/homeState';
@@ -31,6 +31,8 @@ export type HomeViewModel = {
     sleep: string;
   };
   recent: RecentRow[];
+  /** The other caregiver who logged the newest entry, when it wasn't you. */
+  lastEntryBy: string | null;
   activeSleep: ActiveSleep | null;
   /** Ends the running sleep now. */
   stopSleep: (id: string) => void;
@@ -46,6 +48,7 @@ export function useHome(): HomeViewModel {
   const events = useEvents();
   const now = useNow(TIMER_TICK_MS);
   const tz = deviceTimeZone();
+  const names = useCaregiverNames();
 
   return useMemo(() => {
     const state = selectHomeState(events, now, tz, DEFAULT_HOME_SETTINGS);
@@ -76,7 +79,13 @@ export function useHome(): HomeViewModel {
       stopSleep: (id: string) => {
         saves.patch('undo.sleepStopped', [{ id, changes: { endedAt: Date.now() } }]);
       },
-      recent: events.slice(0, RECENT_COUNT).map((e) => describeEntry(e, now, tz, me)),
+      recent: events.slice(0, RECENT_COUNT).map((e) => describeEntry(e, now, tz, me, names)),
+      lastEntryBy:
+        state.lastEntry === null
+          ? null
+          : state.lastEntry.by === me
+            ? null
+            : (names.get(state.lastEntry.by) ?? null),
     };
-  }, [events, now, tz, repository, saves]);
+  }, [events, now, tz, repository, saves, names]);
 }
