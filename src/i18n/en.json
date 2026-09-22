@@ -142,5 +142,8 @@
         "save": "Save past sleep"
       }
     }
+  },
+  "dev": {
+    "webStandIn": "Web preview: test data only. Entries live in this browser tab and vanish on reload. This is not the phone’s database."
   }
 }
