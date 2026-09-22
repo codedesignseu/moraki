@@ -9,9 +9,13 @@ import { DatabaseGate } from '@/features/startup/DatabaseGate';
 import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
 import { WEB_STAND_IN } from '@/db/standIn';
+import { AuthProvider, createAppAuth } from '@/sync/AuthProvider';
 import { DEFAULT_NIGHT_MODE } from '@/domain/time/night';
 import { Notice } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
+
+// Created once per launch; null when the build has no Supabase settings.
+const appAuth = createAppAuth();
 
 export default function RootLayout() {
   // The stored night mode is in the database, so the brief startup screen
@@ -20,10 +24,12 @@ export default function RootLayout() {
     <NightModeTheme mode={DEFAULT_NIGHT_MODE}>
       <DatabaseGate open={openAppDatabase}>
         <PreferredNightModeTheme>
-          <UndoProvider>
-            <ThemedStack />
-            <UndoToast />
-          </UndoProvider>
+          <AuthProvider auth={appAuth}>
+            <UndoProvider>
+              <ThemedStack />
+              <UndoToast />
+            </UndoProvider>
+          </AuthProvider>
         </PreferredNightModeTheme>
       </DatabaseGate>
     </NightModeTheme>
