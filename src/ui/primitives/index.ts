@@ -8,5 +8,6 @@ export { Segmented } from './Segmented';
 export { Sheet, SheetPanel } from './Sheet';
 export { Stepper } from './Stepper';
 export { TextField } from './TextField';
+export { TIME_SHIFT, TimeShiftField } from './TimeShiftField';
 export { TimerText } from './TimerText';
 export { Toast } from './Toast';

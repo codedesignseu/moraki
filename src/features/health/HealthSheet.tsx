@@ -12,8 +12,10 @@ import {
   type HealthPayload,
 } from '@/domain/activities/health';
 import { formatClock } from '@/domain/time/formatClock';
+import { formatDateTime } from '@/domain/time/formatDateTime';
+import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
-import { Button, Chip, TextField } from '@/ui/primitives';
+import { Button, Chip, TextField, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 type Tag = (typeof HEALTH_TAGS)[number];
@@ -23,16 +25,25 @@ type Tag = (typeof HEALTH_TAGS)[number];
  * input is shown after Save is pressed and nothing is written until it's fixed.
  * Messages describe the input, never the baby's health (rule 10).
  */
-export function HealthSheet({ onDone }: { onDone: () => void }) {
-  const { t } = useTranslation();
+const MINUTE_MS = 60_000;
+
+export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?: string }) {
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   const repository = useEventsRepository();
   const saves = useUndoableSaves(repository);
   const [openedAt] = useState(Date.now);
-  const [note, setNote] = useState('');
-  const [temperature, setTemperature] = useState('');
-  const [tags, setTags] = useState<Tag[]>([]);
+  // Editing (P1-12) opens on the entry; logging opens empty.
+  const [entry] = useState(() => (entryId ? repository.get(entryId) : null));
+  const initial = (entry?.payload ?? {}) as HealthPayload;
+  const [note, setNote] = useState(initial.note ?? '');
+  const [temperature, setTemperature] = useState(
+    initial.temp_c === undefined ? '' : initial.temp_c.toFixed(1),
+  );
+  const [tags, setTags] = useState<Tag[]>(initial.tags ?? []);
+  const [shift, setShift] = useState(0);
+  const tz = deviceTimeZone();
   const [attempted, setAttempted] = useState(false);
 
   const temp = parseTemperature(temperature);
@@ -53,7 +64,23 @@ export function HealthSheet({ onDone }: { onDone: () => void }) {
       ...(temp.kind === 'value' && { temp_c: temp.celsius }),
       ...(tags.length > 0 && { tags }),
     };
-    saves.insert('undo.healthSaved', { type: 'health', occurredAt: openedAt, payload });
+    if (entry) {
+      const cleared = (['note', 'temp_c', 'tags'] as const).filter(
+        (key) => payload[key] === undefined,
+      );
+      saves.patch('undo.entryUpdated', [
+        {
+          id: entry.id,
+          changes: {
+            payload,
+            ...(cleared.length > 0 && { unset: cleared }),
+            ...(shift !== 0 && { occurredAt: entry.occurredAt + shift * MINUTE_MS }),
+          },
+        },
+      ]);
+    } else {
+      saves.insert('undo.healthSaved', { type: 'health', occurredAt: openedAt, payload });
+    }
     onDone();
   }
 
@@ -64,9 +91,23 @@ export function HealthSheet({ onDone }: { onDone: () => void }) {
 
   return (
     <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-      <Text style={s.muted}>
-        {t('log.time', { time: formatClock(openedAt, deviceTimeZone()) })}
-      </Text>
+      {entry ? (
+        <TimeShiftField
+          label={t('entry.moveTime')}
+          minutes={shift}
+          onChange={setShift}
+          unit={t('entry.minutes')}
+          result={t('entry.newTime', {
+            time: formatDateTime(
+              entry.occurredAt + shift * MINUTE_MS,
+              tz,
+              dateLocale(i18n.language),
+            ),
+          })}
+        />
+      ) : (
+        <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
+      )}
       <TextField
         label={t('log.health.note')}
         value={note}

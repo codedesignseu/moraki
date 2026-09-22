@@ -10,6 +10,7 @@ export default function Home() {
   return (
     <>
       <HomeScreen
+        onOpenEntry={(id) => router.push({ pathname: '/entry/[id]', params: { id } })}
         actions={
           <>
             <Button label={t('home.logFeed')} onPress={() => router.push('/log/feed')} />
