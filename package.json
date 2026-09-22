@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
+    "@expo/metro-runtime": "~57.0.16",
     "babel-preset-expo": "~57.0.0",
     "drizzle-orm": "^0.45.3",
     "expo": "~57.0.24",
@@ -19,6 +20,7 @@
     "react-native": "0.86.3",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
+    "react-native-web": "^0.21.2",
     "zod": "^4.6.5"
   },
   "devDependencies": {
