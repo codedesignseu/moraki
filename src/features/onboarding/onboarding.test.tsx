@@ -108,14 +108,13 @@ describe('household setup', () => {
     expect(screen.queryByRole('button', { name: 'Set up your household' })).toBeNull();
   });
 
-  it('leaves entries already on this phone exactly as they were', async () => {
+  it('keeps entries already on this phone, now belonging to the new household', async () => {
     const logged = h.repo.insert({
       type: 'diaper',
       occurredAt: NOW - 60 * 60_000,
       payload: { kind: 'wet' },
     });
-    const identity = readIdentity(h.mem.db);
-    const events = h.repo.list();
+    const before = readIdentity(h.mem.db);
     const queued = h.mem.db.select().from(outbox).all();
 
     await signedIn();
@@ -124,11 +123,14 @@ describe('household setup', () => {
     await press('Create household');
     expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
 
-    // Same ids, same authors, same queue: P2-11 moves them, not this.
-    expect(readIdentity(h.mem.db)).toEqual(identity);
-    expect(h.repo.list()).toEqual(events);
-    expect(h.mem.db.select().from(outbox).all()).toEqual(queued);
+    // Setting up a household is what the entries were waiting for (P2-11):
+    // same entry, same id, still on screen, now the household's.
+    await waitFor(() => expect(h.repo.get(logged.id)?.householdId).not.toBe(before.householdId));
+    expect(h.repo.list().map((event) => event.id)).toEqual([logged.id]);
     expect(screen.getByTestId(`recent-${logged.id}`)).toBeOnTheScreen();
+    // And it goes to the server, which is what it was waiting for.
+    expect(queued).toHaveLength(1);
+    await waitFor(() => expect(h.mem.db.select().from(outbox).all()).toEqual([]));
   });
 
   it('finds a household the account already has, and makes no second one', async () => {

@@ -487,6 +487,16 @@ export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
       return { stored, skipped };
     },
 
+    /**
+     * Reads the identity again on the next write (P2-F4). P2-11 changes which
+     * household and user this phone belongs to; without this the repository
+     * would keep writing, and listing, under the ids it started with.
+     */
+    forgetIdentity(): void {
+      identity = undefined;
+      changed();
+    },
+
     /** Counts committed writes; a cheap change signal for React (useSyncExternalStore). */
     version(): number {
       return writes;

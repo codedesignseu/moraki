@@ -15,6 +15,7 @@ import { newId } from '@/domain/ids';
 
 import migrations from './migrations/migrations';
 import type { AppRepositories } from './react';
+import { adoptHousehold, localOnlyCount } from './adoptHousehold';
 import { readLinkedIdentity } from './identity';
 import { createDevicePrefsRepository } from './repositories/devicePrefs';
 import { createCaregiversRepository } from './repositories/caregivers';
@@ -42,5 +43,7 @@ export async function openAppDatabase(): Promise<AppRepositories> {
     outbox: createOutboxRepository(db),
     caregivers: createCaregiversRepository(db),
     linked: () => readLinkedIdentity(db),
+    localOnly: () => localOnlyCount(db),
+    adopt: (target, now) => adoptHousehold(db, target, now),
   };
 }

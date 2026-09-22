@@ -11,6 +11,7 @@ import { formatClock } from '@/domain/time/formatClock';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 import { useCaregivers, type CaregiverRow } from './useCaregivers';
+import { useAdoption } from '@/sync/useAdoption';
 import { Button, Card, Segmented } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
@@ -66,9 +67,28 @@ export function SettingsScreen({
   const caregivers = useCaregivers();
   const sync = useSyncStatus();
   const syncErrors = useSyncErrors();
+  const adoption = useAdoption();
 
   return (
     <ScrollView contentContainerStyle={s.content}>
+      {adoption.question === 'ask' && (
+        <Card testID="settings-local-entries">
+          <Text style={theme.text.heading}>{t('settings.localEntries.title')}</Text>
+          <Text style={theme.text.body}>
+            {t('settings.localEntries.body', {
+              count: adoption.entries,
+              name: adoption.babyName,
+            })}
+          </Text>
+          <Button label={t('settings.localEntries.move')} onPress={adoption.move} />
+          <Button
+            label={t('settings.localEntries.keep')}
+            variant="secondary"
+            onPress={adoption.keepForNow}
+          />
+          <Text style={s.muted}>{t('settings.localEntries.hint')}</Text>
+        </Card>
+      )}
       {(state.status === 'signedIn' || state.status === 'signedOut') && (
         <Card testID="settings-account">
           <Text style={theme.text.heading}>{t('settings.account.title')}</Text>

@@ -10,6 +10,7 @@ import {
 import type { Event } from '@/domain/activities';
 
 import type { CaregiversRepository } from './repositories/caregivers';
+import type { Adoption, AdoptionTarget } from './adoptHousehold';
 import type { OutboxRepository } from './repositories/outbox';
 import type {
   DevicePrefName,
@@ -26,6 +27,10 @@ export type AppRepositories = {
   caregivers: CaregiversRepository;
   /** The server household and user this phone is linked to, null before P2-11. */
   linked: () => { householdId: string; userId: string } | null;
+  /** Entries made before this phone had an account (P2-11). */
+  localOnly: () => number;
+  /** Takes those entries into the household, and links the phone to it. */
+  adopt: (target: AdoptionTarget, now: number) => Adoption;
 };
 
 const EventsRepositoryContext = createContext<EventsRepository | null>(null);
@@ -135,4 +140,8 @@ export function useCaregiverNames(): ReadonlyMap<string, string> {
   );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(() => caregivers?.names() ?? NO_NAMES, [caregivers, version]);
+/** What P2-11 needs: how much is local-only, and the move itself. */
+export function useAdoption(): Pick<AppRepositories, 'localOnly' | 'adopt'> {
+  const { localOnly, adopt } = useRepositories();
+  return { localOnly, adopt };
 }

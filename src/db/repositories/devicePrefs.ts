@@ -38,6 +38,16 @@ export const DEVICE_PREFS = {
       .nullable(),
     default: null,
   },
+  /**
+   * What a joiner said about the entries they made before joining (P2-11,
+   * decision D1): move them into the household, or keep this phone as it is
+   * for now. Null until they answer, and the question keeps being asked.
+   */
+  localEntries: {
+    key: 'pref.local_entries',
+    schema: z.enum(['move', 'keep']).nullable(),
+    default: null,
+  },
 } as const;
 
 export type DevicePrefName = keyof typeof DEVICE_PREFS;

@@ -364,6 +364,14 @@
     "about": {
       "title": "About",
       "open": "About Moraki"
+    },
+    "localEntries": {
+      "title": "Entries already on this phone",
+      "body": "You logged {{count}} entries before joining {{name}}’s household. Add them, and everyone sees them; some may already be there from the other phone.",
+      "body_one": "You logged one entry before joining {{name}}’s household. Add it, and everyone sees it; it may already be there from the other phone.",
+      "move": "Add them to the household",
+      "keep": "Not now",
+      "hint": "Until you choose, this phone keeps its entries to itself and shares nothing."
     }
   },
   "insights": {
