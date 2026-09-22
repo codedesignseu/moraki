@@ -45,7 +45,7 @@ Gate to move on: you use it alone for 3 days without paper backup.
 - [x] P1-03 `feat(db): drizzle sqlite schema, local migrations, outbox, meta` — depends: P1-01 — done when: migrations run on fresh install and on upgrade
 - [x] P1-04 `feat(db): events repository with insert, patch, softDelete writing outbox in one transaction` — depends: P1-03 — done when: tests prove event and outbox rows commit or roll back together
 - [x] P1-05 `feat(domain): home state selector` — depends: P1-01, P1-02 — done when: tests cover no feeds, one feed, breast then bottle, deleted last feed, active sleep
-- [ ] P1-06 `feat(home): timer card, next side, reminder line, today strip, recent list` — depends: P0-06, P1-04, P1-05 — done when: timer ticks every 30s, updates instantly on log
+- [ ] P1-06 `feat(home): timer card, next side, reminder line, today strip, recent list` — depends: P0-06, P1-04, P1-05 — done when: timer ticks every 30s, updates instantly on log — status: in_progress
 - [ ] P1-07 `feat(log): feed sheet (bottle, breast, mixed) with last-used prefill` — depends: P1-04, P0-06 — done when: bottle feed in 2 taps from home
 - [ ] P1-08 `feat(log): diaper sheet, one tap save` — depends: P1-04 — done when: wet, dirty, both each save in one tap from the sheet
 - [ ] P1-09 `feat(log): sleep start, stop, manual entry, running sleep card` — depends: P1-04 — done when: running sleep survives app kill
