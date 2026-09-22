@@ -16,6 +16,7 @@ import LogFeed from '../../app/log/feed';
 import LogHealth from '../../app/log/health';
 import LogMedication from '../../app/log/medication';
 import LogSleep from '../../app/log/sleep';
+import HouseholdSetup from '../../app/onboarding/household';
 import SignIn from '../../app/onboarding/sign-in';
 import { DevicePrefsProvider, EventsRepositoryProvider } from '@/db/react';
 import { UndoProvider } from '@/db/undo';
@@ -89,5 +90,6 @@ export function renderApp(repo: EventsRepository, { auth = null }: { auth?: Auth
     'log/health': LogHealth,
     'log/medication': LogMedication,
     'onboarding/sign-in': SignIn,
+    'onboarding/household': HouseholdSetup,
   });
 }

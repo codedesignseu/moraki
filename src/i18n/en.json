@@ -250,7 +250,10 @@
       "signedOutHint": "Sign in to get ready for sharing with other caregivers. Your entries stay on this phone.",
       "signIn": "Sign in",
       "signedInAs": "Signed in as {{email}}",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "household": "Household: {{name}}",
+      "setUpHousehold": "Set up your household",
+      "setUpHint": "Add your baby to create a household. Entries already on this phone stay here for now."
     }
   },
   "insights": {
@@ -297,6 +300,40 @@
       "rate_limited": "Too many attempts. Wait a few minutes, then try again.",
       "offline": "You're offline. Signing in needs a connection.",
       "unknown": "Couldn't sign in. Try again."
+    }
+  },
+  "householdSetup": {
+    "title": "Set up your household",
+    "you": {
+      "title": "About you",
+      "name": "Your name",
+      "nameHint": "Other caregivers see this name next to your entries.",
+      "relation": "You are the baby’s (optional)"
+    },
+    "relation": {
+      "mother": "Mother",
+      "father": "Father",
+      "grandparent": "Grandparent",
+      "caregiver": "Caregiver",
+      "other": "Other"
+    },
+    "baby": {
+      "title": "Your baby",
+      "name": "Baby’s name",
+      "born": "Born",
+      "daysAgo": "days ago",
+      "bornOn": "Born on {{date}}",
+      "birthWeight": "Birth weight in grams (optional)",
+      "birthWeightHint": "You can add it later."
+    },
+    "save": "Create household",
+    "problem": {
+      "display_name": "Enter your name.",
+      "baby_name": "Enter your baby’s name.",
+      "birth_weight": "Enter a weight between 500 and 7000 grams, or leave it empty.",
+      "offline": "You’re offline. Setting up a household needs a connection.",
+      "signed_out": "Sign in first.",
+      "unknown": "Couldn’t set up the household. Try again."
     }
   }
 }

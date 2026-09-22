@@ -1,4 +1,11 @@
-import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 
 import type { Event } from '@/domain/activities';
 
@@ -66,5 +73,6 @@ export function useDevicePref<N extends DevicePrefName>(
   const prefs = useContext(DevicePrefsContext);
   if (!prefs) throw new Error('useDevicePref needs a DevicePrefsProvider');
   const value = useSyncExternalStore(prefs.subscribe, () => prefs.get(name));
-  return [value, (next) => prefs.set(name, next)];
+  const set = useCallback((next: DevicePrefValue<N>) => prefs.set(name, next), [prefs, name]);
+  return [value, set];
 }

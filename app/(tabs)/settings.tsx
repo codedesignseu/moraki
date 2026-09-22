@@ -4,5 +4,10 @@ import { SettingsScreen } from '@/features/settings/SettingsScreen';
 
 export default function Settings() {
   const router = useRouter();
-  return <SettingsScreen onSignIn={() => router.push('/onboarding/sign-in')} />;
+  return (
+    <SettingsScreen
+      onSignIn={() => router.push('/onboarding/sign-in')}
+      onSetUpHousehold={() => router.push('/onboarding/household')}
+    />
+  );
 }
