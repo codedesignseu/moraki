@@ -21,6 +21,12 @@ export type HomeSettings = {
   secondReminderMin: number | null;
 };
 
+/** SDD 4.2 household defaults until settings exist (P1-15). */
+export const DEFAULT_HOME_SETTINGS: HomeSettings = {
+  reminderIntervalMin: 180,
+  secondReminderMin: null,
+};
+
 export type HomeState = {
   /** Latest live bottle or breast feed by occurred time. */
   lastFeed: FeedEvent | null;

@@ -74,6 +74,9 @@ export type Settings = Placeholder<'Settings'>;
 /** Replaced by reminder computation (P1-13). */
 export type ScheduledReminder = Placeholder<'ScheduledReminder'>;
 
+/** An i18n key and its interpolation values. */
+export type Summary = { key: string; values?: Record<string, string | number> };
+
 /**
  * A component that renders a module's log form. Declared structurally so the
  * domain layer stays free of React; a React function component fits it.
@@ -103,8 +106,12 @@ export type ActivityModule<P> = {
   /** Present when the module appears on the home grid. */
   quickAction?: { order: number };
   LogSheet?: LogSheetComponent<P>;
-  /** History and home rows. */
-  summarize?(e: Event<P>): { title: string; detail?: string };
+  /**
+   * The detail line for history and home rows, as an i18n key plus values.
+   * The row title is the module's label (`i18nKey`). A key, not text, so no
+   * user-facing string lives outside src/i18n (rule 9).
+   */
+  summarize?(e: Event<P>): Summary;
   contributes?: {
     /** Today strip and insights. */
     stats?(acc: Stats, e: Event<P>): Stats;

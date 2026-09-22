@@ -108,10 +108,12 @@ function toEvent(row: EventRow): Event<unknown> | null {
  */
 export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
   const listeners = new Set<() => void>();
+  let writes = 0;
   let identity: Identity | undefined;
   const me = () => (identity ??= readIdentity(db));
 
   function changed() {
+    writes += 1;
     for (const listener of listeners) listener();
   }
 
@@ -252,6 +254,16 @@ export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
         .all()
         .map(toEvent)
         .filter((event): event is Event<unknown> => event !== null);
+    },
+
+    /** The user new events are logged as: the placeholder until sign in (P2). */
+    currentUserId(): string {
+      return me().userId;
+    },
+
+    /** Counts committed writes; a cheap change signal for React (useSyncExternalStore). */
+    version(): number {
+      return writes;
     },
 
     /** Called after every committed write. Returns an unsubscribe function. */

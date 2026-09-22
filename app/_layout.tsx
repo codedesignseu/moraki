@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
 import { useColorScheme } from 'react-native';
 
+import { openAppDatabase } from '@/db/client';
+import { DatabaseGate } from '@/features/startup/DatabaseGate';
 import '@/i18n';
 import { ThemeProvider, useTheme } from '@/ui/theme';
 
@@ -9,7 +11,9 @@ export default function RootLayout() {
   const scheme = useColorScheme() === 'dark' ? 'night' : 'light';
   return (
     <ThemeProvider scheme={scheme}>
-      <ThemedStack />
+      <DatabaseGate open={openAppDatabase}>
+        <ThemedStack />
+      </DatabaseGate>
     </ThemeProvider>
   );
 }

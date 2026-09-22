@@ -14,6 +14,10 @@ export const feedBottleModule: ActivityModule<FeedBottlePayload> = {
   type: 'feed_bottle',
   schema: feedBottleSchema,
   i18nKey: 'activity.feed_bottle.label',
+  summarize: (e) => ({
+    key: `activity.feed_bottle.summary.${e.payload.milk}`,
+    values: { ml: e.payload.ml },
+  }),
   contributes: {
     stats: (acc, e) => ({
       ...acc,

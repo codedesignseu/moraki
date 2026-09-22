@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { formatElapsed } from '../time/formatElapsed';
 import type { ActivityModule } from './contract';
 
 export const sleepSchema = z.object({
@@ -12,4 +13,11 @@ export const sleepModule: ActivityModule<SleepPayload> = {
   type: 'sleep',
   schema: sleepSchema,
   i18nKey: 'activity.sleep.label',
+  summarize: (e) =>
+    e.endedAt === null
+      ? { key: 'activity.sleep.summary.running' }
+      : {
+          key: 'activity.sleep.summary.ended',
+          values: { duration: formatElapsed(e.endedAt - e.occurredAt) },
+        },
 };
