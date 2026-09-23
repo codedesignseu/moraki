@@ -298,6 +298,7 @@
     "ended": "Ended: {{time}}"
   },
   "reminders": {
+    "title": "Moraki",
     "feed": {
       "first": "Next feed may be due",
       "second": "No feed logged since {{time}}"
@@ -379,6 +380,16 @@
       "consent": "Health data",
       "agreed": "Agreed",
       "notAgreed": "Not agreed yet"
+    },
+    "reminders": {
+      "title": "Reminders",
+      "toggle": "Remind me when a feed may be due",
+      "hint": "On this phone only. Each caregiver chooses for themselves.",
+      "denied": "Notifications are off for Moraki in your phone’s settings. Turn them on there first.",
+      "nextAt": "Next reminder at {{time}}",
+      "none": "Nothing to remind about yet",
+      "on": "On",
+      "off": "Off"
     }
   },
   "insights": {

@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { openAppDatabase } from '@/db/client';
 import { UndoProvider } from '@/db/undo';
@@ -10,6 +10,8 @@ import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
 import { WEB_STAND_IN } from '@/db/standIn';
 import { AuthProvider, createAppAuth } from '@/sync/AuthProvider';
+import { createExpoNotificationPort } from '@/notifications/expoPort';
+import { RemindersProvider } from '@/notifications/RemindersProvider';
 import { SyncProvider } from '@/sync/SyncProvider';
 import { DEFAULT_NIGHT_MODE } from '@/domain/time/night';
 import { Notice } from '@/ui/primitives';
@@ -17,6 +19,8 @@ import { useTheme } from '@/ui/theme';
 
 // Created once per launch; null when the build has no Supabase settings.
 const appAuth = createAppAuth();
+// One port per launch. The web preview has no notifications to schedule.
+const notifications = Platform.OS === 'web' ? null : createExpoNotificationPort();
 
 export default function RootLayout() {
   // The stored night mode is in the database, so the brief startup screen
@@ -27,10 +31,12 @@ export default function RootLayout() {
         <PreferredNightModeTheme>
           <AuthProvider auth={appAuth}>
             <SyncProvider>
-              <UndoProvider>
-                <ThemedStack />
-                <UndoToast />
-              </UndoProvider>
+              <RemindersProvider port={notifications}>
+                <UndoProvider>
+                  <ThemedStack />
+                  <UndoToast />
+                </UndoProvider>
+              </RemindersProvider>
             </SyncProvider>
           </AuthProvider>
         </PreferredNightModeTheme>

@@ -1,4 +1,4 @@
-import { act, fireEvent, screen } from 'expo-router/testing-library';
+import { act, fireEvent, screen, within } from 'expo-router/testing-library';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
@@ -37,7 +37,8 @@ const scheme = () => {
   if (backgroundColor === colors.light.surface) return 'light';
   throw new Error(`Card background ${backgroundColor} is in neither palette`);
 };
-const option = (name: string) => screen.getByRole('radio', { name });
+// Reminders has On and Off too (P1-14), so night mode's are found in its card.
+const option = (name: string) => within(card()).getByRole('radio', { name });
 /** Moves the fake clock forward, firing the app's timers on the way, as a running phone would. */
 const advance = (ms: number) => act(async () => jest.advanceTimersByTime(ms));
 
