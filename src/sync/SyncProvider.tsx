@@ -13,6 +13,7 @@ import { AppState } from 'react-native';
 import {
   useCaregiversRepository,
   useDevicePref,
+  useSyncDevicePrefs,
   useEvents,
   useEventsRepository,
   useLinkedIdentity,
@@ -59,6 +60,7 @@ export function SyncProvider({
   const outbox = useOutboxRepository();
   const eventsRepository = useEventsRepository();
   const caregivers = useCaregiversRepository();
+  const devicePrefs = useSyncDevicePrefs();
   const linked = useLinkedIdentity();
   const { auth, state } = useAuth();
   // P3-09: nothing syncs for an account that hasn't agreed to health data
@@ -87,10 +89,11 @@ export function SyncProvider({
         events: eventsRepository,
         outbox,
         caregivers,
+        devicePrefs,
         auth,
         state,
       }),
-    [linked, eventsRepository, outbox, caregivers, auth, state],
+    [linked, eventsRepository, outbox, caregivers, devicePrefs, auth, state],
   );
 
   useEffect(() => {

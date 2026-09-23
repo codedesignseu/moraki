@@ -70,6 +70,10 @@ export function authServer(
     verify?: () => Response;
     /** Babies the signed-in account can already see (a household made elsewhere). */
     babies?: ServerBaby[];
+    /** The household row a pull reads back (P1-F16). */
+    household?: { name: string; reminder_interval_min: number; second_reminder_min: number | null };
+    /** Called when a phone writes the household's settings. */
+    updateHousehold?: (columns: Record<string, unknown>) => void;
     /** The account's membership, if it has one. Defaults to owner of the babies' household. */
     memberships?: { household_id: string; role: 'owner' | 'caregiver' | 'viewer' }[];
     createInvite?: () => Response;
@@ -117,8 +121,23 @@ export function authServer(
           rows.filter((row) => (row.seq ?? 0) > after),
         );
       }
-      case '/rest/v1/babies':
-        return json(200, options.babies ?? []);
+      case '/rest/v1/households':
+        // The household's own row (P1-F16): its settings, and its name.
+        if ((init?.method ?? 'GET').toUpperCase() === 'PATCH') {
+          options.updateHousehold?.(body as Record<string, unknown>);
+          return new Response(null, { status: 204 });
+        }
+        return json(200, options.household ? [options.household] : []);
+      case '/rest/v1/babies': {
+        // The real table only answers with the household that was asked for,
+        // and a fake that forgets that would hide a missing filter.
+        const wanted = /eq\.([^&]+)/.exec(url.searchParams.get('household_id') ?? '')?.[1];
+        const babies = options.babies ?? [];
+        return json(
+          200,
+          wanted === undefined ? babies : babies.filter((baby) => baby.household_id === wanted),
+        );
+      }
       case '/rest/v1/memberships':
         // A caregivers query (P2-12) asks for display_name and wants whole
         // membership rows back. Without any set up, the household simply has

@@ -396,8 +396,10 @@
       "secondOff": "No",
       "secondOn": "Yes",
       "secondAfter": "Second reminder, this long after the first",
-      "forEveryone": "This is the household’s setting. Other phones pick it up when they next read the household.",
-      "forThisPhone": "This applies to your reminders on this phone."
+      "forEveryone": "This is the household’s setting, so it changes for everyone.",
+      "forThisPhone": "This applies to your reminders on this phone.",
+      "everyMinutes": "{{count}} min",
+      "ownerSets": "The household owner sets these. Your reminders follow them."
     }
   },
   "insights": {
