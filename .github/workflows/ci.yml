@@ -65,12 +65,23 @@ jobs:
       - uses: supabase/setup-cli@v3
         with:
           version: 2.117.0
-      # The database, auth, mail and realtime: auth.users backs the foreign
-      # keys, the sign-in tests read a real emailed code, and P2-10's test
-      # needs one phone to hear the other. (`inbucket` is not a container
+      # Supabase's images live on ghcr.io, which rate-limits anonymous pulls
+      # hard enough that `supabase start` fails with `toomanyrequests` on a
+      # busy afternoon. The runner's own token lifts the limit and costs
+      # nothing; it needs no extra secret.
+      - run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      # The database, auth and mail: auth.users backs the foreign keys and the
+      # sign-in tests read a real emailed code. (`inbucket` is not a container
       # name any more, so excluding it did nothing.)
+      #
+      # Realtime is excluded here, unlike locally: its image is the one ghcr
+      # throttles (`toomanyrequests`, three times in a row, with and without
+      # a docker login), and the only test that needs it is already skipped
+      # on the runner because postgres_changes never arrive there (P2-F12).
+      # Pulling an image for a test that cannot run was buying nothing but a
+      # red build.
       - run: >-
-          supabase start -x studio,imgproxy,vector,logflare,edge-runtime,storage-api,postgres-meta,supavisor
+          supabase start -x studio,imgproxy,vector,logflare,edge-runtime,storage-api,postgres-meta,supavisor,realtime
       # pgTAP: schema, seq trigger and every RLS cell (SDD 4.3, rule 11).
       - run: supabase test db
       # Two sessions racing on one household's seq (P2-01); pgTAP can't do this.
