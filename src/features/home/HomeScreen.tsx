@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, EntryRow, TimerText } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
-import { useHome, type RecentRow } from './useHome';
+import { useHome, type RecentRow, type StockPlaceView } from './useHome';
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
 
@@ -13,10 +13,13 @@ type Translate = (key: string, values?: Record<string, string | number>) => stri
 export function HomeScreen({
   actions,
   onOpenEntry,
+  onAdjustStock,
 }: {
   actions?: ReactNode;
   /** Opens an entry to edit (P1-12). Supplied by app/ so features stay independent. */
   onOpenEntry?: (id: string) => void;
+  /** Opens the adjust sheet for a store (P3-03). */
+  onAdjustStock?: (place: 'fridge' | 'freezer') => void;
 }) {
   const { t: typedT } = useTranslation();
   // Keys from activity modules are checked by the registry completeness test.
@@ -74,6 +77,24 @@ export function HomeScreen({
         </Text>
       </Card>
 
+      <Card testID="home-stock">
+        <Text style={theme.text.heading}>{t('home.stock.title')}</Text>
+        <View style={s.strip}>
+          <Place
+            name={t('home.stock.fridge')}
+            place={home.stock.fridge}
+            t={t}
+            {...(onAdjustStock && { onAdjust: () => onAdjustStock('fridge') })}
+          />
+          <Place
+            name={t('home.stock.freezer')}
+            place={home.stock.freezer}
+            t={t}
+            {...(onAdjustStock && { onAdjust: () => onAdjustStock('freezer') })}
+          />
+        </View>
+      </Card>
+
       <Card testID="home-recent">
         <Text style={theme.text.heading}>{t('home.recent.title')}</Text>
         {home.lastEntryBy && (
@@ -96,6 +117,42 @@ function Stat({ label, value }: { label: string; value: number | string }) {
     <View style={s.stat} accessible accessibilityLabel={`${label}: ${value}`}>
       <Text style={theme.text.title}>{value}</Text>
       <Text style={s.muted}>{label}</Text>
+    </View>
+  );
+}
+
+function Place({
+  name,
+  place,
+  t,
+  onAdjust,
+}: {
+  name: string;
+  place: StockPlaceView;
+  t: Translate;
+  onAdjust?: (() => void) | undefined;
+}) {
+  const theme = useTheme();
+  const s = styles(theme);
+  return (
+    <View style={s.stat}>
+      <Text style={s.muted}>{name}</Text>
+      <Text style={theme.text.title}>{t('home.stock.amount', { ml: place.ml })}</Text>
+      {place.age && (
+        <Text style={s.muted}>
+          {t(`home.stock.oldest.${place.age.scale}`, { count: place.age.value })}
+        </Text>
+      )}
+      {/* A count that has gone past empty is a count to check, not a number
+          to trust, so the way to fix it sits right next to it (SDD 6.3). */}
+      {place.short && <Text style={s.muted}>{t('home.stock.short')}</Text>}
+      {onAdjust && (
+        <Button
+          label={t('home.stock.adjust', { place: name })}
+          variant="secondary"
+          onPress={onAdjust}
+        />
+      )}
     </View>
   );
 }

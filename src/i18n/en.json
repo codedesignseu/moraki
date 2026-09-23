@@ -86,6 +86,18 @@
       "sleep24h": "Sleep in the last 24h: {{duration}}",
       "breastfeeding": "Breastfeeding"
     },
+    "stock": {
+      "title": "Milk stock",
+      "fridge": "Fridge",
+      "freezer": "Freezer",
+      "amount": "{{ml}} mL",
+      "oldest": {
+        "hours": "Oldest {{count}} h",
+        "days": "Oldest {{count}} days"
+      },
+      "short": "More has gone out than went in. Check the count.",
+      "adjust": "Adjust {{place}}"
+    },
     "recent": {
       "title": "Recent",
       "empty": "Nothing logged yet",
@@ -154,6 +166,28 @@
         "freezer": "Freezer",
         "fed": "Fed straight away"
       }
+    },
+    "stock": {
+      "title": "Adjust stock",
+      "place": {
+        "label": "Store",
+        "fridge": "Fridge",
+        "freezer": "Freezer"
+      },
+      "direction": {
+        "label": "Change",
+        "add": "Add",
+        "remove": "Remove"
+      },
+      "amount": "Amount",
+      "unit": "mL",
+      "reason": {
+        "label": "Reason",
+        "discard": "Thrown away",
+        "move": "Moved",
+        "correction": "Correcting the count"
+      },
+      "have": "{{place}} now holds {{ml}} mL"
     },
     "diaper": {
       "title": "Diaper",
@@ -229,6 +263,7 @@
     "action": "Undo",
     "feedSaved": "Feed saved",
     "pumpSaved": "Pump saved",
+    "stockSaved": "Stock updated",
     "diaperSaved": "Diaper saved",
     "sleepStarted": "Sleep started",
     "sleepStopped": "Sleep stopped",
