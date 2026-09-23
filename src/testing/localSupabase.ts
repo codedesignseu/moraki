@@ -31,12 +31,18 @@ export async function codeSentTo(email: string): Promise<string> {
   throw new Error('no code arrived');
 }
 
-/** A phone: its own keychain and client, signed in as its own new user. */
+/**
+ * A phone: its own keychain and client, signed in as its own new user, with
+ * consent given. Nothing writes health data without it (P3-09), so a phone
+ * that skipped this step would have every push rejected by the database.
+ */
 export async function phone(label: string) {
   const email = `${label}-${Date.now()}@example.test`;
   const auth = createAuth(LOCAL_ENV, keychain().store);
   await auth.requestCode(email);
   const user = await auth.verifyCode(email, await codeSentTo(email));
   auth.setForeground(false);
+  const { error } = await auth.client.rpc('grant_consent');
+  if (error) throw new Error(`grant_consent failed: ${error.code ?? 'no code'}`);
   return { auth, user };
 }
