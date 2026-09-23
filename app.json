@@ -32,10 +32,17 @@
       "expo-font",
       "expo-asset",
       "expo-secure-store",
+      "expo-notifications",
       "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "eaf90151-3528-4c56-b283-4a813a7e822f"
+      }
+    },
+    "owner": "ce-code-designs-ltd"
   }
 }
