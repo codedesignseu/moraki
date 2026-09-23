@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { ActivityModule } from './contract';
+import { takeMilk, type ActivityModule } from './contract';
 
 export const feedBottleSchema = z.object({
   ml: z.int().min(1).max(400),
@@ -25,5 +25,10 @@ export const feedBottleModule: ActivityModule<FeedBottlePayload> = {
       feedIds: [...acc.feedIds, e.groupId ?? e.id],
       ml: acc.ml + e.payload.ml,
     }),
+    // A bottle poured from a store takes it from the oldest batch there.
+    stock: (acc, e) =>
+      e.payload.from_stock === undefined
+        ? acc
+        : takeMilk(acc, e.payload.from_stock, e.occurredAt, e.payload.ml),
   },
 };
