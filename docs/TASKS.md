@@ -132,7 +132,7 @@ Gate to move on: two phones in airplane mode log 20 entries each, reconnect, bot
 - [ ] P2-11 `feat(sync): migrate local-only data into a new household on first sign in` — depends: P2-09 — done when: a P1 user keeps all history after signing up
 - [x] P2-12 `feat(home): author on every row, last entry by line, caregivers list` — depends: P2-06, P2-10 — done when: rows read "You" or the other person's name — done: entries read "You" or the caregiver's name on home and in history, home says who logged the newest entry, and Settings lists the household with what each person may do; 4 app tests
 - [ ] P2-13 `feat(settings): sync status screen with pending count, last sync, errors` — depends: P2-08 — done when: visible pending count goes to zero when online
-- [ ] P2-14 `test(sync): convergence property test with random interleavings` — depends: P2-09 — done when: 1,000 random runs, two simulated clients, identical derived state
+- [x] P2-14 `test(sync): convergence property test with random interleavings` — depends: P2-09 — done when: 1,000 random runs, two simulated clients, identical derived state — done: 1,000 fast-check runs of random logging, editing, clearing, deleting, pushing and pulling on two phones; both end with the same entries and the same home state, each entry as the phone that made it meant it, and no pull undoes an unsent change. About 8 seconds
 - [ ] P2-15 `test(manual): two phone airplane mode checklist in docs` — depends: P2-10 — done when: checklist passes and is committed
 
 ### Found while working (P2)
