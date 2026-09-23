@@ -5,6 +5,8 @@ export { Card } from './Card';
 export { Chip } from './Chip';
 export { EntryRow } from './EntryRow';
 export { Notice } from './Notice';
+export type { ChartLine, ChartMark, ChartPoint } from './PointChart';
+export { PointChart } from './PointChart';
 export type { SegmentedOption } from './Segmented';
 export { Segmented } from './Segmented';
 export { Sheet, SheetPanel } from './Sheet';
