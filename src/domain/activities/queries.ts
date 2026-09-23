@@ -4,6 +4,7 @@ import type { FeedBreastPayload } from './feedBreast';
 import type { MedicationPayload } from './medication';
 import type { PumpPayload } from './pump';
 import type { SleepPayload } from './sleep';
+import type { WeightPayload } from './weight';
 
 // Type checks live here so nothing outside domain/activities branches on
 // event type (SDD 15.2).
@@ -24,6 +25,10 @@ export function isBreastFeed(e: Event<unknown>): e is Event<FeedBreastPayload> {
 
 export function isPump(e: Event<unknown>): e is Event<PumpPayload> {
   return e.type === 'pump';
+}
+
+export function isWeight(e: Event<unknown>): e is Event<WeightPayload> {
+  return e.type === 'weight';
 }
 
 export function isSleep(e: Event<unknown>): e is Event<SleepPayload> {
