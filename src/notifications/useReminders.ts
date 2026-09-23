@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDevicePref, useEvents } from '@/db/react';
-import { DEFAULT_HOME_SETTINGS } from '@/domain/home/homeState';
 import { computeFeedReminders } from '@/domain/reminders/feedReminders';
 import { reconcile } from '@/domain/reminders/reconcile';
+import { useReminderSettings } from '@/sync/useReminderSettings';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 import type { NotificationPermission, NotificationPort } from './port';
@@ -30,6 +30,7 @@ export function useReminders(port: NotificationPort | null): RemindersState {
   // test checks, so it is looked up loosely here (as HomeScreen does).
   const t = typedT as unknown as (key: string, values?: Record<string, string>) => string;
   const [enabled, setStored] = useDevicePref('reminders');
+  const { settings } = useReminderSettings();
   const [permission, setPermission] = useState<NotificationPermission>('undetermined');
   // The last run's work, so an in-flight recompute can't be overtaken.
   const running = useRef<Promise<void>>(Promise.resolve());
@@ -46,19 +47,9 @@ export function useReminders(port: NotificationPort | null): RemindersState {
   const sync = useCallback(async () => {
     if (!port) return;
     const tz = deviceTimeZone();
-    const settings = { ...DEFAULT_HOME_SETTINGS, enabled, secondReminderMin: null };
     const wanted =
       enabled && permission === 'granted'
-        ? computeFeedReminders(
-            events,
-            {
-              enabled: true,
-              intervalMin: settings.reminderIntervalMin,
-              secondReminderMin: settings.secondReminderMin,
-            },
-            Date.now(),
-            tz,
-          )
+        ? computeFeedReminders(events, { ...settings, enabled: true }, Date.now(), tz)
         : [];
     const { cancel, schedule } = reconcile(await port.placed(), wanted);
     for (const handle of cancel) await port.cancel(handle);
@@ -70,7 +61,7 @@ export function useReminders(port: NotificationPort | null): RemindersState {
         body: t(reminder.bodyKey, reminder.values ?? {}),
       });
     }
-  }, [port, events, enabled, permission, t]);
+  }, [port, events, enabled, permission, settings, t]);
 
   useEffect(() => {
     running.current = running.current.then(sync, sync);
