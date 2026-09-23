@@ -1,4 +1,8 @@
 import { META_KEYS } from '@/db/meta';
+import {
+  createDevicePrefsRepository,
+  type DevicePrefsRepository,
+} from '@/db/repositories/devicePrefs';
 import { createEventsRepository } from '@/db/repositories/events';
 import { createOutboxRepository } from '@/db/repositories/outbox';
 import { meta, outbox } from '@/db/schema';
@@ -225,5 +229,96 @@ describe('an unsent local edit meeting an older server copy', () => {
 
     expect(h.events.get(mine.id)).toMatchObject({ payload: { ml: 70, milk: 'breast' } });
     expect(h.outbox.cursor()).toBe(21);
+  });
+});
+
+describe('the household’s own row', () => {
+  // The record's ids are validated as UUIDs, so these are well-formed ones.
+  const ACCOUNT = '0190a0b0-0000-7000-8000-00000000000a';
+  const HOUSE = '0190a0b0-0000-7000-8000-0000000000a1';
+  const CHILD = '0190a0b0-0000-7000-8000-0000000000b1';
+
+  const household = {
+    name: 'Ella',
+    reminderIntervalMin: 210,
+    secondReminderMin: 30,
+    baby: { id: CHILD, name: 'Eleni', bornAt: NOW - 86_400_000, birthWeightG: 3450 },
+  };
+
+  /** A pull that brings the household row as well as its events. */
+  async function withPrefs(record?: Parameters<DevicePrefsRepository['set']>[1]) {
+    const { db } = await createMemoryDb();
+    const prefs = createDevicePrefsRepository(db);
+    const events = createEventsRepository(db, testDeps(NOW));
+    const outboxRepo = createOutboxRepository(db);
+    db.insert(meta).values({ key: META_KEYS.householdId, value: HOUSE }).run();
+    db.insert(meta).values({ key: META_KEYS.userId, value: ACCOUNT }).run();
+    if (record !== undefined) prefs.set('accountHousehold', record as never);
+    const engine = createPullEngine({
+      linked: () => readLinkedIdentity(db),
+      events,
+      outbox: outboxRepo,
+      devicePrefs: prefs,
+      auth,
+      state: { status: 'signedIn', user: { id: ACCOUNT, email: 'a@example.test' } },
+      fetchPage: async () => [],
+      fetchHousehold: async () => household,
+    });
+    return { prefs, engine };
+  }
+
+  it('takes the household’s reminder settings, whatever this phone had', async () => {
+    const h = await withPrefs();
+    h.prefs.set('reminderIntervalMin', 480);
+
+    await h.engine.pull();
+
+    expect(h.prefs.get('reminderIntervalMin')).toBe(210);
+    expect(h.prefs.get('secondReminderMin')).toBe(30);
+  });
+
+  it('updates this account’s baby details', async () => {
+    const h = await withPrefs({
+      userId: ACCOUNT,
+      householdId: HOUSE,
+      babyId: CHILD,
+      babyName: 'Ella',
+      role: 'caregiver',
+    });
+
+    await h.engine.pull();
+
+    expect(h.prefs.get('accountHousehold')).toMatchObject({
+      babyName: 'Eleni',
+      birthWeightG: 3450,
+      // Untouched: the pull says nothing about what this account may do.
+      role: 'caregiver',
+    });
+  });
+
+  it('leaves a record that belongs to another household alone', async () => {
+    const theirs = {
+      userId: ACCOUNT,
+      // A household this phone is not linked to.
+      householdId: '0190a0b0-0000-7000-8000-0000000000ff',
+      babyId: CHILD,
+      babyName: 'Someone else',
+      role: 'owner' as const,
+    };
+    const h = await withPrefs(theirs);
+
+    await h.engine.pull();
+
+    // The settings still arrive; the record is not rewritten to this baby.
+    expect(h.prefs.get('reminderIntervalMin')).toBe(210);
+    expect(h.prefs.get('accountHousehold')).toEqual(theirs);
+  });
+
+  it('invents no record for a phone that has none', async () => {
+    const h = await withPrefs();
+
+    await h.engine.pull();
+
+    expect(h.prefs.get('accountHousehold')).toBe(null);
   });
 });

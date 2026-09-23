@@ -122,6 +122,11 @@ export function useCaregiversRepository(): CaregiversRepository {
   return useRepositories().caregivers;
 }
 
+/** The whole prefs repository, for code that writes them outside React (P1-F16). */
+export function useSyncDevicePrefs(): DevicePrefsRepository {
+  return useRepositories().devicePrefs;
+}
+
 const NO_NAMES: ReadonlyMap<string, string> = new Map();
 const noStore = { subscribe: () => () => {}, version: () => 0 };
 

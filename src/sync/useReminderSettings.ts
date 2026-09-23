@@ -13,7 +13,14 @@ export type ReminderSettings = {
   settings: Omit<Settings, 'enabled'>;
   setIntervalMin: (minutes: number) => void;
   setSecondReminderMin: (minutes: number | null) => void;
-  /** Whether this account may change it for everyone, or only for this phone. */
+  /**
+   * Whether this phone may change the numbers at all. The household owns them
+   * (SDD 4.2) and only an owner may write them, so on anyone else's phone
+   * they are shown, not edited — a local change would be overwritten by the
+   * next pull and would meanwhile make two phones disagree (SDD 6.2).
+   */
+  canChange: boolean;
+  /** True when changing them changes them for the whole household. */
   sharedWithHousehold: boolean;
 };
 
@@ -37,15 +44,27 @@ export function useReminderSettings(): ReminderSettings {
   const writeThrough = useCallback(
     (columns: { reminder_interval_min?: number; second_reminder_min?: number | null }) => {
       if (!auth || !household || !owner) return;
-      // The household's record of it. A failure changes nothing here: the
-      // phone keeps the value it was given, and the next change tries again.
-      void auth.client.from('households').update(columns).eq('id', household.householdId);
+      // The household's record of it. A PostgREST builder only runs once it
+      // is awaited, so this `then` is what sends it. A failure changes
+      // nothing here: the phone keeps the value it was given, the next pull
+      // brings whatever the household actually holds, and the next change
+      // tries again.
+      void auth.client
+        .from('households')
+        .update(columns)
+        .eq('id', household.householdId)
+        .then(
+          () => {},
+          () => {},
+        );
     },
     [auth, household, owner],
   );
 
   return {
     settings: useMemo(() => ({ intervalMin, secondReminderMin }), [intervalMin, secondReminderMin]),
+    // A phone with no household yet is nobody's but its own, so it may.
+    canChange: owner || !household,
     sharedWithHousehold: owner,
     setIntervalMin: useCallback(
       (minutes: number) => {
