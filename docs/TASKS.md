@@ -44,6 +44,9 @@ to it whenever a task's done-when can only be met on a device.
       P2-04), and P2-F5's hosted email settings, or a phone on the local stack.
 - [ ] P2-06: once P2-F6 is done, tap a real https://moraki.app/join/CODE
       link on a second phone and check it opens Moraki on the join screen.
+- [ ] P2-15: run `docs/06-two-phone-checklist.md` on two phones and record the
+      result in its table. This is the Phase 2 gate: two phones in airplane
+      mode, 20 entries each, reconnect, both screens match.
 
 ---
 
@@ -133,7 +136,7 @@ Gate to move on: two phones in airplane mode log 20 entries each, reconnect, bot
 - [x] P2-12 `feat(home): author on every row, last entry by line, caregivers list` — depends: P2-06, P2-10 — done when: rows read "You" or the other person's name — done: entries read "You" or the caregiver's name on home and in history, home says who logged the newest entry, and Settings lists the household with what each person may do; 4 app tests
 - [ ] P2-13 `feat(settings): sync status screen with pending count, last sync, errors` — depends: P2-08 — done when: visible pending count goes to zero when online
 - [x] P2-14 `test(sync): convergence property test with random interleavings` — depends: P2-09 — done when: 1,000 random runs, two simulated clients, identical derived state — done: 1,000 fast-check runs of random logging, editing, clearing, deleting, pushing and pulling on two phones; both end with the same entries and the same home state, each entry as the phone that made it meant it, and no pull undoes an unsent change. About 8 seconds
-- [ ] P2-15 `test(manual): two phone airplane mode checklist in docs` — depends: P2-10 — done when: checklist passes and is committed — status: in_progress
+- [ ] P2-15 `test(manual): two phone airplane mode checklist in docs` — depends: P2-10 — done when: checklist passes and is committed — status: in_progress: the checklist is written and committed (`docs/06-two-phone-checklist.md`, ten sections covering both phones offline, one-sided edits, undo, app kill, reboot, signing in with a history, roles, attribution and a long catch-up). It stays in_progress until it has been run on two real phones, which needs the development build P0-09 is waiting for
 
 ### Found while working (P2)
 
