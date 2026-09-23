@@ -86,7 +86,7 @@ describe('trends', () => {
     expect(card('insights-averages').getByLabelText('Average bottle: 100 mL')).toBeOnTheScreen();
     expect(
       card('insights-averages').getByLabelText(
-        'Average time between feeds: Not enough entries yet',
+        'Average time between feeds: Nothing to average yet',
       ),
     ).toBeOnTheScreen();
   });
