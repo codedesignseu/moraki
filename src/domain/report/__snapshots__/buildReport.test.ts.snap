@@ -1,0 +1,239 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`the whole object matches the recorded 7d report 1`] = `
+{
+  "averageBottleMl": 80,
+  "averageIntervalMs": 37440000,
+  "baby": {
+    "ageDays": 12,
+    "bornAt": 1791516000000,
+    "name": "Ella",
+  },
+  "days": [
+    {
+      "breastMs": 0,
+      "daysAgo": 6,
+      "dirty": 0,
+      "feeds": 0,
+      "key": "2026-10-15",
+      "ml": 0,
+      "sleepMs": 0,
+      "start": 1792011600000,
+      "wet": 0,
+    },
+    {
+      "breastMs": 0,
+      "daysAgo": 5,
+      "dirty": 0,
+      "feeds": 0,
+      "key": "2026-10-16",
+      "ml": 0,
+      "sleepMs": 0,
+      "start": 1792098000000,
+      "wet": 0,
+    },
+    {
+      "breastMs": 0,
+      "daysAgo": 4,
+      "dirty": 0,
+      "feeds": 0,
+      "key": "2026-10-17",
+      "ml": 0,
+      "sleepMs": 0,
+      "start": 1792184400000,
+      "wet": 0,
+    },
+    {
+      "breastMs": 0,
+      "daysAgo": 3,
+      "dirty": 0,
+      "feeds": 0,
+      "key": "2026-10-18",
+      "ml": 0,
+      "sleepMs": 0,
+      "start": 1792270800000,
+      "wet": 0,
+    },
+    {
+      "breastMs": 0,
+      "daysAgo": 2,
+      "dirty": 0,
+      "feeds": 1,
+      "key": "2026-10-19",
+      "ml": 70,
+      "sleepMs": 0,
+      "start": 1792357200000,
+      "wet": 0,
+    },
+    {
+      "breastMs": 0,
+      "daysAgo": 1,
+      "dirty": 1,
+      "feeds": 2,
+      "key": "2026-10-20",
+      "ml": 170,
+      "sleepMs": 7200000,
+      "start": 1792443600000,
+      "wet": 2,
+    },
+    {
+      "breastMs": 2700000,
+      "daysAgo": 0,
+      "dirty": 1,
+      "feeds": 3,
+      "key": "2026-10-21",
+      "ml": 160,
+      "sleepMs": 3600000,
+      "start": 1792530000000,
+      "wet": 1,
+    },
+  ],
+  "from": 1792011600000,
+  "last24h": {
+    "dirty": 2,
+    "feeds": {
+      "bottleMl": 250,
+      "breastMs": 2700000,
+      "count": 4,
+      "lastAt": 1792576800000,
+      "longestGapMs": 28800000,
+    },
+    "wet": 2,
+  },
+  "lastTemperature": {
+    "at": 1792566000000,
+    "celsius": 36.9,
+  },
+  "medications": [
+    {
+      "at": 1792546200000,
+      "dose": "1 drop",
+      "name": "Vitamin D",
+    },
+  ],
+  "notes": [
+    {
+      "at": 1792544400000,
+      "note": "Warm after a feed",
+      "tags": [],
+      "tempC": 37.2,
+    },
+    {
+      "at": 1792566000000,
+      "note": null,
+      "tags": [],
+      "tempC": 36.9,
+    },
+  ],
+  "range": "7d",
+  "to": 1792580400000,
+  "weight": {
+    "birthGrams": 3400,
+    "changeG": 110,
+    "changePct": 3.2,
+    "latest": {
+      "at": 1792573200000,
+      "day": 12,
+      "grams": 3510,
+    },
+  },
+  "window": {
+    "dirty": 2,
+    "feeds": {
+      "bottleMl": 400,
+      "breastMs": 2700000,
+      "count": 6,
+      "lastAt": 1792576800000,
+      "longestGapMs": 82800000,
+    },
+    "sleepMs": 10800000,
+    "wet": 3,
+  },
+}
+`;
+
+exports[`the whole object matches the recorded 24h report 1`] = `
+{
+  "averageBottleMl": 80,
+  "averageIntervalMs": 37440000,
+  "baby": {
+    "ageDays": 12,
+    "bornAt": 1791516000000,
+    "name": "Ella",
+  },
+  "days": [
+    {
+      "breastMs": 2700000,
+      "daysAgo": 0,
+      "dirty": 1,
+      "feeds": 3,
+      "key": "2026-10-21",
+      "ml": 160,
+      "sleepMs": 3600000,
+      "start": 1792530000000,
+      "wet": 1,
+    },
+  ],
+  "from": 1792494000000,
+  "last24h": {
+    "dirty": 2,
+    "feeds": {
+      "bottleMl": 250,
+      "breastMs": 2700000,
+      "count": 4,
+      "lastAt": 1792576800000,
+      "longestGapMs": 28800000,
+    },
+    "wet": 2,
+  },
+  "lastTemperature": {
+    "at": 1792566000000,
+    "celsius": 36.9,
+  },
+  "medications": [
+    {
+      "at": 1792546200000,
+      "dose": "1 drop",
+      "name": "Vitamin D",
+    },
+  ],
+  "notes": [
+    {
+      "at": 1792544400000,
+      "note": "Warm after a feed",
+      "tags": [],
+      "tempC": 37.2,
+    },
+    {
+      "at": 1792566000000,
+      "note": null,
+      "tags": [],
+      "tempC": 36.9,
+    },
+  ],
+  "range": "24h",
+  "to": 1792580400000,
+  "weight": {
+    "birthGrams": 3400,
+    "changeG": 110,
+    "changePct": 3.2,
+    "latest": {
+      "at": 1792573200000,
+      "day": 12,
+      "grams": 3510,
+    },
+  },
+  "window": {
+    "dirty": 2,
+    "feeds": {
+      "bottleMl": 250,
+      "breastMs": 2700000,
+      "count": 4,
+      "lastAt": 1792576800000,
+      "longestGapMs": 28800000,
+    },
+    "sleepMs": 10800000,
+    "wet": 2,
+  },
+}
+`;
