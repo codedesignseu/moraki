@@ -161,7 +161,7 @@ Gate to move on: 14 day household dogfood starts.
 
 - [x] P3-01 `feat(domain): milk stock fold, fifo, oldest batch age` — depends: P1-01 — done when: tests for pump in, take out, adjust, negative clamp — done: `selectStock` folds live events in the order they happened through the activity registry, so pump, bottle and `stock_adjust` each contribute their own move and the fold knows no types. Milk leaves oldest first; over-drawing a place leaves a negative batch, so the place reads 0 with `short: true` and a later pump settles that before it adds. 14 tests cover pump into each place (and `fed`, which stores nothing), taking within and across batches, positive and negative adjustments, the negative clamp, the age of what is left, deleted entries, and the same answer whatever order entries arrive in
 - [ ] P3-02 `feat(log): pump sheet and from-stock option on bottle feed` — depends: P3-01, P1-07 — done when: fridge total drops on both phones after a feed — status: in_progress
-- [ ] P3-03 `feat(home): stock card with adjust sheet` — depends: P3-02 — done when: adjust reason saved
+- [ ] P3-03 `feat(home): stock card with adjust sheet` — depends: P3-02 — done when: adjust reason saved — status: in_progress
 - [ ] P3-04 `feat(domain): weight series and regain view model` — depends: P1-01 — done when: tests with a real-shaped day 0 to 21 fixture
 - [ ] P3-05 `feat(insights): weight log and regain chart` — depends: P3-04 — done when: reference lines at 90% and 100%, day 10 and 14 markers, no judging copy
 - [ ] P3-06 `feat(domain): report builder for call script, 24h, 3d, 7d` — depends: P1-05, P3-04 — done when: snapshot tests of report objects
