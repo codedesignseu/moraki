@@ -118,8 +118,12 @@ export function authServer(
       case '/rest/v1/babies':
         return json(200, options.babies ?? []);
       case '/rest/v1/memberships':
-        if (options.caregivers && url.searchParams.get('select')?.includes('display_name')) {
-          return json(200, options.caregivers);
+        // A caregivers query (P2-12) asks for display_name and wants whole
+        // membership rows back. Without any set up, the household simply has
+        // no names to show — answering with the membership rows this fake
+        // keeps for findHousehold would hand back rows with no user_id.
+        if (url.searchParams.get('select')?.includes('display_name')) {
+          return json(200, options.caregivers ?? []);
         }
         return json(
           200,

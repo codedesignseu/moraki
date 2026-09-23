@@ -140,6 +140,8 @@ export function useCaregiverNames(): ReadonlyMap<string, string> {
   );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(() => caregivers?.names() ?? NO_NAMES, [caregivers, version]);
+}
+
 /** What P2-11 needs: how much is local-only, and the move itself. */
 export function useAdoption(): Pick<AppRepositories, 'localOnly' | 'adopt'> {
   const { localOnly, adopt } = useRepositories();
