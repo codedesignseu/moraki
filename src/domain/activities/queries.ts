@@ -2,6 +2,7 @@ import type { Event } from './contract';
 import type { FeedBottlePayload } from './feedBottle';
 import type { FeedBreastPayload } from './feedBreast';
 import type { MedicationPayload } from './medication';
+import type { PumpPayload } from './pump';
 import type { SleepPayload } from './sleep';
 
 // Type checks live here so nothing outside domain/activities branches on
@@ -19,6 +20,10 @@ export function isBottleFeed(e: Event<unknown>): e is Event<FeedBottlePayload> {
 
 export function isBreastFeed(e: Event<unknown>): e is Event<FeedBreastPayload> {
   return e.type === 'feed_breast';
+}
+
+export function isPump(e: Event<unknown>): e is Event<PumpPayload> {
+  return e.type === 'pump';
 }
 
 export function isSleep(e: Event<unknown>): e is Event<SleepPayload> {

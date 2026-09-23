@@ -13,6 +13,8 @@ export type FeedPrefill = {
   side: FeedBreastPayload['side'];
   /** How long the breastfeed lasted, in minutes (P1-19). */
   breastMinutes: number;
+  /** Where the bottle was poured from, or null when it wasn't from a store (P3-02). */
+  fromStock: NonNullable<FeedBottlePayload['from_stock']> | null;
 };
 
 /** The feed sheet's "Fed for" stepper (P1-19). */
@@ -24,6 +26,7 @@ export const FIRST_FEED_DEFAULTS = {
   milk: 'formula',
   side: 'left',
   breastMinutes: 15,
+  fromStock: null,
 } as const;
 
 const MINUTE_MS = 60_000;
@@ -69,6 +72,9 @@ export function feedPrefill(
       lastBreast && breastDurationMs(lastBreast) > 0
         ? toStepperMinutes(breastDurationMs(lastBreast))
         : FIRST_FEED_DEFAULTS.breastMinutes,
+    // Expressed milk usually comes from the same place as last time; formula
+    // never comes from one, so the option resets with the milk type.
+    fromStock: lastBottle?.payload.from_stock ?? FIRST_FEED_DEFAULTS.fromStock,
   };
 }
 
@@ -95,6 +101,7 @@ export function feedEditTarget(parts: readonly Event<unknown>[]): FeedEditTarget
       milk: bottle?.payload.milk ?? FIRST_FEED_DEFAULTS.milk,
       side: breast?.payload.side ?? FIRST_FEED_DEFAULTS.side,
       breastMinutes: duration > 0 ? toStepperMinutes(duration) : FIRST_FEED_DEFAULTS.breastMinutes,
+      fromStock: bottle?.payload.from_stock ?? FIRST_FEED_DEFAULTS.fromStock,
     },
     start: Math.min(...live.map((e) => e.occurredAt)),
     bottle,

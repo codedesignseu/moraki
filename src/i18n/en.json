@@ -100,7 +100,8 @@
       "diaper": "Diaper",
       "sleep": "Sleep",
       "health": "Health note",
-      "medication": "Medication"
+      "medication": "Medication",
+      "pump": "Pump"
     },
     "sleep": {
       "label": "Sleeping since {{time}}",
@@ -134,7 +135,25 @@
       },
       "fedFor": "Fed for",
       "minutes": "min",
-      "range": "{{from}} to {{to}}"
+      "range": "{{from}} to {{to}}",
+      "from": {
+        "label": "Poured from",
+        "none": "Not from a store",
+        "fridge": "Fridge",
+        "freezer": "Freezer",
+        "have": "Fridge {{fridge}} mL · Freezer {{freezer}} mL"
+      }
+    },
+    "pump": {
+      "title": "Pump",
+      "amount": "Amount",
+      "unit": "mL",
+      "dest": {
+        "label": "Put it",
+        "fridge": "Fridge",
+        "freezer": "Freezer",
+        "fed": "Fed straight away"
+      }
     },
     "diaper": {
       "title": "Diaper",
@@ -209,6 +228,7 @@
   "undo": {
     "action": "Undo",
     "feedSaved": "Feed saved",
+    "pumpSaved": "Pump saved",
     "diaperSaved": "Diaper saved",
     "sleepStarted": "Sleep started",
     "sleepStopped": "Sleep stopped",

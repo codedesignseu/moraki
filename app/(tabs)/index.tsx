@@ -25,6 +25,11 @@ export default function Home() {
               onPress={() => router.push('/log/sleep')}
             />
             <Button
+              label={t('home.actions.pump')}
+              variant="secondary"
+              onPress={() => router.push('/log/pump')}
+            />
+            <Button
               label={t('home.actions.health')}
               variant="secondary"
               onPress={() => router.push('/log/health')}

@@ -16,7 +16,8 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
-  const { form, when, update, save, editing, shift, setShift, newStart } = useFeedSheet(entryId);
+  const { form, when, update, save, editing, shift, setShift, newStart, stock } =
+    useFeedSheet(entryId);
 
   const kinds: { value: FeedKind; label: string }[] = [
     { value: 'bottle', label: t('log.feed.kind.bottle') },
@@ -32,6 +33,13 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
     { value: 'left', label: t('log.feed.side.left') },
     { value: 'right', label: t('log.feed.side.right') },
     { value: 'both', label: t('log.feed.side.both') },
+  ];
+  // "Not from a store" is a choice here but the absence of a key in the
+  // payload, so the two are mapped at the edge rather than in the event.
+  const froms = [
+    { value: 'none' as const, label: t('log.feed.from.none') },
+    { value: 'fridge' as const, label: t('log.feed.from.fridge') },
+    { value: 'freezer' as const, label: t('log.feed.from.freezer') },
   ];
   const hasBottle = form.kind !== 'breast';
   const hasBreast = form.kind !== 'bottle';
@@ -76,6 +84,19 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
             onChange={(milk) => update({ milk })}
             accessibilityLabel={t('log.feed.milk.label')}
           />
+          {form.milk !== 'formula' && (
+            <>
+              <Segmented
+                options={froms}
+                value={form.fromStock ?? 'none'}
+                onChange={(from) => update({ fromStock: from === 'none' ? null : from })}
+                accessibilityLabel={t('log.feed.from.label')}
+              />
+              <Text style={s.muted}>
+                {t('log.feed.from.have', { fridge: stock.fridge.ml, freezer: stock.freezer.ml })}
+              </Text>
+            </>
+          )}
         </>
       )}
       {hasBreast && (
