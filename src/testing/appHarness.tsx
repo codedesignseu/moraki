@@ -16,6 +16,7 @@ import LogFeed from '../../app/log/feed';
 import LogHealth from '../../app/log/health';
 import LogMedication from '../../app/log/medication';
 import LogPump from '../../app/log/pump';
+import LogStock from '../../app/log/stock';
 import LogSleep from '../../app/log/sleep';
 import Invite from '../../app/invite';
 import Join from '../../app/join/[code]';
@@ -129,6 +130,7 @@ export function renderApp(
       'entry/[id]': EditEntry,
       'log/sleep': LogSleep,
       'log/pump': LogPump,
+      'log/stock': LogStock,
       'log/health': LogHealth,
       'log/medication': LogMedication,
       'onboarding/sign-in': SignIn,

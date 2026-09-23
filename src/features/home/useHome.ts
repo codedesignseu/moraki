@@ -4,6 +4,8 @@ import { useCaregiverNames, useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { DEFAULT_HOME_SETTINGS, selectHomeState } from '@/domain/home/homeState';
+import { milkAge, type MilkAge } from '@/domain/stock/milkAge';
+import { selectStock } from '@/domain/stock/stockState';
 import { formatClock } from '@/domain/time/formatClock';
 import { formatElapsed } from '@/domain/time/formatElapsed';
 
@@ -16,6 +18,14 @@ const RECENT_COUNT = 6;
 export type RecentRow = EntryRow;
 
 export type ActiveSleep = { id: string; elapsed: string; startedAt: string };
+
+export type StockPlaceView = {
+  ml: number;
+  /** The age of the oldest batch left, or null when the place is empty. */
+  age: MilkAge | null;
+  /** More has gone out than went in, so the count needs checking (SDD 6.3). */
+  short: boolean;
+};
 
 export type HomeViewModel = {
   sinceLastFeed: string | null;
@@ -30,6 +40,8 @@ export type HomeViewModel = {
     dirty: number;
     sleep: string;
   };
+  /** What is in each store, and how old it is (SDD 6.3). */
+  stock: { fridge: StockPlaceView; freezer: StockPlaceView };
   recent: RecentRow[];
   /** The other caregiver who logged the newest entry, when it wasn't you. */
   lastEntryBy: string | null;
@@ -53,6 +65,12 @@ export function useHome(): HomeViewModel {
   return useMemo(() => {
     const state = selectHomeState(events, now, tz, DEFAULT_HOME_SETTINGS);
     const me = repository.currentUserId();
+    const stock = selectStock(events);
+    const place = (p: (typeof stock)['fridge']): StockPlaceView => ({
+      ml: p.ml,
+      age: p.oldestAt === null ? null : milkAge(p.oldestAt, now),
+      short: p.short,
+    });
     return {
       sinceLastFeed: state.sinceLastFeedMs === null ? null : formatElapsed(state.sinceLastFeedMs),
       nextSide: state.nextSide,
@@ -79,6 +97,7 @@ export function useHome(): HomeViewModel {
       stopSleep: (id: string) => {
         saves.patch('undo.sleepStopped', [{ id, changes: { endedAt: Date.now() } }]);
       },
+      stock: { fridge: place(stock.fridge), freezer: place(stock.freezer) },
       recent: events.slice(0, RECENT_COUNT).map((e) => describeEntry(e, now, tz, me, names)),
       lastEntryBy:
         state.lastEntry === null
