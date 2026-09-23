@@ -358,7 +358,8 @@
       "title": "Reports",
       "range24h": "Last 24 hours",
       "range3d": "Last 3 days",
-      "range7d": "Last 7 days"
+      "range7d": "Last 7 days",
+      "call": "Call script"
     }
   },
   "insights": {
@@ -531,25 +532,41 @@
         "latest": "Latest weight",
         "latestValue": "{{grams}} g on day {{day}}",
         "change": "Change since birth",
-        "changeValue": "{{grams}} g ({{percent}}%)"
+        "changeValue": "{{grams}} g ({{percent}}%)",
+        "none": "Nothing weighed yet"
       },
       "feeds": {
         "count": "Feeds",
         "ml": "Bottle total",
         "breast": "Breastfeeding time",
-        "longestGap": "Longest gap between feeds"
+        "longestGap": "Longest gap between feeds",
+        "title": "Last 24 hours",
+        "last": "Last feed"
       },
       "diapers": {
         "wet": "Wet",
-        "dirty": "Dirty"
+        "dirty": "Dirty",
+        "title": "Diapers, last 24 hours"
       },
       "temperature": {
         "last": "Last reading",
         "value": "{{celsius}} °C at {{time}}",
-        "only": "Temperature only"
+        "only": "Temperature only",
+        "title": "Temperature"
       },
       "notes": {
-        "title": "Notes and medication"
+        "title": "Notes and medication",
+        "note": "{{time}} — {{text}}",
+        "med": "{{time}} — {{name}}",
+        "medDose": "{{time}} — {{name}}, {{dose}}"
+      },
+      "title": "Call script",
+      "noBirth": "This phone doesn't have the baby's birth date yet.",
+      "none": "None logged",
+      "worry": {
+        "title": "What I'm worried about",
+        "label": "Write it down before you call",
+        "hint": "Stays on this screen. Nothing here is saved."
       }
     },
     "pdf": {

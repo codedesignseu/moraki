@@ -11,6 +11,7 @@ export default function Settings() {
       onJoinHousehold={() => router.push('/onboarding/join')}
       onInvite={() => router.push('/invite')}
       onReport={(range) => router.push({ pathname: '/report/[range]', params: { range } })}
+      onCallScript={() => router.push('/report/call')}
     />
   );
 }
