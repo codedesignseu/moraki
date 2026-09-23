@@ -70,6 +70,15 @@ export function authServer(
     verify?: () => Response;
     /** Babies the signed-in account can already see (a household made elsewhere). */
     babies?: ServerBaby[];
+    /** Unused invite codes the owner can see, and a note of one withdrawn (P2-F8). */
+    openInvites?: {
+      code: string;
+      role: 'caregiver' | 'viewer';
+      expires_at: string;
+      household_id?: string;
+      used_at?: string | null;
+    }[];
+    revokeInvite?: (code: string) => void;
     /** The household row a pull reads back (P1-F16). */
     household?: { name: string; reminder_interval_min: number; second_reminder_min: number | null };
     /** Called when a phone writes the household's settings. */
@@ -119,6 +128,26 @@ export function authServer(
         return json(
           200,
           rows.filter((row) => (row.seq ?? 0) > after),
+        );
+      }
+      case '/rest/v1/invites': {
+        // The owner's unused codes, and withdrawing one (P2-F8).
+        if ((init?.method ?? 'GET').toUpperCase() === 'DELETE') {
+          const code = /eq\.([^&]+)/.exec(url.searchParams.get('code') ?? '')?.[1];
+          if (code) options.revokeInvite?.(code);
+          return new Response(null, { status: 204 });
+        }
+        // The real table answers with this household's unused codes only, and
+        // a fake that ignores the filters would hide a query that forgot them.
+        const household = /eq\.([^&]+)/.exec(url.searchParams.get('household_id') ?? '')?.[1];
+        const unusedOnly = (url.searchParams.get('used_at') ?? '') === 'is.null';
+        return json(
+          200,
+          (options.openInvites ?? [])
+            .filter(
+              (row) => household === undefined || (row.household_id ?? household) === household,
+            )
+            .filter((row) => !unusedOnly || !row.used_at),
         );
       }
       case '/rest/v1/households':
