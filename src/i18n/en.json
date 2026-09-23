@@ -264,6 +264,28 @@
         "caregiver": "Logs entries",
         "viewer": "Views only"
       }
+    },
+    "sync": {
+      "title": "Sharing",
+      "notShared": "Nothing from this phone is shared yet.",
+      "allSent": "Everything is sent",
+      "waiting": "{{count}} entries waiting to send",
+      "waiting_one": "One entry waiting to send",
+      "lastSent": "Last sent at {{time}}",
+      "neverSent": "Nothing sent from this phone yet",
+      "refused": "Not sent",
+      "refusedRow": "{{what}} — {{reason}}",
+      "op": {
+        "insert": "An entry",
+        "patch": "A change",
+        "delete": "A deletion"
+      },
+      "reason": {
+        "forbidden": "this phone wasn’t allowed to send it",
+        "invalid": "the server couldn’t read it",
+        "not_found": "it isn’t on the server",
+        "unknown": "the server refused it"
+      }
     }
   },
   "insights": {

@@ -5,6 +5,10 @@ import { useDevicePref } from '@/db/react';
 import { NIGHT_MODES } from '@/domain/time/night';
 import { useAuth } from '@/sync/AuthProvider';
 import { useAccountHousehold } from '@/sync/useAccountHousehold';
+import { useSyncStatus } from '@/sync/SyncProvider';
+import { useSyncErrors } from '@/sync/useSyncErrors';
+import { formatClock } from '@/domain/time/formatClock';
+import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 import { useCaregivers, type CaregiverRow } from './useCaregivers';
 import { Button, Card, Segmented } from '@/ui/primitives';
@@ -14,6 +18,18 @@ import { useTheme, type Theme } from '@/ui/theme';
  * Settings (SDD 7). Account and night mode for now; reminders, caregivers,
  * the report and the rest join as their tasks land.
  */
+const OP_LABEL = {
+  insert: 'settings.sync.op.insert',
+  patch: 'settings.sync.op.patch',
+  delete: 'settings.sync.op.delete',
+} as const;
+
+const REASON_LABEL: Record<string, 'settings.sync.reason.forbidden'> = {
+  forbidden: 'settings.sync.reason.forbidden',
+  invalid: 'settings.sync.reason.invalid' as 'settings.sync.reason.forbidden',
+  not_found: 'settings.sync.reason.not_found' as 'settings.sync.reason.forbidden',
+};
+
 /** Typed keys, so a new role can't quietly render nothing. */
 const ROLE_LABEL = {
   owner: 'settings.account.role.owner',
@@ -39,6 +55,8 @@ export function SettingsScreen({
   const { auth, state } = useAuth();
   const { household } = useAccountHousehold();
   const caregivers = useCaregivers();
+  const sync = useSyncStatus();
+  const syncErrors = useSyncErrors();
 
   return (
     <ScrollView contentContainerStyle={s.content}>
@@ -101,6 +119,43 @@ export function SettingsScreen({
           )}
         </Card>
       )}
+      {state.status === 'signedIn' && (
+        <Card testID="settings-sync">
+          <Text style={theme.text.heading}>{t('settings.sync.title')}</Text>
+          {sync.blocked === 'not_linked' ? (
+            <Text style={s.muted}>{t('settings.sync.notShared')}</Text>
+          ) : (
+            <>
+              <Text style={theme.text.body} testID="settings-sync-pending">
+                {sync.pending === 0
+                  ? t('settings.sync.allSent')
+                  : t('settings.sync.waiting', { count: sync.pending })}
+              </Text>
+              <Text style={s.muted}>
+                {sync.lastPushAt === null
+                  ? t('settings.sync.neverSent')
+                  : t('settings.sync.lastSent', {
+                      time: formatClock(sync.lastPushAt, deviceTimeZone()),
+                    })}
+              </Text>
+            </>
+          )}
+          {syncErrors.length > 0 && (
+            <View style={s.caregivers} testID="settings-sync-errors">
+              <Text style={s.muted}>{t('settings.sync.refused')}</Text>
+              {syncErrors.map((row) => (
+                <Text key={row.id} style={theme.text.body}>
+                  {t('settings.sync.refusedRow', {
+                    what: t(OP_LABEL[row.op]),
+                    reason: t(REASON_LABEL[row.reason] ?? 'settings.sync.reason.unknown'),
+                  })}
+                </Text>
+              ))}
+            </View>
+          )}
+        </Card>
+      )}
+
       <Card testID="settings-night-mode">
         <Text style={theme.text.heading}>{t('settings.nightMode.title')}</Text>
         <Segmented
