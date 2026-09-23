@@ -9,7 +9,13 @@ import {
 } from 'react';
 import { AppState } from 'react-native';
 
-import { useEvents, useEventsRepository, useLinkedIdentity, useOutboxRepository } from '@/db/react';
+import {
+  useCaregiversRepository,
+  useEvents,
+  useEventsRepository,
+  useLinkedIdentity,
+  useOutboxRepository,
+} from '@/db/react';
 
 import { useAuth } from './AuthProvider';
 import { createPullEngine, type PullEngine } from './pullEngine';
@@ -50,6 +56,7 @@ export function SyncProvider({
 }) {
   const outbox = useOutboxRepository();
   const eventsRepository = useEventsRepository();
+  const caregivers = useCaregiversRepository();
   const linked = useLinkedIdentity();
   const { auth, state } = useAuth();
   // Re-pushes after every committed write (the events repository's signal).
@@ -64,8 +71,8 @@ export function SyncProvider({
     [linked, outbox, auth, state],
   );
   const pull = useMemo(
-    () => createPullEngine({ linked, events: eventsRepository, outbox, auth, state }),
-    [linked, eventsRepository, outbox, auth, state],
+    () => createPullEngine({ linked, events: eventsRepository, outbox, caregivers, auth, state }),
+    [linked, eventsRepository, outbox, caregivers, auth, state],
   );
 
   useEffect(() => {

@@ -9,6 +9,7 @@ import {
 
 import type { Event } from '@/domain/activities';
 
+import type { CaregiversRepository } from './repositories/caregivers';
 import type { OutboxRepository } from './repositories/outbox';
 import type {
   DevicePrefName,
@@ -22,6 +23,7 @@ export type AppRepositories = {
   events: EventsRepository;
   devicePrefs: DevicePrefsRepository;
   outbox: OutboxRepository;
+  caregivers: CaregiversRepository;
   /** The server household and user this phone is linked to, null before P2-11. */
   linked: () => { householdId: string; userId: string } | null;
 };
@@ -109,4 +111,28 @@ export function useOutboxRepository(): OutboxRepository {
 /** Reads the linked identity fresh each time; P2-11 writes it. */
 export function useLinkedIdentity(): AppRepositories['linked'] {
   return useRepositories().linked;
+}
+
+export function useCaregiversRepository(): CaregiversRepository {
+  return useRepositories().caregivers;
+}
+
+const NO_NAMES: ReadonlyMap<string, string> = new Map();
+const noStore = { subscribe: () => () => {}, version: () => 0 };
+
+/**
+ * Caregiver names by user id, refreshed whenever the household changes.
+ * A screen rendered without the sync repositories simply has no names to
+ * show: entries then read as "You" or as another caregiver, as they did
+ * before a household existed.
+ */
+export function useCaregiverNames(): ReadonlyMap<string, string> {
+  const repositories = useContext(OutboxContext);
+  const caregivers = repositories?.caregivers;
+  const version = useSyncExternalStore(
+    caregivers?.subscribe ?? noStore.subscribe,
+    caregivers?.version ?? noStore.version,
+  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => caregivers?.names() ?? NO_NAMES, [caregivers, version]);
 }

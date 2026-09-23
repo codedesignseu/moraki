@@ -57,7 +57,10 @@ export function HistoryScreen({
           testID={`history-${item.id}`}
           title={t(item.labelKey)}
           detail={item.summary ? t(item.summary.key, item.summary.values) : undefined}
-          meta={[item.time, t(item.byYou ? 'home.recent.you' : 'home.recent.other')]}
+          meta={[
+            item.time,
+            item.byYou ? t('home.recent.you') : (item.by ?? t('home.recent.other')),
+          ]}
           {...(onOpenEntry && {
             onPress: () => onOpenEntry(item.id),
             accessibilityHint: t('entry.openHint'),

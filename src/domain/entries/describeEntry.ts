@@ -14,9 +14,18 @@ export type EntryRow = {
   /** 0 today, 1 yesterday, and so on, in `tz`. */
   daysAgo: number;
   byYou: boolean;
+  /** The caregiver who logged it, when this phone knows their name (P2-12). */
+  by: string | null;
 };
 
-export function describeEntry(e: Event<unknown>, now: number, tz: string, me: string): EntryRow {
+export function describeEntry(
+  e: Event<unknown>,
+  now: number,
+  tz: string,
+  me: string,
+  /** Caregiver names by user id; empty before a household has any (P2-12). */
+  names: ReadonlyMap<string, string> = new Map(),
+): EntryRow {
   const module = getActivity(e.type);
   return {
     id: e.id,
@@ -26,5 +35,6 @@ export function describeEntry(e: Event<unknown>, now: number, tz: string, me: st
     time: formatClock(e.occurredAt, tz),
     daysAgo: dayBucket(e.occurredAt, now, tz).daysAgo,
     byYou: e.createdBy === me,
+    by: names.get(e.createdBy) ?? null,
   };
 }

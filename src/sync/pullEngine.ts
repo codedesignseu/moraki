@@ -1,3 +1,4 @@
+import type { CaregiversRepository } from '@/db/repositories/caregivers';
 import type { EventsRepository } from '@/db/repositories/events';
 import type { OutboxRepository } from '@/db/repositories/outbox';
 
@@ -8,6 +9,7 @@ import type { LinkedIdentity, PushBlock } from './pushEngine';
 import { pushBlock } from './pushEngine';
 import type { PulledEvent } from '@/domain/sync/pendingProtection';
 
+import { pullCaregivers } from './pullCaregivers';
 import { pullPage, PULL_PAGE, PullTransportError } from './pullEvents';
 
 export type PullOutcome =
@@ -19,6 +21,7 @@ type Deps = {
   linked: () => LinkedIdentity;
   events: EventsRepository;
   outbox: OutboxRepository;
+  caregivers?: CaregiversRepository;
   auth: Auth | null;
   state: AuthState;
   /** Swapped in tests; the real one reads the events table. */
@@ -28,6 +31,7 @@ type Deps = {
     cursor: number,
     limit: number,
   ) => Promise<PulledEvent[]>;
+  fetchCaregivers?: typeof pullCaregivers;
 };
 
 /**
@@ -71,6 +75,14 @@ export function createPullEngine(deps: Deps) {
       }
       failures = 0;
       if (page.length < PULL_PAGE) break;
+    }
+
+    // Who is in the household comes with the same trip: a pull of events
+    // carries no names (P2-F11), and without them another phone's entries
+    // would read as a stranger's.
+    if (deps.caregivers) {
+      const who = await (deps.fetchCaregivers ?? pullCaregivers)(deps.auth!, householdId);
+      if (who.length > 0) deps.caregivers.replace(householdId, who);
     }
 
     return { kind: 'pulled', stored, skipped, cursor: deps.outbox.cursor() };

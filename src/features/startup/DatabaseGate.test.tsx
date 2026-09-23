@@ -4,6 +4,7 @@ import { Text } from 'react-native';
 import { useDevicePref, useEventsRepository, type AppRepositories } from '@/db/react';
 import { readLinkedIdentity } from '@/db/identity';
 import { createDevicePrefsRepository } from '@/db/repositories/devicePrefs';
+import { createCaregiversRepository } from '@/db/repositories/caregivers';
 import { createOutboxRepository } from '@/db/repositories/outbox';
 import { createEventsRepository } from '@/db/repositories/events';
 import { createMemoryDb, testDeps } from '@/db/testing/memoryDb';
@@ -37,6 +38,7 @@ describe('DatabaseGate', () => {
         events,
         devicePrefs,
         outbox: createOutboxRepository(db),
+        caregivers: createCaregiversRepository(db),
         linked: () => readLinkedIdentity(db),
       }),
     );

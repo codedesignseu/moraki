@@ -32,6 +32,7 @@ import {
   createDevicePrefsRepository,
   type DevicePrefsRepository,
 } from '@/db/repositories/devicePrefs';
+import { createCaregiversRepository } from '@/db/repositories/caregivers';
 import { createOutboxRepository, type OutboxRepository } from '@/db/repositories/outbox';
 import { createEventsRepository, type EventsRepository } from '@/db/repositories/events';
 import { createMemoryDb, type MemoryDb } from '@/db/testing/memoryDb';
@@ -91,6 +92,7 @@ export function renderApp(
     events: repo,
     devicePrefs: prefs,
     outbox: createOutboxRepository(mem.db),
+    caregivers: createCaregiversRepository(mem.db),
     linked: () => readLinkedIdentity(mem.db),
   };
   function TestLayout() {
