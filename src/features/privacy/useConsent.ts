@@ -15,6 +15,11 @@ export const CONSENT_VERSION = '2026-09-23';
 export type ConsentState = {
   /** Whether the signed-in account has agreed, as far as this phone knows. */
   granted: boolean;
+  /**
+   * The same question asked about an account by id, for the moment just after
+   * signing in: `granted` was worked out while nobody was signed in yet.
+   */
+  grantedBy: (userId: string) => boolean;
   /** Null until something goes wrong; a reason key otherwise. */
   problem: 'offline' | 'signed_out' | 'unknown' | null;
   busy: boolean;
@@ -72,6 +77,7 @@ export function useConsent(): ConsentState {
 
   return {
     granted: consent !== null && consent.userId === userId,
+    grantedBy: (who: string) => consent !== null && consent.userId === who,
     problem,
     busy,
     agree: useCallback(() => call('grant_consent'), [call]),

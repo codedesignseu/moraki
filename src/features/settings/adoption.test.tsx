@@ -2,6 +2,7 @@ import { act, fireEvent, screen, waitFor } from 'expo-router/testing-library';
 
 import { readIdentity, readLinkedIdentity } from '@/db/identity';
 import { outbox } from '@/db/schema';
+import { CONSENT_VERSION } from '@/features/privacy/useConsent';
 import { createAuth } from '@/sync/auth';
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
 import {
@@ -44,6 +45,9 @@ async function openSettings(options: Parameters<typeof authServer>[0]) {
   const signingIn = createAuth(TEST_SUPABASE_ENV, store, server.fetchImpl);
   await signingIn.verifyCode(EMAIL, '123456');
   signingIn.setForeground(false);
+  // This account agreed to health data being processed, which the consent
+  // screen records after signing in (P3-09). Without it nothing would send.
+  h.prefs.set('consent', { userId: USER_ID, version: CONSENT_VERSION, grantedAt: Date.now() });
   await renderApp(h.repo, { auth: createAuth(TEST_SUPABASE_ENV, store, server.fetchImpl) });
   await press(/Settings/);
   return server;

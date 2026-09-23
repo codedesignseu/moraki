@@ -129,6 +129,41 @@ describe('asking for consent', () => {
   });
 });
 
+describe('when it is asked', () => {
+  it('comes up straight after signing in, before anything can sync', async () => {
+    const server = authServer({ events: () => [] });
+    const { store } = keychain();
+    await renderApp(h.repo, { auth: createAuth(TEST_SUPABASE_ENV, store, server.fetchImpl) });
+
+    await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
+    await fireEvent.changeText(screen.getByLabelText('Email'), EMAIL);
+    await fireEvent.press(screen.getByRole('button', { name: 'Send code' }));
+    await fireEvent.changeText(screen.getByLabelText('Code'), '123456');
+    await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
+
+    // Nobody has to go looking for it in Settings.
+    expect(await screen.findByTestId('consent-what')).toBeOnTheScreen();
+  });
+
+  it('is not asked again once this account has answered', async () => {
+    h.prefs.set('consent', { userId: USER_ID, version: '2026-09-23', grantedAt: NOW });
+    const server = authServer({ events: () => [] });
+    const { store } = keychain();
+    await renderApp(h.repo, { auth: createAuth(TEST_SUPABASE_ENV, store, server.fetchImpl) });
+
+    await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
+    await fireEvent.changeText(screen.getByLabelText('Email'), EMAIL);
+    await fireEvent.press(screen.getByRole('button', { name: 'Send code' }));
+    await fireEvent.changeText(screen.getByLabelText('Code'), '123456');
+    await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
+
+    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(screen.queryByTestId('consent-what')).toBeNull();
+  });
+});
+
 describe('what happens until someone agrees', () => {
   it('sends nothing, and says why in Settings', async () => {
     const pushes: unknown[] = [];
