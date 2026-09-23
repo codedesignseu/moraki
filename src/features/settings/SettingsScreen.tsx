@@ -12,10 +12,11 @@ import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 import { useConsent } from '@/features/privacy/useConsent';
 import { useRemindersState } from '@/notifications/RemindersProvider';
+import { INTERVAL_MIN, SECOND_MIN, useReminderSettings } from '@/sync/useReminderSettings';
 
 import { useCaregivers, type CaregiverRow } from './useCaregivers';
 import { useAdoption } from '@/sync/useAdoption';
-import { Button, Card, Segmented } from '@/ui/primitives';
+import { Button, Card, Segmented, Stepper } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 /**
@@ -73,6 +74,7 @@ export function SettingsScreen({
   const caregivers = useCaregivers();
   const { granted: consented } = useConsent();
   const reminders = useRemindersState();
+  const reminderSettings = useReminderSettings();
   const sync = useSyncStatus();
   const syncErrors = useSyncErrors();
   const adoption = useAdoption();
@@ -247,6 +249,48 @@ export function SettingsScreen({
           {reminders.permission === 'denied'
             ? t('settings.reminders.denied')
             : t('settings.reminders.hint')}
+        </Text>
+
+        <Text style={theme.text.body}>{t('settings.reminders.interval')}</Text>
+        <Stepper
+          value={reminderSettings.settings.intervalMin}
+          onChange={reminderSettings.setIntervalMin}
+          step={INTERVAL_MIN.step}
+          min={INTERVAL_MIN.min}
+          max={INTERVAL_MIN.max}
+          unit={t('settings.reminders.minutes')}
+          accessibilityLabel={t('settings.reminders.interval')}
+        />
+
+        <Text style={theme.text.body}>{t('settings.reminders.second')}</Text>
+        <Segmented
+          options={[
+            { value: 'off', label: t('settings.reminders.secondOff') },
+            { value: 'on', label: t('settings.reminders.secondOn') },
+          ]}
+          value={reminderSettings.settings.secondReminderMin === null ? 'off' : 'on'}
+          onChange={(choice) =>
+            reminderSettings.setSecondReminderMin(choice === 'off' ? null : SECOND_MIN.min)
+          }
+          accessibilityLabel={t('settings.reminders.second')}
+        />
+        {reminderSettings.settings.secondReminderMin !== null && (
+          <Stepper
+            value={reminderSettings.settings.secondReminderMin}
+            onChange={reminderSettings.setSecondReminderMin}
+            step={SECOND_MIN.step}
+            min={SECOND_MIN.min}
+            max={SECOND_MIN.max}
+            unit={t('settings.reminders.minutes')}
+            accessibilityLabel={t('settings.reminders.secondAfter')}
+          />
+        )}
+        <Text style={s.muted}>
+          {t(
+            reminderSettings.sharedWithHousehold
+              ? 'settings.reminders.forEveryone'
+              : 'settings.reminders.forThisPhone',
+          )}
         </Text>
       </Card>
 

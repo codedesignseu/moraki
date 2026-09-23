@@ -3,12 +3,13 @@ import { useMemo } from 'react';
 import { useCaregiverNames, useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
-import { DEFAULT_HOME_SETTINGS, selectHomeState } from '@/domain/home/homeState';
+import { selectHomeState } from '@/domain/home/homeState';
 import { milkAge, type MilkAge } from '@/domain/stock/milkAge';
 import { selectStock } from '@/domain/stock/stockState';
 import { formatClock } from '@/domain/time/formatClock';
 import { formatElapsed } from '@/domain/time/formatElapsed';
 
+import { useReminderSettings } from '@/sync/useReminderSettings';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 import { useNow } from '@/ui/useNow';
 
@@ -61,9 +62,15 @@ export function useHome(): HomeViewModel {
   const now = useNow(TIMER_TICK_MS);
   const tz = deviceTimeZone();
   const names = useCaregiverNames();
+  // The household's feed interval and optional second reminder (P1-15), so
+  // the line on home and the notification are computed from the same numbers.
+  const { settings } = useReminderSettings();
 
   return useMemo(() => {
-    const state = selectHomeState(events, now, tz, DEFAULT_HOME_SETTINGS);
+    const state = selectHomeState(events, now, tz, {
+      reminderIntervalMin: settings.intervalMin,
+      secondReminderMin: settings.secondReminderMin,
+    });
     const me = repository.currentUserId();
     const stock = selectStock(events);
     const place = (p: (typeof stock)['fridge']): StockPlaceView => ({
@@ -106,5 +113,5 @@ export function useHome(): HomeViewModel {
             ? null
             : (names.get(state.lastEntry.by) ?? null),
     };
-  }, [events, now, tz, repository, saves, names]);
+  }, [events, now, tz, repository, saves, names, settings]);
 }

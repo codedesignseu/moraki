@@ -389,7 +389,15 @@
       "nextAt": "Next reminder at {{time}}",
       "none": "Nothing to remind about yet",
       "on": "On",
-      "off": "Off"
+      "off": "Off",
+      "interval": "Remind me this long after a feed",
+      "minutes": "min",
+      "second": "A second reminder if nothing is logged",
+      "secondOff": "No",
+      "secondOn": "Yes",
+      "secondAfter": "Second reminder, this long after the first",
+      "forEveryone": "This is the household’s setting. Other phones pick it up when they next read the household.",
+      "forThisPhone": "This applies to your reminders on this phone."
     }
   },
   "insights": {

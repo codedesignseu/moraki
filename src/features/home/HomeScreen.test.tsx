@@ -1,8 +1,12 @@
 import { act, render, screen, within } from '@testing-library/react-native';
 import { randomBytes } from 'node:crypto';
 
-import { EventsRepositoryProvider } from '@/db/react';
+import { DevicePrefsProvider, EventsRepositoryProvider } from '@/db/react';
 import { UndoProvider } from '@/db/undo';
+import {
+  createDevicePrefsRepository,
+  type DevicePrefsRepository,
+} from '@/db/repositories/devicePrefs';
 import { createEventsRepository, type EventsRepository } from '@/db/repositories/events';
 import { createMemoryDb } from '@/db/testing/memoryDb';
 import { newId } from '@/domain/ids';
@@ -18,6 +22,7 @@ const HOUR = 60 * MIN;
 const NOW = Date.parse('2026-07-01T09:00:00Z'); // 12:00 in Nicosia
 
 let repo: EventsRepository;
+let prefs: DevicePrefsRepository;
 
 beforeEach(async () => {
   jest.useRealTimers();
@@ -28,6 +33,8 @@ beforeEach(async () => {
     now: Date.now,
     newId: (at) => newId(at, () => new Uint8Array(randomBytes(16))),
   });
+  // Home reads the household's feed interval from here (P1-15).
+  prefs = createDevicePrefsRepository(db);
 });
 
 afterEach(() => {
@@ -38,9 +45,11 @@ const renderHome = () =>
   render(
     <ThemeProvider scheme="light">
       <EventsRepositoryProvider repository={repo}>
-        <UndoProvider>
-          <HomeScreen />
-        </UndoProvider>
+        <DevicePrefsProvider repository={prefs}>
+          <UndoProvider>
+            <HomeScreen />
+          </UndoProvider>
+        </DevicePrefsProvider>
       </EventsRepositoryProvider>
     </ThemeProvider>,
   );

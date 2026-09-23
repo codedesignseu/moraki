@@ -49,6 +49,25 @@ export const DEVICE_PREFS = {
     default: null,
   },
   /**
+   * How long after a feed the reminder is due, in minutes (SDD 4.2: 60 to
+   * 480, default 180). The household owns this number; this is the phone's
+   * copy, and the one the reminders and the home line are computed from.
+   */
+  reminderIntervalMin: {
+    key: 'pref.reminder_interval_min',
+    schema: z.int().min(60).max(480),
+    default: 180,
+  },
+  /**
+   * A second reminder this many minutes after the first, or null for none
+   * (SDD 4.2: 15 to 120).
+   */
+  secondReminderMin: {
+    key: 'pref.second_reminder_min',
+    schema: z.int().min(15).max(120).nullable(),
+    default: null,
+  },
+  /**
    * Feed reminders on for this phone (SDD 6.2: per user, per device, so one
    * caregiver turning them off never touches anyone else). Off until someone
    * asks for them, because a notification nobody asked for is an intrusion.
