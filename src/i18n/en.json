@@ -353,6 +353,12 @@
         "not_found": "it isn’t on the server",
         "unknown": "the server refused it"
       }
+    },
+    "report": {
+      "title": "Reports",
+      "range24h": "Last 24 hours",
+      "range3d": "Last 3 days",
+      "range7d": "Last 7 days"
     }
   },
   "insights": {
@@ -511,6 +517,63 @@
       "signed_out": "Sign in first.",
       "offline": "You’re offline. Joining needs a connection.",
       "unknown": "Couldn’t join. Try again."
+    }
+  },
+  "report": {
+    "call": {
+      "age": "Age",
+      "days": "{{count}} days old",
+      "grams": "{{grams}} g",
+      "ml": "{{ml}} mL",
+      "weight": {
+        "title": "Weight",
+        "birth": "Birth weight",
+        "latest": "Latest weight",
+        "latestValue": "{{grams}} g on day {{day}}",
+        "change": "Change since birth",
+        "changeValue": "{{grams}} g ({{percent}}%)"
+      },
+      "feeds": {
+        "count": "Feeds",
+        "ml": "Bottle total",
+        "breast": "Breastfeeding time",
+        "longestGap": "Longest gap between feeds"
+      },
+      "diapers": {
+        "wet": "Wet",
+        "dirty": "Dirty"
+      },
+      "temperature": {
+        "last": "Last reading",
+        "value": "{{celsius}} °C at {{time}}",
+        "only": "Temperature only"
+      },
+      "notes": {
+        "title": "Notes and medication"
+      }
+    },
+    "pdf": {
+      "title": "Moraki report — {{name}}",
+      "subtitle": "{{range}}, made {{generated}}",
+      "baby": "Baby",
+      "name": "Name",
+      "window": "Totals for this report",
+      "sleep": "Sleep",
+      "averageBottle": "Average bottle",
+      "averageInterval": "Average time between feeds",
+      "medDose": "{{name}}, {{dose}}",
+      "range": {
+        "24h": "Last 24 hours",
+        "3d": "Last 3 days",
+        "7d": "Last 7 days"
+      },
+      "footer": "Logged by hand in Moraki. Not a medical record."
+    },
+    "share": {
+      "action": "Share as PDF",
+      "working": "Making the PDF…",
+      "unavailable": "This device has nowhere to share a file.",
+      "failed": "The PDF couldn't be made. Try again."
     }
   }
 }

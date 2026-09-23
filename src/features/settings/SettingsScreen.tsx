@@ -42,11 +42,14 @@ export function SettingsScreen({
   onSetUpHousehold,
   onJoinHousehold,
   onInvite,
+  onReport,
 }: {
   onSignIn: () => void;
   onSetUpHousehold: () => void;
   onJoinHousehold: () => void;
   onInvite: () => void;
+  /** Opens a report for a range (P3-08). */
+  onReport: (range: '24h' | '3d' | '7d') => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -155,6 +158,25 @@ export function SettingsScreen({
           )}
         </Card>
       )}
+
+      <Card testID="settings-report">
+        <Text style={theme.text.heading}>{t('settings.report.title')}</Text>
+        <Button
+          label={t('settings.report.range24h')}
+          variant="secondary"
+          onPress={() => onReport('24h')}
+        />
+        <Button
+          label={t('settings.report.range3d')}
+          variant="secondary"
+          onPress={() => onReport('3d')}
+        />
+        <Button
+          label={t('settings.report.range7d')}
+          variant="secondary"
+          onPress={() => onReport('7d')}
+        />
+      </Card>
 
       <Card testID="settings-night-mode">
         <Text style={theme.text.heading}>{t('settings.nightMode.title')}</Text>

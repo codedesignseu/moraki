@@ -44,6 +44,11 @@ to it whenever a task's done-when can only be met on a device.
       P2-04), and P2-F5's hosted email settings, or a phone on the local stack.
 - [ ] P2-06: once P2-F6 is done, tap a real https://moraki.app/join/CODE
       link on a second phone and check it opens Moraki on the join screen.
+- [ ] P3-08: open a report from Settings on an iPhone and an Android, tap
+      Share as PDF, and check the share sheet opens with a readable PDF that
+      fits one page for the 24 hour range. Needs a new development build
+      (expo-print and expo-sharing are native modules added in P3-08).
+      P3-08 stays `in_progress` until this passes.
 - [ ] P2-15: run `docs/06-two-phone-checklist.md` on two phones and record the
       result in its table. This is the Phase 2 gate: two phones in airplane
       mode, 20 entries each, reconnect, both screens match.
@@ -166,7 +171,7 @@ Gate to move on: 14 day household dogfood starts.
 - [x] P3-05 `feat(insights): weight log and regain chart` — depends: P3-04 — done when: reference lines at 90% and 100%, day 10 and 14 markers, no judging copy — done: a weight card on Trends with a point chart (new `PointChart` primitive), the 90% and 100% lines, day 10 and 14 marks, the log newest first saying whose scale each number came from, the change from birth weight stated plainly, and one sentence of copy pointing at the pediatrician. A weight sheet (`log/weight`) opens at the last weight recorded. Days need a birth date, so the phone now keeps `bornAt` and `birthWeightG` with its household record; without one the log shows dates and no chart, and without a birth weight there are no percentage lines. 12 tests including one asserting no judging words appear
 - [x] P3-06 `feat(domain): report builder for call script, 24h, 3d, 7d` — depends: P1-05, P3-04 — done when: snapshot tests of report objects — done: `buildReport(events, baby, range, now, tz)` returns the plain object in SDD 6.5's order. The call script block is always the last 24 hours whatever the range; 3d and 7d start at a local midnight and add per-day rows, average bottle, average interval and sleep. 17 tests: two snapshots of whole report objects plus hand-checked figures from a fixture, and one that walks the object to prove it carries no judging copy
 - [ ] P3-07 `feat(report): call script screen in large type` — depends: P3-06 — done when: readable at arm's length, night mode supported — status: in_progress
-- [ ] P3-08 `feat(report): pdf template and share` — depends: P3-06 — done when: PDF opens on iOS and Android share sheets, one page for 24h — status: in_progress
+- [ ] P3-08 `feat(report): pdf template and share` — depends: P3-06 — done when: PDF opens on iOS and Android share sheets, one page for 24h — status: in_progress (built and tested: `report/[range]` previews what the PDF will say and shares it, rendered on the device by expo-print and handed to expo-sharing, with the share sheet mocked in tests. The done-when is a device check on both platforms, so it sits on the Waiting on device list)
 - [ ] P3-09 `feat(privacy): consent screen, versioned consent rpc, block health writes without consent` — depends: P2-04 — done when: no event can sync for a user without a consent row
 - [ ] P3-10 `docs: in-app medical disclaimer and copy review against never list` — depends: P3-07 — done when: every string checked, no advice language
 - [ ] P3-12 `feat(appointments): add, edit, home card, questions list, reminders day-before and 1h before` — depends: P1-04, P1-14 — done when: appointment shows on both phones, both reminders fire on a real device
