@@ -39,6 +39,7 @@ import { newId } from '@/domain/ids';
 import type { Auth } from '@/sync/auth';
 import { AuthProvider } from '@/sync/AuthProvider';
 import { SyncProvider } from '@/sync/SyncProvider';
+import type { watchHousehold } from '@/sync/realtime';
 import { PreferredNightModeTheme } from '@/features/settings/NightModeTheme';
 import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
@@ -77,7 +78,11 @@ export async function createHarness(now: number, bytes?: Uint8Array): Promise<Ha
  */
 export function renderApp(
   repo: EventsRepository,
-  { auth = null, initialUrl }: { auth?: Auth | null; initialUrl?: string } = {},
+  {
+    auth = null,
+    initialUrl,
+    watch,
+  }: { auth?: Auth | null; initialUrl?: string; watch?: typeof watchHousehold } = {},
 ) {
   const prefs = prefsFor.get(repo);
   const mem = dbFor.get(repo);
@@ -95,7 +100,7 @@ export function renderApp(
           <SyncRepositoriesProvider repositories={repositories}>
             <PreferredNightModeTheme>
               <AuthProvider auth={auth}>
-                <SyncProvider>
+                <SyncProvider {...(watch ? { watch } : {})}>
                   <UndoProvider>
                     <Stack />
                     <UndoToast />

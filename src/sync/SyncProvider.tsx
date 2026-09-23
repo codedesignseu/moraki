@@ -1,10 +1,20 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { AppState } from 'react-native';
 
 import { useEvents, useEventsRepository, useLinkedIdentity, useOutboxRepository } from '@/db/react';
 
 import { useAuth } from './AuthProvider';
 import { createPullEngine, type PullEngine } from './pullEngine';
+import { pushBlock } from './pushEngine';
+import { watchHousehold } from './realtime';
 import { createPushEngine, type PushEngine, type PushStatus } from './pushEngine';
 
 /** Every 60 seconds while the app is open, as SDD 5.4's safety net. */
@@ -30,7 +40,14 @@ const EMPTY: PushStatus = {
  * after the backoff wait when a push didn't reach the server. P2-09 adds
  * pulling; P2-13 shows `status`.
  */
-export function SyncProvider({ children }: { children: ReactNode }) {
+export function SyncProvider({
+  children,
+  watch = watchHousehold,
+}: {
+  children: ReactNode;
+  /** Swapped in tests; the real one subscribes to the household's events. */
+  watch?: typeof watchHousehold;
+}) {
   const outbox = useOutboxRepository();
   const eventsRepository = useEventsRepository();
   const linked = useLinkedIdentity();
@@ -38,6 +55,9 @@ export function SyncProvider({ children }: { children: ReactNode }) {
   // Re-pushes after every committed write (the events repository's signal).
   const events = useEvents();
   const [status, setStatus] = useState<PushStatus>(EMPTY);
+  // The current cycle, so a write can start one without the subscription
+  // being torn down and made again every time something is logged.
+  const cycle = useRef<() => void>(() => {});
 
   const engine = useMemo(
     () => createPushEngine({ linked, outbox, auth, state, now: Date.now }),
@@ -79,7 +99,26 @@ export function SyncProvider({ children }: { children: ReactNode }) {
         });
     };
 
+    cycle.current = run;
     run();
+
+    // The other phone's entries arrive as a ping (SDD 5.4): never the row
+    // itself, only "something changed here", which starts the same cycle.
+    // Joining the channel again is how a phone notices it is back online.
+    const linkedNow = linked();
+    const blocked = pushBlock(linkedNow, auth, state);
+    const watching =
+      auth && linkedNow && !blocked
+        ? watch(auth, linkedNow.householdId, {
+            onPing: run,
+            onConnected: () => {
+              engine.resetBackoff();
+              pull.resetBackoff();
+              run();
+            },
+          })
+        : null;
+
     const subscription = AppState.addEventListener('change', (next) => {
       if (next !== 'active') return;
       engine.resetBackoff();
@@ -90,8 +129,15 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       active = false;
       clearTimeout(timer);
       subscription.remove();
+      watching?.close();
     };
-  }, [engine, pull, outbox, events]);
+  }, [engine, pull, outbox, linked, auth, state, watch]);
+
+  // Every committed write starts a cycle: send it, then read what else is new
+  // (SDD 5.1 step 4). The subscription above is left alone.
+  useEffect(() => {
+    cycle.current();
+  }, [events]);
 
   const value = useMemo(() => ({ engine, pull, status }), [engine, pull, status]);
   return <SyncContext.Provider value={value}>{children}</SyncContext.Provider>;

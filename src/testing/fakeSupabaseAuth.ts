@@ -94,8 +94,18 @@ export function authServer(
         return options.verify?.() ?? json(200, session(Math.floor(Date.now() / 1000) + HOUR_S));
       case '/auth/v1/logout':
         return new Response(null, { status: 204 });
-      case '/rest/v1/events':
-        return json(200, options.events?.(url.searchParams.get('seq') ?? '') ?? []);
+      case '/rest/v1/events': {
+        // The real table only returns rows after the cursor (SDD 5.3), and a
+        // fake that forgets that would let a pull repeat itself for ever.
+        const after = Number(/gt\.(\d+)/.exec(url.searchParams.get('seq') ?? '')?.[1] ?? 0);
+        const rows = (options.events?.(url.searchParams.get('seq') ?? '') ?? []) as {
+          seq?: number;
+        }[];
+        return json(
+          200,
+          rows.filter((row) => (row.seq ?? 0) > after),
+        );
+      }
       case '/rest/v1/babies':
         return json(200, options.babies ?? []);
       case '/rest/v1/memberships':
