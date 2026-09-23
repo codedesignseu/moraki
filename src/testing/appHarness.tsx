@@ -19,6 +19,7 @@ import LogPump from '../../app/log/pump';
 import LogStock from '../../app/log/stock';
 import LogWeight from '../../app/log/weight';
 import ReportRangeScreen from '../../app/report/[range]';
+import CallScript from '../../app/report/call';
 import LogSleep from '../../app/log/sleep';
 import Invite from '../../app/invite';
 import Join from '../../app/join/[code]';
@@ -135,6 +136,7 @@ export function renderApp(
       'log/stock': LogStock,
       'log/weight': LogWeight,
       'report/[range]': ReportRangeScreen,
+      'report/call': CallScript,
       'log/health': LogHealth,
       'log/medication': LogMedication,
       'onboarding/sign-in': SignIn,

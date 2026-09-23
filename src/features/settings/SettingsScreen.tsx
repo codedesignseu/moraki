@@ -43,6 +43,7 @@ export function SettingsScreen({
   onJoinHousehold,
   onInvite,
   onReport,
+  onCallScript,
 }: {
   onSignIn: () => void;
   onSetUpHousehold: () => void;
@@ -50,6 +51,8 @@ export function SettingsScreen({
   onInvite: () => void;
   /** Opens a report for a range (P3-08). */
   onReport: (range: '24h' | '3d' | '7d') => void;
+  /** Opens the call script (P3-07). */
+  onCallScript: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -161,6 +164,7 @@ export function SettingsScreen({
 
       <Card testID="settings-report">
         <Text style={theme.text.heading}>{t('settings.report.title')}</Text>
+        <Button label={t('settings.report.call')} variant="secondary" onPress={onCallScript} />
         <Button
           label={t('settings.report.range24h')}
           variant="secondary"
