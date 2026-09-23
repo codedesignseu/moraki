@@ -44,6 +44,10 @@ to it whenever a task's done-when can only be met on a device.
       P2-04), and P2-F5's hosted email settings, or a phone on the local stack.
 - [ ] P2-06: once P2-F6 is done, tap a real https://moraki.app/join/CODE
       link on a second phone and check it opens Moraki on the join screen.
+- [ ] P1-14 / P3-12: once the development build is on a phone, build the
+      notification scheduler (P1-14) and then appointments (P3-12). Both
+      done-whens are a notification arriving at the right minute on a real
+      device, which nothing here can stand in for.
 - [ ] P3-08: open a report from Settings on an iPhone and an Android, tap
       Share as PDF, and check the share sheet opens with a readable PDF that
       fits one page for the 24 hour range. Needs a new development build
@@ -174,9 +178,9 @@ Gate to move on: 14 day household dogfood starts.
 - [ ] P3-08 `feat(report): pdf template and share` — depends: P3-06 — done when: PDF opens on iOS and Android share sheets, one page for 24h — status: in_progress (built and tested: `report/[range]` previews what the PDF will say and shares it, rendered on the device by expo-print and handed to expo-sharing, with the share sheet mocked in tests. The done-when is a device check on both platforms, so it sits on the Waiting on device list)
 - [ ] P3-09 `feat(privacy): consent screen, versioned consent rpc, block health writes without consent` — depends: P2-04 — done when: no event can sync for a user without a consent row
 - [x] P3-10 `docs: in-app medical disclaimer and copy review against never list` — depends: P3-07 — done when: every string checked, no advice language — done: all 410 strings read against SDD 12.3's never list and the findings written up in `docs/07-copy-review.md`; one reworded (`insights.none`), one kept with a recorded reason (`signIn.problem.rate_limited`, about sign-in attempts). `src/i18n/copyRules.test.ts` now walks every string on every run, with exceptions listed by key and two tests that make an unused exception fail. The disclaimer is its own screen (`app/about.tsx`) reached from Settings, with 5 tests
-- [ ] P3-12 `feat(appointments): add, edit, home card, questions list, reminders day-before and 1h before` — depends: P1-04, P1-14 — done when: appointment shows on both phones, both reminders fire on a real device
-- [ ] P3-13 `feat(report): questions-to-ask pulled into the call script` — depends: P3-07, P3-12 — done when: questions saved on the next appointment appear at the end of the script
-- [ ] P3-11 `release: preview builds to both phones, start 14 day dogfood` — depends: all P3 above — done when: both caregivers logging, diary of issues opened
+- [ ] P3-12 `feat(appointments): add, edit, home card, questions list, reminders day-before and 1h before` — depends: P1-04, P1-14 — done when: appointment shows on both phones, both reminders fire on a real device — status: blocked (checked 2026-09-23): P1-14 (the notification permission flow and local scheduler) is still `pending`, because it depends on P0-09, the development build that needs a phone. Appointments without the scheduler would be half the task — the card and the sheet with neither reminder — and the done-when is two reminders firing on a real device. Unblocks as soon as P0-09 and P1-14 land
+- [ ] P3-13 `feat(report): questions-to-ask pulled into the call script` — depends: P3-07, P3-12 — done when: questions saved on the next appointment appear at the end of the script — status: blocked: waits on P3-12, which has no appointments to take questions from yet
+- [ ] P3-11 `release: preview builds to both phones, start 14 day dogfood` — depends: all P3 above — done when: both caregivers logging, diary of issues opened — status: blocked: needs P0-09's builds, and P3-12 above
 
 **Dogfood gate:** run 14 days. Log every friction point as a GitHub issue labelled `dogfood`. Fix the ones that caused a missed or doubled log before P4.
 
