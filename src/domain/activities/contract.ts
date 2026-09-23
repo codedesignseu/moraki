@@ -68,8 +68,58 @@ export type Stats = {
 };
 
 export const EMPTY_STATS: Stats = { feedIds: [], ml: 0, breastMs: 0, wet: 0, dirty: 0 };
-/** Replaced by the milk stock fold (SDD 6.3). */
-export type Stock = Placeholder<'Stock'>;
+/**
+ * Milk kept in each place, oldest first (SDD 6.3). Stock is never stored, only
+ * folded from the events, so two caregivers taking milk at the same moment
+ * can't corrupt it. A batch with a negative amount is milk taken that wasn't
+ * there yet: entries logged out of order leave one behind, and the next
+ * addition cancels it before anything else.
+ */
+export type StockBatch = { at: number; ml: number };
+export type Stock = { fridge: StockBatch[]; freezer: StockBatch[] };
+export type StockPlace = keyof Stock;
+
+export const EMPTY_STOCK: Stock = { fridge: [], freezer: [] };
+
+/** Adds milk to a place, cancelling anything owed there first. */
+export function addMilk(stock: Stock, place: StockPlace, at: number, ml: number): Stock {
+  const batches = [...stock[place]];
+  let left = ml;
+  while (left > 0 && batches[0] && batches[0].ml < 0) {
+    const owed = -batches[0].ml;
+    if (owed > left) {
+      batches[0] = { ...batches[0], ml: batches[0].ml + left };
+      left = 0;
+    } else {
+      batches.shift();
+      left -= owed;
+    }
+  }
+  if (left > 0) batches.push({ at, ml: left });
+  return { ...stock, [place]: batches };
+}
+
+/** Takes milk from a place, oldest batch first. */
+export function takeMilk(stock: Stock, place: StockPlace, at: number, ml: number): Stock {
+  const batches = [...stock[place]];
+  let left = ml;
+  while (left > 0 && batches[0] && batches[0].ml > 0) {
+    if (batches[0].ml > left) {
+      batches[0] = { ...batches[0], ml: batches[0].ml - left };
+      left = 0;
+    } else {
+      left -= batches[0].ml;
+      batches.shift();
+    }
+  }
+  if (left > 0) {
+    // More was taken than this phone knows about; the rest is owed.
+    const last = batches[batches.length - 1];
+    if (last && last.ml < 0) batches[batches.length - 1] = { ...last, ml: last.ml - left };
+    else batches.push({ at, ml: -left });
+  }
+  return { ...stock, [place]: batches };
+}
 /** Replaced by reports (SDD 6.5). */
 export type Range = Placeholder<'Range'>;
 /** Replaced by reports (SDD 6.5). */

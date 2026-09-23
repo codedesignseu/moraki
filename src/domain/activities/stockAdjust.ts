@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { ActivityModule } from './contract';
+import { addMilk, takeMilk, type ActivityModule } from './contract';
 
 export const stockAdjustSchema = z.object({
   loc: z.enum(['fridge', 'freezer']),
@@ -16,4 +16,10 @@ export const stockAdjustModule: ActivityModule<StockAdjustPayload> = {
   schema: stockAdjustSchema,
   i18nKey: 'activity.stock_adjust.label',
   historyGroup: 'other',
+  contributes: {
+    stock: (acc, e) =>
+      e.payload.delta_ml >= 0
+        ? addMilk(acc, e.payload.loc, e.occurredAt, e.payload.delta_ml)
+        : takeMilk(acc, e.payload.loc, e.occurredAt, -e.payload.delta_ml),
+  },
 };
