@@ -65,6 +65,11 @@ jobs:
       - uses: supabase/setup-cli@v3
         with:
           version: 2.117.0
+      # Supabase's images live on ghcr.io, which rate-limits anonymous pulls
+      # hard enough that `supabase start` fails with `toomanyrequests` on a
+      # busy afternoon. The runner's own token lifts the limit and costs
+      # nothing; it needs no extra secret.
+      - run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
       # The database, auth, mail and realtime: auth.users backs the foreign
       # keys, the sign-in tests read a real emailed code, and P2-10's test
       # needs one phone to hear the other. (`inbucket` is not a container
