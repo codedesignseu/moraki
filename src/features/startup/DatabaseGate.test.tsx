@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
 import { useDevicePref, useEventsRepository, type AppRepositories } from '@/db/react';
+import { adoptHousehold, localOnlyCount } from '@/db/adoptHousehold';
 import { readLinkedIdentity } from '@/db/identity';
 import { createDevicePrefsRepository } from '@/db/repositories/devicePrefs';
 import { createCaregiversRepository } from '@/db/repositories/caregivers';
@@ -40,6 +41,8 @@ describe('DatabaseGate', () => {
         outbox: createOutboxRepository(db),
         caregivers: createCaregiversRepository(db),
         linked: () => readLinkedIdentity(db),
+        localOnly: () => localOnlyCount(db),
+        adopt: (target, now) => adoptHousehold(db, target, now),
       }),
     );
     expect(await screen.findByText('app')).toBeOnTheScreen();

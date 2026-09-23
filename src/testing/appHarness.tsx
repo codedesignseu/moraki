@@ -31,8 +31,10 @@ import {
   DevicePrefsProvider,
   EventsRepositoryProvider,
   SyncRepositoriesProvider,
+  type AppRepositories,
 } from '@/db/react';
 import { UndoProvider } from '@/db/undo';
+import { adoptHousehold, localOnlyCount } from '@/db/adoptHousehold';
 import { readLinkedIdentity } from '@/db/identity';
 import {
   createDevicePrefsRepository,
@@ -94,12 +96,14 @@ export function renderApp(
   const prefs = prefsFor.get(repo);
   const mem = dbFor.get(repo);
   if (!prefs || !mem) throw new Error('renderApp needs a repository from createHarness');
-  const repositories = {
+  const repositories: AppRepositories = {
     events: repo,
     devicePrefs: prefs,
     outbox: createOutboxRepository(mem.db),
     caregivers: createCaregiversRepository(mem.db),
     linked: () => readLinkedIdentity(mem.db),
+    localOnly: () => localOnlyCount(mem.db),
+    adopt: (target, now) => adoptHousehold(mem.db, target, now),
   };
   function TestLayout() {
     return (
