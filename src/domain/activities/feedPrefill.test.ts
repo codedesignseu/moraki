@@ -50,6 +50,7 @@ describe('feedPrefill', () => {
       milk: 'formula',
       side: 'right',
       breastMinutes: 15,
+      fromStock: null,
     });
   });
 
@@ -97,6 +98,22 @@ describe('feedPrefill', () => {
   });
 });
 
+describe('feedPrefill and where the bottle came from', () => {
+  it('is not from a store before any bottle names one', () => {
+    expect(feedPrefill([ev('feed_bottle', 10, { ml: 90, milk: 'breast' })], null).fromStock).toBe(
+      null,
+    );
+  });
+
+  it('offers the place the last bottle was poured from', () => {
+    const events = [
+      ev('feed_bottle', 10, { ml: 90, milk: 'breast', from_stock: 'freezer' }),
+      ev('feed_bottle', 20, { ml: 60, milk: 'breast', from_stock: 'fridge' }),
+    ];
+    expect(feedPrefill(events, null).fromStock).toBe('fridge');
+  });
+});
+
 describe('feedEditTarget', () => {
   const min = 60_000;
 
@@ -112,6 +129,7 @@ describe('feedEditTarget', () => {
       milk: 'breast',
       side: 'right',
       breastMinutes: 20,
+      fromStock: null,
     });
     expect(target?.start).toBe(5 * min);
     expect(target?.bottle?.id).toBe(parts[0]?.id);
@@ -126,6 +144,7 @@ describe('feedEditTarget', () => {
       milk: 'formula',
       side: FIRST_FEED_DEFAULTS.side,
       breastMinutes: FIRST_FEED_DEFAULTS.breastMinutes,
+      fromStock: null,
     });
     expect(target?.breast).toBeNull();
   });

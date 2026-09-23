@@ -6,6 +6,7 @@ import type { EventChanges } from '@/db/repositories/events';
 import { useUndoableSaves } from '@/db/undo';
 import { feedEditTarget, feedPrefill, type FeedPrefill } from '@/domain/activities';
 import { DEFAULT_HOME_SETTINGS, selectHomeState } from '@/domain/home/homeState';
+import { selectStock } from '@/domain/stock/stockState';
 import { formatClock } from '@/domain/time/formatClock';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
@@ -55,7 +56,11 @@ export function useFeedSheet(entryId?: string) {
     const bottle = {
       type: 'feed_bottle' as const,
       occurredAt: start,
-      payload: { ml: form.ml, milk: form.milk },
+      payload: {
+        ml: form.ml,
+        milk: form.milk,
+        ...(form.fromStock !== null && { from_stock: form.fromStock }),
+      },
     };
     const breast = {
       type: 'feed_breast' as const,
@@ -73,14 +78,20 @@ export function useFeedSheet(entryId?: string) {
     const newStart = start + shift * MINUTE_MS;
     const edits: { id: string; changes: EventChanges }[] = [];
     if (bottle) {
+      const was = bottle.payload.from_stock ?? null;
       const payload = {
         ...(form.ml !== bottle.payload.ml && { ml: form.ml }),
         ...(form.milk !== bottle.payload.milk && { milk: form.milk }),
+        ...(form.fromStock !== was && form.fromStock !== null && { from_stock: form.fromStock }),
       };
+      // Taking the bottle off a store removes the key, so the stock fold stops
+      // counting it rather than keeping a stale place.
+      const unset = form.fromStock === null && was !== null ? ['from_stock'] : [];
       edits.push({
         id: bottle.id,
         changes: {
           ...(Object.keys(payload).length > 0 && { payload }),
+          ...(unset.length > 0 && { unset }),
           ...(newStart !== bottle.occurredAt && { occurredAt: newStart }),
         },
       });
@@ -103,6 +114,8 @@ export function useFeedSheet(entryId?: string) {
   return {
     form,
     editing: target !== null,
+    /** What is in each store right now, for the "from" choice (SDD 6.3). */
+    stock: selectStock(events),
     /** "At 14:05" for a bottle; "13:50 to 14:05" when a breastfeed's start is back-dated. */
     when:
       form.kind === 'bottle'
@@ -117,7 +130,13 @@ export function useFeedSheet(entryId?: string) {
     newStart: target
       ? formatDateTime(target.start + shift * MINUTE_MS, tz, dateLocale(i18n.language))
       : '',
-    update: (changes: Partial<FeedForm>) => setForm((current) => ({ ...current, ...changes })),
+    update: (changes: Partial<FeedForm>) =>
+      setForm((current) => {
+        const next = { ...current, ...changes };
+        // Formula doesn't come out of the fridge, so switching to it clears
+        // the store rather than quietly draining one.
+        return next.milk === 'formula' ? { ...next, fromStock: null } : next;
+      }),
     save,
   };
 }
