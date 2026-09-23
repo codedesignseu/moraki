@@ -49,6 +49,12 @@ export const DEVICE_PREFS = {
     default: null,
   },
   /**
+   * Feed reminders on for this phone (SDD 6.2: per user, per device, so one
+   * caregiver turning them off never touches anyone else). Off until someone
+   * asks for them, because a notification nobody asked for is an intrusion.
+   */
+  reminders: { key: 'pref.reminders', schema: z.boolean(), default: false },
+  /**
    * This account's consent to health data being processed (P3-09, SDD 12).
    * The server holds the real record; this is the phone's copy, so the app
    * knows without the network whether to ask.

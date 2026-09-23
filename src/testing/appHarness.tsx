@@ -48,6 +48,8 @@ import { createMemoryDb, type MemoryDb } from '@/db/testing/memoryDb';
 import { newId } from '@/domain/ids';
 import type { Auth } from '@/sync/auth';
 import { AuthProvider } from '@/sync/AuthProvider';
+import { RemindersProvider } from '@/notifications/RemindersProvider';
+import type { NotificationPort } from '@/notifications/port';
 import { SyncProvider } from '@/sync/SyncProvider';
 import type { watchHousehold } from '@/sync/realtime';
 import { PreferredNightModeTheme } from '@/features/settings/NightModeTheme';
@@ -92,7 +94,14 @@ export function renderApp(
     auth = null,
     initialUrl,
     watch,
-  }: { auth?: Auth | null; initialUrl?: string; watch?: typeof watchHousehold } = {},
+    notifications = null,
+  }: {
+    auth?: Auth | null;
+    initialUrl?: string;
+    watch?: typeof watchHousehold;
+    /** A fake notification port (P1-14); without one nothing is scheduled. */
+    notifications?: NotificationPort | null;
+  } = {},
 ) {
   const prefs = prefsFor.get(repo);
   const mem = dbFor.get(repo);
@@ -114,10 +123,12 @@ export function renderApp(
             <PreferredNightModeTheme>
               <AuthProvider auth={auth}>
                 <SyncProvider {...(watch ? { watch } : {})}>
-                  <UndoProvider>
-                    <Stack />
-                    <UndoToast />
-                  </UndoProvider>
+                  <RemindersProvider port={notifications}>
+                    <UndoProvider>
+                      <Stack />
+                      <UndoToast />
+                    </UndoProvider>
+                  </RemindersProvider>
                 </SyncProvider>
               </AuthProvider>
             </PreferredNightModeTheme>

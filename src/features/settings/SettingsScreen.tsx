@@ -11,6 +11,7 @@ import { formatClock } from '@/domain/time/formatClock';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 import { useConsent } from '@/features/privacy/useConsent';
+import { useRemindersState } from '@/notifications/RemindersProvider';
 
 import { useCaregivers, type CaregiverRow } from './useCaregivers';
 import { useAdoption } from '@/sync/useAdoption';
@@ -71,6 +72,7 @@ export function SettingsScreen({
   const { household } = useAccountHousehold();
   const caregivers = useCaregivers();
   const { granted: consented } = useConsent();
+  const reminders = useRemindersState();
   const sync = useSyncStatus();
   const syncErrors = useSyncErrors();
   const adoption = useAdoption();
@@ -227,6 +229,25 @@ export function SettingsScreen({
         <Text style={theme.text.heading}>{t('settings.about.title')}</Text>
         <Text style={s.muted}>{t('about.disclaimer.title')}</Text>
         <Button label={t('settings.about.open')} variant="secondary" onPress={onAbout} />
+      </Card>
+
+      <Card testID="settings-reminders">
+        <Text style={theme.text.heading}>{t('settings.reminders.title')}</Text>
+        <Text style={theme.text.body}>{t('settings.reminders.toggle')}</Text>
+        <Segmented
+          options={[
+            { value: 'on', label: t('settings.reminders.on') },
+            { value: 'off', label: t('settings.reminders.off') },
+          ]}
+          value={reminders.enabled ? 'on' : 'off'}
+          onChange={(choice) => void reminders.setEnabled(choice === 'on')}
+          accessibilityLabel={t('settings.reminders.toggle')}
+        />
+        <Text style={s.muted}>
+          {reminders.permission === 'denied'
+            ? t('settings.reminders.denied')
+            : t('settings.reminders.hint')}
+        </Text>
       </Card>
 
       <Card testID="settings-night-mode">
