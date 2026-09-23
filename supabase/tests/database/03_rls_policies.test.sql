@@ -37,6 +37,9 @@ insert into public.invites (code, household_id, created_by, expires_at) values
 insert into public.consents (user_id, policy_version) values
   ('00000000-0000-0000-0000-000000000002', 'v1'),
   ('00000000-0000-0000-0000-000000000004', 'v1');
+-- P3-09: writing an event needs consent for the version in force.
+insert into public.consents (user_id, policy_version)
+  select id, public.consent_version() from auth.users;
 insert into public.push_tokens (user_id, device_id, token, platform) values
   ('00000000-0000-0000-0000-000000000002', 'phone', 't2', 'android'),
   ('00000000-0000-0000-0000-000000000004', 'phone', 't4', 'ios');
@@ -296,8 +299,10 @@ select isnt_empty($$delete from public.invites where code = 'JKMNPQRS' returning
 
 -- consents: self ---------------------------------------------------------------------------------------
 select pg_temp.login(2);
-select results_eq('select user_id from public.consents', $$values ('00000000-0000-0000-0000-000000000002'::uuid)$$,
-  'consents select: only your own');
+select results_eq(
+  'select distinct user_id from public.consents',
+  $$values ('00000000-0000-0000-0000-000000000002'::uuid)$$,
+  'consents select: only your own, whichever versions you granted');
 select lives_ok($$insert into public.consents (user_id, policy_version) values ('00000000-0000-0000-0000-000000000002', 'v2')$$,
   'consents insert: for yourself');
 select throws_ok($$insert into public.consents (user_id, policy_version) values ('00000000-0000-0000-0000-000000000004', 'v2')$$,

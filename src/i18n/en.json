@@ -352,7 +352,8 @@
         "invalid": "the server couldn’t read it",
         "not_found": "it isn’t on the server",
         "unknown": "the server refused it"
-      }
+      },
+      "noConsent": "Sharing is off until you agree to health data being processed."
     },
     "report": {
       "title": "Reports",
@@ -372,6 +373,12 @@
       "move": "Add them to the household",
       "keep": "Not now",
       "hint": "Until you choose, this phone keeps its entries to itself and shares nothing."
+    },
+    "privacy": {
+      "title": "Privacy",
+      "consent": "Health data",
+      "agreed": "Agreed",
+      "notAgreed": "Not agreed yet"
     }
   },
   "insights": {
@@ -620,5 +627,26 @@
       "shares": "Everyone in your household sees the same entries, usually within seconds of being logged.",
       "offline": "It works with no signal. Entries are kept on the phone and sent when there is one."
     }
-  }
+  },
+  "consent": {
+    "title": "Health data",
+    "what": "Moraki records what you log about your baby: feeds, diapers, sleep, weight, temperatures, notes and medication. That is health data, so we ask before processing it.",
+    "where": "It is stored on your phone and, once you sign in, on servers in the EU so your caregivers see it too.",
+    "who": "Only people in your household see it. It is never sold, never used for advertising, and never used to train anything.",
+    "rights": "You can export everything or delete it at any time. You can withdraw this agreement at any time.",
+    "version": "Policy version {{version}}",
+    "versionName": "2026-09-23",
+    "agree": "I agree",
+    "working": "Saving…",
+    "notNow": "Not now",
+    "granted": "You agreed to this on this account.",
+    "withdraw": "Withdraw my agreement",
+    "withdrawHint": "Your entries stay on this phone and stop syncing. Nothing already saved is deleted.",
+    "problem": {
+      "offline": "No connection. Try again when you have one.",
+      "signed_out": "Sign in first, then agree.",
+      "unknown": "That didn't save. Try again."
+    }
+  },
+  "sync": {}
 }

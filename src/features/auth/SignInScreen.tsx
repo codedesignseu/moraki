@@ -1,13 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
+import type { AuthUser } from '@/sync/auth';
 import { Button, TextField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { CODE_LENGTH, useSignIn } from './useSignIn';
 
 /** Email OTP sign in (SDD 7, `onboarding/*`): address, then the emailed code. */
-export function SignInScreen({ onDone }: { onDone: () => void }) {
+export function SignInScreen({ onDone }: { onDone: (user: AuthUser) => void }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);

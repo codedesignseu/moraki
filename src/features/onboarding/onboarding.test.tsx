@@ -47,6 +47,8 @@ async function signedIn(options: Parameters<typeof authServer>[0] = {}, fetchImp
   await press('Send code');
   await type('Code', '123456');
   await press('Sign in');
+  // Signing in leads to the consent screen (P3-09); agreeing goes back.
+  await press('I agree');
   await screen.findByText(`Signed in as ${EMAIL}`);
   return server;
 }

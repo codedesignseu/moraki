@@ -1,6 +1,7 @@
 import { act, fireEvent, screen, waitFor } from 'expo-router/testing-library';
 
 import { META_KEYS } from '@/db/meta';
+import { CONSENT_VERSION } from '@/features/privacy/useConsent';
 import { meta } from '@/db/schema';
 import { createAuth } from '@/sync/auth';
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
@@ -29,6 +30,9 @@ afterEach(() => {
 function link(babyId: string) {
   h.mem.db.insert(meta).values({ key: META_KEYS.householdId, value: HOUSEHOLD }).run();
   h.mem.db.insert(meta).values({ key: META_KEYS.userId, value: USER_ID }).run();
+  // Nothing is sent for an account that hasn't agreed to health data being
+  // processed (P3-09), so a linked phone has agreed.
+  h.prefs.set('consent', { userId: USER_ID, version: CONSENT_VERSION, grantedAt: Date.now() });
   h.mem.db
     .insert(meta)
     .values({ key: META_KEYS.localBabyId, value: babyId })

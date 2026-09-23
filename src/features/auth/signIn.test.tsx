@@ -38,6 +38,9 @@ async function signInThroughTheApp(code = '123456') {
   ).toBeOnTheScreen();
   await type('Code', code);
   await press('Sign in');
+  // Signing in leads to the consent screen (P3-09). These tests are about
+  // signing in, so they take the same way out a person has: Not now.
+  await press('Not now');
 }
 
 describe('sign in with an emailed code', () => {
@@ -121,6 +124,7 @@ describe('sign in with an emailed code', () => {
     await press('Send code');
     await type('Code', '12345678');
     await press('Sign in');
+    await press('Not now'); // the consent screen, as above
 
     expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(server.calls.filter((c) => c.path === '/auth/v1/verify')).toEqual([

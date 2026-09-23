@@ -7,6 +7,9 @@ select plan(17);
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-000000000001', 'parent@example.test'),
   ('00000000-0000-0000-0000-000000000002', 'other@example.test');
+-- P3-09: writing an event needs consent for the version in force.
+insert into public.consents (user_id, policy_version)
+  select id, public.consent_version() from auth.users;
 
 create function pg_temp.login(n int) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object(

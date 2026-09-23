@@ -36,6 +36,9 @@ insert into public.invites (code, household_id, created_by, expires_at) values
 insert into public.consents (user_id, policy_version) values
   ('00000000-0000-0000-0000-000000000002', 'v1'),
   ('00000000-0000-0000-0000-000000000004', 'v1');
+-- P3-09: writing an event needs consent for the version in force.
+insert into public.consents (user_id, policy_version)
+  select id, public.consent_version() from auth.users;
 insert into public.push_tokens (user_id, device_id, token, platform) values
   ('00000000-0000-0000-0000-000000000002', 'phone', 't2', 'android'),
   ('00000000-0000-0000-0000-000000000004', 'phone', 't4', 'ios');

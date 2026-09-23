@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { AuthError, type AuthFailure } from '@/sync/auth';
+import type { AuthUser, AuthError, type AuthFailure } from '@/sync/auth';
 import { useAuth } from '@/sync/AuthProvider';
 
 /**
@@ -14,7 +14,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export type SignInProblem = AuthFailure | 'invalid_email' | 'short_code';
 
 /** Two steps: the email address, then the six-digit code sent to it. */
-export function useSignIn(onDone: () => void) {
+export function useSignIn(onDone: (user: AuthUser) => void) {
   const { auth } = useAuth();
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
@@ -63,8 +63,9 @@ export function useSignIn(onDone: () => void) {
     verify: () => {
       if (code.length < CODE_LENGTH.min) return setProblem('short_code');
       return run(async () => {
-        await auth!.verifyCode(address, code);
-        onDone();
+        // The account that just signed in, handed on so the caller can decide
+        // what comes next for it (P3-09's consent step).
+        onDone(await auth!.verifyCode(address, code));
       });
     },
     changeEmail: () => {

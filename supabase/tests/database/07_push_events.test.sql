@@ -9,6 +9,9 @@ insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-000000000002', 'carer@example.test'),
   ('00000000-0000-0000-0000-000000000003', 'viewer@example.test'),
   ('00000000-0000-0000-0000-000000000004', 'other@example.test');
+-- P3-09: writing an event needs consent for the version in force.
+insert into public.consents (user_id, policy_version)
+  select id, public.consent_version() from auth.users;
 insert into public.households (id, name, created_by) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'Ella', '00000000-0000-0000-0000-000000000001'),
   ('aaaaaaaa-0000-0000-0000-000000000002', 'Leo', '00000000-0000-0000-0000-000000000004');
