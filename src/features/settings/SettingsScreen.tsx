@@ -44,6 +44,7 @@ export function SettingsScreen({
   onInvite,
   onReport,
   onCallScript,
+  onAbout,
 }: {
   onSignIn: () => void;
   onSetUpHousehold: () => void;
@@ -53,6 +54,8 @@ export function SettingsScreen({
   onReport: (range: '24h' | '3d' | '7d') => void;
   /** Opens the call script (P3-07). */
   onCallScript: () => void;
+  /** Opens the disclaimer and what the app does (P3-10). */
+  onAbout: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -180,6 +183,12 @@ export function SettingsScreen({
           variant="secondary"
           onPress={() => onReport('7d')}
         />
+      </Card>
+
+      <Card testID="settings-about">
+        <Text style={theme.text.heading}>{t('settings.about.title')}</Text>
+        <Text style={s.muted}>{t('about.disclaimer.title')}</Text>
+        <Button label={t('settings.about.open')} variant="secondary" onPress={onAbout} />
       </Card>
 
       <Card testID="settings-night-mode">

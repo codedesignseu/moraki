@@ -360,6 +360,10 @@
       "range3d": "Last 3 days",
       "range7d": "Last 7 days",
       "call": "Call script"
+    },
+    "about": {
+      "title": "About",
+      "open": "About Moraki"
     }
   },
   "insights": {
@@ -367,7 +371,7 @@
     "barLabel": "{{day}}: {{value}}",
     "ml": "{{value}} mL",
     "total": "7 days: {{value}}",
-    "none": "Not enough entries yet",
+    "none": "Nothing to average yet",
     "bottle": {
       "title": "Bottle milk"
     },
@@ -591,6 +595,22 @@
       "working": "Making the PDF…",
       "unavailable": "This device has nowhere to share a file.",
       "failed": "The PDF couldn't be made. Try again."
+    }
+  },
+  "about": {
+    "title": "About Moraki",
+    "disclaimer": {
+      "title": "Moraki is a notebook, not a medical device",
+      "notMedical": "It records what you type and adds it up. It is not a medical device, and it is not a substitute for your pediatrician, midwife or nurse.",
+      "noInterpretation": "It never tells you what a number means. There are no warnings, no ranges and no colours on a figure, because reading those numbers is your clinician’s job, not an app’s.",
+      "askSomeone": "Take the figures to your next appointment, or read them out on the phone. The call script is made for that.",
+      "urgent": "If you are worried about your baby now, contact your doctor or your local emergency number. Do not wait for an appointment."
+    },
+    "what": {
+      "title": "What it does",
+      "records": "Feeds, diapers, sleep, pumping, milk stock, weight, temperatures, notes, medication and appointments, as you log them.",
+      "shares": "Everyone in your household sees the same entries, usually within seconds of being logged.",
+      "offline": "It works with no signal. Entries are kept on the phone and sent when there is one."
     }
   }
 }
