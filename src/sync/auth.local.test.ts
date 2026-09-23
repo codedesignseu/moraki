@@ -119,7 +119,14 @@ import {
       babyId: household.babyId,
       babyName: 'Ella',
     });
-    expect(await findHousehold(b.auth, b.user.id)).toEqual({ userId: b.user.id, ...joined });
+    // findHousehold reads the baby's birth details too, which the invite
+    // answer doesn't carry (P3-05).
+    expect(await findHousehold(b.auth, b.user.id)).toEqual({
+      userId: b.user.id,
+      ...joined,
+      bornAt: Date.parse('2026-10-26T10:00:00Z'),
+      birthWeightG: null,
+    });
 
     // The role is real: B can log, and A sees it.
     const logged = await b.auth.client.from('events').insert({

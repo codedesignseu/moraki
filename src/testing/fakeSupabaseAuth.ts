@@ -56,7 +56,14 @@ export function session(expiresAt: number) {
 export type Call = { path: string; body: Record<string, unknown> };
 
 /** Supabase Auth, as far as email OTP needs it. */
-export type ServerBaby = { id: string; name: string; household_id: string };
+export type ServerBaby = {
+  id: string;
+  name: string;
+  household_id: string;
+  /** Birth details, read back for the weight view (P3-05). */
+  born_at?: string;
+  birth_weight_g?: number | null;
+};
 
 export function authServer(
   options: {

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -7,7 +8,7 @@ import { useTheme, type Theme } from '@/ui/theme';
 import { useInsights } from './useInsights';
 
 /** Trends over the last 7 days (SDD 7). Renders the view model and nothing else. */
-export function InsightsScreen() {
+export function InsightsScreen({ weight }: { weight?: ReactNode }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
@@ -30,6 +31,9 @@ export function InsightsScreen() {
           </Text>
         </Card>
       )}
+
+      {/* The weight card is its own feature, wired in by app/ (SDD 15). */}
+      {weight}
 
       <Card testID="insights-averages">
         <Text style={theme.text.heading}>{t('insights.averages.title')}</Text>

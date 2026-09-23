@@ -80,6 +80,8 @@ export const size = {
   borderThick: 2,
   /** Plot height of a bar chart; the tallest bar fills it. */
   chartHeight: 160,
+  /** Diameter of one plotted measurement on a point chart. */
+  point: 10,
 } as const;
 
 /**

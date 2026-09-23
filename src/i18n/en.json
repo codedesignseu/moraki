@@ -113,7 +113,8 @@
       "sleep": "Sleep",
       "health": "Health note",
       "medication": "Medication",
-      "pump": "Pump"
+      "pump": "Pump",
+      "weight": "Weight"
     },
     "sleep": {
       "label": "Sleeping since {{time}}",
@@ -234,6 +235,16 @@
       "name": "Medication name",
       "nameMissing": "Add the medication name to save this entry.",
       "dose": "Dose (optional)"
+    },
+    "weight": {
+      "title": "Weight",
+      "amount": "Weight",
+      "unit": "g",
+      "source": {
+        "label": "Scale",
+        "home": "At home",
+        "clinic": "At the clinic"
+      }
     }
   },
   "dev": {
@@ -271,7 +282,8 @@
     "healthSaved": "Health note saved",
     "medicationSaved": "Medication saved",
     "entryUpdated": "Entry updated",
-    "entryDeleted": "Entry deleted"
+    "entryDeleted": "Entry deleted",
+    "weightSaved": "Weight saved"
   },
   "entry": {
     "moveTime": "Move time",
@@ -368,6 +380,30 @@
       "dirty": "Dirty",
       "sleep": "Sleep",
       "total": "7 days"
+    },
+    "weight": {
+      "title": "Weight",
+      "empty": "Nothing weighed yet",
+      "add": "Add a weight",
+      "note": "Your pediatrician tracks this at check-ups.",
+      "birth": "Birth weight {{grams}} g",
+      "latest": "Latest {{grams}} g on day {{day}}",
+      "change": {
+        "up": "{{grams}} g above birth weight",
+        "down": "{{grams}} g below birth weight",
+        "same": "Same as birth weight"
+      },
+      "point": "Day {{day}}: {{grams}} g",
+      "line": "{{percent}}%",
+      "mark": "Day {{day}}",
+      "row": {
+        "home": "Day {{day}} · {{grams}} g · at home",
+        "clinic": "Day {{day}} · {{grams}} g · at the clinic"
+      },
+      "dated": {
+        "home": "{{on}} · {{grams}} g · at home",
+        "clinic": "{{on}} · {{grams}} g · at the clinic"
+      }
     }
   },
   "signIn": {

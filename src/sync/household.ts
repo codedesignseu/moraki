@@ -18,6 +18,9 @@ export type AccountHousehold = {
   householdId: string;
   babyId: string;
   babyName: string;
+  /** When the baby was born, and the birth weight if one was recorded (P3-05). */
+  bornAt?: number | undefined;
+  birthWeightG?: number | null | undefined;
   /** What this account may do in it (SDD 4.3). */
   role: MemberRole;
 };
@@ -60,7 +63,15 @@ export async function createHousehold(
     birth_weight_g: input.birthWeightG,
   });
   if (error) throw failure(error);
-  return { userId, householdId, babyId, babyName: input.babyName.trim(), role: 'owner' };
+  return {
+    userId,
+    householdId,
+    babyId,
+    babyName: input.babyName.trim(),
+    bornAt: input.bornAt,
+    birthWeightG: input.birthWeightG,
+    role: 'owner',
+  };
 }
 
 /**
@@ -80,20 +91,31 @@ export async function findHousehold(auth: Auth, userId: string): Promise<Account
 
   const babies = await auth.client
     .from('babies')
-    .select('id, name')
+    .select('id, name, born_at, birth_weight_g')
     .eq('household_id', mine.household_id)
     .is('deleted_at', null)
     .order('updated_at')
     .limit(1);
   if (babies.error) throw failure(babies.error);
-  const baby = (babies.data as { id: string; name: string }[])[0];
-  return baby
-    ? {
-        userId,
-        householdId: mine.household_id,
-        babyId: baby.id,
-        babyName: baby.name,
-        role: mine.role,
-      }
-    : null;
+  const baby = (
+    babies.data as {
+      id: string;
+      name: string;
+      born_at?: string;
+      birth_weight_g?: number | null;
+    }[]
+  )[0];
+  if (!baby) return null;
+  // A household made before these columns were read back has neither; the
+  // weight view simply has no day to count from until the next pull.
+  const bornAt = baby.born_at === undefined ? NaN : Date.parse(baby.born_at);
+  return {
+    userId,
+    householdId: mine.household_id,
+    babyId: baby.id,
+    babyName: baby.name,
+    ...(Number.isFinite(bornAt) && { bornAt }),
+    ...(baby.birth_weight_g !== undefined && { birthWeightG: baby.birth_weight_g }),
+    role: mine.role,
+  };
 }

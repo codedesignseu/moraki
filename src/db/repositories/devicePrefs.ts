@@ -29,6 +29,10 @@ export const DEVICE_PREFS = {
         householdId: z.uuid(),
         babyId: z.uuid(),
         babyName: z.string().min(1),
+        // The birth details the weight view reads against (P3-05). Older
+        // records were written without them, so both are optional.
+        bornAt: z.number().int().optional(),
+        birthWeightG: z.number().int().nullable().optional(),
         role: z.enum(['owner', 'caregiver', 'viewer']),
       })
       .nullable(),

@@ -96,6 +96,10 @@ describe('household setup', () => {
       householdId: body.household_id,
       babyId: body.baby_id,
       babyName: 'Ella',
+      // Kept with the record, so the weight view has a day 0 and a baseline
+      // without asking the server again (P3-05).
+      bornAt: Date.parse('2026-10-26T10:00:00.000Z'),
+      birthWeightG: 3400,
       role: 'owner',
     });
 
