@@ -40,21 +40,21 @@ Sleep prediction, AI coaching, growth percentiles, milestones, photos, community
 
 ## 2. Stack
 
-| Layer | Choice | Notes |
-|---|---|---|
-| App | Expo (current SDK at init), React Native, TypeScript strict | Development builds, not Expo Go, from P1 because of notifications and SQLite |
-| Routing | Expo Router | File based, typed routes, deep links for invites |
-| Local DB | expo-sqlite + Drizzle ORM | SQLite is the source of truth for the UI |
-| UI state | Zustand for ephemeral UI state only | Data comes from SQLite queries, not from a store |
-| Validation | Zod | One schema per event payload, shared by DB, forms and sync |
-| Backend | Supabase, EU region (Frankfurt) | Postgres, Auth (email OTP), Realtime, Edge Functions |
-| Notifications | expo-notifications | Local scheduled notifications for feed reminders. Expo push only for caregiver events, content free |
-| PDF | expo-print + expo-sharing | HTML template rendered on device |
-| i18n | i18next + expo-localization | English at POC, Greek at P4 |
-| IDs | UUID v7, generated on the client | Time ordered, safe to create offline |
-| Tests | Jest, React Native Testing Library, pgTAP (Supabase CLI), Maestro for E2E | |
-| CI/CD | GitHub Actions, EAS Build, EAS Submit, EAS Update | |
-| Errors | Sentry, EU data region, PII scrubbing on, no payloads | Added at P4, not before |
+| Layer         | Choice                                                                    | Notes                                                                                               |
+| ------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| App           | Expo (current SDK at init), React Native, TypeScript strict               | Development builds, not Expo Go, from P1 because of notifications and SQLite                        |
+| Routing       | Expo Router                                                               | File based, typed routes, deep links for invites                                                    |
+| Local DB      | expo-sqlite + Drizzle ORM                                                 | SQLite is the source of truth for the UI                                                            |
+| UI state      | Zustand for ephemeral UI state only                                       | Data comes from SQLite queries, not from a store                                                    |
+| Validation    | Zod                                                                       | One schema per event payload, shared by DB, forms and sync                                          |
+| Backend       | Supabase, EU region (Frankfurt)                                           | Postgres, Auth (email OTP), Realtime, Edge Functions                                                |
+| Notifications | expo-notifications                                                        | Local scheduled notifications for feed reminders. Expo push only for caregiver events, content free |
+| PDF           | expo-print + expo-sharing                                                 | HTML template rendered on device                                                                    |
+| i18n          | i18next + expo-localization                                               | English at POC, Greek at P4                                                                         |
+| IDs           | UUID v7, generated on the client                                          | Time ordered, safe to create offline                                                                |
+| Tests         | Jest, React Native Testing Library, pgTAP (Supabase CLI), Maestro for E2E |                                                                                                     |
+| CI/CD         | GitHub Actions, EAS Build, EAS Submit, EAS Update                         |                                                                                                     |
+| Errors        | Sentry, EU data region, PII scrubbing on, no payloads                     | Added at P4, not before                                                                             |
 
 Local development runs Supabase through the CLI in Docker. Three Supabase projects: `nest-dev` (optional, shared), `nest-staging`, `nest-prod`, all EU.
 
@@ -95,18 +95,18 @@ Three rules hold the design together:
 
 Almost everything is an `event`. One synced table, one sync path, one set of RLS rules.
 
-| type | occurred_at means | ended_at | payload (Zod schema) |
-|---|---|---|---|
-| `feed_bottle` | start of feed | optional | `{ ml: int 1..400, milk: 'breast'\|'formula'\|'mixed', from_stock?: 'fridge'\|'freezer' }` |
-| `feed_breast` | start of feed | end of feed | `{ side: 'left'\|'right'\|'both', left_s?: int, right_s?: int }` |
-| `diaper` | change time | null | `{ kind: 'wet'\|'dirty'\|'both', color?: enum, note?: string ≤280 }` |
-| `sleep` | start | null while running | `{ place?: 'crib'\|'bassinet'\|'arms'\|'stroller'\|'other' }` |
-| `pump` | session time | optional | `{ ml: int 1..600, dest: 'fridge'\|'freezer'\|'fed' }` |
-| `stock_adjust` | adjust time | null | `{ loc: 'fridge'\|'freezer', delta_ml: int, reason: 'discard'\|'move'\|'correction' }` |
-| `health` | observation time | null | `{ note: string 1..500, temp_c?: number 34..43, tags?: enum[] }` |
-| `medication` | given at | null | `{ name: string ≤60, dose?: string ≤30 }` |
-| `weight` | measured at | null | `{ grams: int 500..15000, source: 'home'\|'clinic' }` |
-| `appointment` | scheduled for | null | `{ title, doctor?, clinic?, notes?, questions? }` |
+| type           | occurred_at means | ended_at           | payload (Zod schema)                                                                       |
+| -------------- | ----------------- | ------------------ | ------------------------------------------------------------------------------------------ |
+| `feed_bottle`  | start of feed     | optional           | `{ ml: int 1..400, milk: 'breast'\|'formula'\|'mixed', from_stock?: 'fridge'\|'freezer' }` |
+| `feed_breast`  | start of feed     | end of feed        | `{ side: 'left'\|'right'\|'both', left_s?: int, right_s?: int }`                           |
+| `diaper`       | change time       | null               | `{ kind: 'wet'\|'dirty'\|'both', color?: enum, note?: string ≤280 }`                       |
+| `sleep`        | start             | null while running | `{ place?: 'crib'\|'bassinet'\|'arms'\|'stroller'\|'other' }`                              |
+| `pump`         | session time      | optional           | `{ ml: int 1..600, dest: 'fridge'\|'freezer'\|'fed' }`                                     |
+| `stock_adjust` | adjust time       | null               | `{ loc: 'fridge'\|'freezer', delta_ml: int, reason: 'discard'\|'move'\|'correction' }`     |
+| `health`       | observation time  | null               | `{ note?: string 1..500, temp_c?: number 34..43, tags?: enum[] }`, note or temp_c required |
+| `medication`   | given at          | null               | `{ name: string ≤60, dose?: string ≤30 }`                                                  |
+| `weight`       | measured at       | null               | `{ grams: int 500..15000, source: 'home'\|'clinic' }`                                      |
+| `appointment`  | scheduled for     | null               | `{ title, doctor?, clinic?, notes?, questions? }`                                          |
 
 A combined bottle plus breast feed is two events that share a `group_id`. The UI shows them as one row.
 
@@ -162,7 +162,7 @@ create table events (
   client_created_at timestamptz not null,
   server_updated_at timestamptz not null default now(),
   deleted_at timestamptz,
-  seq bigint not null default nextval('event_seq')
+  seq bigint not null  -- set by the trigger below, never by a default or a client
 );
 create index events_pull on events (household_id, seq);
 create index events_time on events (baby_id, occurred_at desc) where deleted_at is null;
@@ -196,7 +196,23 @@ create table push_tokens (
 );
 ```
 
-A trigger on `events` update sets `seq = nextval('event_seq')` and `server_updated_at = now()`. Every change gets a new sequence number, so pull by cursor never misses an edit.
+`events_stamp_seq` sets `seq` and `server_updated_at` on **insert and update**,
+after taking a transaction advisory lock per household, so seq follows commit
+order within a household. Every change gets a new number, so pull by cursor
+never misses an edit, and any `seq` or `server_updated_at` a client sends is
+overwritten.
+
+The lock is the point: with a bare `nextval` default, two writers in one
+household can take numbers in one order and commit in the other, and a pull
+that lands between them steps over an event for good. `supabase/scripts/event-seq-race.sh`
+reproduces it (P2-F1).
+
+RLS is enabled on every table in this first migration, with no policies until
+4.3 — so until then nothing but a service role reads or writes anything.
+
+Migrations are named the way the Supabase CLI requires, `<timestamp>_name.sql`;
+it skips anything else. `consents` and `push_tokens` ship here with the rest of
+this section, so 4.3 can cover every cell of its table.
 
 ### 4.3 Row level security
 
@@ -208,18 +224,36 @@ create function can_write(h uuid) returns boolean language sql stable security d
   select exists (select 1 from memberships where household_id = h and user_id = auth.uid()
                  and role in ('owner','caregiver'))
 $$;
+create function is_owner(h uuid) returns boolean language sql stable security definer as $$
+  select exists (select 1 from memberships where household_id = h and user_id = auth.uid()
+                 and role = 'owner')
+$$;
 ```
 
-| Table | select | insert | update | delete |
-|---|---|---|---|---|
-| households | member | any signed-in user (becomes owner by RPC) | owner | owner, through RPC only |
-| memberships | member | RPC only (`accept_invite`, `create_household`) | owner, or self for display_name | owner, or self (leave) |
-| babies | member | writer | writer | never, soft delete |
-| events | member | writer, `created_by = auth.uid()` | writer | never, soft delete |
-| invites | owner | owner | none | owner |
-| consents, push_tokens | self | self | self | self |
+All three are `security definer` with `set search_path = ''`, so a policy on
+`memberships` can read `memberships` without recursing into itself, and nothing
+can shadow the tables they read. Policies apply to `authenticated`; `anon` has
+no policy on any table, so it reads and writes nothing.
+
+| Table                 | select | insert                                                                           | update                                                                     | delete                  |
+| --------------------- | ------ | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------- |
+| households            | member | any signed-in user, `created_by = auth.uid()` (becomes owner by RPC)             | owner                                                                      | owner, through RPC only |
+| memberships           | member | RPC only (`accept_invite`, `create_household`)                                   | owner, or self for `display_name` only (relation and role are the owner's) | owner, or self (leave)  |
+| babies                | member | writer                                                                           | writer                                                                     | never, soft delete      |
+| events                | member | writer, `created_by = auth.uid()` and `updated_by = auth.uid()`, **and consent** | writer, `updated_by = auth.uid()`, **and consent**                         | never, soft delete      |
+| invites               | owner  | owner                                                                            | none                                                                       | owner                   |
+| consents, push_tokens | self   | self                                                                             | self                                                                       | self                    |
 
 pgTAP tests cover every cell of this table in P2.
+
+Writing an event also needs consent (P3-09, 12.1): `events_insert` and
+`events_update` call `has_consent()`. Reading deliberately does not — a
+caregiver who withdraws must still be able to export and delete what is
+already there.
+
+Columns are fixed once a row exists (P2-F2): a trigger refuses any update that
+would move an event to another household, baby or author, whatever the policy
+allows.
 
 ### 4.4 Local SQLite schema
 
@@ -238,6 +272,12 @@ create table outbox (
 );
 create table meta (key text primary key, value text not null);  -- pull cursor, household id, user id
 ```
+
+`meta` also holds this device's own settings: `pref.`-prefixed rows with JSON
+values, each declared with a zod schema and a default in `DEVICE_PREFS`
+(`src/db/repositories/devicePrefs.ts`). They are never synced, because they are
+this phone's: night mode (P1-16), the reminders toggle (P1-14), and the
+household settings this phone has been told about (P1-15, P1-F16).
 
 ---
 
@@ -296,14 +336,19 @@ All of these live in `src/domain`, are pure TypeScript, take `(events, now, tz)`
 
 ```ts
 type HomeState = {
-  lastFeed: FeedEvent | null;          // latest non-deleted feed_bottle or feed_breast by occurred_at
+  lastFeed: FeedEvent | null; // latest non-deleted feed_bottle or feed_breast by occurred_at
   sinceLastFeedMs: number | null;
-  nextSide: 'left' | 'right' | null;   // opposite of last breast side, null if none in 24h
-  reminderAt: Date | null;             // lastFeed.occurred_at + interval
+  nextSide: 'left' | 'right' | null; // opposite of last breast side, null if none in 24h
+  reminderAt: Date | null; // lastFeed.occurred_at + interval
   secondReminderAt: Date | null;
   today: { feeds: number; ml: number; wet: number; dirty: number; sleepMs24h: number };
   activeSleep: SleepEvent | null;
-  stock: { fridgeMl: number; freezerMl: number; oldestFridgeAt: Date | null; oldestFreezerAt: Date | null };
+  stock: {
+    fridgeMl: number;
+    freezerMl: number;
+    oldestFridgeAt: Date | null;
+    oldestFreezerAt: Date | null;
+  };
   lastEntry: { type: string; by: string; at: Date } | null;
 };
 ```
@@ -322,6 +367,18 @@ on any change to events or settings:
 ```
 
 Each phone schedules its own local notifications, so the reminder fires with no signal and no server. Because every phone runs the same function on the same events, all caregivers get the same time. Per user, per device switch: a grandparent can turn reminders off without affecting anyone else.
+
+As built (P1-14), the first line is a reconciliation rather than a blanket
+cancel: a reminder already sitting at the right minute with the right words is
+left alone, and everything else in the category goes. The outcome is the same
+list, without cancelling and re-creating an unchanged notification on every
+write — churn on a busy morning, and on Android a cancel-then-schedule race can
+drop one.
+
+The interval and the second reminder are the household's (4.2), so every pull
+reads them back (P1-F16); only an owner changes them, and on anyone else's
+phone they are shown rather than edited. That is what makes "all caregivers get
+the same time" true rather than merely intended.
 
 Copy for the notification body never contains amounts or health data. It shows on a lock screen.
 
@@ -367,18 +424,18 @@ The 3 day and 7 day summaries add per-day rows, average bottle, average interval
 
 ## 7. Screens
 
-| Route | Purpose | Notes |
-|---|---|---|
-| `(tabs)/index` | Home | Timer card, next side, reminder line, Log feed, 5 quick actions, today strip, stock, next appointment, recent 6 |
-| `(tabs)/history` | Timeline | Filter chips, grouped by day, tap row to edit |
-| `(tabs)/insights` | Trends | 7 day milk chart, averages, diapers, sleep, weight view |
-| `(tabs)/settings` | Settings | Baby, reminders, caregivers, invite, night mode, report, privacy, sync status |
-| `log/feed`, `log/diaper`, `log/sleep`, `log/pump`, `log/health`, `log/weight` | Modal sheets | Prefilled with now and last used values |
-| `entry/[id]` | Edit sheet | Time, amount, note, delete |
-| `report/[range]` | Report preview | Share as PDF |
-| `report/call` | Call script | Large type, one screen |
-| `onboarding/*` | First run | Sign in, consent, create or join household, baby details |
-| `join/[code]` | Invite deep link | Accepts invite after sign in and consent |
+| Route                                                                                                        | Purpose          | Notes                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `(tabs)/index`                                                                                               | Home             | Timer card, next side, reminder line, Log feed, 5 quick actions, today strip, stock, next appointment, recent 6                                                                                                                                                                                                                                    |
+| `(tabs)/history`                                                                                             | Timeline         | Filter chips, grouped by day, tap row to edit                                                                                                                                                                                                                                                                                                      |
+| `(tabs)/insights`                                                                                            | Trends           | Today plus the 6 local days before it: bottle mL and breastfeeding time as separate charts (the breastfeeding one only in weeks with any), average bottle (mL per bottle feed) and average time between feeds ((last − first) / (feeds − 1), a mixed feed counting once), diapers and sleep as per-day rows with 7 day totals, and the weight view |
+| `(tabs)/settings`                                                                                            | Settings         | Baby, reminders, caregivers, invite, night mode, report, privacy, sync status                                                                                                                                                                                                                                                                      |
+| `log/feed`, `log/diaper`, `log/sleep`, `log/pump`, `log/health`, `log/medication`, `log/weight`, `log/stock` | Modal sheets     | Prefilled with now and last used values                                                                                                                                                                                                                                                                                                            |
+| `entry/[id]`                                                                                                 | Edit sheet       | Time, amount, note, delete                                                                                                                                                                                                                                                                                                                         |
+| `report/[range]`                                                                                             | Report preview   | Share as PDF                                                                                                                                                                                                                                                                                                                                       |
+| `report/call`                                                                                                | Call script      | Large type, one screen                                                                                                                                                                                                                                                                                                                             |
+| `onboarding/*`                                                                                               | First run        | Sign in, consent, create or join household, baby details                                                                                                                                                                                                                                                                                           |
+| `join/[code]`                                                                                                | Invite deep link | Accepts invite after sign in and consent                                                                                                                                                                                                                                                                                                           |
 
 Logging budget: bottle feed from home is Log feed, then Save. The sheet opens with last amount and milk type and the current time. Two taps.
 
@@ -390,16 +447,16 @@ Every entry row shows the author: "Andreas" or "You".
 
 ## 8. Non-functional requirements
 
-| Area | Requirement |
-|---|---|
-| Speed | Cold start to home under 2s on a mid-range Android. Log sheet opens under 150ms |
-| Offline | Every feature except invite and sign-in works with no network, for any length of time |
-| Sync | Online, a feed on phone A shows on phone B within 3 seconds at p95 |
-| Reliability | Zero data loss across app kill, reboot, airplane mode and reinstall after sync |
+| Area          | Requirement                                                                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Speed         | Cold start to home under 2s on a mid-range Android. Log sheet opens under 150ms                                                             |
+| Offline       | Every feature except invite and sign-in works with no network, for any length of time                                                       |
+| Sync          | Online, a feed on phone A shows on phone B within 3 seconds at p95                                                                          |
+| Reliability   | Zero data loss across app kill, reboot, airplane mode and reinstall after sync                                                              |
 | Accessibility | Touch targets at least 48dp, WCAG AA contrast in both themes, Dynamic Type and font scale up to 200%, screen reader labels on every control |
-| Battery | No background location. No polling while backgrounded |
-| Security | Supabase session in SecureStore. SQLite not encrypted at POC (device encryption covers it), SQLCipher reviewed at P5 |
-| Privacy | No third party SDKs that receive health data. No ad SDKs. No analytics at POC |
+| Battery       | No background location. No polling while backgrounded                                                                                       |
+| Security      | Supabase session in SecureStore. SQLite not encrypted at POC (device encryption covers it), SQLCipher reviewed at P5                        |
+| Privacy       | No third party SDKs that receive health data. No ad SDKs. No analytics at POC                                                               |
 
 ---
 
@@ -417,7 +474,7 @@ nest/
     ui/                     tokens, theme, primitives (Card, Sheet, Stepper, Segmented, Chip, Timer)
     i18n/                   en.json, el.json
   supabase/
-    migrations/             numbered SQL
+    migrations/             <timestamp>_name.sql, as the Supabase CLI requires
     functions/              notify-caregivers, export-data, delete-household
     tests/                  pgTAP
   e2e/                      Maestro flows
@@ -431,14 +488,14 @@ nest/
 
 ### 10.1 Phase overview
 
-| Phase | Outcome | Gate to move on | Rough effort (focused hours) |
-|---|---|---|---|
-| P0 Foundations | Empty app builds and runs on both phones, CI green | Dev build installed on an iPhone and an Android | 10 to 14 |
-| P1 Core logging, one phone | Full logging, home, history, undo, edit, reminders, night mode, all offline | You use it alone for 3 days without paper backup | 35 to 45 |
-| P2 Households and sync | Two phones, one baby, live sync, invites, attribution | Two phones in airplane mode log 20 entries each, reconnect, both screens match | 30 to 40 |
-| P3 POC complete | Weight, stock, reports, call script, PDF, consent | 14 day household dogfood starts | 25 to 30 |
-| P4 Beta | Hardening, caregiver alerts, appointments, Greek, export and delete, store test tracks | 5 households recruited and onboarded | 35 to 45 |
-| P5 v1 | Store release, privacy policy, widgets or Live Activity, pricing decision | Beta retention criteria met (see research doc section 6) | 30 to 50 |
+| Phase                      | Outcome                                                                                | Gate to move on                                                                | Rough effort (focused hours) |
+| -------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------- |
+| P0 Foundations             | Empty app builds and runs on both phones, CI green                                     | Dev build installed on an iPhone and an Android                                | 10 to 14                     |
+| P1 Core logging, one phone | Full logging, home, history, undo, edit, reminders, night mode, all offline            | You use it alone for 3 days without paper backup                               | 35 to 45                     |
+| P2 Households and sync     | Two phones, one baby, live sync, invites, attribution                                  | Two phones in airplane mode log 20 entries each, reconnect, both screens match | 30 to 40                     |
+| P3 POC complete            | Weight, stock, reports, call script, PDF, consent                                      | 14 day household dogfood starts                                                | 25 to 30                     |
+| P4 Beta                    | Hardening, caregiver alerts, appointments, Greek, export and delete, store test tracks | 5 households recruited and onboarded                                           | 35 to 45                     |
+| P5 v1                      | Store release, privacy policy, widgets or Live Activity, pricing decision              | Beta retention criteria met (see research doc section 6)                       | 30 to 50                     |
 
 POC is P0 to P3, roughly 100 to 130 focused hours. At 10 hours a week that's 10 to 13 weeks. If this has to be ready for a due date, P1 alone gives you a working single phone tracker, and P2 is the minimum for two parents.
 
@@ -472,110 +529,110 @@ Format: `ID · conventional commit message · depends on · done when`. One comm
 
 #### P0 Foundations
 
-| ID | Commit | Depends | Done when |
-|---|---|---|---|
-| P0-01 | `chore: init expo app with typescript strict, expo-router, CLAUDE.md` | none | `npx expo start` runs, strict TS, engineering rules copied into CLAUDE.md |
-| P0-02 | `chore: add eslint, prettier, husky, lint-staged, commitlint` | P0-01 | pre-commit blocks a lint error |
-| P0-03 | `chore: add jest with rntl and a sample domain test` | P0-01 | `npm test` green |
-| P0-04 | `ci: github actions for lint, typecheck, test` | P0-02, P0-03 | PR shows three green checks |
-| P0-05 | `feat(ui): design tokens, light and night themes, typography scale` | P0-01 | tokens file, theme provider, one sample screen in both themes |
-| P0-06 | `feat(ui): primitives Card, Sheet, Stepper, Segmented, Chip, Button, TimerText` | P0-05 | storybook-style demo route renders all primitives |
-| P0-07 | `feat(i18n): i18next with en locale and typed keys` | P0-01 | no hardcoded strings lint rule on |
-| P0-08 | `chore(supabase): init supabase project folder, local docker, env handling` | P0-01 | `supabase start` works, `.env.example` committed |
-| P0-09 | `build: eas config with development, preview, production profiles` | P0-01 | dev build installed on your iPhone and an Android |
+| ID    | Commit                                                                          | Depends      | Done when                                                                 |
+| ----- | ------------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------- |
+| P0-01 | `chore: init expo app with typescript strict, expo-router, CLAUDE.md`           | none         | `npx expo start` runs, strict TS, engineering rules copied into CLAUDE.md |
+| P0-02 | `chore: add eslint, prettier, husky, lint-staged, commitlint`                   | P0-01        | pre-commit blocks a lint error                                            |
+| P0-03 | `chore: add jest with rntl and a sample domain test`                            | P0-01        | `npm test` green                                                          |
+| P0-04 | `ci: github actions for lint, typecheck, test`                                  | P0-02, P0-03 | PR shows three green checks                                               |
+| P0-05 | `feat(ui): design tokens, light and night themes, typography scale`             | P0-01        | tokens file, theme provider, one sample screen in both themes             |
+| P0-06 | `feat(ui): primitives Card, Sheet, Stepper, Segmented, Chip, Button, TimerText` | P0-05        | storybook-style demo route renders all primitives                         |
+| P0-07 | `feat(i18n): i18next with en locale and typed keys`                             | P0-01        | no hardcoded strings lint rule on                                         |
+| P0-08 | `chore(supabase): init supabase project folder, local docker, env handling`     | P0-01        | `supabase start` works, `.env.example` committed                          |
+| P0-09 | `build: eas config with development, preview, production profiles`              | P0-01        | dev build installed on your iPhone and an Android                         |
 
 #### P1 Core logging, one phone
 
-| ID | Commit | Depends | Done when |
-|---|---|---|---|
-| P1-01 | `feat(domain): event types, zod payload schemas, activity module registry` | P0-03 | every type in 4.1 has a schema with valid and invalid tests, and the registry completeness test in 15.3 passes |
-| P1-02 | `feat(domain): time utils (duration format, day buckets, tz safe)` | P0-03 | tests pass under three TZ values and across the 25 Oct DST change |
-| P1-03 | `feat(db): drizzle sqlite schema, local migrations, outbox, meta` | P1-01 | migrations run on fresh install and on upgrade |
-| P1-04 | `feat(db): events repository with insert, patch, softDelete writing outbox in one transaction` | P1-03 | tests prove event and outbox rows commit or roll back together |
-| P1-05 | `feat(domain): home state selector` | P1-01, P1-02 | tests cover no feeds, one feed, breast then bottle, deleted last feed, active sleep |
-| P1-06 | `feat(home): timer card, next side, reminder line, today strip, recent list` | P0-06, P1-04, P1-05 | timer ticks every 30s, updates instantly on log |
-| P1-07 | `feat(log): feed sheet (bottle, breast, mixed) with last-used prefill` | P1-04, P0-06 | bottle feed in 2 taps from home |
-| P1-08 | `feat(log): diaper sheet, one tap save` | P1-04 | wet, dirty, both each save in one tap from the sheet |
-| P1-09 | `feat(log): sleep start, stop, manual entry, running sleep card` | P1-04 | running sleep survives app kill |
-| P1-10 | `feat(log): health note and medication sheets` | P1-04 | temp range validated, note length capped |
-| P1-11 | `feat(history): timeline grouped by day with filters` | P1-04 | 2,000 events scroll at 60fps on the Android test phone |
-| P1-12 | `feat(entry): edit sheet and delete, undo toast on every save` | P1-04, P1-11 | undo within 6s restores exact prior state |
-| P1-13 | `feat(domain): reminder computation` | P1-05 | tests for recalculation on new feed, edit of last feed, delete of last feed, second reminder |
-| P1-14 | `feat(notifications): permission flow and local scheduler bound to reminder computation` | P1-13, P0-09 | on a real phone: log feed, lock, notification arrives at the right minute, relog moves it |
-| P1-15 | `feat(settings): reminder interval, second reminder, per-device reminders toggle` | P1-14 | changing interval reschedules immediately |
-| P1-16 | `feat(ui): night mode auto, on, off` | P0-05 | switches at 21:00 and 06:00 without restart |
-| P1-17 | `feat(insights): 7 day milk chart, averages, diaper and sleep counts` | P1-05 | numbers match a hand-checked fixture |
-| P1-18 | `test(e2e): maestro flows for log feed, log diaper, undo, edit` | P1-12 | flows pass on both simulators in CI or locally |
+| ID    | Commit                                                                                         | Depends             | Done when                                                                                                      |
+| ----- | ---------------------------------------------------------------------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| P1-01 | `feat(domain): event types, zod payload schemas, activity module registry`                     | P0-03               | every type in 4.1 has a schema with valid and invalid tests, and the registry completeness test in 15.3 passes |
+| P1-02 | `feat(domain): time utils (duration format, day buckets, tz safe)`                             | P0-03               | tests pass under three TZ values and across the 25 Oct DST change                                              |
+| P1-03 | `feat(db): drizzle sqlite schema, local migrations, outbox, meta`                              | P1-01               | migrations run on fresh install and on upgrade                                                                 |
+| P1-04 | `feat(db): events repository with insert, patch, softDelete writing outbox in one transaction` | P1-03               | tests prove event and outbox rows commit or roll back together                                                 |
+| P1-05 | `feat(domain): home state selector`                                                            | P1-01, P1-02        | tests cover no feeds, one feed, breast then bottle, deleted last feed, active sleep                            |
+| P1-06 | `feat(home): timer card, next side, reminder line, today strip, recent list`                   | P0-06, P1-04, P1-05 | timer ticks every 30s, updates instantly on log                                                                |
+| P1-07 | `feat(log): feed sheet (bottle, breast, mixed) with last-used prefill`                         | P1-04, P0-06        | bottle feed in 2 taps from home                                                                                |
+| P1-08 | `feat(log): diaper sheet, one tap save`                                                        | P1-04               | wet, dirty, both each save in one tap from the sheet                                                           |
+| P1-09 | `feat(log): sleep start, stop, manual entry, running sleep card`                               | P1-04               | running sleep survives app kill                                                                                |
+| P1-10 | `feat(log): health note and medication sheets`                                                 | P1-04               | temp range validated, note length capped                                                                       |
+| P1-11 | `feat(history): timeline grouped by day with filters`                                          | P1-04               | 2,000 events scroll at 60fps on the Android test phone                                                         |
+| P1-12 | `feat(entry): edit sheet and delete, undo toast on every save`                                 | P1-04, P1-11        | undo within 6s restores exact prior state                                                                      |
+| P1-13 | `feat(domain): reminder computation`                                                           | P1-05               | tests for recalculation on new feed, edit of last feed, delete of last feed, second reminder                   |
+| P1-14 | `feat(notifications): permission flow and local scheduler bound to reminder computation`       | P1-13, P0-09        | on a real phone: log feed, lock, notification arrives at the right minute, relog moves it                      |
+| P1-15 | `feat(settings): reminder interval, second reminder, per-device reminders toggle`              | P1-14               | changing interval reschedules immediately                                                                      |
+| P1-16 | `feat(ui): night mode auto, on, off`                                                           | P0-05               | switches at 21:00 and 06:00 without restart                                                                    |
+| P1-17 | `feat(insights): 7 day milk chart, averages, diaper and sleep counts`                          | P1-05               | numbers match a hand-checked fixture                                                                           |
+| P1-18 | `test(e2e): maestro flows for log feed, log diaper, undo, edit`                                | P1-12               | flows pass on both simulators in CI or locally                                                                 |
 
 #### P2 Households and sync
 
-| ID | Commit | Depends | Done when |
-|---|---|---|---|
-| P2-01 | `feat(db-server): migrations for households, memberships, babies, events, invites, seq trigger` | P0-08 | `supabase db reset` builds schema from zero |
-| P2-02 | `feat(db-server): rls policies and helper functions` | P2-01 | policies match table 4.3 |
-| P2-03 | `test(db-server): pgtap tests for every rls cell` | P2-02 | a viewer can't insert, a stranger can't select, CI runs them |
-| P2-04 | `feat(auth): email otp sign in, session in securestore` | P0-08 | sign in, kill app, still signed in |
-| P2-05 | `feat(household): create_household rpc and onboarding flow with baby details` | P2-02, P2-04 | new user ends on home with an empty baby |
-| P2-06 | `feat(household): invites, create code, share link, accept_invite rpc, join route` | P2-05 | second phone joins through the link, role applied |
-| P2-07 | `feat(sync): push_events rpc with insert, patch, delete semantics` | P2-02 | SQL tests for idempotent insert, per-field patch, delete wins |
-| P2-08 | `feat(sync): client push with batching, backoff, rejected-op handling` | P1-04, P2-07 | outbox drains, rejected ops appear in sync status |
-| P2-09 | `feat(sync): client pull by cursor with pending-op protection` | P2-08 | unsent local edit survives a pull of an older server copy |
-| P2-10 | `feat(sync): realtime ping, foreground, reconnect and interval triggers` | P2-09 | phone B updates within 3s of phone A |
-| P2-11 | `feat(sync): migrate local-only data into a new household on first sign in` | P2-09 | a P1 user keeps all history after signing up |
-| P2-12 | `feat(home): author on every row, last entry by line, caregivers list` | P2-06, P2-10 | rows read "You" or the other person's name |
-| P2-13 | `feat(settings): sync status screen with pending count, last sync, errors` | P2-08 | visible pending count goes to zero when online |
-| P2-14 | `test(sync): convergence property test with random interleavings` | P2-09 | 1,000 random runs, two simulated clients, identical derived state |
-| P2-15 | `test(manual): two phone airplane mode checklist in docs` | P2-10 | checklist passes and is committed |
+| ID    | Commit                                                                                          | Depends      | Done when                                                         |
+| ----- | ----------------------------------------------------------------------------------------------- | ------------ | ----------------------------------------------------------------- |
+| P2-01 | `feat(db-server): migrations for households, memberships, babies, events, invites, seq trigger` | P0-08        | `supabase db reset` builds schema from zero                       |
+| P2-02 | `feat(db-server): rls policies and helper functions`                                            | P2-01        | policies match table 4.3                                          |
+| P2-03 | `test(db-server): pgtap tests for every rls cell`                                               | P2-02        | a viewer can't insert, a stranger can't select, CI runs them      |
+| P2-04 | `feat(auth): email otp sign in, session in securestore`                                         | P0-08        | sign in, kill app, still signed in                                |
+| P2-05 | `feat(household): create_household rpc and onboarding flow with baby details`                   | P2-02, P2-04 | new user ends on home with an empty baby                          |
+| P2-06 | `feat(household): invites, create code, share link, accept_invite rpc, join route`              | P2-05        | second phone joins through the link, role applied                 |
+| P2-07 | `feat(sync): push_events rpc with insert, patch, delete semantics`                              | P2-02        | SQL tests for idempotent insert, per-field patch, delete wins     |
+| P2-08 | `feat(sync): client push with batching, backoff, rejected-op handling`                          | P1-04, P2-07 | outbox drains, rejected ops appear in sync status                 |
+| P2-09 | `feat(sync): client pull by cursor with pending-op protection`                                  | P2-08        | unsent local edit survives a pull of an older server copy         |
+| P2-10 | `feat(sync): realtime ping, foreground, reconnect and interval triggers`                        | P2-09        | phone B updates within 3s of phone A                              |
+| P2-11 | `feat(sync): migrate local-only data into a new household on first sign in`                     | P2-09        | a P1 user keeps all history after signing up                      |
+| P2-12 | `feat(home): author on every row, last entry by line, caregivers list`                          | P2-06, P2-10 | rows read "You" or the other person's name                        |
+| P2-13 | `feat(settings): sync status screen with pending count, last sync, errors`                      | P2-08        | visible pending count goes to zero when online                    |
+| P2-14 | `test(sync): convergence property test with random interleavings`                               | P2-09        | 1,000 random runs, two simulated clients, identical derived state |
+| P2-15 | `test(manual): two phone airplane mode checklist in docs`                                       | P2-10        | checklist passes and is committed                                 |
 
 #### P3 POC complete
 
-| ID | Commit | Depends | Done when |
-|---|---|---|---|
-| P3-01 | `feat(domain): milk stock fold, fifo, oldest batch age` | P1-01 | tests for pump in, take out, adjust, negative clamp |
-| P3-02 | `feat(log): pump sheet and from-stock option on bottle feed` | P3-01, P1-07 | fridge total drops on both phones after a feed |
-| P3-03 | `feat(home): stock card with adjust sheet` | P3-02 | adjust reason saved |
-| P3-04 | `feat(domain): weight series and regain view model` | P1-01 | tests with a real-shaped day 0 to 21 fixture |
-| P3-05 | `feat(insights): weight log and regain chart` | P3-04 | reference lines at 90% and 100%, day 10 and 14 markers, no judging copy |
-| P3-06 | `feat(domain): report builder for call script, 24h, 3d, 7d` | P1-05, P3-04 | snapshot tests of report objects |
-| P3-07 | `feat(report): call script screen in large type` | P3-06 | readable at arm's length, night mode supported |
-| P3-08 | `feat(report): pdf template and share` | P3-06 | PDF opens on iOS and Android share sheets, one page for 24h |
-| P3-09 | `feat(privacy): consent screen, versioned consent rpc, block health writes without consent` | P2-04 | no event can sync for a user without a consent row |
-| P3-10 | `docs: in-app medical disclaimer and copy review against never list` | P3-07 | every string checked, no advice language |
-| P3-12 | `feat(appointments): add, edit, home card, questions list, reminders day-before and 1h before` | P1-04, P1-14 | appointment shows on both phones, both reminders fire on a real device |
-| P3-13 | `feat(report): questions-to-ask pulled into the call script` | P3-07, P3-12 | questions saved on the next appointment appear at the end of the script |
-| P3-11 | `release: preview builds to both phones, start 14 day dogfood` | all P3 | both caregivers logging, diary of issues opened |
+| ID    | Commit                                                                                         | Depends      | Done when                                                               |
+| ----- | ---------------------------------------------------------------------------------------------- | ------------ | ----------------------------------------------------------------------- |
+| P3-01 | `feat(domain): milk stock fold, fifo, oldest batch age`                                        | P1-01        | tests for pump in, take out, adjust, negative clamp                     |
+| P3-02 | `feat(log): pump sheet and from-stock option on bottle feed`                                   | P3-01, P1-07 | fridge total drops on both phones after a feed                          |
+| P3-03 | `feat(home): stock card with adjust sheet`                                                     | P3-02        | adjust reason saved                                                     |
+| P3-04 | `feat(domain): weight series and regain view model`                                            | P1-01        | tests with a real-shaped day 0 to 21 fixture                            |
+| P3-05 | `feat(insights): weight log and regain chart`                                                  | P3-04        | reference lines at 90% and 100%, day 10 and 14 markers, no judging copy |
+| P3-06 | `feat(domain): report builder for call script, 24h, 3d, 7d`                                    | P1-05, P3-04 | snapshot tests of report objects                                        |
+| P3-07 | `feat(report): call script screen in large type`                                               | P3-06        | readable at arm's length, night mode supported                          |
+| P3-08 | `feat(report): pdf template and share`                                                         | P3-06        | PDF opens on iOS and Android share sheets, one page for 24h             |
+| P3-09 | `feat(privacy): consent screen, versioned consent rpc, block health writes without consent`    | P2-04        | no event can sync for a user without a consent row                      |
+| P3-10 | `docs: in-app medical disclaimer and copy review against never list`                           | P3-07        | every string checked, no advice language                                |
+| P3-12 | `feat(appointments): add, edit, home card, questions list, reminders day-before and 1h before` | P1-04, P1-14 | appointment shows on both phones, both reminders fire on a real device  |
+| P3-13 | `feat(report): questions-to-ask pulled into the call script`                                   | P3-07, P3-12 | questions saved on the next appointment appear at the end of the script |
+| P3-11 | `release: preview builds to both phones, start 14 day dogfood`                                 | all P3       | both caregivers logging, diary of issues opened                         |
 
 Dogfood gate: run 14 days. Log every friction point as a GitHub issue labelled `dogfood`. Fix the ones that caused a missed or doubled log before P4.
 
 #### P4 Beta
 
-| ID | Commit | Depends |
-|---|---|---|
-| P4-01 | `feat(sync): duplicate feed detection banner` | P2-10 |
-| P4-02 | `feat(push): push token registration and notify-caregivers edge function, content free, opt-in` | P2-10 |
-| P4-03 | `chore(arch): enforce layer boundaries with eslint import rules and dependency-cruiser in CI` | P3-12 |
-| P4-04 | `feat(i18n): greek locale and date formats, language switch` | P0-07 |
-| P4-05 | `feat(privacy): export all household data as json and csv` | P2-09 |
-| P4-06 | `feat(privacy): leave household, delete account, delete household with cascade` | P2-06 |
-| P4-07 | `feat(household): roles management, remove caregiver, viewer role UI` | P2-06 |
-| P4-08 | `chore(obs): sentry eu region, pii scrubbing, no breadcrumbs with payloads` | P0-09 |
-| P4-09 | `feat(onboarding): first run polish, empty states, permission explanations` | P2-05 |
-| P4-10 | `feat(settings): baby profile edit, multiple babies in schema only` | P2-05 |
-| P4-11 | `docs: dpia, records of processing, retention policy, processor list` | P3-09 |
-| P4-12 | `build: testflight and play internal testing tracks, eas update channel` | P0-09 |
-| P4-13 | `feat(feedback): in-app feedback form to a supabase table, no third party` | P2-04 |
+| ID    | Commit                                                                                          | Depends |
+| ----- | ----------------------------------------------------------------------------------------------- | ------- |
+| P4-01 | `feat(sync): duplicate feed detection banner`                                                   | P2-10   |
+| P4-02 | `feat(push): push token registration and notify-caregivers edge function, content free, opt-in` | P2-10   |
+| P4-03 | `chore(arch): enforce layer boundaries with eslint import rules and dependency-cruiser in CI`   | P3-12   |
+| P4-04 | `feat(i18n): greek locale and date formats, language switch`                                    | P0-07   |
+| P4-05 | `feat(privacy): export all household data as json and csv`                                      | P2-09   |
+| P4-06 | `feat(privacy): leave household, delete account, delete household with cascade`                 | P2-06   |
+| P4-07 | `feat(household): roles management, remove caregiver, viewer role UI`                           | P2-06   |
+| P4-08 | `chore(obs): sentry eu region, pii scrubbing, no breadcrumbs with payloads`                     | P0-09   |
+| P4-09 | `feat(onboarding): first run polish, empty states, permission explanations`                     | P2-05   |
+| P4-10 | `feat(settings): baby profile edit, multiple babies in schema only`                             | P2-05   |
+| P4-11 | `docs: dpia, records of processing, retention policy, processor list`                           | P3-09   |
+| P4-12 | `build: testflight and play internal testing tracks, eas update channel`                        | P0-09   |
+| P4-13 | `feat(feedback): in-app feedback form to a supabase table, no third party`                      | P2-04   |
 
 #### P5 v1
 
-| ID | Commit | Depends |
-|---|---|---|
-| P5-01 | `feat(ios): live activity for time since last feed` (native module via config plugin) | P1-05 |
-| P5-02 | `feat(widgets): home screen widget ios and android` | P1-05 |
-| P5-03 | `feat(security): sqlcipher evaluation and decision recorded as ADR` | P1-03 |
-| P5-04 | `feat(account): sign in with apple and google` | P2-04 |
-| P5-05 | `feat(billing): decision implemented (see ADR-008)` | beta results |
-| P5-06 | `docs: privacy policy, terms, store listing copy, screenshots` | P4-11 |
-| P5-07 | `release: production submit to app store and play` | all |
+| ID    | Commit                                                                                | Depends      |
+| ----- | ------------------------------------------------------------------------------------- | ------------ |
+| P5-01 | `feat(ios): live activity for time since last feed` (native module via config plugin) | P1-05        |
+| P5-02 | `feat(widgets): home screen widget ios and android`                                   | P1-05        |
+| P5-03 | `feat(security): sqlcipher evaluation and decision recorded as ADR`                   | P1-03        |
+| P5-04 | `feat(account): sign in with apple and google`                                        | P2-04        |
+| P5-05 | `feat(billing): decision implemented (see ADR-008)`                                   | beta results |
+| P5-06 | `docs: privacy policy, terms, store listing copy, screenshots`                        | P4-11        |
+| P5-07 | `release: production submit to app store and play`                                    | all          |
 
 ### 10.4 Branching and release
 
@@ -588,16 +645,16 @@ Dogfood gate: run 14 days. Log every friction point as a GitHub issue labelled `
 
 ## 11. Test plan
 
-| Level | What | Tool | Target |
-|---|---|---|---|
-| Domain unit | home state, reminders, stock, weight, reports, time | Jest | 90% line coverage on `src/domain` |
-| Time | every domain test re-run under 3 timezones and the DST change | Jest with `TZ` env matrix | green in CI |
-| Repository | transactionality of event and outbox writes | Jest with an in-memory SQLite driver | green |
-| Server | RLS every cell, push_events semantics | pgTAP via Supabase CLI | green in CI |
-| Sync property | random ops on 2 or 3 simulated clients, random push and pull order, then compare derived state | Jest with fast-check | 1,000 runs green |
-| E2E | log feed, diaper, undo, edit, invite join, offline log then sync | Maestro | green before each preview release |
-| Manual | two real phones, airplane mode, app kill, reboot, low battery mode | Checklist in `docs/` | signed off per phase |
-| Notifications | real device only: fires on time, moves on relog, silent when disabled | Manual checklist | signed off per phase |
+| Level         | What                                                                                           | Tool                                 | Target                            |
+| ------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------ | --------------------------------- |
+| Domain unit   | home state, reminders, stock, weight, reports, time                                            | Jest                                 | 90% line coverage on `src/domain` |
+| Time          | every domain test re-run under 3 timezones and the DST change                                  | Jest with `TZ` env matrix            | green in CI                       |
+| Repository    | transactionality of event and outbox writes                                                    | Jest with an in-memory SQLite driver | green                             |
+| Server        | RLS every cell, push_events semantics                                                          | pgTAP via Supabase CLI               | green in CI                       |
+| Sync property | random ops on 2 or 3 simulated clients, random push and pull order, then compare derived state | Jest with fast-check                 | 1,000 runs green                  |
+| E2E           | log feed, diaper, undo, edit, invite join, offline log then sync                               | Maestro                              | green before each preview release |
+| Manual        | two real phones, airplane mode, app kill, reboot, low battery mode                             | Checklist in `docs/`                 | signed off per phase              |
+| Notifications | real device only: fires on time, moves on relog, silent when disabled                          | Manual checklist                     | signed off per phase              |
 
 ---
 
@@ -630,18 +687,18 @@ Never: "normal", "healthy", "too little", "concerning", "your baby should", any 
 
 ## 13. Architecture decision log
 
-| ADR | Decision | Reason | Revisit when |
-|---|---|---|---|
-| 001 | Expo React Native, not PWA or fully native | Reliable local notifications and a path to widgets and Live Activities from one codebase | Watch app becomes a priority |
-| 002 | Supabase EU over Laravel API | Auth, RLS and Realtime ready made, solo capacity | Egress or pricing hurts, or need server jobs Supabase can't do |
-| 003 | Custom event sync over PowerSync or ElectricSQL | One mostly append-only table makes custom sync small and fully understood | Sync code passes 800 lines or conflicts get complex. PowerSync is the fallback |
-| 004 | Event sourcing with derived stock and stats | Conflict-free for concurrent caregivers | Event counts per baby exceed 50k (not expected in 90 days) |
-| 005 | Local notifications for reminders, server push only for caregiver alerts | Fires offline, no health data leaves the device in a push | Never, this is core |
-| 006 | No interpretation of health data | Stay outside medical device rules, avoid harm | Only with regulatory advice |
-| 007 | Email OTP only at POC | Fastest to build, no App Store requirement for Apple sign in | P5 |
-| 008 | Pricing | Deferred until beta retention is known. Leading option: free logging and sync for all caregivers, paid reports and widgets | After P4 |
-| 009 | Activity module registry instead of type switches | New activity types (bath, tummy time, vaccination, mother's recovery) cost one file, not edits across the app | If a module needs to change another module's behaviour |
-| 010 | Appointments in the POC, not the beta | They were in the original brief, the notification layer already exists at that point, and the questions list feeds the call script. About 4 hours | Never |
+| ADR | Decision                                                                 | Reason                                                                                                                                            | Revisit when                                                                   |
+| --- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 001 | Expo React Native, not PWA or fully native                               | Reliable local notifications and a path to widgets and Live Activities from one codebase                                                          | Watch app becomes a priority                                                   |
+| 002 | Supabase EU over Laravel API                                             | Auth, RLS and Realtime ready made, solo capacity                                                                                                  | Egress or pricing hurts, or need server jobs Supabase can't do                 |
+| 003 | Custom event sync over PowerSync or ElectricSQL                          | One mostly append-only table makes custom sync small and fully understood                                                                         | Sync code passes 800 lines or conflicts get complex. PowerSync is the fallback |
+| 004 | Event sourcing with derived stock and stats                              | Conflict-free for concurrent caregivers                                                                                                           | Event counts per baby exceed 50k (not expected in 90 days)                     |
+| 005 | Local notifications for reminders, server push only for caregiver alerts | Fires offline, no health data leaves the device in a push                                                                                         | Never, this is core                                                            |
+| 006 | No interpretation of health data                                         | Stay outside medical device rules, avoid harm                                                                                                     | Only with regulatory advice                                                    |
+| 007 | Email OTP only at POC                                                    | Fastest to build, no App Store requirement for Apple sign in                                                                                      | P5                                                                             |
+| 008 | Pricing                                                                  | Deferred until beta retention is known. Leading option: free logging and sync for all caregivers, paid reports and widgets                        | After P4                                                                       |
+| 009 | Activity module registry instead of type switches                        | New activity types (bath, tummy time, vaccination, mother's recovery) cost one file, not edits across the app                                     | If a module needs to change another module's behaviour                         |
+| 010 | Appointments in the POC, not the beta                                    | They were in the original brief, the notification layer already exists at that point, and the questions list feeds the call script. About 4 hours | Never                                                                          |
 
 ---
 
@@ -695,16 +752,20 @@ Every trackable thing is a module that declares everything about itself. Nothing
 
 ```ts
 export type ActivityModule<P> = {
-  type: EventType;                                   // 'feed_bottle'
-  schema: ZodType<P>;                                // validation for forms, writes and pulls
-  i18nKey: string;                                   // label, never a literal string
+  type: EventType; // 'feed_bottle'
+  schema: ZodType<P>; // validation for forms, writes and pulls
+  i18nKey: string; // label, never a literal string
   icon: IconName;
-  quickAction?: { order: number };                   // appears on the home grid
-  LogSheet: ComponentType<LogSheetProps<P>>;         // its own form
-  summarize: (e: Event<P>) => { title: string; detail?: string };  // history and home rows
+  quickAction?: { order: number }; // appears on the home grid
+  historyGroup: HistoryGroup; // the history filter chip it belongs to
+  // No LogSheet here: domain imports no React (rule 3). Which sheet edits an
+  // activity is one exhaustive table, `EDITORS: Record<EventType, Editor | null>`
+  // in `app/entry/[id].tsx` — the composition root. A new activity doesn't
+  // compile until it names a sheet or null (null being delete-only).
+  summarize?: (e: Event<P>) => { key: string; values?: Record<string, unknown> }; // an i18n key, never text (rule 9)
   contributes?: {
-    stats?: (acc: Stats, e: Event<P>) => Stats;      // today strip and insights
-    stock?: (acc: Stock, e: Event<P>) => Stock;      // milk stock fold
+    stats?: (acc: Stats, e: Event<P>) => Stats; // today strip and insights
+    stock?: (acc: Stock, e: Event<P>) => Stock; // milk stock fold
     report?: (events: Event<P>[], range: Range) => ReportSection | null;
   };
   reminders?: (events: Event<P>[], settings: Settings, now: number) => ScheduledReminder[];

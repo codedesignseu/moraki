@@ -26,7 +26,7 @@ moraki/
     ui/                     tokens, theme, primitives (Card, Sheet, Stepper, Segmented, Chip, Timer)
     i18n/                   en.json, el.json
   supabase/
-    migrations/             numbered SQL
+    migrations/             <timestamp>_name.sql, as the Supabase CLI requires
     functions/              notify-caregivers, export-data, delete-household
     tests/                  pgTAP
   e2e/                      Maestro flows
