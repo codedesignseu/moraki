@@ -79,6 +79,8 @@ export function authServer(
     /** Rows a pull finds; `seq` is the PostgREST filter, e.g. "gt.7". */
     events?: (seq: string) => unknown[];
     acceptInvite?: () => Response;
+    /** grant_consent and withdraw_consent (P3-09). */
+    consent?: (path: string) => Response;
     createHousehold?: () => Response;
   } = {},
 ) {
@@ -169,6 +171,9 @@ export function authServer(
             }),
           )
         );
+      case '/rest/v1/rpc/grant_consent':
+      case '/rest/v1/rpc/withdraw_consent':
+        return options.consent?.(url.pathname) ?? json(200, new Date().toISOString());
       case '/rest/v1/rpc/create_household':
         return options.createHousehold?.() ?? new Response(null, { status: 204 });
       default:

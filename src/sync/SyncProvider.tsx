@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -11,6 +12,7 @@ import { AppState } from 'react-native';
 
 import {
   useCaregiversRepository,
+  useDevicePref,
   useEvents,
   useEventsRepository,
   useLinkedIdentity,
@@ -59,6 +61,14 @@ export function SyncProvider({
   const caregivers = useCaregiversRepository();
   const linked = useLinkedIdentity();
   const { auth, state } = useAuth();
+  // P3-09: nothing syncs for an account that hasn't agreed to health data
+  // being processed. The server refuses it too; this stops the phone asking.
+  const [consent] = useDevicePref('consent');
+  const userId = state.status === 'signedIn' ? state.user.id : null;
+  const consented = useCallback(
+    () => consent !== null && consent.userId === userId,
+    [consent, userId],
+  );
   // Re-pushes after every committed write (the events repository's signal).
   const events = useEvents();
   const [status, setStatus] = useState<PushStatus>(EMPTY);
@@ -67,11 +77,19 @@ export function SyncProvider({
   const cycle = useRef<() => void>(() => {});
 
   const engine = useMemo(
-    () => createPushEngine({ linked, outbox, auth, state, now: Date.now }),
-    [linked, outbox, auth, state],
+    () => createPushEngine({ linked, outbox, auth, state, now: Date.now, consented }),
+    [linked, outbox, auth, state, consented],
   );
   const pull = useMemo(
-    () => createPullEngine({ linked, events: eventsRepository, outbox, caregivers, auth, state }),
+    () =>
+      createPullEngine({
+        linked,
+        events: eventsRepository,
+        outbox,
+        caregivers,
+        auth,
+        state,
+      }),
     [linked, eventsRepository, outbox, caregivers, auth, state],
   );
 

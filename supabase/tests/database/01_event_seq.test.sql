@@ -6,6 +6,9 @@ select plan(12);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'a@example.test');
+-- P3-09: writing an event needs consent for the version in force.
+insert into public.consents (user_id, policy_version)
+  select id, public.consent_version() from auth.users;
 insert into public.households (id, name, created_by) values
   ('00000000-0000-0000-0000-0000000000a1', 'one', '00000000-0000-0000-0000-00000000000a'),
   ('00000000-0000-0000-0000-0000000000a2', 'two', '00000000-0000-0000-0000-00000000000a');

@@ -48,6 +48,9 @@ export function createPullEngine(deps: Deps) {
   let running: Promise<PullOutcome> | null = null;
 
   async function drain(): Promise<PullOutcome> {
+    // Consent (P3-09) gates writing, not reading: the server's select policy
+    // asks only for membership, so a caregiver who withdrew can still see
+    // what is already there, to export or delete it.
     const blocked = pushBlock(deps.linked(), deps.auth, deps.state);
     if (blocked) return { kind: 'blocked', by: blocked };
     const householdId = deps.linked()!.householdId;

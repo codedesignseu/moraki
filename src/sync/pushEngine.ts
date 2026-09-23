@@ -11,9 +11,13 @@ import { pushOps, PushTransportError, type PushResult } from './pushEvents';
  * before signing in still carry the placeholder household and user ids
  * migration 0001 seeded, and the server would refuse every one of them
  * (P2-F4). They wait for P2-11 to move them into the household instead of
- * filling the sync errors list.
+ * filling the sync errors list. `no_consent` is P3-09: nothing is written for
+ * a caregiver who hasn't agreed to health data being processed, and the
+ * server's insert and update policies refuse it anyway, so the phone doesn't
+ * try. Reading is not blocked, there or here: what is already in the
+ * household stays readable, to export or delete.
  */
-export type PushBlock = 'signed_out' | 'not_linked' | 'other_account';
+export type PushBlock = 'signed_out' | 'not_linked' | 'other_account' | 'no_consent';
 
 export type PushOutcome =
   | { kind: 'blocked'; by: PushBlock }
@@ -35,10 +39,12 @@ export function pushBlock(
   linked: LinkedIdentity,
   auth: Auth | null,
   state: AuthState,
+  consented = true,
 ): PushBlock | null {
   if (!auth || state.status !== 'signedIn') return 'signed_out';
   if (!linked) return 'not_linked';
-  return linked.userId === state.user.id ? null : 'other_account';
+  if (linked.userId !== state.user.id) return 'other_account';
+  return consented ? null : 'no_consent';
 }
 
 type Deps = {
@@ -48,6 +54,8 @@ type Deps = {
   auth: Auth | null;
   state: AuthState;
   now: () => number;
+  /** Whether this account has agreed to health data being processed (P3-09). */
+  consented?: () => boolean;
   /** Swapped in tests; the real one calls push_events. */
   send?: (auth: Auth, rows: readonly OutboxRow[]) => Promise<PushResult[]>;
 };
@@ -67,7 +75,7 @@ export function createPushEngine(deps: Deps) {
   let running: Promise<PushOutcome> | null = null;
 
   async function drain(): Promise<PushOutcome> {
-    const blocked = pushBlock(deps.linked(), deps.auth, deps.state);
+    const blocked = pushBlock(deps.linked(), deps.auth, deps.state, deps.consented?.() ?? true);
     if (blocked) return { kind: 'blocked', by: blocked };
 
     const totals = { applied: 0, ignored: 0, deferred: 0, rejected: 0 };
@@ -133,7 +141,7 @@ export function createPushEngine(deps: Deps) {
       return {
         pending: deps.outbox.pending(),
         errors: deps.outbox.errors().length,
-        blocked: pushBlock(deps.linked(), deps.auth, deps.state),
+        blocked: pushBlock(deps.linked(), deps.auth, deps.state, deps.consented?.() ?? true),
         lastPushAt,
         failures,
       };

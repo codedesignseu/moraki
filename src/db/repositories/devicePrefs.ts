@@ -48,6 +48,18 @@ export const DEVICE_PREFS = {
     schema: z.enum(['move', 'keep']).nullable(),
     default: null,
   },
+  /**
+   * This account's consent to health data being processed (P3-09, SDD 12).
+   * The server holds the real record; this is the phone's copy, so the app
+   * knows without the network whether to ask.
+   */
+  consent: {
+    key: 'pref.consent',
+    schema: z
+      .object({ userId: z.uuid(), version: z.string().min(1), grantedAt: z.number().int() })
+      .nullable(),
+    default: null,
+  },
 } as const;
 
 export type DevicePrefName = keyof typeof DEVICE_PREFS;

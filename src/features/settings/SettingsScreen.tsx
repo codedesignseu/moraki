@@ -10,6 +10,8 @@ import { useSyncErrors } from '@/sync/useSyncErrors';
 import { formatClock } from '@/domain/time/formatClock';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
+import { useConsent } from '@/features/privacy/useConsent';
+
 import { useCaregivers, type CaregiverRow } from './useCaregivers';
 import { useAdoption } from '@/sync/useAdoption';
 import { Button, Card, Segmented } from '@/ui/primitives';
@@ -46,6 +48,7 @@ export function SettingsScreen({
   onReport,
   onCallScript,
   onAbout,
+  onConsent,
 }: {
   onSignIn: () => void;
   onSetUpHousehold: () => void;
@@ -57,6 +60,8 @@ export function SettingsScreen({
   onCallScript: () => void;
   /** Opens the disclaimer and what the app does (P3-10). */
   onAbout: () => void;
+  /** Opens the consent screen (P3-09). */
+  onConsent: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -65,6 +70,7 @@ export function SettingsScreen({
   const { auth, state } = useAuth();
   const { household } = useAccountHousehold();
   const caregivers = useCaregivers();
+  const { granted: consented } = useConsent();
   const sync = useSyncStatus();
   const syncErrors = useSyncErrors();
   const adoption = useAdoption();
@@ -151,7 +157,9 @@ export function SettingsScreen({
       {state.status === 'signedIn' && (
         <Card testID="settings-sync">
           <Text style={theme.text.heading}>{t('settings.sync.title')}</Text>
-          {sync.blocked === 'not_linked' ? (
+          {sync.blocked === 'no_consent' ? (
+            <Text style={s.muted}>{t('settings.sync.noConsent')}</Text>
+          ) : sync.blocked === 'not_linked' ? (
             <Text style={s.muted}>{t('settings.sync.notShared')}</Text>
           ) : (
             <>
@@ -182,6 +190,16 @@ export function SettingsScreen({
               ))}
             </View>
           )}
+        </Card>
+      )}
+
+      {state.status === 'signedIn' && (
+        <Card testID="settings-privacy">
+          <Text style={theme.text.heading}>{t('settings.privacy.title')}</Text>
+          <Text style={s.muted}>
+            {t(consented ? 'settings.privacy.agreed' : 'settings.privacy.notAgreed')}
+          </Text>
+          <Button label={t('settings.privacy.consent')} variant="secondary" onPress={onConsent} />
         </Card>
       )}
 
