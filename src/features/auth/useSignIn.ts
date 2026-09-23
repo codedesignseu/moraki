@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import type { AuthUser, AuthError, type AuthFailure } from '@/sync/auth';
+import { AuthError, type AuthFailure, type AuthUser } from '@/sync/auth';
 import { useAuth } from '@/sync/AuthProvider';
 
 /**
