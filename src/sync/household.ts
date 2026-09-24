@@ -119,3 +119,32 @@ export async function findHousehold(auth: Auth, userId: string): Promise<Account
     role: mine.role,
   };
 }
+
+export type BabyDetails = {
+  name: string;
+  /** UTC epoch ms. */
+  bornAt: number;
+  birthWeightG: number | null;
+};
+
+/**
+ * Corrects the baby's details on the server (P4-10). A mistyped birth date
+ * or weight is not a small thing: day 0 and the 90% line of the weight chart
+ * are both measured from them (SDD 6.4).
+ *
+ * Any writer may (SDD 4.3 `babies_update` asks for `can_write`), because a
+ * typo is usually noticed by whoever is holding the baby, not by whoever
+ * created the household. A viewer cannot, and the server refuses it.
+ */
+export async function updateBaby(auth: Auth, babyId: string, details: BabyDetails): Promise<void> {
+  const { error } = await auth.client
+    .from('babies')
+    .update({
+      name: details.name.trim(),
+      born_at: new Date(details.bornAt).toISOString(),
+      birth_weight_g: details.birthWeightG,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', babyId);
+  if (error) throw failure(error);
+}

@@ -243,7 +243,7 @@ Gate to move on: 5 households recruited and onboarded.
 - [ ] P4-07 `feat(household): roles management, remove caregiver, viewer role UI` — depends: P2-06
 - [ ] P4-08 `chore(obs): sentry eu region, pii scrubbing, no breadcrumbs with payloads` — depends: P0-09
 - [ ] P4-09 `feat(onboarding): first run polish, empty states, permission explanations` — depends: P2-05
-- [ ] P4-10 `feat(settings): baby profile edit, multiple babies in schema only` — depends: P2-05 — status: in_progress
+- [x] P4-10 `feat(settings): baby profile edit, multiple babies in schema only` — depends: P2-05 — done: Settings opens the baby's details to correct the name, the birth date and the birth weight, which the weight chart measures day 0 and its reference lines from. Any writer may, as `babies_update` asks for `can_write`, not ownership: a typo is noticed by whoever is holding the baby. The change goes to the household's row and to this phone's copy at once, and the next pull carries it to the others (P1-F16). "I don't know it" stays a valid answer. 7 tests. Multiple babies remain schema-only, as the task says
 - [ ] P4-11 `docs: dpia, records of processing, retention policy, processor list` — depends: P3-09
 - [ ] P4-12 `build: testflight and play internal testing tracks, eas update channel` — depends: P0-09
 - [ ] P4-13 `feat(feedback): in-app feedback form to a supabase table, no third party` — depends: P2-04

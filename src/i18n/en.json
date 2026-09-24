@@ -366,7 +366,8 @@
         "owner": "Owner",
         "caregiver": "Logs entries",
         "viewer": "Views only"
-      }
+      },
+      "baby": "Baby details"
     },
     "sync": {
       "title": "Sharing",
@@ -726,5 +727,25 @@
       "unknown": "That didn't save. Try again."
     }
   },
-  "sync": {}
+  "sync": {},
+  "baby": {
+    "title": "Baby details",
+    "name": "Name",
+    "born": "Born this many days ago",
+    "daysAgo": "days",
+    "birthWeight": "Birth weight",
+    "weightKnown": "I know it",
+    "weightUnknown": "I don't know it",
+    "grams": "g",
+    "weightHint": "The weight chart measures day 0 and its lines from these, so a correction here fixes the whole chart.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved. The other phones pick it up when they next read the household.",
+    "problem": {
+      "offline": "No connection. Try again when you have one.",
+      "signed_out": "Sign in first.",
+      "unknown": "That didn't save. Try again."
+    },
+    "birthWeightGrams": "Birth weight in grams"
+  }
 }

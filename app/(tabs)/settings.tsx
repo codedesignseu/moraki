@@ -12,6 +12,7 @@ export default function Settings() {
       onInvite={() => router.push('/invite')}
       onReport={(range) => router.push({ pathname: '/report/[range]', params: { range } })}
       onAbout={() => router.push('/about')}
+      onBaby={() => router.push('/baby')}
       onCallScript={() => router.push('/report/call')}
       onConsent={() => router.push('/onboarding/consent')}
     />

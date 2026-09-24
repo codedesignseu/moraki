@@ -51,6 +51,7 @@ export function SettingsScreen({
   onReport,
   onCallScript,
   onAbout,
+  onBaby,
   onConsent,
 }: {
   onSignIn: () => void;
@@ -63,6 +64,8 @@ export function SettingsScreen({
   onCallScript: () => void;
   /** Opens the disclaimer and what the app does (P3-10). */
   onAbout: () => void;
+  /** Opens the baby's details to correct them (P4-10). */
+  onBaby: () => void;
   /** Opens the consent screen (P3-09). */
   onConsent: () => void;
 }) {
@@ -127,6 +130,7 @@ export function SettingsScreen({
                       ))}
                     </View>
                   )}
+                  <Button label={t('settings.account.baby')} variant="secondary" onPress={onBaby} />
                   {household.role === 'owner' && (
                     <Button
                       label={t('settings.account.invite')}
