@@ -11,6 +11,7 @@ import { formatClock } from '@/domain/time/formatClock';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 import { useConsent } from '@/features/privacy/useConsent';
+import { useExport } from '@/features/privacy/useExport';
 import { useRemindersState } from '@/notifications/RemindersProvider';
 import { INTERVAL_MIN, SECOND_MIN, useReminderSettings } from '@/sync/useReminderSettings';
 
@@ -73,6 +74,7 @@ export function SettingsScreen({
   const { household } = useAccountHousehold();
   const caregivers = useCaregivers();
   const { granted: consented } = useConsent();
+  const exporting = useExport();
   const reminders = useRemindersState();
   const reminderSettings = useReminderSettings();
   const sync = useSyncStatus();
@@ -227,6 +229,22 @@ export function SettingsScreen({
         />
       </Card>
 
+      <Card testID="settings-data">
+        <Text style={theme.text.heading}>{t('settings.data.title')}</Text>
+        <Button
+          label={t(exporting.busy ? 'settings.data.exporting' : 'settings.data.export')}
+          variant="secondary"
+          disabled={exporting.busy}
+          onPress={() => void exporting.exportAll()}
+        />
+        <Text style={s.muted}>{t('settings.data.exportHint')}</Text>
+        {exporting.problem && (
+          <Text style={s.alert} accessibilityRole="alert" testID="export-problem">
+            {t(`settings.data.exportProblem.${exporting.problem}`)}
+          </Text>
+        )}
+      </Card>
+
       <Card testID="settings-about">
         <Text style={theme.text.heading}>{t('settings.about.title')}</Text>
         <Text style={s.muted}>{t('about.disclaimer.title')}</Text>
@@ -335,5 +353,6 @@ const styles = (theme: Theme) =>
   StyleSheet.create({
     content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
     muted: { ...theme.text.label, color: theme.colors.textMuted },
+    alert: { ...theme.text.body, color: theme.colors.invalid },
     caregivers: { gap: theme.spacing.xs },
   });
