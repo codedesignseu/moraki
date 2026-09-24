@@ -1,4 +1,5 @@
 import {
+  isAppointment,
   isBottleFeed,
   isBreastFeed,
   isFeed,
@@ -55,6 +56,15 @@ export type ReportNote = {
 
 export type ReportMedication = { at: number; name: string; dose: string | null };
 
+/** The next visit and what to ask at it (SDD 6.5 item 7, P3-13). */
+export type ReportAppointment = {
+  at: number;
+  title: string;
+  doctor: string | null;
+  clinic: string | null;
+  questions: string[];
+};
+
 export type Report = {
   range: ReportRange;
   /** The window the figures cover, in UTC epoch ms. */
@@ -75,6 +85,12 @@ export type Report = {
   /** Health notes and medication in the window, oldest first. */
   notes: ReportNote[];
   medications: ReportMedication[];
+  /**
+   * The next appointment still to come, with the questions saved on it. Not
+   * bounded by the range: the call script exists to be read while talking to
+   * a clinic, and what someone meant to ask is the point of the call.
+   */
+  appointment: ReportAppointment | null;
 };
 
 const inWindow = (from: number, to: number) => (e: Event<unknown>) =>
@@ -184,6 +200,23 @@ export function buildReport(
       tempC: e.payload.temp_c ?? null,
       tags: e.payload.tags ?? [],
     })),
+    appointment: (() => {
+      const next = live
+        .filter(isAppointment)
+        .filter((e) => e.occurredAt > now)
+        .reduce<(typeof live)[number] | null>(
+          (soonest, e) => (soonest === null || e.occurredAt < soonest.occurredAt ? e : soonest),
+          null,
+        );
+      if (next === null || !isAppointment(next)) return null;
+      return {
+        at: next.occurredAt,
+        title: next.payload.title,
+        doctor: next.payload.doctor ?? null,
+        clinic: next.payload.clinic ?? null,
+        questions: next.payload.questions ?? [],
+      };
+    })(),
     medications: live
       .filter(inWindow(from, now))
       .filter(isMedication)

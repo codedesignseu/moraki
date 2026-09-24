@@ -2,6 +2,7 @@
 
 exports[`the whole object matches the recorded 7d report 1`] = `
 {
+  "appointment": null,
   "averageBottleMl": 80,
   "averageIntervalMs": 37440000,
   "baby": {
@@ -154,6 +155,7 @@ exports[`the whole object matches the recorded 7d report 1`] = `
 
 exports[`the whole object matches the recorded 24h report 1`] = `
 {
+  "appointment": null,
   "averageBottleMl": 80,
   "averageIntervalMs": 37440000,
   "baby": {

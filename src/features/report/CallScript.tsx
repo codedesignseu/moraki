@@ -19,7 +19,7 @@ export function CallScript() {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
-  const { report, tz, knowsBirth, worry, setWorry } = useCallScript();
+  const { report, tz, knowsBirth, worry, setWorry, dateTime } = useCallScript();
   const feeds = report.last24h.feeds;
 
   return (
@@ -141,6 +141,31 @@ export function CallScript() {
                 })}
               </Text>
             ))}
+          </Card>
+        )}
+
+        {report.appointment && (
+          <Card testID="call-questions">
+            <Text style={s.section}>{t('report.call.questions.title')}</Text>
+            <Text style={s.muted}>
+              {t('report.call.questions.visit', {
+                title: report.appointment.title,
+                date: dateTime(report.appointment.at),
+              })}
+            </Text>
+            {report.appointment.questions.length > 0 ? (
+              report.appointment.questions.map((question, index) => (
+                <Text
+                  key={`${index}-${question}`}
+                  style={theme.text.title}
+                  testID={`call-question-${index}`}
+                >
+                  {question}
+                </Text>
+              ))
+            ) : (
+              <Text style={s.muted}>{t('report.call.questions.none')}</Text>
+            )}
           </Card>
         )}
 
