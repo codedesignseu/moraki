@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
@@ -74,6 +74,30 @@ export function InviteScreen() {
           <Text style={s.muted}>{t('invite.singleUse')}</Text>
         </Card>
       )}
+
+      {invite.open.length > 0 && (
+        <Card testID="invite-open">
+          <Text style={theme.text.heading}>{t('invite.openTitle')}</Text>
+          {invite.open.map((row) => (
+            <View key={row.code} style={s.row} testID={`invite-open-${row.code}`}>
+              <Text style={theme.text.body}>
+                {t(row.expired ? 'invite.openRowExpired' : 'invite.openRow', {
+                  code: row.shown,
+                  role: t(`invite.role.${row.role}`),
+                  date: formatDateTime(row.expiresAt, deviceTimeZone(), dateLocale(i18n.language)),
+                })}
+              </Text>
+              <Button
+                label={t('invite.revoke')}
+                variant="secondary"
+                disabled={invite.busy}
+                onPress={() => invite.revoke(row.code)}
+              />
+            </View>
+          ))}
+          <Text style={s.muted}>{t('invite.revokeHint')}</Text>
+        </Card>
+      )}
     </ScrollView>
   );
 }
@@ -84,4 +108,5 @@ const styles = (theme: Theme) =>
     muted: { ...theme.text.label, color: theme.colors.textMuted },
     alert: { ...theme.text.body, color: theme.colors.invalid },
     code: { ...theme.text.display, letterSpacing: theme.spacing.xs, textAlign: 'center' },
+    row: { gap: theme.spacing.xs },
   });

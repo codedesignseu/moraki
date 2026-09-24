@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from 'expo-router/testing-library';
+import { fireEvent, screen, waitFor, within } from 'expo-router/testing-library';
 import { Share } from 'react-native';
 
 import { outbox } from '@/db/schema';
@@ -104,6 +104,9 @@ describe('inviting a caregiver', () => {
     ).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: 'Create invite' })).toBeNull();
     expect(server.calls.some((c) => c.path === '/rest/v1/rpc/create_invite')).toBe(false);
+    // Nor does the screen quietly read the household's codes on the way in:
+    // only the owner may see them (SDD 4.3), so it doesn't ask.
+    expect(server.calls.some((c) => c.path === '/rest/v1/invites')).toBe(false);
   });
 
   it('is offered to the owner only', async () => {
@@ -114,6 +117,95 @@ describe('inviting a caregiver', () => {
     await press(/Settings/);
     await screen.findByText('Household: Ella');
     expect(screen.queryByRole('button', { name: 'Invite a caregiver' })).toBeNull();
+  });
+});
+
+describe('codes that are still waiting', () => {
+  const inSevenDays = new Date(Date.parse('2026-11-04T12:00:00Z')).toISOString();
+  const lastWeek = new Date(Date.parse('2026-10-21T12:00:00Z')).toISOString();
+
+  it('lists the unused ones, and says which have expired', async () => {
+    await signedIn({
+      ...owner,
+      openInvites: [
+        { code: 'ABCDEFGH', role: 'caregiver', expires_at: inSevenDays },
+        { code: 'JKMNPQRS', role: 'viewer', expires_at: lastWeek },
+      ],
+    });
+    await press(/Settings/);
+    await press('Invite a caregiver');
+
+    const card = within(await screen.findByTestId('invite-open'));
+    expect(card.getByText(/ABCD-EFGH · Log entries · until/)).toBeOnTheScreen();
+    // An expired code still shows: "it expired" is the answer to "why hasn't
+    // the link worked", and it can be cleared away.
+    expect(card.getByText(/JKMN-PQRS · View only · expired/)).toBeOnTheScreen();
+  });
+
+  it('withdraws one, so a link shared by mistake stops working', async () => {
+    const withdrawn: string[] = [];
+    await signedIn({
+      ...owner,
+      openInvites: [{ code: 'ABCDEFGH', role: 'caregiver', expires_at: inSevenDays }],
+      revokeInvite: (code) => withdrawn.push(code),
+    });
+    await press(/Settings/);
+    await press('Invite a caregiver');
+    await screen.findByTestId('invite-open-ABCDEFGH');
+
+    await fireEvent.press(
+      within(screen.getByTestId('invite-open-ABCDEFGH')).getByRole('button', {
+        name: 'Withdraw this code',
+      }),
+    );
+
+    await waitFor(() => expect(withdrawn).toEqual(['ABCDEFGH']));
+  });
+
+  it('leaves out a code that has been used, and another household’s', async () => {
+    await signedIn({
+      ...owner,
+      openInvites: [
+        { code: 'ABCDEFGH', role: 'caregiver', expires_at: inSevenDays },
+        // Already redeemed, so it is nobody's way in any more.
+        { code: 'RSTUVWXY', role: 'caregiver', expires_at: inSevenDays, used_at: lastWeek },
+        // Someone else's household entirely.
+        {
+          code: 'MNPQRSTU',
+          role: 'viewer',
+          expires_at: inSevenDays,
+          household_id: '0190a0b0-0000-7000-8000-0000000000f9',
+        },
+      ],
+    });
+    await press(/Settings/);
+    await press('Invite a caregiver');
+
+    const card = within(await screen.findByTestId('invite-open'));
+    expect(card.getByTestId('invite-open-ABCDEFGH')).toBeOnTheScreen();
+    expect(card.queryByTestId('invite-open-RSTUVWXY')).toBeNull();
+    expect(card.queryByTestId('invite-open-MNPQRSTU')).toBeNull();
+  });
+
+  it('never asks for the list on a phone that may not see it', async () => {
+    const server = await signedIn({
+      babies: [{ id: BABY_ID, name: 'Ella', household_id: HOUSEHOLD_ID }],
+      memberships: [{ household_id: HOUSEHOLD_ID, role: 'caregiver' as const }],
+      openInvites: [{ code: 'ABCDEFGH', role: 'caregiver', expires_at: inSevenDays }],
+    });
+    await press(/Settings/);
+    // A caregiver isn't offered the screen at all, and asks the server nothing.
+    expect(screen.queryByRole('button', { name: 'Invite a caregiver' })).toBeNull();
+    expect(server.calls.some((c) => c.path === '/rest/v1/invites')).toBe(false);
+  });
+
+  it('shows nothing when every code has been used', async () => {
+    await signedIn({ ...owner, openInvites: [] });
+    await press(/Settings/);
+    await press('Invite a caregiver');
+
+    await screen.findByTestId('invite-role');
+    expect(screen.queryByTestId('invite-open')).toBeNull();
   });
 });
 

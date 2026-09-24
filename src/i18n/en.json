@@ -535,7 +535,12 @@
       "expired": "Couldn’t create an invite. Try again.",
       "already_in_household": "Couldn’t create an invite. Try again.",
       "unknown": "Couldn’t create an invite. Try again."
-    }
+    },
+    "openTitle": "Codes waiting to be used",
+    "openRow": "{{code}} · {{role}} · until {{date}}",
+    "openRowExpired": "{{code}} · {{role}} · expired {{date}}",
+    "revoke": "Withdraw this code",
+    "revokeHint": "Withdrawing stops the code working straight away, for anyone who has the link."
   },
   "join": {
     "title": "Join a household",
