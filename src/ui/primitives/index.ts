@@ -3,6 +3,7 @@ export { BarChart } from './BarChart';
 export { Button } from './Button';
 export { Card } from './Card';
 export { Chip } from './Chip';
+export { DateTimeField } from './DateTimeField';
 export { EntryRow } from './EntryRow';
 export { Notice } from './Notice';
 export type { ChartLine, ChartMark, ChartPoint } from './PointChart';

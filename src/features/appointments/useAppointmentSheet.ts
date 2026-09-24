@@ -53,11 +53,16 @@ export function useAppointmentSheet(entryId?: string) {
   });
   const [draft, setDraft] = useState('');
 
-  const at =
+  // The steppers say "in N days at HH:MM"; the picker sets the moment
+  // outright. Whichever was touched last is the answer: the picker's choice
+  // stands until a stepper moves, which clears it.
+  const [exact, setExact] = useState<number | null>(null);
+  const fromSteppers =
     startOfLocalDay(openedAt, tz) +
     time.days * DAY_MS +
     time.hour * HOUR_MS +
     time.minute * MINUTE_MS;
+  const at = exact ?? fromSteppers;
 
   return {
     form,
@@ -70,8 +75,12 @@ export function useAppointmentSheet(entryId?: string) {
     canSave: form.title.trim() !== '',
     draft,
     setDraft,
-    setTime: (changes: Partial<AppointmentTime>) =>
-      setTime((current) => ({ ...current, ...changes })),
+    setTime: (changes: Partial<AppointmentTime>) => {
+      setExact(null);
+      setTime((current) => ({ ...current, ...changes }));
+    },
+    /** The picker's answer, which stands until a stepper moves again. */
+    setAt: setExact,
     update: (changes: Partial<AppointmentForm>) =>
       setForm((current) => ({ ...current, ...changes })),
     addQuestion: () => {

@@ -42,6 +42,10 @@ export function useFeedSheet(entryId?: string) {
       feedPrefill(events, selectHomeState(events, openedAt, tz, DEFAULT_HOME_SETTINGS).nextSide),
   );
   const [shift, setShift] = useState(0);
+  // Set outright when someone is writing up a feed from earlier (P3-F7);
+  // null means "now", which is what logging as it happens wants.
+  const [exactAt, setExactAt] = useState<number | null>(null);
+  const startedAt = exactAt ?? openedAt;
 
   function save() {
     if (target) {
@@ -52,7 +56,7 @@ export function useFeedSheet(entryId?: string) {
     // the sheet opened (P1-19). A mixed feed is one session, so its bottle part
     // starts then too, and "since last feed" counts from the start either way.
     const hasBreast = form.kind !== 'bottle';
-    const start = hasBreast ? openedAt - form.breastMinutes * MINUTE_MS : openedAt;
+    const start = hasBreast ? startedAt - form.breastMinutes * MINUTE_MS : startedAt;
     const bottle = {
       type: 'feed_bottle' as const,
       occurredAt: start,
@@ -65,7 +69,7 @@ export function useFeedSheet(entryId?: string) {
     const breast = {
       type: 'feed_breast' as const,
       occurredAt: start,
-      endedAt: openedAt,
+      endedAt: startedAt,
       payload: { side: form.side },
     };
     saves.insert(
@@ -119,11 +123,15 @@ export function useFeedSheet(entryId?: string) {
     /** "At 14:05" for a bottle; "13:50 to 14:05" when a breastfeed's start is back-dated. */
     when:
       form.kind === 'bottle'
-        ? { at: formatClock(openedAt, tz) }
+        ? { at: formatClock(startedAt, tz) }
         : {
-            from: formatClock(openedAt - form.breastMinutes * MINUTE_MS, tz),
-            to: formatClock(openedAt, tz),
+            from: formatClock(startedAt - form.breastMinutes * MINUTE_MS, tz),
+            to: formatClock(startedAt, tz),
           },
+    /** The moment the feed is being recorded at, and the words for it. */
+    at: startedAt,
+    atLabel: formatDateTime(startedAt, tz, dateLocale(i18n.language)),
+    setAt: setExactAt,
     /** Editing only: the time stepper and the feed's new start. */
     shift,
     setShift,

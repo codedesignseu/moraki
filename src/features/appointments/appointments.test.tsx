@@ -40,7 +40,7 @@ const appointments = () => repo.list().filter((e) => e.type === 'appointment');
 async function openSheet() {
   await renderApp(repo);
   await press('Add an appointment');
-  await screen.findByTestId('appointment-when');
+  await screen.findByTestId('appointment-when-value');
 }
 
 describe('booking an appointment', () => {
@@ -52,7 +52,7 @@ describe('booking an appointment', () => {
     await nudge('How many days from today', 'increment', 2);
     await nudge('Hour', 'increment');
 
-    expect(screen.getByTestId('appointment-when')).toHaveTextContent('Sat 31 Oct, 11:00');
+    expect(screen.getByTestId('appointment-when-value')).toHaveTextContent('Sat 31 Oct, 11:00');
     await press('Save');
 
     expect(appointments()).toHaveLength(1);
@@ -155,7 +155,7 @@ describe('the next appointment on home', () => {
     expect(await screen.findByDisplayValue('Six week check')).toBeOnTheScreen();
     // The row holds the question and its Remove button.
     expect(within(screen.getByTestId('question-0')).getByText('Why?')).toBeOnTheScreen();
-    expect(screen.getByTestId('appointment-when')).toHaveTextContent('Fri 30 Oct, 14:00');
+    expect(screen.getByTestId('appointment-when-value')).toHaveTextContent('Fri 30 Oct, 14:00');
   });
 });
 

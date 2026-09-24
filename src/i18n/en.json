@@ -167,7 +167,8 @@
         "fridge": "Fridge",
         "freezer": "Freezer",
         "have": "Fridge {{fridge}} mL · Freezer {{freezer}} mL"
-      }
+      },
+      "when": "Feed time"
     },
     "pump": {
       "title": "Pump",
@@ -221,7 +222,11 @@
         "minutes": "min",
         "range": "{{from}} to {{to}}",
         "save": "Save past sleep"
-      }
+      },
+      "startedAt": "Sleep started",
+      "endedAt": "Sleep ended",
+      "exactHint": "Or set both ends, if you are writing it up later.",
+      "backwards": "A sleep has to end after it starts."
     },
     "characters": "{{count}} of {{max}} characters",
     "health": {
@@ -246,7 +251,9 @@
       "title": "Medication",
       "name": "Medication name",
       "nameMissing": "Add the medication name to save this entry.",
-      "dose": "Dose (optional)"
+      "dose": "Dose (optional)",
+      "adding": "Add a dose",
+      "prefilled": "Filled in from the last dose. Change it if this one is different."
     },
     "weight": {
       "title": "Weight",
@@ -256,7 +263,8 @@
         "label": "Scale",
         "home": "At home",
         "clinic": "At the clinic"
-      }
+      },
+      "when": "Weighed at"
     },
     "appointment": {
       "screen": "Appointment",
@@ -274,8 +282,10 @@
       "questionsHint": "These come up at the end of the call script, so you have them when you speak to someone.",
       "addQuestion": "A question to ask",
       "add": "Add question",
-      "removeQuestion": "Remove"
-    }
+      "removeQuestion": "Remove",
+      "exact": "Appointment time"
+    },
+    "exactTime": "Set exact time"
   },
   "dev": {
     "webStandIn": "Web preview: test data only. Entries live in this browser tab and vanish on reload. This is not the phone’s database."

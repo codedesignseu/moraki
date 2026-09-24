@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, Stepper, TextField } from '@/ui/primitives';
+import { Button, DateTimeField, Stepper, TextField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useAppointmentSheet } from './useAppointmentSheet';
@@ -63,9 +63,14 @@ export function AppointmentSheet({ onDone, entryId }: { onDone: () => void; entr
             accessibilityLabel={t('log.appointment.atMinute')}
           />
         </View>
-        <Text style={theme.text.title} testID="appointment-when">
-          {sheet.when}
-        </Text>
+        <DateTimeField
+          label={t('log.appointment.exact')}
+          value={sheet.at}
+          onChange={sheet.setAt}
+          display={sheet.when}
+          openLabel={t('log.exactTime')}
+          testID="appointment-when"
+        />
 
         <TextField
           label={t('log.appointment.doctor')}
