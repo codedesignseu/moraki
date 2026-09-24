@@ -15,6 +15,18 @@ Source: `02-sdd-and-build-plan.md` section 10.3, version 0.3.
 
 ## Waiting on device
 
+**Three checks are with the owner as of 2026-09-24**, to be reported together:
+
+1. **P2-04**, airplane mode, on the **preview** APK (the development build
+   cannot answer this: its JS comes from the packager over Wi-Fi).
+2. **P3-12**, both appointment reminders, on the **development** build.
+3. **P3-F4**, the keyboard clearing the call script's worry box, on the
+   development build, which hot-reloads the fix.
+
+The two builds share a package name, so installing one replaces the other:
+the preview APK first for (1), then the development build again for (2) and
+(3). Nothing below moves until these are reported.
+
 Checks that need real hardware. They are queued, not blocking: work continues,
 and this list is cleared in one pass once the Android phone is available. Add
 to it whenever a task's done-when can only be met on a device.
