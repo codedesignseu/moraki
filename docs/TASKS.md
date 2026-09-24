@@ -236,7 +236,7 @@ Gate to move on: 5 households recruited and onboarded.
 - [ ] P4-02 `feat(push): push token registration and notify-caregivers edge function, content free, opt-in` — depends: P2-10
 - [ ] P4-03 `chore(arch): enforce layer boundaries with eslint import rules and dependency-cruiser in CI` — depends: P3-12
 - [ ] P4-04 `feat(i18n): greek locale and date formats, language switch` — depends: P0-07
-- [ ] P4-05 `feat(privacy): export all household data as json and csv` — depends: P2-09
+- [ ] P4-05 `feat(privacy): export all household data as json and csv` — depends: P2-09 — status: in_progress
 - [ ] P4-06 `feat(privacy): leave household, delete account, delete household with cascade` — depends: P2-06
 - [ ] P4-07 `feat(household): roles management, remove caregiver, viewer role UI` — depends: P2-06
 - [ ] P4-08 `chore(obs): sentry eu region, pii scrubbing, no breadcrumbs with payloads` — depends: P0-09
