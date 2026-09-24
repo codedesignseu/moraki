@@ -69,7 +69,10 @@ describe('asking for consent', () => {
     ).toBeOnTheScreen();
     expect(card.getByText(/servers in the EU/)).toBeOnTheScreen();
     expect(card.getByText(/never sold, never used for advertising/)).toBeOnTheScreen();
-    expect(card.getByText(/export everything or delete it at any time/)).toBeOnTheScreen();
+    expect(card.getByText(/export everything at any time/)).toBeOnTheScreen();
+    // The app cannot delete from the servers yet (P4-06), so the screen does
+    // not say it can.
+    expect(card.queryByText(/delete it at any time/)).toBeNull();
     expect(card.getByText('Policy version 2026-09-23')).toBeOnTheScreen();
     // Nothing is agreed by opening the screen.
     expect(screen.getByRole('button', { name: 'I agree' })).toBeOnTheScreen();

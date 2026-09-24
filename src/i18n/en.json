@@ -706,7 +706,7 @@
     "what": "Moraki records what you log about your baby: feeds, diapers, sleep, weight, temperatures, notes and medication. That is health data, so we ask before processing it.",
     "where": "It is stored on your phone and, once you sign in, on servers in the EU so your caregivers see it too.",
     "who": "Only people in your household see it. It is never sold, never used for advertising, and never used to train anything.",
-    "rights": "You can export everything or delete it at any time. You can withdraw this agreement at any time.",
+    "rights": "You can export everything at any time. Deleting it from the servers is coming soon; until then, withdrawing this agreement stops it being processed, and you can delete any entry on this phone.",
     "version": "Policy version {{version}}",
     "versionName": "2026-09-23",
     "agree": "I agree",
