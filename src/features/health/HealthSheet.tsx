@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
@@ -90,61 +90,74 @@ export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?:
     );
 
   return (
-    <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-      {entry ? (
-        <TimeShiftField
-          label={t('entry.moveTime')}
-          minutes={shift}
-          onChange={setShift}
-          unit={t('entry.minutes')}
-          result={t('entry.newTime', {
-            time: formatDateTime(
-              entry.occurredAt + shift * MINUTE_MS,
-              tz,
-              dateLocale(i18n.language),
-            ),
-          })}
-        />
-      ) : (
-        <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
-      )}
-      <TextField
-        label={t('log.health.note')}
-        value={note}
-        onChangeText={setNote}
-        maxLength={HEALTH_NOTE_MAX}
-        multiline
-        hint={t('log.characters', { count: note.length, max: HEALTH_NOTE_MAX })}
-        invalid={attempted && nothingToSave}
-        message={t('log.health.noteOrTemp')}
-      />
-      <TextField
-        label={t('log.health.temperature')}
-        value={temperature}
-        onChangeText={setTemperature}
-        keyboardType="decimal-pad"
-        invalid={attempted && tempInvalid}
-        message={tempMessage}
-      />
-      <Text style={theme.text.label}>{t('log.health.tags')}</Text>
-      <View style={s.tags}>
-        {HEALTH_TAGS.map((tag) => (
-          <Chip
-            key={tag}
-            label={t(`log.health.tag.${tag}`)}
-            selected={tags.includes(tag)}
-            onPress={() => toggle(tag)}
+    // Save is the last thing on the sheet, so without this the keyboard sits
+    // on top of it and there is no way to finish (P3-F8).
+    <KeyboardAvoidingView style={s.fill} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView
+        contentContainerStyle={s.content}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
+      >
+        {entry ? (
+          <TimeShiftField
+            label={t('entry.moveTime')}
+            minutes={shift}
+            onChange={setShift}
+            unit={t('entry.minutes')}
+            result={t('entry.newTime', {
+              time: formatDateTime(
+                entry.occurredAt + shift * MINUTE_MS,
+                tz,
+                dateLocale(i18n.language),
+              ),
+            })}
           />
-        ))}
-      </View>
-      <Button label={t('log.save')} onPress={save} />
-    </ScrollView>
+        ) : (
+          <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
+        )}
+        <TextField
+          label={t('log.health.note')}
+          value={note}
+          onChangeText={setNote}
+          maxLength={HEALTH_NOTE_MAX}
+          multiline
+          hint={t('log.characters', { count: note.length, max: HEALTH_NOTE_MAX })}
+          invalid={attempted && nothingToSave}
+          message={t('log.health.noteOrTemp')}
+        />
+        <TextField
+          label={t('log.health.temperature')}
+          value={temperature}
+          onChangeText={setTemperature}
+          keyboardType="decimal-pad"
+          invalid={attempted && tempInvalid}
+          message={tempMessage}
+        />
+        <Text style={theme.text.label}>{t('log.health.tags')}</Text>
+        <View style={s.tags}>
+          {HEALTH_TAGS.map((tag) => (
+            <Chip
+              key={tag}
+              label={t(`log.health.tag.${tag}`)}
+              selected={tags.includes(tag)}
+              onPress={() => toggle(tag)}
+            />
+          ))}
+        </View>
+        <Button label={t('log.save')} onPress={save} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+    fill: { flex: 1 },
+    content: {
+      padding: theme.spacing.lg,
+      paddingBottom: theme.spacing.xl,
+      gap: theme.spacing.lg,
+    },
     muted: { ...theme.text.label, color: theme.colors.textMuted },
     tags: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   });

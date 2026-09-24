@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
@@ -68,47 +68,68 @@ export function MedicationSheet({ onDone, entryId }: { onDone: () => void; entry
   }
 
   return (
-    <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-      {entry ? (
-        <TimeShiftField
-          label={t('entry.moveTime')}
-          minutes={shift}
-          onChange={setShift}
-          unit={t('entry.minutes')}
-          result={t('entry.newTime', {
-            time: formatDateTime(
-              entry.occurredAt + shift * MINUTE_MS,
-              tz,
-              dateLocale(i18n.language),
-            ),
-          })}
+    // Save is the last thing on the sheet, so without this the keyboard sits
+    // on top of it and there is no way to finish (P3-F8).
+    <KeyboardAvoidingView
+      style={s.fill}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      testID="medication-sheet"
+    >
+      <ScrollView
+        contentContainerStyle={s.content}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
+      >
+        {entry ? (
+          <TimeShiftField
+            label={t('entry.moveTime')}
+            minutes={shift}
+            onChange={setShift}
+            unit={t('entry.minutes')}
+            result={t('entry.newTime', {
+              time: formatDateTime(
+                entry.occurredAt + shift * MINUTE_MS,
+                tz,
+                dateLocale(i18n.language),
+              ),
+            })}
+          />
+        ) : (
+          <>
+            <Text style={theme.text.heading}>{t('log.medication.adding')}</Text>
+            <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
+            {last !== null && <Text style={s.muted}>{t('log.medication.prefilled')}</Text>}
+          </>
+        )}
+        <TextField
+          label={t('log.medication.name')}
+          value={name}
+          onChangeText={setName}
+          maxLength={MEDICATION_NAME_MAX}
+          hint={t('log.characters', { count: name.length, max: MEDICATION_NAME_MAX })}
+          invalid={attempted && nameMissing}
+          message={t('log.medication.nameMissing')}
         />
-      ) : (
-        <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
-      )}
-      <TextField
-        label={t('log.medication.name')}
-        value={name}
-        onChangeText={setName}
-        maxLength={MEDICATION_NAME_MAX}
-        hint={t('log.characters', { count: name.length, max: MEDICATION_NAME_MAX })}
-        invalid={attempted && nameMissing}
-        message={t('log.medication.nameMissing')}
-      />
-      <TextField
-        label={t('log.medication.dose')}
-        value={dose}
-        onChangeText={setDose}
-        maxLength={MEDICATION_DOSE_MAX}
-        hint={t('log.characters', { count: dose.length, max: MEDICATION_DOSE_MAX })}
-      />
-      <Button label={t('log.save')} onPress={save} />
-    </ScrollView>
+        <TextField
+          label={t('log.medication.dose')}
+          value={dose}
+          onChangeText={setDose}
+          maxLength={MEDICATION_DOSE_MAX}
+          hint={t('log.characters', { count: dose.length, max: MEDICATION_DOSE_MAX })}
+        />
+        <Button label={t('log.save')} onPress={save} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+    fill: { flex: 1 },
+    content: {
+      padding: theme.spacing.lg,
+      paddingBottom: theme.spacing.xl,
+      gap: theme.spacing.lg,
+    },
     muted: { ...theme.text.label, color: theme.colors.textMuted },
   });

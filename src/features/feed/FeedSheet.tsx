@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import { BREAST_MINUTES, type FeedKind, type FeedPrefill } from '@/domain/activities';
-import { Button, Segmented, Stepper, TimeShiftField } from '@/ui/primitives';
+import { Button, DateTimeField, Segmented, Stepper, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useFeedSheet } from './useFeedSheet';
@@ -16,8 +16,20 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
-  const { form, when, update, save, editing, shift, setShift, newStart, stock } =
-    useFeedSheet(entryId);
+  const {
+    form,
+    when,
+    update,
+    save,
+    editing,
+    shift,
+    setShift,
+    newStart,
+    stock,
+    at,
+    atLabel,
+    setAt,
+  } = useFeedSheet(entryId);
 
   const kinds: { value: FeedKind; label: string }[] = [
     { value: 'bottle', label: t('log.feed.kind.bottle') },
@@ -55,9 +67,22 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
           result={t('entry.newTime', { time: newStart })}
         />
       ) : (
-        <Text style={s.muted}>
-          {'at' in when ? t('log.time', { time: when.at }) : t('log.feed.range', when)}
-        </Text>
+        <>
+          <Text style={s.muted}>
+            {'at' in when ? t('log.time', { time: when.at }) : t('log.feed.range', when)}
+          </Text>
+          {/* The fast path is logging it now; this is for writing one up
+              later (P3-F7). */}
+          <DateTimeField
+            label={t('log.feed.when')}
+            value={at}
+            onChange={setAt}
+            display={atLabel}
+            openLabel={t('log.exactTime')}
+            maximumDate={new Date()}
+            testID="feed-when"
+          />
+        </>
       )}
       <Segmented
         options={kinds}

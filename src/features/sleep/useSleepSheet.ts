@@ -31,9 +31,15 @@ export function useSleepSheet() {
   const [startedAgo, setStartedAgo] = useState<number>(PAST_SLEEP.startedAgo.initial);
   const [duration, setDuration] = useState<number>(PAST_SLEEP.duration.initial);
   // A past sleep ends by the time the sheet opened.
+  // Set outright when someone writes a sleep up afterwards and knows the two
+  // times (P3-F7). Null means the steppers below are the answer, which is the
+  // fast path for "she went down about an hour ago".
+  const [exactStart, setExactStart] = useState<number | null>(null);
+  const [exactEnd, setExactEnd] = useState<number | null>(null);
+
   const maxDuration = startedAgo;
-  const start = openedAt - startedAgo * MINUTE_MS;
-  const end = start + Math.min(duration, maxDuration) * MINUTE_MS;
+  const start = exactStart ?? openedAt - startedAgo * MINUTE_MS;
+  const end = exactEnd ?? start + Math.min(duration, maxDuration) * MINUTE_MS;
 
   return {
     running: running && { id: running.id, startedAt: formatClock(running.occurredAt, tz) },
@@ -48,6 +54,18 @@ export function useSleepSheet() {
         setDuration((current) => Math.min(current, minutes));
       },
       duration: Math.min(duration, maxDuration),
+      /** Both ends, for setting them directly rather than as an offset. */
+      start,
+      end,
+      setStart: (at: number) => {
+        setExactStart(at);
+        // An end still measured from the old start would jump; keep the
+        // length the steppers say unless it was set outright too.
+        if (exactEnd !== null && exactEnd <= at) setExactEnd(null);
+      },
+      setEnd: setExactEnd,
+      /** A sleep must end after it starts; the sheet says so rather than saving it. */
+      endsBeforeItStarts: end <= start,
       setDuration,
       maxDuration,
       from: formatClock(start, tz),

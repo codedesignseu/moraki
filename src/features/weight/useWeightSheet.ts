@@ -22,6 +22,9 @@ export function useWeightSheet(birthWeightG: number | null) {
   const saves = useUndoableSaves(repository);
   const events = useEvents();
   const [openedAt] = useState(Date.now);
+  // A weight is often copied from a clinic visit days later (P3-F7).
+  const [exactAt, setExactAt] = useState<number | null>(null);
+  const at = exactAt ?? openedAt;
   const [form, setForm] = useState<WeightForm>(() => {
     const last = events
       .filter((e) => e.deletedAt === null)
@@ -38,11 +41,13 @@ export function useWeightSheet(birthWeightG: number | null) {
 
   return {
     form,
+    at,
+    setAt: setExactAt,
     update: (changes: Partial<WeightForm>) => setForm((current) => ({ ...current, ...changes })),
     save: () =>
       saves.insert('undo.weightSaved', {
         type: 'weight',
-        occurredAt: openedAt,
+        occurredAt: at,
         payload: { grams: form.grams, source: form.source },
       }),
   };
