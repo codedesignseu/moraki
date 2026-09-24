@@ -52,6 +52,24 @@ export function HomeScreen({
         )}
       </Card>
 
+      {home.duplicate && (
+        <Card testID="home-duplicate">
+          <Text style={theme.text.body}>
+            {t('home.duplicate.question', { name: home.duplicate.by, time: home.duplicate.time })}
+          </Text>
+          <Button
+            label={t('home.duplicate.keepBoth')}
+            variant="secondary"
+            onPress={() => home.keepBoth(home.duplicate?.id ?? '')}
+          />
+          <Button
+            label={t('home.duplicate.removeMine')}
+            variant="secondary"
+            onPress={() => home.removeDuplicate(home.duplicate?.id ?? '')}
+          />
+        </Card>
+      )}
+
       {home.activeSleep && (
         <Card testID="home-sleep">
           <Text style={s.muted}>{t('home.sleep.label', { time: home.activeSleep.startedAt })}</Text>

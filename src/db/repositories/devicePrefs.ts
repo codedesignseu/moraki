@@ -74,6 +74,13 @@ export const DEVICE_PREFS = {
    */
   reminders: { key: 'pref.reminders', schema: z.boolean(), default: false },
   /**
+   * Feeds this phone has been asked about as possible duplicates and told to
+   * keep (SDD 5.6, P4-01). Per phone and never synced: it records an answer
+   * given here, not anything about the baby. Only the most recent are kept,
+   * since an old answer can never be asked again.
+   */
+  keptDuplicates: { key: 'pref.kept_duplicates', schema: z.array(z.string()).max(50), default: [] },
+  /**
    * This account's consent to health data being processed (P3-09, SDD 12).
    * The server holds the real record; this is the phone's copy, so the app
    * knows without the network whether to ask.
