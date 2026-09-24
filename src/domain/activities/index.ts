@@ -24,6 +24,7 @@ registerActivity(appointmentModule);
 
 export * from './contract';
 export * from './feedPrefill';
+export * from './appointmentPrefill';
 export * from './pumpPrefill';
 export * from './queries';
 export { getActivity, listActivities, registerActivity } from './registry';

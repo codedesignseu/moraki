@@ -6,6 +6,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
 import { getActivity, type EventType } from '@/domain/activities';
+import { AppointmentSheet } from '@/features/appointments/AppointmentSheet';
 import { DiaperSheet } from '@/features/diaper/DiaperSheet';
 import { FeedSheet } from '@/features/feed/FeedSheet';
 import { HealthSheet } from '@/features/health/HealthSheet';
@@ -32,7 +33,7 @@ const EDITORS: Record<EventType, Editor | null> = {
   health: HealthSheet,
   medication: MedicationSheet,
   weight: null,
-  appointment: null,
+  appointment: AppointmentSheet,
 };
 
 /** Edit or delete one entry (SDD 7 `entry/[id]`), opened by tapping its row. */

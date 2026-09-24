@@ -39,8 +39,10 @@ export function reconcile(
   placed: readonly PlacedReminder[],
   wanted: readonly ScheduledReminder[],
 ): Reconciliation {
-  const categories = new Set(wanted.map((r) => r.category));
-  const ours = placed.filter((p) => categories.has(p.category) || p.category === 'feed');
+  // Everything the phone is holding for us, whatever its category: the port
+  // only ever returns our own notifications, and the scheduler computes every
+  // category in one pass, so anything placed that isn't wanted is stale.
+  const ours = placed;
 
   const keep = new Set<string>();
   const schedule: ScheduledReminder[] = [];

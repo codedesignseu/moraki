@@ -1,6 +1,7 @@
 import type { Event } from './contract';
 import type { FeedBottlePayload } from './feedBottle';
 import type { FeedBreastPayload } from './feedBreast';
+import type { AppointmentPayload } from './appointment';
 import type { HealthPayload } from './health';
 import type { MedicationPayload } from './medication';
 import type { PumpPayload } from './pump';
@@ -34,6 +35,10 @@ export function isWeight(e: Event<unknown>): e is Event<WeightPayload> {
 
 export function isSleep(e: Event<unknown>): e is Event<SleepPayload> {
   return e.type === 'sleep';
+}
+
+export function isAppointment(e: Event<unknown>): e is Event<AppointmentPayload> {
+  return e.type === 'appointment';
 }
 
 export function isHealth(e: Event<unknown>): e is Event<HealthPayload> {
