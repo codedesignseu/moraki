@@ -191,6 +191,70 @@ describe('the call script', () => {
     expect(repo.list()).toHaveLength(0);
   });
 
+  it('ends with the questions saved on the next appointment', async () => {
+    knowsTheBaby();
+    repo.insert({
+      type: 'appointment',
+      occurredAt: NOW + 2 * DAY,
+      payload: {
+        title: 'Six week check',
+        questions: ['Is the rash worth showing you?', 'How often should she feed?'],
+      },
+    });
+    await openScript();
+
+    const card = within(screen.getByTestId('call-questions'));
+    expect(card.getByText(/For Six week check/)).toBeOnTheScreen();
+    expect(card.getByTestId('call-question-0')).toHaveTextContent('Is the rash worth showing you?');
+    expect(card.getByTestId('call-question-1')).toHaveTextContent('How often should she feed?');
+  });
+
+  it('takes the soonest visit, not one that has been and gone', async () => {
+    knowsTheBaby();
+    repo.insert({
+      type: 'appointment',
+      occurredAt: NOW - DAY,
+      payload: { title: 'Last week', questions: ['Old question'] },
+    });
+    repo.insert({
+      type: 'appointment',
+      occurredAt: NOW + DAY,
+      payload: { title: 'Tomorrow', questions: ['New question'] },
+    });
+    // Booked later, so the one to prepare for is still tomorrow's.
+    repo.insert({
+      type: 'appointment',
+      occurredAt: NOW + 10 * DAY,
+      payload: { title: 'Next month', questions: ['Later question'] },
+    });
+    await openScript();
+
+    const card = within(screen.getByTestId('call-questions'));
+    expect(card.getByText(/For Tomorrow/)).toBeOnTheScreen();
+    expect(card.queryByText('Old question')).toBeNull();
+    expect(card.queryByText('Later question')).toBeNull();
+  });
+
+  it('says so when a visit is booked with nothing written down', async () => {
+    knowsTheBaby();
+    repo.insert({
+      type: 'appointment',
+      occurredAt: NOW + 2 * DAY,
+      payload: { title: 'Six week check' },
+    });
+    await openScript();
+
+    expect(
+      within(screen.getByTestId('call-questions')).getByText('Nothing written down yet'),
+    ).toBeOnTheScreen();
+  });
+
+  it('leaves the section out when nothing is booked', async () => {
+    knowsTheBaby();
+    await openScript();
+    expect(screen.queryByTestId('call-questions')).toBeNull();
+  });
+
   it('says nothing about whether a figure is good', async () => {
     knowsTheBaby();
     aDayOfEntries();

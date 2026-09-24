@@ -129,6 +129,26 @@ export function reportLabels(
     },
   ];
 
+  if (report.appointment !== null) {
+    sections.push({
+      key: 'appointment',
+      heading: t('report.call.questions.title'),
+      rows: rows([
+        {
+          label: t('report.pdf.nextVisit'),
+          value: t('report.call.questions.visit', {
+            title: report.appointment.title,
+            date: dateTime(report.appointment.at),
+          }),
+        },
+        ...report.appointment.questions.map((question, index) => ({
+          label: t('report.pdf.question', { number: index + 1 }),
+          value: question,
+        })),
+      ]),
+    });
+  }
+
   return {
     title: t('report.pdf.title', { name: babyName }),
     subtitle: t('report.pdf.subtitle', {

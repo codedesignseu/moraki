@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react';
 
+import { useTranslation } from 'react-i18next';
+
 import { useDevicePref, useEvents } from '@/db/react';
 import { buildReport, type Report } from '@/domain/report/buildReport';
+import { formatDateTime } from '@/domain/time/formatDateTime';
+import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 import { useNow } from '@/ui/useNow';
 
@@ -19,6 +23,8 @@ export type CallScript = {
   /** Typed by the parent while they talk. Never stored (SDD 6.5 item 7). */
   worry: string;
   setWorry: (text: string) => void;
+  /** A moment in words, for the appointment the questions belong to. */
+  dateTime: (at: number) => string;
 };
 
 /**
@@ -32,6 +38,8 @@ export function useCallScript(): CallScript {
   const now = useNow(TICK_MS);
   const tz = deviceTimeZone();
   const [worry, setWorry] = useState('');
+  const { i18n } = useTranslation();
+  const locale = dateLocale(i18n.language);
 
   const bornAt = household?.bornAt;
   const baby = useMemo(
@@ -52,5 +60,6 @@ export function useCallScript(): CallScript {
     knowsBirth: bornAt !== undefined,
     worry,
     setWorry,
+    dateTime: (at: number) => formatDateTime(at, tz, locale),
   };
 }

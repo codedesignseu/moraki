@@ -642,6 +642,11 @@
         "title": "What I'm worried about",
         "label": "Write it down before you call",
         "hint": "Stays on this screen. Nothing here is saved."
+      },
+      "questions": {
+        "title": "What I meant to ask",
+        "visit": "For {{title}}, {{date}}",
+        "none": "Nothing written down yet"
       }
     },
     "pdf": {
@@ -659,7 +664,9 @@
         "3d": "Last 3 days",
         "7d": "Last 7 days"
       },
-      "footer": "Logged by hand in Moraki. Not a medical record."
+      "footer": "Logged by hand in Moraki. Not a medical record.",
+      "nextVisit": "Next visit",
+      "question": "Question {{number}}"
     },
     "share": {
       "action": "Share as PDF",

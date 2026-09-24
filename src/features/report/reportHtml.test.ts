@@ -97,6 +97,18 @@ describe('the printable report', () => {
     expect(reportFileName(report, '')).toBe('moraki-report-3d-2026-10-21.pdf');
   });
 
+  it('prints the next visit and its questions', () => {
+    const visit = ev('appointment', NOW + 2 * HOUR, {
+      title: 'Six week check',
+      questions: ['Is the rash worth showing you?'],
+    });
+    const out = html('24h', [...events, visit]);
+
+    expect(out).toContain('data-section="appointment"');
+    expect(out).toContain('report.pdf.question(1)');
+    expect(out).toContain('Is the rash worth showing you?');
+  });
+
   it('adds no copy of its own: every word in it came from a key or a person', () => {
     const out = html('7d');
     const body = out.slice(out.indexOf('<body>'));
