@@ -16,6 +16,7 @@ import { useRemindersState } from '@/notifications/RemindersProvider';
 import { INTERVAL_MIN, SECOND_MIN, useReminderSettings } from '@/sync/useReminderSettings';
 
 import { useCaregivers, type CaregiverRow } from './useCaregivers';
+import { useRoles } from './useRoles';
 import { useAdoption } from '@/sync/useAdoption';
 import { Button, Card, Segmented, Stepper } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
@@ -80,6 +81,7 @@ export function SettingsScreen({
   const exporting = useExport();
   const reminders = useRemindersState();
   const reminderSettings = useReminderSettings();
+  const roles = useRoles();
   const sync = useSyncStatus();
   const syncErrors = useSyncErrors();
   const adoption = useAdoption();
@@ -121,13 +123,53 @@ export function SettingsScreen({
                     <View style={s.caregivers} testID="settings-caregivers">
                       <Text style={s.muted}>{t('settings.account.caregivers')}</Text>
                       {caregivers.map((person: CaregiverRow) => (
-                        <Text key={person.userId} style={theme.text.body}>
-                          {t('settings.account.caregiver', {
-                            name: person.you ? t('home.recent.you') : person.name,
-                            role: t(ROLE_LABEL[person.role]),
-                          })}
-                        </Text>
+                        <View
+                          key={person.userId}
+                          style={s.caregiver}
+                          testID={`caregiver-${person.userId}`}
+                        >
+                          <Text style={theme.text.body}>
+                            {t('settings.account.caregiver', {
+                              name: person.you ? t('home.recent.you') : person.name,
+                              role: t(ROLE_LABEL[person.role]),
+                            })}
+                          </Text>
+                          {/* The owner's own row has no controls: changing
+                              your own role or removing yourself is leaving,
+                              which is its own question (P4-06). */}
+                          {roles.canManage && !person.you && person.role !== 'owner' && (
+                            <>
+                              <Segmented
+                                options={[
+                                  {
+                                    value: 'caregiver',
+                                    label: t('settings.account.role.caregiver'),
+                                  },
+                                  { value: 'viewer', label: t('settings.account.role.viewer') },
+                                ]}
+                                value={person.role}
+                                onChange={(role) => void roles.setRole(person.userId, role)}
+                                accessibilityLabel={t('settings.roles.whatTheyCanDo', {
+                                  name: person.name,
+                                })}
+                                disabled={roles.busy}
+                              />
+                              <Button
+                                label={t('settings.roles.remove', { name: person.name })}
+                                variant="secondary"
+                                disabled={roles.busy}
+                                onPress={() => void roles.remove(person.userId)}
+                              />
+                            </>
+                          )}
+                        </View>
                       ))}
+                      {roles.problem && (
+                        <Text style={s.alert} accessibilityRole="alert" testID="roles-problem">
+                          {t(`settings.roles.problem.${roles.problem}`)}
+                        </Text>
+                      )}
+                      {roles.canManage && <Text style={s.muted}>{t('settings.roles.hint')}</Text>}
                     </View>
                   )}
                   <Button label={t('settings.account.baby')} variant="secondary" onPress={onBaby} />
@@ -358,5 +400,6 @@ const styles = (theme: Theme) =>
     content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
     muted: { ...theme.text.label, color: theme.colors.textMuted },
     alert: { ...theme.text.body, color: theme.colors.invalid },
-    caregivers: { gap: theme.spacing.xs },
+    caregivers: { gap: theme.spacing.md },
+    caregiver: { gap: theme.spacing.xs },
   });

@@ -446,6 +446,16 @@
         "unavailable": "This device has nowhere to share a file.",
         "failed": "The export couldn't be made. Try again."
       }
+    },
+    "roles": {
+      "whatTheyCanDo": "What {{name}} can do",
+      "remove": "Remove {{name}}",
+      "hint": "Removing someone stops their access. Their entries stay: they are the household’s record of what happened.",
+      "problem": {
+        "forbidden": "Only the household owner can change this.",
+        "offline": "No connection. Try again when you have one.",
+        "unknown": "That didn't save. Try again."
+      }
     }
   },
   "insights": {

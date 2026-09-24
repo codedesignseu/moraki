@@ -70,6 +70,10 @@ export function authServer(
     verify?: () => Response;
     /** Babies the signed-in account can already see (a household made elsewhere). */
     babies?: ServerBaby[];
+    /** Role changes and removals (P4-07), and a way to refuse one. */
+    updateMembership?: (userId: string, columns: Record<string, unknown>) => void;
+    removeMembership?: (userId: string) => void;
+    refuseMembership?: (what: 'update' | 'delete', userId: string) => Response | undefined;
     /** Called when a phone corrects the baby's details (P4-10). */
     updateBaby?: (columns: Record<string, unknown>) => void;
     /** Unused invite codes the owner can see, and a note of one withdrawn (P2-F8). */
@@ -174,7 +178,22 @@ export function authServer(
           wanted === undefined ? babies : babies.filter((baby) => baby.household_id === wanted),
         );
       }
-      case '/rest/v1/memberships':
+      case '/rest/v1/memberships': {
+        // Changing what a caregiver may do, or removing one (P4-07).
+        const method = (init?.method ?? 'GET').toUpperCase();
+        const who = /eq\.([^&]+)/.exec(url.searchParams.get('user_id') ?? '')?.[1] ?? '';
+        if (method === 'PATCH') {
+          const refused = options.refuseMembership?.('update', who);
+          if (refused) return refused;
+          options.updateMembership?.(who, body as Record<string, unknown>);
+          return new Response(null, { status: 204 });
+        }
+        if (method === 'DELETE') {
+          const refused = options.refuseMembership?.('delete', who);
+          if (refused) return refused;
+          options.removeMembership?.(who);
+          return new Response(null, { status: 204 });
+        }
         // A caregivers query (P2-12) asks for display_name and wants whole
         // membership rows back. Without any set up, the household simply has
         // no names to show — answering with the membership rows this fake
@@ -190,6 +209,7 @@ export function authServer(
               role: 'owner',
             })),
         );
+      }
       case '/rest/v1/rpc/push_events': {
         const ops = (body.ops ?? []) as { op: string; body: { id: string } }[];
         return (
