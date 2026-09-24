@@ -70,6 +70,8 @@ export function authServer(
     verify?: () => Response;
     /** Babies the signed-in account can already see (a household made elsewhere). */
     babies?: ServerBaby[];
+    /** Called when a phone corrects the baby's details (P4-10). */
+    updateBaby?: (columns: Record<string, unknown>) => void;
     /** Unused invite codes the owner can see, and a note of one withdrawn (P2-F8). */
     openInvites?: {
       code: string;
@@ -158,6 +160,11 @@ export function authServer(
         }
         return json(200, options.household ? [options.household] : []);
       case '/rest/v1/babies': {
+        // Correcting the baby's details (P4-10).
+        if ((init?.method ?? 'GET').toUpperCase() === 'PATCH') {
+          options.updateBaby?.(body as Record<string, unknown>);
+          return new Response(null, { status: 204 });
+        }
         // The real table only answers with the household that was asked for,
         // and a fake that forgets that would hide a missing filter.
         const wanted = /eq\.([^&]+)/.exec(url.searchParams.get('household_id') ?? '')?.[1];

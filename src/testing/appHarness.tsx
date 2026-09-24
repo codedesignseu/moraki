@@ -23,6 +23,7 @@ import ReportRangeScreen from '../../app/report/[range]';
 import CallScript from '../../app/report/call';
 import LogSleep from '../../app/log/sleep';
 import About from '../../app/about';
+import Baby from '../../app/baby';
 import Invite from '../../app/invite';
 import Join from '../../app/join/[code]';
 import HouseholdSetup from '../../app/onboarding/household';
@@ -165,6 +166,7 @@ export function renderApp(
       'join/[code]': Join,
       invite: Invite,
       about: About,
+      baby: Baby,
     },
     initialUrl ? { initialUrl } : {},
   );
