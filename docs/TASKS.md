@@ -219,6 +219,8 @@ Gate to move on: 14 day household dogfood starts.
 
 ### Found while working (P3)
 
+- [ ] P3-F6 the consent screen promises deletion, which does not exist yet — found during P4-05 — `consent.rights` reads "You can export everything or delete it at any time". Export is now true (P4-05); deletion is P4-06 (leave household, delete account, delete household) and is not built, so half of that sentence is a claim the app cannot keep. P4-06 needs RLS and an RPC, so it wants reviewing rather than slipping in — done when: deleting is possible from the app, or the sentence stops promising it until it is
+
 - [ ] P3-F5 rotate the Supabase publishable key when auth or env config is next open — found during P3-F4's device pass — the key was printed into a session transcript while checking the EAS environment. It is public by design (compiled into every build, guarded by RLS) and the secret key was never exposed, so this is hygiene rather than an incident, and the owner chose not to make it a task of its own. Rotating means the Supabase dashboard, `.env`, the four EAS variables and a rebuild — done when: the key in use is one that has never been printed
 
 - [ ] P3-F3 main has no server-side protection, so the merge gate is discipline — found during P2-F8 — GitHub refuses both classic branch protection and rulesets on a private repo on the Free plan (`403 Upgrade to GitHub Pro or make this repository public`), so nothing stops a red merge but the `gh pr checks --watch --fail-fast` exit code. Decided 2026-09-23 (with the owner): acceptable while one person merges into a private repo. **Raise it again when a second person starts merging, or before the P3-11 dogfood release, whichever comes first** — the payload for the ruleset is a one-minute job once the plan allows it — done when: required checks (`lint`, `typecheck`, `test`, `db`) are enforced on `main`, or the decision to live without them is taken again knowingly
@@ -236,7 +238,7 @@ Gate to move on: 5 households recruited and onboarded.
 - [ ] P4-02 `feat(push): push token registration and notify-caregivers edge function, content free, opt-in` — depends: P2-10
 - [ ] P4-03 `chore(arch): enforce layer boundaries with eslint import rules and dependency-cruiser in CI` — depends: P3-12
 - [ ] P4-04 `feat(i18n): greek locale and date formats, language switch` — depends: P0-07
-- [ ] P4-05 `feat(privacy): export all household data as json and csv` — depends: P2-09 — status: in_progress
+- [x] P4-05 `feat(privacy): export all household data as json and csv` — depends: P2-09 — done: Settings has a Your data card, on every phone whether or not it has an account, that writes two files here and hands each to the share sheet: JSON keeping every field, and a CSV a spreadsheet reads. Deleted entries are included and marked, because a copy that quietly left things out would not be the data someone asked for. 16 tests. Brought forward from P4 because the consent screen already promises it
 - [ ] P4-06 `feat(privacy): leave household, delete account, delete household with cascade` — depends: P2-06
 - [ ] P4-07 `feat(household): roles management, remove caregiver, viewer role UI` — depends: P2-06
 - [ ] P4-08 `chore(obs): sentry eu region, pii scrubbing, no breadcrumbs with payloads` — depends: P0-09

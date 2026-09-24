@@ -430,6 +430,16 @@
       "forThisPhone": "This applies to your reminders on this phone.",
       "everyMinutes": "{{count}} min",
       "ownerSets": "The household owner sets these. Your reminders follow them."
+    },
+    "data": {
+      "title": "Your data",
+      "export": "Export everything",
+      "exporting": "Preparing the files…",
+      "exportHint": "Two files: one for a spreadsheet, one that keeps every detail. Both are made on this phone, whether or not you have an account.",
+      "exportProblem": {
+        "unavailable": "This device has nowhere to share a file.",
+        "failed": "The export couldn't be made. Try again."
+      }
     }
   },
   "insights": {
