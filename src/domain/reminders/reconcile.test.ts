@@ -85,16 +85,22 @@ describe('keeping the phone holding exactly the right reminders', () => {
     expect(reconcile([], [second, first]).schedule).toEqual([first, second]);
   });
 
-  it('leaves another kind of notification alone', () => {
-    // Nothing else schedules anything yet, but the day something does, a feed
-    // reminder changing must not cancel it.
-    const other = {
-      ...placed('os-9', want('appointment:1', AT)),
-      category: 'appointment' as const,
-    };
-    const first = want('feed:first', AT);
-    const out = reconcile([other as unknown as PlacedReminder], [first]);
-    expect(out.cancel).toEqual([]);
-    expect(out.schedule).toEqual([first]);
+  it('leaves a reminder of another category alone while it is still wanted', () => {
+    // The scheduler computes every category in one pass, so an appointment
+    // reminder appears in `wanted` even when only a feed has changed — and
+    // must not be cancelled and re-created for it.
+    const visit = { ...want('appointment:e1:hour', AT + HOUR), category: 'appointment' as const };
+    const feed = want('feed:first', AT);
+    const out = reconcile([placed('os-9', visit), placed('os-1', feed)], [feed, visit]);
+    expect(out).toEqual({ cancel: [], schedule: [] });
+  });
+
+  it('cancels a reminder of another category once it is no longer wanted', () => {
+    // A cancelled appointment leaves its notifications behind otherwise, and
+    // the phone buzzes about a visit that isn't happening.
+    const visit = { ...want('appointment:e1:hour', AT + HOUR), category: 'appointment' as const };
+    const feed = want('feed:first', AT);
+    const out = reconcile([placed('os-9', visit), placed('os-1', feed)], [feed]);
+    expect(out).toEqual({ cancel: ['os-9'], schedule: [] });
   });
 });

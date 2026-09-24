@@ -15,6 +15,7 @@ import LogDiaper from '../../app/log/diaper';
 import LogFeed from '../../app/log/feed';
 import LogHealth from '../../app/log/health';
 import LogMedication from '../../app/log/medication';
+import LogAppointment from '../../app/log/appointment';
 import LogPump from '../../app/log/pump';
 import LogStock from '../../app/log/stock';
 import LogWeight from '../../app/log/weight';
@@ -150,6 +151,7 @@ export function renderApp(
       'entry/[id]': EditEntry,
       'log/sleep': LogSleep,
       'log/pump': LogPump,
+      'log/appointment': LogAppointment,
       'log/stock': LogStock,
       'log/weight': LogWeight,
       'report/[range]': ReportRangeScreen,

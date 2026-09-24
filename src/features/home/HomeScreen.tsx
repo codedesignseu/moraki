@@ -14,12 +14,15 @@ export function HomeScreen({
   actions,
   onOpenEntry,
   onAdjustStock,
+  onAppointment,
 }: {
   actions?: ReactNode;
   /** Opens an entry to edit (P1-12). Supplied by app/ so features stay independent. */
   onOpenEntry?: (id: string) => void;
   /** Opens the adjust sheet for a store (P3-03). */
   onAdjustStock?: (place: 'fridge' | 'freezer') => void;
+  /** Opens an appointment to edit, or the sheet to add one (P3-12). */
+  onAppointment?: (id?: string) => void;
 }) {
   const { t: typedT } = useTranslation();
   // Keys from activity modules are checked by the registry completeness test.
@@ -75,6 +78,34 @@ export function HomeScreen({
         <Text style={theme.text.body}>
           {t('home.today.sleep24h', { duration: home.today.sleep })}
         </Text>
+      </Card>
+
+      <Card testID="home-appointment">
+        <Text style={theme.text.heading}>{t('home.appointment.title')}</Text>
+        {home.appointment ? (
+          <Text
+            style={theme.text.body}
+            testID={`appointment-${home.appointment.id}`}
+            {...(onAppointment && {
+              accessibilityRole: 'button' as const,
+              onPress: () => onAppointment(home.appointment?.id),
+            })}
+          >
+            {t('home.appointment.when', {
+              title: home.appointment.title,
+              when: home.appointment.when,
+            })}
+          </Text>
+        ) : (
+          <Text style={s.muted}>{t('home.appointment.none')}</Text>
+        )}
+        {onAppointment && (
+          <Button
+            label={t('home.appointment.add')}
+            variant="secondary"
+            onPress={() => onAppointment()}
+          />
+        )}
       </Card>
 
       <Card testID="home-stock">

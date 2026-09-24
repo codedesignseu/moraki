@@ -72,6 +72,10 @@ describe('activity registry completeness', () => {
       [{ note: 'Rash on cheek' }, null],
       [{ temp_c: 37.2 }, null],
     ],
+    appointment: [
+      [{ title: 'Six week check' }, null],
+      [{ title: 'Six week check', doctor: 'Dr Andreou', questions: ['Why?'] }, null],
+    ],
     medication: [
       [{ name: 'Vitamin D', dose: '1 drop' }, null],
       [{ name: 'Vitamin D' }, null],

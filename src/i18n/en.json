@@ -58,7 +58,8 @@
       "label": "Weight"
     },
     "appointment": {
-      "label": "Appointment"
+      "label": "Appointment",
+      "summary": "{{title}}"
     }
   },
   "startup": {
@@ -119,6 +120,12 @@
     "sleep": {
       "label": "Sleeping since {{time}}",
       "stop": "Stop sleep"
+    },
+    "appointment": {
+      "title": "Next appointment",
+      "when": "{{title}} — {{when}}",
+      "none": "Nothing booked",
+      "add": "Add an appointment"
     }
   },
   "log": {
@@ -245,6 +252,24 @@
         "home": "At home",
         "clinic": "At the clinic"
       }
+    },
+    "appointment": {
+      "screen": "Appointment",
+      "title": "What is it",
+      "inDays": "How many days from today",
+      "days": "days",
+      "hour": "h",
+      "minute": "min",
+      "atHour": "Hour",
+      "atMinute": "Minutes",
+      "doctor": "Doctor (optional)",
+      "clinic": "Clinic (optional)",
+      "notes": "Notes (optional)",
+      "questions": "Questions to ask",
+      "questionsHint": "These come up at the end of the call script, so you have them when you speak to someone.",
+      "addQuestion": "A question to ask",
+      "add": "Add question",
+      "removeQuestion": "Remove"
     }
   },
   "dev": {
@@ -283,7 +308,8 @@
     "medicationSaved": "Medication saved",
     "entryUpdated": "Entry updated",
     "entryDeleted": "Entry deleted",
-    "weightSaved": "Weight saved"
+    "weightSaved": "Weight saved",
+    "appointmentSaved": "Appointment saved"
   },
   "entry": {
     "moveTime": "Move time",
@@ -302,6 +328,10 @@
     "feed": {
       "first": "Next feed may be due",
       "second": "No feed logged since {{time}}"
+    },
+    "appointment": {
+      "dayBefore": "Tomorrow: {{title}}",
+      "hourBefore": "In an hour: {{title}}"
     }
   },
   "settings": {

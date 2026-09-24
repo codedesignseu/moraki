@@ -12,6 +12,11 @@ export default function Home() {
       <HomeScreen
         onOpenEntry={(id) => router.push({ pathname: '/entry/[id]', params: { id } })}
         onAdjustStock={(place) => router.push({ pathname: '/log/stock', params: { place } })}
+        onAppointment={(id) =>
+          id === undefined
+            ? router.push('/log/appointment')
+            : router.push({ pathname: '/entry/[id]', params: { id } })
+        }
         actions={
           <>
             <Button label={t('home.logFeed')} onPress={() => router.push('/log/feed')} />

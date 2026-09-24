@@ -142,7 +142,7 @@ export type ScheduledReminder = {
   /** Stable, so the scheduler replaces rather than duplicates (e.g. `feed:first`). */
   id: string;
   /** Cancelled and rescheduled together on every change. */
-  category: 'feed';
+  category: 'feed' | 'appointment';
   /** UTC epoch ms. */
   at: number;
   bodyKey: string;

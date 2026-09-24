@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDevicePref, useEvents } from '@/db/react';
-import { computeFeedReminders } from '@/domain/reminders/feedReminders';
+import { computeAllReminders } from '@/domain/reminders/allReminders';
 import { reconcile } from '@/domain/reminders/reconcile';
 import { useReminderSettings } from '@/sync/useReminderSettings';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
@@ -49,7 +49,7 @@ export function useReminders(port: NotificationPort | null): RemindersState {
     const tz = deviceTimeZone();
     const wanted =
       enabled && permission === 'granted'
-        ? computeFeedReminders(events, { ...settings, enabled: true }, Date.now(), tz)
+        ? computeAllReminders(events, { ...settings, enabled: true }, Date.now(), tz)
         : [];
     const { cancel, schedule } = reconcile(await port.placed(), wanted);
     for (const handle of cancel) await port.cancel(handle);

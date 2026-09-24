@@ -1,14 +1,18 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useCaregiverNames, useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
+import { nextAppointment } from '@/domain/activities';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { selectHomeState } from '@/domain/home/homeState';
 import { milkAge, type MilkAge } from '@/domain/stock/milkAge';
 import { selectStock } from '@/domain/stock/stockState';
 import { formatClock } from '@/domain/time/formatClock';
+import { formatDateTime } from '@/domain/time/formatDateTime';
 import { formatElapsed } from '@/domain/time/formatElapsed';
 
+import { dateLocale } from '@/i18n';
 import { useReminderSettings } from '@/sync/useReminderSettings';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 import { useNow } from '@/ui/useNow';
@@ -19,6 +23,8 @@ const RECENT_COUNT = 6;
 export type RecentRow = EntryRow;
 
 export type ActiveSleep = { id: string; elapsed: string; startedAt: string };
+
+export type NextAppointment = { id: string; title: string; when: string };
 
 export type StockPlaceView = {
   ml: number;
@@ -41,6 +47,8 @@ export type HomeViewModel = {
     dirty: number;
     sleep: string;
   };
+  /** The soonest visit still to come (SDD 7), or null. */
+  appointment: NextAppointment | null;
   /** What is in each store, and how old it is (SDD 6.3). */
   stock: { fridge: StockPlaceView; freezer: StockPlaceView };
   recent: RecentRow[];
@@ -65,6 +73,8 @@ export function useHome(): HomeViewModel {
   // The household's feed interval and optional second reminder (P1-15), so
   // the line on home and the notification are computed from the same numbers.
   const { settings } = useReminderSettings();
+  const { i18n } = useTranslation();
+  const locale = dateLocale(i18n.language);
 
   return useMemo(() => {
     const state = selectHomeState(events, now, tz, {
@@ -104,6 +114,16 @@ export function useHome(): HomeViewModel {
       stopSleep: (id: string) => {
         saves.patch('undo.sleepStopped', [{ id, changes: { endedAt: Date.now() } }]);
       },
+      appointment: (() => {
+        const next = nextAppointment(events, now);
+        return next === null
+          ? null
+          : {
+              id: next.id,
+              title: next.payload.title,
+              when: formatDateTime(next.occurredAt, tz, locale),
+            };
+      })(),
       stock: { fridge: place(stock.fridge), freezer: place(stock.freezer) },
       recent: events.slice(0, RECENT_COUNT).map((e) => describeEntry(e, now, tz, me, names)),
       lastEntryBy:
@@ -113,5 +133,5 @@ export function useHome(): HomeViewModel {
             ? null
             : (names.get(state.lastEntry.by) ?? null),
     };
-  }, [events, now, tz, repository, saves, names, settings]);
+  }, [events, now, tz, repository, saves, names, settings, locale]);
 }
