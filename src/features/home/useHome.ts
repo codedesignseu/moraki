@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useCaregiverNames, useEvents, useEventsRepository } from '@/db/react';
+import { useCaregiverNames, useDevicePref, useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
 import { nextAppointment } from '@/domain/activities';
+import { findDuplicateFeeds } from '@/domain/duplicates/duplicateFeeds';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { selectHomeState } from '@/domain/home/homeState';
 import { milkAge, type MilkAge } from '@/domain/stock/milkAge';
@@ -26,6 +27,9 @@ export type ActiveSleep = { id: string; elapsed: string; startedAt: string };
 
 export type NextAppointment = { id: string; title: string; when: string };
 
+/** "Nik also logged a feed at 03:14. Same feed?" (SDD 5.6). */
+export type DuplicateQuestion = { id: string; by: string; time: string };
+
 export type StockPlaceView = {
   ml: number;
   /** The age of the oldest batch left, or null when the place is empty. */
@@ -47,6 +51,16 @@ export type HomeViewModel = {
     dirty: number;
     sleep: string;
   };
+  /**
+   * A feed of mine that looks like one the other phone logged (SDD 5.6).
+   * Asked, never merged: two caregivers can genuinely feed twice in five
+   * minutes, and only the people there know which it was.
+   */
+  duplicate: DuplicateQuestion | null;
+  /** Removes my own entry, the offer the question makes. */
+  removeDuplicate: (id: string) => void;
+  /** Answers "they were two feeds", and stops asking about this pair. */
+  keepBoth: (id: string) => void;
   /** The soonest visit still to come (SDD 7), or null. */
   appointment: NextAppointment | null;
   /** What is in each store, and how old it is (SDD 6.3). */
@@ -73,7 +87,8 @@ export function useHome(): HomeViewModel {
   // The household's feed interval and optional second reminder (P1-15), so
   // the line on home and the notification are computed from the same numbers.
   const { settings } = useReminderSettings();
-  const { i18n } = useTranslation();
+  const [kept, setKept] = useDevicePref('keptDuplicates');
+  const { t, i18n } = useTranslation();
   const locale = dateLocale(i18n.language);
 
   return useMemo(() => {
@@ -114,6 +129,18 @@ export function useHome(): HomeViewModel {
       stopSleep: (id: string) => {
         saves.patch('undo.sleepStopped', [{ id, changes: { endedAt: Date.now() } }]);
       },
+      duplicate: (() => {
+        const [first] = findDuplicateFeeds(events, me, names, t('home.recent.other')).filter(
+          (pair) => !kept.includes(pair.mine.id),
+        );
+        return first
+          ? { id: first.mine.id, by: first.by, time: formatClock(first.theirs.occurredAt, tz) }
+          : null;
+      })(),
+      removeDuplicate: (id: string) => saves.remove('undo.entryDeleted', [id]),
+      // Keeping both is an answer, so it is remembered: the same question
+      // asked every time the screen redraws would be worse than not asking.
+      keepBoth: (id: string) => setKept([...kept.slice(-49), id]),
       appointment: (() => {
         const next = nextAppointment(events, now);
         return next === null
@@ -133,5 +160,5 @@ export function useHome(): HomeViewModel {
             ? null
             : (names.get(state.lastEntry.by) ?? null),
     };
-  }, [events, now, tz, repository, saves, names, settings, locale]);
+  }, [events, now, tz, repository, saves, names, settings, locale, t, kept, setKept]);
 }

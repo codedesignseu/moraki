@@ -126,6 +126,11 @@
       "when": "{{title}} — {{when}}",
       "none": "Nothing booked",
       "add": "Add an appointment"
+    },
+    "duplicate": {
+      "question": "{{name}} also logged a feed at {{time}}. Same feed?",
+      "keepBoth": "Keep both",
+      "removeMine": "Remove mine"
     }
   },
   "log": {

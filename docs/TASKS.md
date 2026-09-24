@@ -234,7 +234,7 @@ Gate to move on: 14 day household dogfood starts.
 
 Gate to move on: 5 households recruited and onboarded.
 
-- [ ] P4-01 `feat(sync): duplicate feed detection banner` — depends: P2-10 — status: in_progress
+- [x] P4-01 `feat(sync): duplicate feed detection banner` — depends: P2-10 — done: home asks "Nik also logged a feed at 14:03. Same feed?" when a pulled feed of the same kind lands within five minutes of one of mine, with Keep both and Remove mine (SDD 5.6). Nothing is ever merged, only my own entry is offered for removal, and Keep both is remembered per phone so the question isn't asked twice. 16 tests. Brought forward from P4 because double-logging is the first thing two caregivers hit
 - [ ] P4-02 `feat(push): push token registration and notify-caregivers edge function, content free, opt-in` — depends: P2-10
 - [ ] P4-03 `chore(arch): enforce layer boundaries with eslint import rules and dependency-cruiser in CI` — depends: P3-12
 - [ ] P4-04 `feat(i18n): greek locale and date formats, language switch` — depends: P0-07
