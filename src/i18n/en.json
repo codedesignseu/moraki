@@ -179,7 +179,8 @@
         "fridge": "Fridge",
         "freezer": "Freezer",
         "fed": "Fed straight away"
-      }
+      },
+      "when": "Pumped at"
     },
     "stock": {
       "title": "Adjust stock",
@@ -208,7 +209,8 @@
       "wet": "Wet",
       "dirty": "Dirty",
       "both": "Wet and dirty",
-      "hint": "Saves straight away"
+      "hint": "Saves straight away",
+      "when": "Changed at"
     },
     "sleep": {
       "title": "Sleep",

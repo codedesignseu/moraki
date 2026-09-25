@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 import { PUMP_ML, type PumpPrefill } from '@/domain/activities';
-import { Button, Segmented, Stepper } from '@/ui/primitives';
+import { Button, DateTimeField, Segmented, Stepper } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { usePumpSheet } from './usePumpSheet';
@@ -12,7 +12,7 @@ export function PumpSheet({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
-  const { form, at, update, save } = usePumpSheet();
+  const { form, at, atLabel, setAt, update, save } = usePumpSheet();
 
   const dests: { value: PumpPrefill['dest']; label: string }[] = [
     { value: 'fridge', label: t('log.pump.dest.fridge') },
@@ -22,7 +22,15 @@ export function PumpSheet({ onDone }: { onDone: () => void }) {
 
   return (
     <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-      <Text style={s.muted}>{t('log.time', { time: at })}</Text>
+      <DateTimeField
+        label={t('log.pump.when')}
+        value={at}
+        onChange={setAt}
+        display={atLabel}
+        openLabel={t('log.exactTime')}
+        maximumDate={new Date()}
+        testID="pump-when"
+      />
       <Stepper
         value={form.ml}
         onChange={(ml) => update({ ml })}
@@ -52,5 +60,4 @@ export function PumpSheet({ onDone }: { onDone: () => void }) {
 const styles = (theme: Theme) =>
   StyleSheet.create({
     content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
   });
