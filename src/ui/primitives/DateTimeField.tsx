@@ -87,9 +87,15 @@ export function DateTimeField({
       />
       {showing && Platform.OS !== 'android' && (
         <DateTimePicker
+          testID={testID ? `${testID}-picker` : undefined}
           value={new Date(value)}
           mode="datetime"
           display="spinner"
+          // iOS draws the wheel with its own colours, which on the light
+          // palette came out almost white on cream — legible in dark mode
+          // and invisible in light. Both are told explicitly.
+          themeVariant={theme.scheme === 'night' ? 'dark' : 'light'}
+          textColor={theme.colors.text}
           {...(maximumDate && { maximumDate })}
           {...(minimumDate && { minimumDate })}
           onChange={(_event: DateTimePickerEvent, picked?: Date) => {

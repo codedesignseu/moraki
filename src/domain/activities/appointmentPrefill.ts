@@ -20,9 +20,6 @@ export const APPOINTMENT_LIMITS = {
   questions: 20,
 } as const;
 
-/** How far ahead the sheet can put an appointment, in whole days. */
-export const DAYS_AHEAD = { step: 1, min: 0, max: 180 } as const;
-
 export const EMPTY_APPOINTMENT: AppointmentForm = {
   title: '',
   doctor: '',

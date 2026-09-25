@@ -272,4 +272,13 @@ describe('the call script', () => {
       expect(screen.queryByText(word)).toBeNull();
     }
   });
+  it('insets itself for the keyboard, so the worry box is not covered', async () => {
+    knowsTheBaby();
+    await openScript();
+
+    // The box is the last thing on a long scroll, and on iOS the keyboard
+    // covered it: KeyboardAvoidingView's padding was short by the header's
+    // height, so the scroll does the insetting itself (P3-F9).
+    expect(screen.getByTestId('call-script')).toHaveProp('automaticallyAdjustKeyboardInsets', true);
+  });
 });

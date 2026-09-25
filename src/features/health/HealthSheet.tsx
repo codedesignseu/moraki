@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
@@ -90,69 +90,69 @@ export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?:
     );
 
   return (
-    // Save is the last thing on the sheet, so without this the keyboard sits
-    // on top of it and there is no way to finish (P3-F8).
-    <KeyboardAvoidingView style={s.fill} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView
-        contentContainerStyle={s.content}
-        keyboardShouldPersistTaps="handled"
-        automaticallyAdjustKeyboardInsets
-      >
-        {entry ? (
-          <TimeShiftField
-            label={t('entry.moveTime')}
-            minutes={shift}
-            onChange={setShift}
-            unit={t('entry.minutes')}
-            result={t('entry.newTime', {
-              time: formatDateTime(
-                entry.occurredAt + shift * MINUTE_MS,
-                tz,
-                dateLocale(i18n.language),
-              ),
-            })}
+    // A text field at the bottom of a scroll is what the keyboard covers.
+    // KeyboardAvoidingView's padding is short by the navigation header's
+    // height, and this project has no useHeaderHeight to feed it, so the
+    // scroll view does the work instead: iOS insets itself for the keyboard,
+    // Android resizes the window, and either way the caret stays in sight.
+    <ScrollView
+      contentContainerStyle={s.content}
+      keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets
+    >
+      {entry ? (
+        <TimeShiftField
+          label={t('entry.moveTime')}
+          minutes={shift}
+          onChange={setShift}
+          unit={t('entry.minutes')}
+          result={t('entry.newTime', {
+            time: formatDateTime(
+              entry.occurredAt + shift * MINUTE_MS,
+              tz,
+              dateLocale(i18n.language),
+            ),
+          })}
+        />
+      ) : (
+        <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
+      )}
+      <TextField
+        label={t('log.health.note')}
+        value={note}
+        onChangeText={setNote}
+        maxLength={HEALTH_NOTE_MAX}
+        multiline
+        hint={t('log.characters', { count: note.length, max: HEALTH_NOTE_MAX })}
+        invalid={attempted && nothingToSave}
+        message={t('log.health.noteOrTemp')}
+      />
+      <TextField
+        label={t('log.health.temperature')}
+        value={temperature}
+        onChangeText={setTemperature}
+        keyboardType="decimal-pad"
+        invalid={attempted && tempInvalid}
+        message={tempMessage}
+      />
+      <Text style={theme.text.label}>{t('log.health.tags')}</Text>
+      <View style={s.tags}>
+        {HEALTH_TAGS.map((tag) => (
+          <Chip
+            key={tag}
+            label={t(`log.health.tag.${tag}`)}
+            selected={tags.includes(tag)}
+            onPress={() => toggle(tag)}
           />
-        ) : (
-          <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
-        )}
-        <TextField
-          label={t('log.health.note')}
-          value={note}
-          onChangeText={setNote}
-          maxLength={HEALTH_NOTE_MAX}
-          multiline
-          hint={t('log.characters', { count: note.length, max: HEALTH_NOTE_MAX })}
-          invalid={attempted && nothingToSave}
-          message={t('log.health.noteOrTemp')}
-        />
-        <TextField
-          label={t('log.health.temperature')}
-          value={temperature}
-          onChangeText={setTemperature}
-          keyboardType="decimal-pad"
-          invalid={attempted && tempInvalid}
-          message={tempMessage}
-        />
-        <Text style={theme.text.label}>{t('log.health.tags')}</Text>
-        <View style={s.tags}>
-          {HEALTH_TAGS.map((tag) => (
-            <Chip
-              key={tag}
-              label={t(`log.health.tag.${tag}`)}
-              selected={tags.includes(tag)}
-              onPress={() => toggle(tag)}
-            />
-          ))}
-        </View>
-        <Button label={t('log.save')} onPress={save} />
-      </ScrollView>
-    </KeyboardAvoidingView>
+        ))}
+      </View>
+      <Button label={t('log.save')} onPress={save} />
+    </ScrollView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    fill: { flex: 1 },
     content: {
       padding: theme.spacing.lg,
       paddingBottom: theme.spacing.xl,

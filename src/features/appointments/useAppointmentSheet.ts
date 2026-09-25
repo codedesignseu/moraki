@@ -7,7 +7,6 @@ import {
   appointmentForm,
   appointmentPayload,
   APPOINTMENT_LIMITS,
-  DAYS_AHEAD,
   EMPTY_APPOINTMENT,
   type AppointmentForm,
 } from '@/domain/activities';
@@ -16,20 +15,17 @@ import { startOfLocalDay } from '@/domain/time/zoned';
 import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
-const MINUTE_MS = 60_000;
-const HOUR_MS = 60 * MINUTE_MS;
+const HOUR_MS = 3_600_000;
 const DAY_MS = 24 * HOUR_MS;
 
-/** The time of day a new appointment starts at, before anyone changes it. */
+/** Where a new appointment opens: tomorrow mid-morning, until it is moved. */
 const DEFAULT_HOUR = 10;
-
-export type AppointmentTime = { days: number; hour: number; minute: number };
 
 /**
  * The appointment sheet (SDD 4.1, P3-12). A clinic visit is a time someone
- * was told, so it is set rather than prefilled from the clock: days ahead,
- * then the hour and minute. The day is a local day, so an appointment stays
- * on its date across a DST change.
+ * was told, so it is set outright with the picker rather than nudged towards
+ * with steppers. The opening guess is built off a local day, so it lands on
+ * the same wall-clock hour across a DST change.
  */
 export function useAppointmentSheet(entryId?: string) {
   const repository = useEventsRepository();
@@ -41,46 +37,22 @@ export function useAppointmentSheet(entryId?: string) {
   const [form, setForm] = useState<AppointmentForm>(
     () => appointmentForm(saved) ?? EMPTY_APPOINTMENT,
   );
-  const [time, setTime] = useState<AppointmentTime>(() => {
-    if (!saved) return { days: 1, hour: DEFAULT_HOUR, minute: 0 };
-    const midnight = startOfLocalDay(saved.occurredAt, tz);
-    const intoDay = saved.occurredAt - midnight;
-    return {
-      days: Math.round((midnight - startOfLocalDay(openedAt, tz)) / DAY_MS),
-      hour: Math.floor(intoDay / HOUR_MS),
-      minute: Math.round((intoDay % HOUR_MS) / MINUTE_MS),
-    };
-  });
   const [draft, setDraft] = useState('');
-
-  // The steppers say "in N days at HH:MM"; the picker sets the moment
-  // outright. Whichever was touched last is the answer: the picker's choice
-  // stands until a stepper moves, which clears it.
-  const [exact, setExact] = useState<number | null>(null);
-  const fromSteppers =
-    startOfLocalDay(openedAt, tz) +
-    time.days * DAY_MS +
-    time.hour * HOUR_MS +
-    time.minute * MINUTE_MS;
-  const at = exact ?? fromSteppers;
+  const [at, setAt] = useState(
+    () => saved?.occurredAt ?? startOfLocalDay(openedAt, tz) + DAY_MS + DEFAULT_HOUR * HOUR_MS,
+  );
 
   return {
     form,
-    time,
     at,
     editing: saved !== null && appointmentForm(saved) !== null,
-    /** The moment in words, so nobody has to add the steppers up in their head. */
+    /** The moment in words, so the saved time is read back the way it reads on a card. */
     when: formatDateTime(at, tz, dateLocale(i18n.language)),
     /** Empty until there is a title: everything else about a visit is optional. */
     canSave: form.title.trim() !== '',
     draft,
     setDraft,
-    setTime: (changes: Partial<AppointmentTime>) => {
-      setExact(null);
-      setTime((current) => ({ ...current, ...changes }));
-    },
-    /** The picker's answer, which stands until a stepper moves again. */
-    setAt: setExact,
+    setAt,
     update: (changes: Partial<AppointmentForm>) =>
       setForm((current) => ({ ...current, ...changes })),
     addQuestion: () => {
@@ -106,6 +78,5 @@ export function useAppointmentSheet(entryId?: string) {
       saves.insert('undo.appointmentSaved', { type: 'appointment', occurredAt: at, payload });
     },
     limits: APPOINTMENT_LIMITS,
-    daysAhead: DAYS_AHEAD,
   };
 }

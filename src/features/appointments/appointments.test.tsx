@@ -28,13 +28,6 @@ const press = async (name: string | RegExp) =>
   fireEvent.press(await screen.findByRole('button', { name }));
 const type = async (label: string, text: string) =>
   fireEvent.changeText(await screen.findByLabelText(label), text);
-const nudge = async (label: string, direction: 'increment' | 'decrement', times = 1) => {
-  for (let i = 0; i < times; i += 1) {
-    await fireEvent(screen.getByLabelText(label), 'accessibilityAction', {
-      nativeEvent: { actionName: direction },
-    });
-  }
-};
 const appointments = () => repo.list().filter((e) => e.type === 'appointment');
 
 async function openSheet() {
@@ -48,16 +41,17 @@ describe('booking an appointment', () => {
     await openSheet();
     await type('What is it', 'Six week check');
 
-    // Tomorrow is the default; move it to three days out at 11:00.
-    await nudge('How many days from today', 'increment', 2);
-    await nudge('Hour', 'increment');
+    // The picker is the only way to set a visit's time now: a stepper had no
+    // fast case here, and a month out was thirty taps.
+    const at = Date.parse('2026-10-31T09:00:00Z');
+    await fireEvent(screen.getByTestId('appointment-when'), 'change', at);
 
     expect(screen.getByTestId('appointment-when-value')).toHaveTextContent('Sat 31 Oct, 11:00');
     await press('Save');
 
     expect(appointments()).toHaveLength(1);
     expect(appointments()[0]?.payload).toEqual({ title: 'Six week check' });
-    expect(appointments()[0]?.occurredAt).toBe(Date.parse('2026-10-31T09:00:00Z'));
+    expect(appointments()[0]?.occurredAt).toBe(at);
   });
 
   it('will not save without saying what it is', async () => {

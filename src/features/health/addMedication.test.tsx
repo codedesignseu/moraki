@@ -59,9 +59,13 @@ describe('adding a dose from home', () => {
 
   it('keeps Save reachable, below the fields the keyboard covers', async () => {
     await openFromHome();
-    // The sheet lifts for the keyboard; without that, Save is the last
-    // element and sits underneath it (P3-F8, the same fault as P3-F4).
-    expect(screen.getByTestId('medication-sheet')).toBeOnTheScreen();
+    // Save is the last element, so the keyboard sits on top of it. The scroll
+    // insets itself rather than being padded by a KeyboardAvoidingView, which
+    // came up short by the header's height on iOS (P3-F8, then P3-F9).
+    expect(screen.getByTestId('medication-sheet')).toHaveProp(
+      'automaticallyAdjustKeyboardInsets',
+      true,
+    );
     expect(screen.getByRole('button', { name: 'Save' })).toBeOnTheScreen();
   });
 });
