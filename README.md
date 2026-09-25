@@ -20,6 +20,24 @@ npm run test:tz    # the same suite under three timezones, as CI runs it
 npm run lint
 ```
 
+## Crash reporting
+
+Off by default. With `EXPO_PUBLIC_SENTRY_DSN` set, the app sends crashes to
+Sentry; with nothing set — every local run, every test — it sends nothing.
+
+The DSN must be an **EU** project (`*.ingest.de.sentry.io`). Anything else
+throws at startup rather than shipping reports out of the EU (SDD 12.1).
+
+What a report carries: the exception, the stack frames, the build, the device
+and OS, and the last few navigation steps. What it never carries: the user, the
+IP address, request or response bodies, console logs, route params, quoted text
+from an error message, or any field this app has not explicitly allowed
+(`src/observability/scrub.ts`). Rule 8 is enforced there, in tests, not by
+Sentry's own settings.
+
+For a build made by EAS, the same two variables have to exist as EAS
+environment variables as well — `.env` is only read locally.
+
 ## The database and sign in
 
 The app can be pointed at either the hosted Supabase project or a local one.
