@@ -28,6 +28,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx eslint .
+      # SDD 15.1: the layer graph, which eslint can only see one file at a time
+      # (P4-03). It runs in the lint job so the required checks stay four.
+      - run: npm run arch
 
   typecheck:
     name: typecheck

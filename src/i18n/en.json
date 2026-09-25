@@ -478,6 +478,12 @@
         "offline": "No connection. Try again when you have one.",
         "unknown": "That didn't save. Try again."
       }
+    },
+    "feedback": {
+      "title": "Feedback",
+      "body": "Something not working, or an idea for it? Tell us.",
+      "needsAccount": "Sending feedback needs an account, so we can reply through the app later. Sign in above first.",
+      "open": "Send feedback"
     }
   },
   "insights": {
@@ -757,6 +763,33 @@
       "offline": "No connection. Try again when you have one.",
       "signed_out": "Sign in first, then agree.",
       "unknown": "That didn't save. Try again."
+    }
+  },
+  "feedback": {
+    "title": "Send feedback",
+    "intro": "Tell us what happened, or what you wish the app did. It goes to Moraki's own servers in the EU and nowhere else.",
+    "kindLabel": "What this is about",
+    "kind": {
+      "problem": "Something's wrong",
+      "idea": "An idea",
+      "other": "Something else"
+    },
+    "message": "Your message",
+    "messageHint": "Please leave out health details about your baby. We don't need them to fix the app.",
+    "sends": "Sent with your message: the app version, your phone's platform and its language. Nothing you have logged.",
+    "send": "Send",
+    "sending": "Sending…",
+    "notNow": "Not now",
+    "close": "Close",
+    "sent": {
+      "title": "Sent",
+      "body": "Thank you. Only you and Moraki's developer can read it."
+    },
+    "problem": {
+      "offline": "Your phone couldn't reach the server. Try again when you have a connection.",
+      "signed_out": "You need to be signed in to send this.",
+      "too_many": "That's a lot of messages in one hour. Try again later.",
+      "unknown": "It couldn't be sent. Try again."
     }
   },
   "sync": {},
