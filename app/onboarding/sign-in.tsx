@@ -2,7 +2,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { SignInScreen } from '@/features/auth/SignInScreen';
-import { useConsent } from '@/features/privacy/useConsent';
+import { useConsent } from '@/privacy/useConsent';
 
 export default function SignIn() {
   const { t } = useTranslation();

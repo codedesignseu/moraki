@@ -22,6 +22,7 @@ moraki/
     db/                     drizzle schema, local migrations, repositories
     sync/                   outbox, push, pull, realtime, backoff
     notifications/          scheduler, permissions, categories
+    privacy/                consent and export, the services the privacy screens use
     features/               feed, diaper, sleep, pump, health, weight, household, report, onboarding
     ui/                     tokens, theme, primitives (Card, Sheet, Stepper, Segmented, Chip, Timer)
     i18n/                   en.json, el.json
@@ -54,12 +55,14 @@ moraki/
 Dependencies point inward only:
 
 ```
-app/ → features/ → ui/ → sync/ → db/ → domain/
+app/ → features/ → notifications/, privacy/ → ui/ → sync/ → db/ → domain/
 ```
 
 - `domain/` imports nothing from this list — no React, no SQLite, no navigation.
 - `ui/` imports no feature, no repository, no domain type. It takes props.
 - A feature never imports another feature. Shared behaviour moves down into `domain/` or `ui/`.
+- `notifications/` and `privacy/` hold behaviour two features need that is too impure for `domain/` and too specific for `ui/`. They know of no screen.
+- The table is `architecture.js`, the one place it is written down. `npx eslint .` checks each file against it and `npm run arch` (dependency-cruiser) checks the graph, both in CI. Tests are outside the rule; a cycle and an impure import of `domain/` are inside it.
 - `switch (event.type)` / `if (type === ...)` is banned outside `domain/activities/`.
 - New activity types (bath, tummy time, vaccinations, ...) are one new file implementing `ActivityModule<P>` plus one `registerActivity` call — see SDD section 15.2. Never edit existing modules to add a new type.
 

@@ -1,7 +1,7 @@
 import { act, fireEvent, screen, waitFor } from 'expo-router/testing-library';
 
 import { META_KEYS } from '@/db/meta';
-import { CONSENT_VERSION } from '@/features/privacy/useConsent';
+import { CONSENT_VERSION } from '@/privacy/useConsent';
 import { meta } from '@/db/schema';
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
 import {
