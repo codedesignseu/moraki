@@ -98,6 +98,8 @@ export function authServer(
     /** Rows a pull finds; `seq` is the PostgREST filter, e.g. "gt.7". */
     events?: (seq: string) => unknown[];
     acceptInvite?: () => Response;
+    /** A message left through the feedback form (P4-13), and a way to refuse one. */
+    feedback?: (row: Record<string, unknown>) => Response | undefined;
     /** grant_consent and withdraw_consent (P3-09). */
     consent?: (path: string) => Response;
     createHousehold?: () => Response;
@@ -135,6 +137,12 @@ export function authServer(
           200,
           rows.filter((row) => (row.seq ?? 0) > after),
         );
+      }
+      case '/rest/v1/feedback': {
+        // The real table takes the row and answers with nothing (P4-13).
+        const refused = options.feedback?.(body as Record<string, unknown>);
+        if (refused) return refused;
+        return new Response(null, { status: 201 });
       }
       case '/rest/v1/invites': {
         // The owner's unused codes, and withdrawing one (P2-F8).

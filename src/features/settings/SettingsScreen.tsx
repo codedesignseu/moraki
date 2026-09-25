@@ -54,6 +54,7 @@ export function SettingsScreen({
   onAbout,
   onBaby,
   onConsent,
+  onFeedback,
 }: {
   onSignIn: () => void;
   onSetUpHousehold: () => void;
@@ -69,6 +70,8 @@ export function SettingsScreen({
   onBaby: () => void;
   /** Opens the consent screen (P3-09). */
   onConsent: () => void;
+  /** Opens the feedback form (P4-13). */
+  onFeedback: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -288,6 +291,20 @@ export function SettingsScreen({
           <Text style={s.alert} accessibilityRole="alert" testID="export-problem">
             {t(`settings.data.exportProblem.${exporting.problem}`)}
           </Text>
+        )}
+      </Card>
+
+      <Card testID="settings-feedback">
+        <Text style={theme.text.heading}>{t('settings.feedback.title')}</Text>
+        <Text style={s.muted}>
+          {t(
+            state.status === 'signedIn'
+              ? 'settings.feedback.body'
+              : 'settings.feedback.needsAccount',
+          )}
+        </Text>
+        {state.status === 'signedIn' && (
+          <Button label={t('settings.feedback.open')} variant="secondary" onPress={onFeedback} />
         )}
       </Card>
 
