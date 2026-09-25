@@ -43,18 +43,57 @@ describe('adding a dose from home', () => {
     });
 
     await openFromHome();
-    // Prefilled from the last dose, and the sheet says so rather than
-    // looking like the dose already given (P3-F8).
+    // The name is prefilled and the sheet says so, rather than looking like
+    // the dose already given (P3-F8).
     expect(screen.getByDisplayValue('Calpol')).toBeOnTheScreen();
     expect(screen.getByText('Add a dose')).toBeOnTheScreen();
     expect(
-      screen.getByText('Filled in from the last dose. Change it if this one is different.'),
+      screen.getByText('Name filled in from the last dose. Enter the amount you are giving now.'),
     ).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(doses()).toHaveLength(2);
     expect(doses().map((e) => e.occurredAt)).toContain(NOW);
+  });
+
+  it('leaves the amount empty, so yesterday’s dose is never saved on autopilot', async () => {
+    repo.insert({
+      type: 'medication',
+      occurredAt: NOW - 6 * HOUR,
+      payload: { name: 'Calpol', dose: '2.5 ml' },
+    });
+
+    await openFromHome();
+
+    // An infant's dose moves with weight and age, so it is typed each time
+    // even though the name is not (P3-F12).
+    expect(screen.getByDisplayValue('Calpol')).toBeOnTheScreen();
+    expect(screen.queryByDisplayValue('2.5 ml')).toBeNull();
+    expect(screen.getByLabelText('Dose (optional)').props.value).toBe('');
+
+    await fireEvent.changeText(screen.getByLabelText('Dose (optional)'), '5 ml');
+    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+
+    expect(doses()).toHaveLength(2);
+    expect(doses().find((e) => e.occurredAt === NOW)?.payload).toEqual({
+      name: 'Calpol',
+      dose: '5 ml',
+    });
+  });
+
+  it('still shows what was saved when an entry is opened to correct it', async () => {
+    const given = repo.insert({
+      type: 'medication',
+      occurredAt: NOW - HOUR,
+      payload: { name: 'Calpol', dose: '2.5 ml' },
+    });
+
+    await renderApp(repo);
+    await fireEvent.press(screen.getByRole('button', { name: /History/ }));
+    await fireEvent.press(await screen.findByTestId(`history-${given.id}`));
+
+    expect(await screen.findByDisplayValue('2.5 ml')).toBeOnTheScreen();
   });
 
   it('keeps Save reachable, below the fields the keyboard covers', async () => {

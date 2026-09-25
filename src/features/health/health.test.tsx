@@ -147,7 +147,7 @@ describe('medication sheet', () => {
     expect(screen.getByText('Vitamin D, 1 drop')).toBeOnTheScreen();
   });
 
-  it('opens with the last medication, so a repeat is one tap on Save', async () => {
+  it('opens with the last medication’s name, but never its amount', async () => {
     h.repo.insert({
       type: 'medication',
       occurredAt: NOW - 86_400_000,
@@ -155,9 +155,12 @@ describe('medication sheet', () => {
     });
     await open('Medication');
     expect(screen.getByLabelText('Medication name').props.value).toBe('Vitamin D');
+    // The amount is typed each time: an infant's dose moves with weight and
+    // age, so carrying it forward invites saving it unread (P3-F12).
+    expect(screen.getByLabelText('Dose (optional)').props.value).toBe('');
     await save();
     expect(ofType('medication').map((e) => e.payload)).toEqual([
-      { name: 'Vitamin D', dose: '1 drop' },
+      { name: 'Vitamin D' },
       { name: 'Vitamin D', dose: '1 drop' },
     ]);
   });
