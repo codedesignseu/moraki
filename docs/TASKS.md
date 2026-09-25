@@ -15,17 +15,24 @@ Source: `02-sdd-and-build-plan.md` section 10.3, version 0.3.
 
 ## Waiting on device
 
-**Three checks are with the owner as of 2026-09-24**, to be reported together:
+**The 2026-09-25 device pass is done.** Both Android builds were made from
+`b631b5e5` (preview `54aa4572`, development `565d2b1c`), the first commit
+holding P3-F9 through P3-F12. The owner reported every check in that pass
+good:
 
-1. **P2-04**, airplane mode, on the **preview** APK (the development build
-   cannot answer this: its JS comes from the packager over Wi-Fi).
-2. **P3-12**, both appointment reminders, on the **development** build.
-3. **P3-F4**, the keyboard clearing the call script's worry box, on the
-   development build, which hot-reloads the fix.
+1. **P2-04**, airplane mode, on the **preview** APK — passed.
+2. **P3-12**, both appointment reminders — passed.
+3. **P3-F4**, the keyboard clearing the call script's worry box — passed,
+   this time by the P3-F9 fix rather than the KeyboardAvoidingView that
+   never held.
+4. **P3-F9**'s picker: readable on the light theme, and rendered in every
+   sheet that now offers one.
+5. The four features the owner had not found — the duplicate-feed banner,
+   roles, baby details and export — all located and working.
 
-The two builds share a package name, so installing one replaces the other:
-the preview APK first for (1), then the development build again for (2) and
-(3). Nothing below moves until these are reported.
+Still outstanding on this list and **not** covered by that pass: P1-11's
+60fps scroll, P3-08 on iOS, P2-06's link (needs P2-F6), and P2-15's two
+phone run.
 
 Checks that need real hardware. They are queued, not blocking: work continues,
 and this list is cleared in one pass once the Android phone is available. Add
@@ -57,7 +64,7 @@ to it whenever a task's done-when can only be met on a device.
 - [x] P1-F15: open Trends at the largest font size and check the value above
       each bar still reads (no clipping or overlap).
       **Passed 2026-09-23**: the values still read at the largest font size.
-- [ ] P2-04: sign in with an emailed code, force-quit the app, turn on
+- [x] P2-04: sign in with an emailed code, force-quit the app, turn on
       airplane mode, reopen. Settings must still say "Signed in as …". Needs
       a development build with expo-secure-store (a native module added in
       P2-04), and P2-F5's hosted email settings, or a phone on the local stack.
@@ -65,6 +72,8 @@ to it whenever a task's done-when can only be met on a device.
       half cannot be done on a development build — its JS comes from the packager over
       Wi-Fi, so with no network the app has nothing to load. It waits for the preview
       build, whose bundle is baked in.
+      **Passed 2026-09-25** on the preview APK: signed in, force-quit, airplane
+      mode, reopened, still signed in.
 - [ ] P2-06: once P2-F6 is done, tap a real https://moraki.app/join/CODE
       link on a second phone and check it opens Moraki on the join screen.
 - [x] P1-14: with the development build installed, turn reminders on in
@@ -74,10 +83,11 @@ to it whenever a task's done-when can only be met on a device.
       and tested (P1-14); this is the part only a phone can answer.
       **Passed 2026-09-23**, every step: the permission prompt, the notification
       at the right minute, and the reminder moving rather than firing twice.
-- [ ] P3-12: with an appointment booked a few days out, check the reminder
+- [x] P3-12: with an appointment booked a few days out, check the reminder
       arrives the day before and again an hour before, and that cancelling the
       appointment clears both. Everything above the operating system is built
       and tested; this is the half only a phone can answer.
+      **Passed 2026-09-25** on the development build: both reminders fired.
 - [ ] P3-08: open a report from Settings on an iPhone and an Android, tap
       Share as PDF, and check the share sheet opens with a readable PDF that
       fits one page for the 24 hour range. Needs a new development build
@@ -167,7 +177,7 @@ Gate to move on: two phones in airplane mode log 20 entries each, reconnect, bot
 - [x] P2-01 `feat(db-server): migrations for households, memberships, babies, events, invites, seq trigger` — depends: P0-08 — done when: `supabase db reset` builds schema from zero — done: reset from zero applies the one migration; 60 pgTAP tests and a two-session race check pass locally
 - [x] P2-02 `feat(db-server): rls policies and helper functions` — depends: P2-01 — done when: policies match SDD table 4.3 — done: 89 pgTAP tests cover every cell of table 4.3 for owner, caregiver, viewer and stranger, plus anon; 148 database tests pass locally
 - [x] P2-03 `test(db-server): pgtap tests for every rls cell` — depends: P2-02 — done when: a viewer can't insert, a stranger can't select, CI runs them — done: mostly a verification pass over P2-02 and P2-F3. Auditing table 4.3 against P2-02's tests found every cell asserted but 34 role-and-cell pairs untested (e.g. owner and caregiver selects, a stranger reading invites, owner editing events); only those were added (`04_rls_role_gaps.test.sql`), 183 database tests, run by the CI `db` job
-- [ ] P2-04 `feat(auth): email otp sign in, session in securestore` — depends: P0-08 — done when: sign in, kill app, still signed in (tests pass: sign in, kill and reopen offline with the same keychain, in unit, app-level and real local-Supabase tests; stays in_progress until the device check in "Waiting on device" passes, as P1-09 did)
+- [x] P2-04 `feat(auth): email otp sign in, session in securestore` — depends: P0-08 — done when: sign in, kill app, still signed in — done: a 6-digit code by email, the session in SecureStore, proven in unit, app-level and real local-Supabase tests — **and on a phone 2026-09-25**: signed in on the preview APK, force-quit, airplane mode, reopened, Settings still said "Signed in as …". The preview build was needed for it, since a development build has no bundle to load without the packager
 - [x] P2-05 `feat(household): create_household rpc and onboarding flow with baby details` — depends: P2-02, P2-04 — done when: new user ends on home with an empty baby — done: app-level test signs in, sets up the household and lands on home with nothing logged; against local Supabase the new baby has no events and the caller is owner; 17 pgTAP tests for the RPC, 582 app tests per TZ
 - [x] P2-06 `feat(household): invites, create code, share link, accept_invite rpc, join route` — depends: P2-05 — done when: second phone joins through the link, role applied — done: against local Supabase two signed-in phones join one household through the link's code and the role is applied (caregiver logs an entry the owner sees; viewer can read but not write; the code is single use); 31 pgTAP tests and 14 app tests. Tapping a real https link on a phone waits on P2-F6
 - [x] P2-07 `feat(sync): push_events rpc with insert, patch, delete semantics` — depends: P2-02 — done when: SQL tests for idempotent insert, per-field patch, delete wins — done: 48 pgTAP tests, among them idempotent insert, per-field patch with unset, delete wins over a later patch or insert, not_before deferral and server-assigned seq
@@ -211,9 +221,9 @@ Gate to move on: 14 day household dogfood starts.
 - [ ] P3-08 `feat(report): pdf template and share` — depends: P3-06 — done when: PDF opens on iOS and Android share sheets, one page for 24h — status: in_progress (built and tested: `report/[range]` previews what the PDF will say and shares it, rendered on the device by expo-print and handed to expo-sharing, with the share sheet mocked in tests. The done-when is a device check on both platforms, so it sits on the Waiting on device list)
 - [x] P3-09 `feat(privacy): consent screen, versioned consent rpc, block health writes without consent` — depends: P2-04 — done when: no event can sync for a user without a consent row — done: `events_insert` and `events_update` now require `has_consent()`, so the database refuses the write whatever the client does; `grant_consent` and `withdraw_consent` run as the caller and record the policy version. Reading is deliberately not gated, so a caregiver who withdraws can still export and delete what is there. The app asks on its own screen, keeps a copy of the answer so it knows without the network, holds the outbox until it is given, and says so in Settings. 26 pgTAP assertions plus 7 app tests
 - [x] P3-10 `docs: in-app medical disclaimer and copy review against never list` — depends: P3-07 — done when: every string checked, no advice language — done: all 410 strings read against SDD 12.3's never list and the findings written up in `docs/07-copy-review.md`; one reworded (`insights.none`), one kept with a recorded reason (`signIn.problem.rate_limited`, about sign-in attempts). `src/i18n/copyRules.test.ts` now walks every string on every run, with exceptions listed by key and two tests that make an unused exception fail. The disclaimer is its own screen (`app/about.tsx`) reached from Settings, with 5 tests
-- [ ] P3-12 `feat(appointments): add, edit, home card, questions list, reminders day-before and 1h before` — depends: P1-04, P1-14 — done when: appointment shows on both phones, both reminders fire on a real device — status: in_progress (built and tested 2026-09-24): add and edit a visit with its doctor, clinic, notes and the questions to ask; the next one on home; and a reminder a day before and an hour before, gathered with the feed reminders so one scheduling pass holds every category. 34 tests. It stays in_progress until both reminders are seen firing on a phone
+- [x] P3-12 `feat(appointments): add, edit, home card, questions list, reminders day-before and 1h before` — depends: P1-04, P1-14 — done when: appointment shows on both phones, both reminders fire on a real device — done (built and tested 2026-09-24, **both reminders seen firing on the phone 2026-09-25**): add and edit a visit with its doctor, clinic, notes and the questions to ask; the next one on home; and a reminder a day before and an hour before, gathered with the feed reminders so one scheduling pass holds every category. 34 tests. The two-phone half of the done-when is P2-15's job, on this list
 - [x] P3-13 `feat(report): questions-to-ask pulled into the call script` — depends: P3-07, P3-12 — done when: questions saved on the next appointment appear at the end of the script — done: the call script ends with the questions saved on the next visit, under the visit they belong to, and the PDF prints them as its own section. The soonest visit still to come is the one that counts, whatever the report's range: the script exists to be read while talking to a clinic. 5 app tests and one on the printed document
-- [ ] P3-11 `release: preview builds to both phones, start 14 day dogfood` — depends: all P3 above — done when: both caregivers logging, diary of issues opened — status: blocked: needs P0-09's builds, and P3-12 above
+- [ ] P3-11 `release: preview builds to both phones, start 14 day dogfood` — depends: all P3 above — done when: both caregivers logging, diary of issues opened — status: ready on Android, waiting on a second phone (2026-09-25). P3-12 is done and the preview APK from `b631b5e5` passed its device pass, so the Android half is in hand. What is left is literally a second caregiver's phone: an iPhone build needs the Apple team id (P0-09, stuck on the D-U-N-S number with no ETA), so unless the second phone is an Android taking the same APK, the dogfood starts one-sided. Two things to settle before it starts: **P3-F3's branch protection**, which was explicitly deferred to this point, and whether P4-06 (deleting data) should exist before real data goes in
 
 **Dogfood gate:** run 14 days. Log every friction point as a GitHub issue labelled `dogfood`. Fix the ones that caused a missed or doubled log before P4.
 
@@ -228,7 +238,7 @@ Gate to move on: 14 day household dogfood starts.
 
 - [x] P3-F12 the medication sheet prefills yesterday's dose — found on an iPhone 2026-09-24, decided by the owner — the sheet opened with the last dose's name _and_ amount (SDD 7 last-used prefill), and the owner's call is that the name is the genuine one-tap case while the dose is not: for an infant it changes with weight and age, so carrying it forward invites saving yesterday's number on autopilot. Deliberate friction in the one place friction is worth it — done when: the name is prefilled and the dose is empty, and the copy says which — done: logging starts the amount empty and says "Name filled in from the last dose. Enter the amount you are giving now."; opening an entry to correct it still shows what was saved, which is a different question. `health.test.tsx` had the old behaviour encoded and its expectation was changed deliberately, flagged in the PR rather than edited quietly. PR #90
 
-- [x] P3-F9 the picker is invisible in light mode, the keyboard still covers the call script, and the appointment steppers earn nothing — found on an iPhone in Expo Go 2026-09-24 — three faults in one pass: iOS draws the picker wheel with its own colours, which on the cream light palette came out near-white and unreadable (fine at night); the worry box was still under the keyboard, because `KeyboardAvoidingView` with `behavior="padding"` is short by the navigation header's height and this project has no `useHeaderHeight` to feed it, which means P3-F4 and P3-F8 never actually held on a device; and the days/hour/minute steppers beside the appointment picker are thirty taps for a month out with nothing gained — done when: the picker is readable on the light theme, a field at the bottom of a sheet clears the keyboard, and an appointment's time is set by the picker alone — done: the picker is told `themeVariant` and `textColor` from the theme; five screens (call script, medication, health, appointment, baby) drop `KeyboardAvoidingView` and let the `ScrollView` inset itself; the appointment steppers are gone and `useAppointmentSheet` holds one moment rather than three parts plus an override. 5 tests, mutation-checked. PR #87. The colours and the inset still want a human eye on a real screen
+- [x] P3-F9 the picker is invisible in light mode, the keyboard still covers the call script, and the appointment steppers earn nothing — found on an iPhone in Expo Go 2026-09-24 — three faults in one pass: iOS draws the picker wheel with its own colours, which on the cream light palette came out near-white and unreadable (fine at night); the worry box was still under the keyboard, because `KeyboardAvoidingView` with `behavior="padding"` is short by the navigation header's height and this project has no `useHeaderHeight` to feed it, which means P3-F4 and P3-F8 never actually held on a device; and the days/hour/minute steppers beside the appointment picker are thirty taps for a month out with nothing gained — done when: the picker is readable on the light theme, a field at the bottom of a sheet clears the keyboard, and an appointment's time is set by the picker alone — done: the picker is told `themeVariant` and `textColor` from the theme; five screens (call script, medication, health, appointment, baby) drop `KeyboardAvoidingView` and let the `ScrollView` inset itself; the appointment steppers are gone and `useAppointmentSheet` holds one moment rather than three parts plus an override. 5 tests, mutation-checked. PR #87. **Confirmed on a phone 2026-09-25**: the picker reads on the light theme, it renders in every sheet that offers one, and the worry box clears the keyboard
 
 - [x] P3-F6 the consent screen promises deletion, which does not exist yet — found during P4-05 — `consent.rights` reads "You can export everything or delete it at any time". Export is now true (P4-05); deletion is P4-06 (leave household, delete account, delete household) and is not built, so half of that sentence is a claim the app cannot keep. P4-06 needs RLS and an RPC, so it wants reviewing rather than slipping in — done when: deleting is possible from the app, or the sentence stops promising it until it is — done 2026-09-24: the copy now says what is true — "You can export everything at any time. Deleting it from the servers is coming soon; until then, withdrawing this agreement stops it being processed, and you can delete any entry on this phone." The owner decided against rushing P4-06 before the dogfood: destroying accounts and households is RLS and RPC work that deserves a review window, and it stays in P4 where it belongs
 
