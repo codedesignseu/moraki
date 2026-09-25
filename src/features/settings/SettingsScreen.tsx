@@ -15,6 +15,7 @@ import { useExport } from '@/features/privacy/useExport';
 import { useRemindersState } from '@/notifications/RemindersProvider';
 import { INTERVAL_MIN, SECOND_MIN, useReminderSettings } from '@/sync/useReminderSettings';
 
+import { LANGUAGE_CHOICES, useLanguage } from './useLanguage';
 import { useCaregivers, type CaregiverRow } from './useCaregivers';
 import { useRoles } from './useRoles';
 import { useAdoption } from '@/sync/useAdoption';
@@ -74,6 +75,7 @@ export function SettingsScreen({
   const theme = useTheme();
   const s = styles(theme);
   const [nightMode, setNightMode] = useDevicePref('nightMode');
+  const language = useLanguage();
   const { auth, state } = useAuth();
   const { household } = useAccountHousehold();
   const caregivers = useCaregivers();
@@ -390,6 +392,26 @@ export function SettingsScreen({
           accessibilityLabel={t('settings.nightMode.title')}
         />
         <Text style={s.muted}>{t(`settings.nightMode.${nightMode}Hint`)}</Text>
+      </Card>
+
+      <Card testID="settings-language">
+        <Text style={theme.text.heading}>{t('settings.language.title')}</Text>
+        <Segmented
+          options={LANGUAGE_CHOICES.map((choice) => ({
+            value: choice,
+            label: t(`settings.language.${choice}`),
+          }))}
+          value={language.choice}
+          onChange={language.choose}
+          accessibilityLabel={t('settings.language.title')}
+        />
+        <Text style={s.muted}>
+          {language.choice === 'device'
+            ? t('settings.language.deviceHint', {
+                name: t(`settings.language.${language.language === 'el' ? 'el' : 'en'}`),
+              })
+            : t('settings.language.chosenHint')}
+        </Text>
       </Card>
     </ScrollView>
   );
