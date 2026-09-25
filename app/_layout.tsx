@@ -14,8 +14,13 @@ import { createExpoNotificationPort } from '@/notifications/expoPort';
 import { RemindersProvider } from '@/notifications/RemindersProvider';
 import { SyncProvider } from '@/sync/SyncProvider';
 import { DEFAULT_NIGHT_MODE } from '@/domain/time/night';
+import { startCrashReporting } from '@/observability/sentry';
 import { Notice } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
+
+// Before anything else, so a crash while the database opens is still reported.
+// Does nothing unless the build carries an EU Sentry DSN (P4-08).
+startCrashReporting();
 
 // Created once per launch; null when the build has no Supabase settings.
 const appAuth = createAppAuth();
