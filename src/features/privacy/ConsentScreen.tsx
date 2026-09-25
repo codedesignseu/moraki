@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text } from 'react-native';
 import { Button, Card } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
-import { useConsent } from './useConsent';
+import { useConsent } from '@/privacy/useConsent';
 
 /**
  * Consent on its own screen, asked of every caregiver (SDD 12). It is not

@@ -2,7 +2,7 @@ import { act, fireEvent, screen, waitFor } from 'expo-router/testing-library';
 
 import { readIdentity, readLinkedIdentity } from '@/db/identity';
 import { outbox } from '@/db/schema';
-import { CONSENT_VERSION } from '@/features/privacy/useConsent';
+import { CONSENT_VERSION } from '@/privacy/useConsent';
 import { createAuth } from '@/sync/auth';
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
 import {
