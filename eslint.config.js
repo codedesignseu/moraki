@@ -1,8 +1,34 @@
 // https://docs.expo.dev/guides/using-eslint/
+const fs = require('fs');
+const path = require('path');
+
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 const prettierConfig = require('eslint-config-prettier/flat');
 const i18next = require('eslint-plugin-i18next');
+
+// SDD 15.1, P4-03. The layer table lives in architecture.js, which
+// .dependency-cruiser.js reads too, so the two tools enforce one rule.
+const { LAYERS, layerDir, forbiddenFor, layerMessage, FEATURE_MESSAGE } = require('./architecture');
+
+// One zone per layer, listing the layers it may not reach.
+const LAYER_ZONES = Object.keys(LAYERS).map((layer) => ({
+  target: `./${layerDir(layer)}`,
+  from: forbiddenFor(layer).map((other) => `./${layerDir(other)}`),
+  message: layerMessage(layer),
+}));
+
+// A feature never imports another feature; shared behaviour moves down a layer.
+// Read from disk so a new feature is covered the moment its folder exists.
+const FEATURE_ZONES = fs
+  .readdirSync(path.join(__dirname, 'src/features'), { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => ({
+    target: `./src/features/${entry.name}`,
+    from: './src/features',
+    except: [`./${entry.name}`],
+    message: FEATURE_MESSAGE,
+  }));
 
 // Style properties whose numeric values are lengths or type sizes.
 const STYLE_NUMBER_KEYS =
@@ -120,6 +146,24 @@ module.exports = defineConfig([
           },
           message: 'User-facing string outside src/i18n. Add it to src/i18n/en.json and use t().',
         },
+      ],
+    },
+  },
+  {
+    // SDD 15.1: the dependency rule, checked per file as it is written.
+    // Tests and the test harness are outside it: a test drives the app from
+    // any layer it likes, which is what makes it an app-level test.
+    files: ['app/**/*.{ts,tsx}', 'src/**/*.{ts,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}', 'src/testing/**'],
+    // eslint-config-expo registers the import plugin already; redefining it
+    // here is a config error, so this only names the resolver and the rule.
+    settings: {
+      'import/resolver': { typescript: { project: __dirname } },
+    },
+    rules: {
+      'import/no-restricted-paths': [
+        'error',
+        { basePath: __dirname, zones: [...LAYER_ZONES, ...FEATURE_ZONES] },
       ],
     },
   },

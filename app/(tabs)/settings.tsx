@@ -15,6 +15,7 @@ export default function Settings() {
       onBaby={() => router.push('/baby')}
       onCallScript={() => router.push('/report/call')}
       onConsent={() => router.push('/onboarding/consent')}
+      onFeedback={() => router.push('/feedback')}
     />
   );
 }

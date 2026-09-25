@@ -58,3 +58,35 @@ nurse, that it never says what a number means and has no warnings, ranges or
 colours on a figure, that the figures are for an appointment or a phone call,
 and that a caregiver worried right now should contact a doctor or the local
 emergency number rather than wait.
+
+## The Greek pass (P4-04)
+
+**Date:** 2026-09-25. **Reviewed:** every string in `src/i18n/el.json`, the
+whole Greek translation, against its own never list in
+`src/i18n/copyRules.test.ts`. A translation can break rule 10 while every
+English string obeys it, so `describe.each` now runs the walk over each
+shipped language with the patterns that language needs.
+
+The Greek list is not the English one transliterated. What it bans:
+
+| Pattern                            | Why                                                                                                                                                                                  |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `φυσιολογικ*`, `κανονικ*`          | How Greek says a measurement is "normal" — exactly the verdict this app never gives. `φυσιολογικό` is the one that matters most, and the English list has no equivalent to catch it. |
+| `υγιής`, `υγιές`, `υγιειν*`        | Calls a figure healthy.                                                                                                                                                              |
+| `πάρα πολλ*`, `πολύ λίγ*` and kin  | Judges an amount.                                                                                                                                                                    |
+| `ανησυχητικ*`                      | Tells someone to be concerned. The verb (`ανησυχείς`) is not banned: a parent's own worry is theirs to name, as in `report.call.worry.title`.                                        |
+| `θα πρέπει`, `συνιστούμε`          | Gives advice. Only the advice form: `log.sleep.backwards` says a sleep `πρέπει` to end after it starts, which is about the entry, not the baby.                                      |
+| `διάγνωσ*`, `σύμπτωμα`, `θεραπεί*` | Reads as clinical.                                                                                                                                                                   |
+| `ανεπαρκ*`, `υπερβολικ*`, `φτωχ*`  | Grades a figure.                                                                                                                                                                     |
+| `πίσω/μπροστά από τον μέσο όρο`    | Compares to a norm.                                                                                                                                                                  |
+
+One exception carries over by key: `signIn.problem.rate_limited`, "Πάρα
+πολλές προσπάθειες", which counts sign-in attempts. The exception test
+requires each exception to still match a pattern in **every** language, so a
+Greek rewording that no longer needs it fails the suite.
+
+Three further tests keep the two files honest with each other: every English
+key exists in Greek (so no screen falls back mid-sentence), every `{{…}}`
+survives translation (so no figure disappears from a sentence), and more than
+90% of the strings actually differ from the English (so a partly copied file
+cannot pass as a translation).

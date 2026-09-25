@@ -10,11 +10,12 @@ import { useSyncErrors } from '@/sync/useSyncErrors';
 import { formatClock } from '@/domain/time/formatClock';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
-import { useConsent } from '@/features/privacy/useConsent';
-import { useExport } from '@/features/privacy/useExport';
+import { useConsent } from '@/privacy/useConsent';
+import { useExport } from '@/privacy/useExport';
 import { useRemindersState } from '@/notifications/RemindersProvider';
 import { INTERVAL_MIN, SECOND_MIN, useReminderSettings } from '@/sync/useReminderSettings';
 
+import { LANGUAGE_CHOICES, useLanguage } from './useLanguage';
 import { useCaregivers, type CaregiverRow } from './useCaregivers';
 import { useRoles } from './useRoles';
 import { useAdoption } from '@/sync/useAdoption';
@@ -54,6 +55,7 @@ export function SettingsScreen({
   onAbout,
   onBaby,
   onConsent,
+  onFeedback,
 }: {
   onSignIn: () => void;
   onSetUpHousehold: () => void;
@@ -69,11 +71,14 @@ export function SettingsScreen({
   onBaby: () => void;
   /** Opens the consent screen (P3-09). */
   onConsent: () => void;
+  /** Opens the feedback form (P4-13). */
+  onFeedback: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   const [nightMode, setNightMode] = useDevicePref('nightMode');
+  const language = useLanguage();
   const { auth, state } = useAuth();
   const { household } = useAccountHousehold();
   const caregivers = useCaregivers();
@@ -291,6 +296,20 @@ export function SettingsScreen({
         )}
       </Card>
 
+      <Card testID="settings-feedback">
+        <Text style={theme.text.heading}>{t('settings.feedback.title')}</Text>
+        <Text style={s.muted}>
+          {t(
+            state.status === 'signedIn'
+              ? 'settings.feedback.body'
+              : 'settings.feedback.needsAccount',
+          )}
+        </Text>
+        {state.status === 'signedIn' && (
+          <Button label={t('settings.feedback.open')} variant="secondary" onPress={onFeedback} />
+        )}
+      </Card>
+
       <Card testID="settings-about">
         <Text style={theme.text.heading}>{t('settings.about.title')}</Text>
         <Text style={s.muted}>{t('about.disclaimer.title')}</Text>
@@ -390,6 +409,26 @@ export function SettingsScreen({
           accessibilityLabel={t('settings.nightMode.title')}
         />
         <Text style={s.muted}>{t(`settings.nightMode.${nightMode}Hint`)}</Text>
+      </Card>
+
+      <Card testID="settings-language">
+        <Text style={theme.text.heading}>{t('settings.language.title')}</Text>
+        <Segmented
+          options={LANGUAGE_CHOICES.map((choice) => ({
+            value: choice,
+            label: t(`settings.language.${choice}`),
+          }))}
+          value={language.choice}
+          onChange={language.choose}
+          accessibilityLabel={t('settings.language.title')}
+        />
+        <Text style={s.muted}>
+          {language.choice === 'device'
+            ? t('settings.language.deviceHint', {
+                name: t(`settings.language.${language.language === 'el' ? 'el' : 'en'}`),
+              })
+            : t('settings.language.chosenHint')}
+        </Text>
       </Card>
     </ScrollView>
   );
