@@ -5,8 +5,9 @@ select plan(36);
 
 select tables_are(
   'public',
-  array['households', 'memberships', 'babies', 'events', 'invites', 'consents', 'push_tokens'],
-  'public has exactly the SDD 4.2 tables'
+  array['households', 'memberships', 'babies', 'events', 'invites', 'consents', 'push_tokens',
+        'feedback'],
+  'public has exactly the SDD 4.2 tables, plus feedback (P4-13)'
 );
 select enum_has_labels('public', 'member_role', array['owner', 'caregiver', 'viewer'], 'member_role values');
 
