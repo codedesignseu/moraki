@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import type { WeightPayload } from '@/domain/activities/weight';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
-import { Button, DateTimeField, Segmented, Stepper } from '@/ui/primitives';
+import { Button, DateTimeField, Segmented, Stepper, TextField } from '@/ui/primitives';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 import { useTheme, type Theme } from '@/ui/theme';
 
@@ -21,7 +21,7 @@ export function WeightSheet({
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
-  const { form, update, save, at, setAt } = useWeightSheet(birthWeightG);
+  const { form, update, save, at, setAt, typed, type, canSave } = useWeightSheet(birthWeightG);
   const tz = deviceTimeZone();
   const { i18n } = useTranslation();
 
@@ -32,6 +32,17 @@ export function WeightSheet({
 
   return (
     <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+      {/* Typed first: the number is read off a scale, not arrived at.
+          The stepper below nudges it (P3-F11). */}
+      <TextField
+        label={t('log.weight.amount')}
+        value={typed}
+        onChangeText={type}
+        keyboardType="number-pad"
+        maxLength={6}
+        invalid={!canSave}
+        message={t('log.weight.outOfRange', { min: WEIGHT_G.min, max: WEIGHT_G.max })}
+      />
       <Stepper
         value={form.grams}
         onChange={(grams) => update({ grams })}
@@ -39,7 +50,7 @@ export function WeightSheet({
         min={WEIGHT_G.min}
         max={WEIGHT_G.max}
         unit={t('log.weight.unit')}
-        accessibilityLabel={t('log.weight.amount')}
+        accessibilityLabel={t('log.weight.fine')}
       />
       <DateTimeField
         label={t('log.weight.when')}
@@ -58,6 +69,7 @@ export function WeightSheet({
       />
       <Button
         label={t('log.save')}
+        disabled={!canSave}
         onPress={() => {
           save();
           onDone();

@@ -266,7 +266,9 @@
         "home": "At home",
         "clinic": "At the clinic"
       },
-      "when": "Weighed at"
+      "when": "Weighed at",
+      "fine": "Adjust by tens",
+      "outOfRange": "A weight in grams, between {{min}} and {{max}}"
     },
     "appointment": {
       "screen": "Appointment",
