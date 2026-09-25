@@ -10,8 +10,8 @@ import { useSyncErrors } from '@/sync/useSyncErrors';
 import { formatClock } from '@/domain/time/formatClock';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
-import { useConsent } from '@/features/privacy/useConsent';
-import { useExport } from '@/features/privacy/useExport';
+import { useConsent } from '@/privacy/useConsent';
+import { useExport } from '@/privacy/useExport';
 import { useRemindersState } from '@/notifications/RemindersProvider';
 import { INTERVAL_MIN, SECOND_MIN, useReminderSettings } from '@/sync/useReminderSettings';
 

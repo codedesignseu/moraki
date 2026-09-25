@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor, within } from 'expo-router/testing-library';
 
-import { CONSENT_VERSION } from '@/features/privacy/useConsent';
+import { CONSENT_VERSION } from '@/privacy/useConsent';
 import { createAuth } from '@/sync/auth';
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
 import {

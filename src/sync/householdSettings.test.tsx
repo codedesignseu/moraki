@@ -2,7 +2,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from 'expo-router/testing
 
 import { META_KEYS } from '@/db/meta';
 import { meta } from '@/db/schema';
-import { CONSENT_VERSION } from '@/features/privacy/useConsent';
+import { CONSENT_VERSION } from '@/privacy/useConsent';
 import { createAuth } from '@/sync/auth';
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
 import { createFakeNotifications } from '@/testing/fakeNotifications';
