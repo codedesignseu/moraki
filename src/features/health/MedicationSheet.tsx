@@ -18,8 +18,11 @@ import { Button, TextField, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 /**
- * A medication given now. Opens with the last medication's name and dose (SDD 7
- * last-used prefill), so a daily vitamin is one tap on Save.
+ * A medication given now. Opens with the last medication's *name* (SDD 7
+ * last-used prefill), so a daily vitamin is one tap away — but never its
+ * amount: an infant's dose moves with weight and age, so carrying yesterday's
+ * number forward invites saving it on autopilot. The one place friction earns
+ * its keep (P3-F12).
  */
 const MINUTE_MS = 60_000;
 
@@ -39,7 +42,8 @@ export function MedicationSheet({ onDone, entryId }: { onDone: () => void; entry
   const [shift, setShift] = useState(0);
   const tz = deviceTimeZone();
   const [name, setName] = useState(last?.name ?? '');
-  const [dose, setDose] = useState(last?.dose ?? '');
+  // Editing shows what was saved; logging starts the amount empty.
+  const [dose, setDose] = useState(entry ? (last?.dose ?? '') : '');
   const [attempted, setAttempted] = useState(false);
   const nameMissing = name.trim() === '';
 

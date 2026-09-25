@@ -255,7 +255,7 @@
       "nameMissing": "Add the medication name to save this entry.",
       "dose": "Dose (optional)",
       "adding": "Add a dose",
-      "prefilled": "Filled in from the last dose. Change it if this one is different."
+      "prefilled": "Name filled in from the last dose. Enter the amount you are giving now."
     },
     "weight": {
       "title": "Weight",
