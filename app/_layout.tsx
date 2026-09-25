@@ -5,6 +5,7 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { openAppDatabase } from '@/db/client';
 import { UndoProvider } from '@/db/undo';
 import { NightModeTheme, PreferredNightModeTheme } from '@/features/settings/NightModeTheme';
+import { PreferredLanguage } from '@/features/settings/PreferredLanguage';
 import { DatabaseGate } from '@/features/startup/DatabaseGate';
 import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
@@ -29,16 +30,18 @@ export default function RootLayout() {
     <NightModeTheme mode={DEFAULT_NIGHT_MODE}>
       <DatabaseGate open={openAppDatabase}>
         <PreferredNightModeTheme>
-          <AuthProvider auth={appAuth}>
-            <SyncProvider>
-              <RemindersProvider port={notifications}>
-                <UndoProvider>
-                  <ThemedStack />
-                  <UndoToast />
-                </UndoProvider>
-              </RemindersProvider>
-            </SyncProvider>
-          </AuthProvider>
+          <PreferredLanguage>
+            <AuthProvider auth={appAuth}>
+              <SyncProvider>
+                <RemindersProvider port={notifications}>
+                  <UndoProvider>
+                    <ThemedStack />
+                    <UndoToast />
+                  </UndoProvider>
+                </RemindersProvider>
+              </SyncProvider>
+            </AuthProvider>
+          </PreferredLanguage>
         </PreferredNightModeTheme>
       </DatabaseGate>
     </NightModeTheme>

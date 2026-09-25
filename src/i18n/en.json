@@ -363,6 +363,14 @@
       "onHint": "Dark screens all day.",
       "offHint": "Light screens all day."
     },
+    "language": {
+      "title": "Language",
+      "device": "Your phone's",
+      "en": "English",
+      "el": "Ελληνικά",
+      "deviceHint": "Moraki follows your phone's language: {{name}}.",
+      "chosenHint": "On this phone only. Each caregiver chooses for themselves."
+    },
     "account": {
       "title": "Account",
       "signedOutHint": "Sign in to get ready for sharing with other caregivers. Your entries stay on this phone.",

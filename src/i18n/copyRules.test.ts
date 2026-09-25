@@ -1,3 +1,4 @@
+import el from './el.json';
 import en from './en.json';
 
 /**
@@ -10,7 +11,7 @@ import en from './en.json';
  * exception below names the string and why it is about the app rather than
  * about the baby.
  */
-const NEVER = [
+const NEVER_EN = [
   { pattern: /\bnormal\b/i, why: 'calls a figure normal' },
   { pattern: /\bhealthy\b/i, why: 'calls a figure healthy' },
   { pattern: /\btoo (little|much|few|many|low|high|slow|fast)\b/i, why: 'judges an amount' },
@@ -23,6 +24,33 @@ const NEVER = [
   { pattern: /\b(behind|ahead) (of )?(schedule|average|normal)\b/i, why: 'compares to a norm' },
   { pattern: /\bnot enough\b/i, why: 'says an amount falls short' },
 ];
+
+/**
+ * The same rule in Greek (P4-04). A translation can break rule 10 while every
+ * English string obeys it, so the Greek copy is read by its own list rather
+ * than trusted. `φυσιολογικό` is the one that matters most: it is how Greek
+ * says "normal" about a measurement, and it is exactly the verdict this app
+ * never gives. Advice is banned in its future form (`θα πρέπει`), so copy
+ * about an entry — "a sleep has to end after it starts" — still reads plainly.
+ */
+const NEVER_EL = [
+  { pattern: /(φυσιολογικ|κανονικ)\w*/i, why: 'calls a figure normal' },
+  { pattern: /υγι(ής|ές|ή|ειν)\w*/i, why: 'calls a figure healthy' },
+  { pattern: /πάρα πολλ\w*/i, why: 'judges an amount' },
+  { pattern: /πολύ (λίγ|λιγ|μικρ|μεγάλ|χαμηλ|υψηλ)\w*/i, why: 'judges an amount' },
+  { pattern: /ανησυχητικ\w*/i, why: 'tells someone to be concerned' },
+  { pattern: /θα πρέπει/i, why: 'gives advice' },
+  { pattern: /συνιστ(ούμε|άται)/i, why: 'gives advice' },
+  { pattern: /(διάγνωσ|σύμπτωμα|συμπτώμα|θεραπεί)\w*/i, why: 'reads as clinical' },
+  { pattern: /(ανεπαρκ|υπερβολικ|φτωχ)\w*/i, why: 'grades a figure' },
+  { pattern: /(πίσω|μπροστά) από (τον )?(μέσο όρο|το φυσιολογικό)/i, why: 'compares to a norm' },
+] as const;
+
+/** Each shipped language, with the list its copy is read against. */
+const LANGUAGES = [
+  { language: 'en', copy: en, never: NEVER_EN },
+  { language: 'el', copy: el, never: NEVER_EL },
+] as const;
 
 /**
  * Strings that match a pattern but are about the app, not about the baby.
@@ -44,17 +72,17 @@ function strings(node: unknown, path = ''): Entry[] {
   );
 }
 
-const all = strings(en);
+describe.each(LANGUAGES)('every user-facing string in $language', ({ copy, never }) => {
+  const all = strings(copy);
 
-describe('every user-facing string', () => {
-  it('is checked by this test: the app ships one language and this reads all of it', () => {
+  it('is checked by this test: every string that ships in this language is read', () => {
     // A guard on the guard: if the file is ever restructured so the walk stops
     // finding strings, this fails instead of passing on an empty list.
     expect(all.length).toBeGreaterThan(300);
     expect(all.every((entry) => entry.key !== '' && entry.text !== '')).toBe(true);
   });
 
-  it.each(NEVER)('never says what a number means: $why', ({ pattern }) => {
+  it.each(never)('never says what a number means: $why', ({ pattern }) => {
     const offenders = all
       .filter((entry) => pattern.test(entry.text))
       .filter((entry) => !(entry.key in ABOUT_THE_APP))
@@ -71,7 +99,7 @@ describe('every user-facing string', () => {
     for (const [key, why] of Object.entries(ABOUT_THE_APP)) {
       const entry = all.find((e) => e.key === key);
       expect(why.length).toBeGreaterThan(10);
-      expect(NEVER.some(({ pattern }) => pattern.test(entry?.text ?? ''))).toBe(true);
+      expect(never.some(({ pattern }) => pattern.test(entry?.text ?? ''))).toBe(true);
     }
   });
 
@@ -80,5 +108,30 @@ describe('every user-facing string', () => {
     for (const entry of notifications) {
       expect(entry.text).not.toMatch(/\{\{(ml|grams|celsius|temp|count|wet|dirty)\}\}/);
     }
+  });
+});
+
+describe('the Greek locale', () => {
+  const english = strings(en);
+  const greek = new Map(strings(el).map((entry) => [entry.key, entry.text]));
+
+  it('translates every English string, so nothing falls back mid-screen', () => {
+    const untranslated = english.filter((entry) => !greek.has(entry.key)).map((e) => e.key);
+    expect(untranslated).toEqual([]);
+  });
+
+  it('keeps every interpolation, so no figure goes missing from a sentence', () => {
+    const placeholders = (text: string) =>
+      [...text.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]).sort();
+    for (const entry of english) {
+      expect(placeholders(greek.get(entry.key) ?? '')).toEqual(placeholders(entry.text));
+    }
+  });
+
+  it('is actually Greek, not English copied across', () => {
+    const translated = english.filter((entry) => greek.get(entry.key) !== entry.text);
+    // Names, units and pure interpolations are the same in both, so this is a
+    // proportion rather than a count: most of the copy has to have changed.
+    expect(translated.length / english.length).toBeGreaterThan(0.9);
   });
 });

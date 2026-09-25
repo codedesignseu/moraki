@@ -17,6 +17,12 @@ import { meta } from '../schema';
 export const DEVICE_PREFS = {
   nightMode: { key: 'pref.night_mode', schema: z.enum(NIGHT_MODES), default: DEFAULT_NIGHT_MODE },
   /**
+   * What language the app is read in on this phone (P4-04): `device` follows
+   * the phone's own setting, `en` or `el` overrides it. Per phone and never
+   * synced, so one caregiver reading Greek never changes anyone else's screen.
+   */
+  language: { key: 'pref.language', schema: z.enum(['device', 'en', 'el']), default: 'device' },
+  /**
    * The server household the signed-in account belongs to (P2-05), so Settings
    * can show it without the network. Only a record: this phone keeps logging
    * under its local ids until P2-11 moves its entries into this household.

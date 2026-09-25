@@ -37,4 +37,24 @@ describe('i18n', () => {
   it('passes other languages through unchanged', () => {
     expect(dateLocale('el')).toBe('el');
   });
+
+  it('formats Greek dates day first too (P4-04)', () => {
+    const friday = Date.UTC(2026, 9, 23, 9);
+    const format = new Intl.DateTimeFormat(dateLocale('el'), {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      timeZone: 'Europe/Nicosia',
+    });
+    expect(format.format(friday)).toBe('Παρασκευή 23 Οκτωβρίου');
+  });
+
+  it('reads Greek strings once the language is Greek', async () => {
+    await i18n.changeLanguage('el');
+    expect(i18n.t('tabs.settings')).toBe('Ρυθμίσεις');
+    // Every screen formats times by hand in 24 hours (formatClock), so Greek
+    // gets no μ.μ.; only the date words change.
+    await i18n.changeLanguage('en');
+    expect(i18n.t('tabs.settings')).toBe('Settings');
+  });
 });

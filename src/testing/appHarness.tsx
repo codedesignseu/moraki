@@ -56,6 +56,7 @@ import type { NotificationPort } from '@/notifications/port';
 import { SyncProvider } from '@/sync/SyncProvider';
 import type { watchHousehold } from '@/sync/realtime';
 import { PreferredNightModeTheme } from '@/features/settings/NightModeTheme';
+import { PreferredLanguage } from '@/features/settings/PreferredLanguage';
 import { UndoToast } from '@/features/undo/UndoToast';
 import '@/i18n';
 
@@ -124,16 +125,18 @@ export function renderApp(
         <DevicePrefsProvider repository={prefs!}>
           <SyncRepositoriesProvider repositories={repositories}>
             <PreferredNightModeTheme>
-              <AuthProvider auth={auth}>
-                <SyncProvider {...(watch ? { watch } : {})}>
-                  <RemindersProvider port={notifications}>
-                    <UndoProvider>
-                      <Stack />
-                      <UndoToast />
-                    </UndoProvider>
-                  </RemindersProvider>
-                </SyncProvider>
-              </AuthProvider>
+              <PreferredLanguage>
+                <AuthProvider auth={auth}>
+                  <SyncProvider {...(watch ? { watch } : {})}>
+                    <RemindersProvider port={notifications}>
+                      <UndoProvider>
+                        <Stack />
+                        <UndoToast />
+                      </UndoProvider>
+                    </RemindersProvider>
+                  </SyncProvider>
+                </AuthProvider>
+              </PreferredLanguage>
             </PreferredNightModeTheme>
           </SyncRepositoriesProvider>
         </DevicePrefsProvider>
