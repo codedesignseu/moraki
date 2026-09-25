@@ -58,6 +58,17 @@ describe('typing a weight off the scale', () => {
     expect(weights()).toHaveLength(0);
   });
 
+  it('refuses a weight typed in kilograms, and says it wants grams', async () => {
+    await openSheet();
+    await fireEvent.changeText(box(), '3.6');
+
+    expect(save()).toBeDisabled();
+    expect(screen.getByText('A weight in grams, between 500 and 15000')).toBeOnTheScreen();
+
+    await fireEvent.press(save());
+    expect(weights()).toHaveLength(0);
+  });
+
   it('will not save one outside what a scale could read', async () => {
     await openSheet();
     await fireEvent.changeText(box(), '41000');

@@ -25,6 +25,23 @@ describe('reading a typed weight', () => {
     expect(parseGrams('4,1')).toBeNull();
   });
 
+  // Parents think in kilograms; the app stores grams. A weight feeds the
+  // regain chart directly, so a kilogram typed into a grams box has to be
+  // refused outright — reading 3.6 as either 3600 or 36 would be a wrong
+  // number nobody could see was wrong.
+  it.each(['3.6', '3,6', '3.60', '3.6 kg', '3.6kg', '3'])(
+    'refuses %p, a weight in kilograms, rather than guessing at it',
+    (typed) => {
+      expect(parseGrams(typed)).toBeNull();
+    },
+  );
+
+  it('refuses a bare kilogram figure by range as well as by shape', () => {
+    // '36' is a well-formed number and still not a weight a baby could have.
+    expect(parseGrams('36')).toBeNull();
+    expect(parseGrams('4')).toBeNull();
+  });
+
   it.each(['', '  ', 'abc', '12a', '-500', '3 400g', '4..120'])(
     'refuses %p, which is not a number of grams',
     (typed) => {
