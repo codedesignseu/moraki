@@ -28,7 +28,19 @@ const diapers = () => repo.list().filter((e) => e.type === 'diaper');
 describe('logging a diaper', () => {
   it('opens from home with the current time', async () => {
     await openSheet();
-    expect(screen.getByText('At 12:00')).toBeOnTheScreen();
+    expect(screen.getByTestId('diaper-when-value')).toHaveTextContent('Wed 1 Jul, 12:00');
+  });
+
+  it('takes a change noticed an hour late', async () => {
+    await openSheet();
+    const at = Date.parse('2026-07-01T08:00:00Z');
+    await fireEvent(screen.getByTestId('diaper-when'), 'change', at);
+
+    expect(screen.getByTestId('diaper-when-value')).toHaveTextContent('Wed 1 Jul, 11:00');
+    await fireEvent.press(screen.getByRole('button', { name: 'Wet' }));
+
+    expect(diapers()).toHaveLength(1);
+    expect(diapers()[0]?.occurredAt).toBe(at);
   });
 
   it.each([

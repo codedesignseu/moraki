@@ -38,6 +38,18 @@ describe('logging a pump session', () => {
     expect(selectStock(repo.list()).freezer.ml).toBe(100);
   });
 
+  it('takes a session written up afterwards, at the time it happened', async () => {
+    await openPumpSheet();
+    const at = NOW - HOUR;
+    await fireEvent(screen.getByTestId('pump-when'), 'change', at);
+
+    expect(screen.getByTestId('pump-when-value')).toHaveTextContent('Wed 1 Jul, 11:00');
+    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+
+    expect(pumps()).toHaveLength(1);
+    expect(pumps()[0]?.occurredAt).toBe(at);
+  });
+
   it('opens with the last session’s amount and place, so a repeat is two taps', async () => {
     repo.insert({ type: 'pump', occurredAt: NOW - HOUR, payload: { ml: 160, dest: 'fridge' } });
 

@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 import { useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
 import type { DiaperPayload } from '@/domain/activities/diaper';
-import { formatClock } from '@/domain/time/formatClock';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
-import { Button, TimeShiftField } from '@/ui/primitives';
+import { Button, DateTimeField, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 type Kind = DiaperPayload['kind'];
@@ -18,8 +17,9 @@ const MINUTE_MS = 60_000;
 
 /**
  * One tap saves: each kind is its own button, logged at the time the sheet
- * opened. With `entryId` it edits that entry instead: move its time, then tap
- * the kind (P1-12).
+ * opened. A change noticed later can be given its own time with the picker,
+ * which leaves the one-tap case alone (P3-F10). With `entryId` it edits that
+ * entry instead: move its time, then tap the kind (P1-12).
  */
 export function DiaperSheet({ onDone, entryId }: { onDone: () => void; entryId?: string }) {
   const { t, i18n } = useTranslation();
@@ -28,6 +28,7 @@ export function DiaperSheet({ onDone, entryId }: { onDone: () => void; entryId?:
   const repository = useEventsRepository();
   const saves = useUndoableSaves(repository);
   const [openedAt] = useState(Date.now);
+  const [at, setAt] = useState(openedAt);
   const [entry] = useState(() => (entryId ? repository.get(entryId) : null));
   const [shift, setShift] = useState(0);
   const tz = deviceTimeZone();
@@ -49,7 +50,7 @@ export function DiaperSheet({ onDone, entryId }: { onDone: () => void; entryId?:
         saves.patch('undo.entryUpdated', [{ id: entry.id, changes }]);
       }
     } else {
-      saves.insert('undo.diaperSaved', { type: 'diaper', occurredAt: openedAt, payload: { kind } });
+      saves.insert('undo.diaperSaved', { type: 'diaper', occurredAt: at, payload: { kind } });
     }
     onDone();
   }
@@ -71,7 +72,15 @@ export function DiaperSheet({ onDone, entryId }: { onDone: () => void; entryId?:
           })}
         />
       ) : (
-        <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
+        <DateTimeField
+          label={t('log.diaper.when')}
+          value={at}
+          onChange={setAt}
+          display={formatDateTime(at, tz, dateLocale(i18n.language))}
+          openLabel={t('log.exactTime')}
+          maximumDate={new Date()}
+          testID="diaper-when"
+        />
       )}
       {kinds.map(({ value, label }) => (
         <Button
@@ -88,5 +97,4 @@ export function DiaperSheet({ onDone, entryId }: { onDone: () => void; entryId?:
 const styles = (theme: Theme) =>
   StyleSheet.create({
     content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
   });
