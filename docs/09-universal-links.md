@@ -1,7 +1,7 @@
 # Universal links: making `https://moraki.app/join/CODE` open the app
 
-**Task:** P2-F6. **iOS half done:** 2026-09-26. **Android half:** waiting on the
-signing certificate's SHA-256 fingerprint.
+**Task:** P2-F6. **Both platforms configured:** 2026-09-26. **Outstanding:**
+hosting the two files on `moraki.app`, and the tap test on each phone.
 
 An invite link is how a second caregiver gets in (P2-06). The app has had the
 `/join/[code]` route since then, but nothing told a phone to open Moraki for
@@ -28,8 +28,11 @@ The third is a hosting step, and only a device can prove it.
   Team ID and `eu.codedesigns.moraki`, claiming `/join/*`. No file extension, by
   Apple's rule.
 - `app.json` → `ios.associatedDomains: ["applinks:moraki.app"]`.
-- `public/.well-known/assetlinks.json` — **not written yet.** It needs the
-  Android signing certificate's SHA-256 fingerprint.
+- `public/.well-known/assetlinks.json` — the Android file, granting
+  `eu.codedesigns.moraki` the right to handle these URLs, with the EAS signing
+  certificate's SHA-256 fingerprint.
+- `app.json` → `android.intentFilters`, one `VIEW` filter for
+  `https://moraki.app/join` with `autoVerify: true`.
 
 `public/` is Expo's own convention for files copied verbatim into a web export,
 so the path in the repository is the path on the domain. `public/_headers` sets
@@ -139,19 +142,49 @@ If it opens Safari instead, in this order:
 - Delete and reinstall the app: the entitlement is read at install time.
 - Only for local debugging, change `app.json` to `applinks:moraki.app?mode=developer` and rebuild. That bypasses Apple's CDN and reads your server directly. **It must never ship** — `universalLinks.test.ts` fails if it is still there at commit time.
 
-### 5. When you have the Android fingerprint
+### 5. The same on Android
+
+`assetlinks.json` is served from the same place, with the same rules. Its
+extension means hosts usually get the content type right on their own, and
+`public/_headers` states it regardless.
+
+`autoVerify: true` makes Android fetch the file **at install time**. So:
 
 ```bash
-eas credentials -p android
+eas build --platform android --profile development
 ```
 
-Pick the build profile, read `SHA256 Fingerprint` off the keystore entry, and
-hand it over. It is public — it ships in `assetlinks.json` on the domain — so
-there is nothing to protect. Then the Android half is:
+A new build is needed — the intent filter is in the manifest, not the JS — and
+then the same tap test as step 4, opening the link from a chat or a note rather
+than typing it into Chrome's address bar.
 
-- `public/.well-known/assetlinks.json`, served the same way as the iOS file.
-- `app.json` → `android.intentFilters` with `autoVerify: true` for `https://moraki.app/join`.
-- A new development build, and the same tap test on the Android phone.
+If it opens the browser instead, Android will say why:
+
+```bash
+adb shell pm get-app-links eu.codedesigns.moraki
+```
+
+`verified` is the goal. `legacy_failure` or `1024` means it could not fetch or
+parse the file. A reinstall re-runs verification, and so does:
+
+```bash
+adb shell pm verify-app-links --re-verify eu.codedesigns.moraki
+```
+
+### Before the Play Store release: a second fingerprint
+
+**The fingerprint in `assetlinks.json` today is the EAS keystore's.** If Play
+App Signing is used — it is the default for a new app — Google re-signs the
+upload with **its own** key, so an app installed from the Play Store presents a
+different certificate, verification fails against this file, and every invite
+link silently opens a browser for real users while working perfectly in
+testing.
+
+The fix is to list both: Play Console → **Setup** → **App signing** → copy the
+**SHA-256 certificate fingerprint** under _App signing key certificate_, and add
+it to `sha256_cert_fingerprints` beside the existing one. `assetlinks.json`
+takes an array precisely for this. Tracked as P2-F13 on the board, due with
+P4-12.
 
 ---
 

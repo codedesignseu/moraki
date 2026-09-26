@@ -21,6 +21,10 @@ node_modules/
 # These patterns are a backstop, not permission to keep one here.
 *.p8
 *.p12
+# Android signing keystores. `eas credentials -p android` downloads one into the
+# working directory, and it holds the private key that signs every release.
+*.jks
+*.keystore
 *.cer
 *.certSigningRequest
 *.mobileprovision

@@ -27,7 +27,21 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#F4EFE7"
       },
-      "package": "eu.codedesigns.moraki"
+      "package": "eu.codedesigns.moraki",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "moraki.app",
+              "pathPrefix": "/join"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "plugins": [
       "expo-router",
