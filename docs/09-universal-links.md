@@ -35,32 +35,64 @@ The third is a hosting step, and only a device can prove it.
   `https://moraki.app/join` with `autoVerify: true`.
 
 `public/` is Expo's own convention for files copied verbatim into a web export,
-so the path in the repository is the path on the domain. `public/_headers` sets
-`Content-Type: application/json` on both files, which is what Cloudflare Pages
-and Netlify read.
+so the path in the repository is the path on the domain. Beside the two files
+sit the host configs that set `Content-Type: application/json`: `_headers` for
+Cloudflare Pages and Netlify, `.htaccess` for Apache.
 
 ---
 
 ## Your steps, in order
 
-### 1. Point the domain somewhere that can serve a file
+### 1. Serve the two files from `moraki.app`
 
-As of 2026-09-26 `moraki.app` is still parked at GoDaddy, so there is nothing
-to serve the association file. It needs a static host with HTTPS on the apex
-domain. GitHub Pages is out: this repository is private on the Free plan.
+The domain does not point at this repository, and nothing about the app is
+published on the web. All that is needed is two static files at two exact
+paths:
 
-**Cloudflare Pages** fits with the least moving parts — free, serves the apex
-directly, deploys from a private repository, and reads the `public/_headers`
-file committed here:
+```
+https://moraki.app/.well-known/apple-app-site-association
+https://moraki.app/.well-known/assetlinks.json
+```
 
-1. Cloudflare → **Add a site** → `moraki.app` → follow it to the two nameservers it gives you.
-2. GoDaddy → **My Products** → `moraki.app` → **DNS** → **Nameservers** → **Change** → **I'll use my own nameservers** → paste Cloudflare's two. Propagation is usually minutes, up to a few hours.
-3. Cloudflare → **Workers & Pages** → **Create** → **Pages** → **Connect to Git** → this repository.
-4. **Build command: leave empty. Build output directory: `public`.** Nothing of the app is published this way — `public/` holds the two association files and `_headers`, nothing else.
-5. **Custom domains** → add `moraki.app` (and `www.moraki.app` only if you want the redirect; see the redirect warning below).
+Both are committed under `public/.well-known/`. Copy them to the host and
+they are done — re-copy when P2-F13 adds the Play signing fingerprint.
 
-Netlify works the same way (`_headers` included) if you would rather point A
-records at a host than move nameservers.
+**If there is already hosting for a landing page, use it.** That is the
+simplest answer, and `public/` is arranged to be copied as-is:
+
+- `public/.htaccess` sets the JSON content type on Apache (cPanel, most shared hosts) and tells `mod_rewrite` to leave `/.well-known/` alone.
+- `public/_headers` does the same on Cloudflare Pages and Netlify.
+
+On nginx, neither file applies, so the config needs:
+
+```nginx
+location = /.well-known/apple-app-site-association {
+    default_type application/json;
+}
+```
+
+**If there is no hosting yet**, Cloudflare Pages serves it free and deploys
+from this private repository: Cloudflare → **Add a site** `moraki.app` → put
+its two nameservers into GoDaddy (**My Products** → DNS → **Nameservers** →
+**Change** → _I'll use my own_) → **Workers & Pages** → **Create** → **Pages**
+→ **Connect to Git** → this repo → **build command empty, output directory
+`public`** → **Custom domains** → add `moraki.app`. Netlify is the same with an
+apex A record instead of a nameserver move.
+
+#### Two things that break it silently
+
+**Redirects.** Apple will not follow one for this file — not `http`→`https`,
+not apex→`www`. A landing page that redirects `moraki.app` to
+`www.moraki.app` takes the link down with it. Either serve `/.well-known/` on
+the apex without redirecting, or claim `applinks:www.moraki.app` in `app.json`
+as well and serve both.
+
+**The `/join/CODE` path itself.** A tapped link reaches a browser whenever the
+app is not installed — a desktop, someone else's phone, a mail client that
+rewrites URLs. Today that is a 404. A short page at `/join/*` saying what
+Moraki is, with the code shown so it can be typed into the app, turns a dead
+end into an install. It is landing-page work, not app work, and the invite
+message already carries the code as a fallback (P2-06).
 
 ### 2. Check what the domain actually serves
 
