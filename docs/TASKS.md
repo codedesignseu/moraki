@@ -193,7 +193,12 @@ Gate to move on: two phones in airplane mode log 20 entries each, reconnect, bot
       address, no request, no console breadcrumbs and no route params. The scrubbing is
       proven in 27 tests against events shaped like the real ones; this is the half only a
       real report can answer. Needs a new development build (a native module was added).
-- [ ] P2-F6 (iOS): host `public/.well-known/apple-app-site-association` at
+- [ ] P2-F6 (iOS): **blocked 2026-09-26 on two owner-side things**, both outside the code:
+      `moraki.app` is still parked at GoDaddy, so nothing serves the association file
+      (`docs/09-universal-links.md` step 1 sets up Cloudflare Pages from `public/`), and the
+      Apple Account is locked — `Apple Service Error -20209`, after `eas build` was given the
+      Team ID at its Apple ID prompt and cached it in the keychain. Then: host
+      `public/.well-known/apple-app-site-association` at
       https://moraki.app/.well-known/apple-app-site-association (no redirect,
       `application/json`), check Apple's CDN has it, then tap a real invite link on the
       iPhone from Messages or Notes — not Safari's address bar — and check Moraki opens

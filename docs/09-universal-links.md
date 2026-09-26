@@ -32,15 +32,36 @@ The third is a hosting step, and only a device can prove it.
   Android signing certificate's SHA-256 fingerprint.
 
 `public/` is Expo's own convention for files copied verbatim into a web export,
-so the path in the repository is the path on the domain.
+so the path in the repository is the path on the domain. `public/_headers` sets
+`Content-Type: application/json` on both files, which is what Cloudflare Pages
+and Netlify read.
 
 ---
 
 ## Your steps, in order
 
-### 1. Host the iOS file
+### 1. Point the domain somewhere that can serve a file
 
-Serve the committed file at exactly:
+As of 2026-09-26 `moraki.app` is still parked at GoDaddy, so there is nothing
+to serve the association file. It needs a static host with HTTPS on the apex
+domain. GitHub Pages is out: this repository is private on the Free plan.
+
+**Cloudflare Pages** fits with the least moving parts — free, serves the apex
+directly, deploys from a private repository, and reads the `public/_headers`
+file committed here:
+
+1. Cloudflare → **Add a site** → `moraki.app` → follow it to the two nameservers it gives you.
+2. GoDaddy → **My Products** → `moraki.app` → **DNS** → **Nameservers** → **Change** → **I'll use my own nameservers** → paste Cloudflare's two. Propagation is usually minutes, up to a few hours.
+3. Cloudflare → **Workers & Pages** → **Create** → **Pages** → **Connect to Git** → this repository.
+4. **Build command: leave empty. Build output directory: `public`.** Nothing of the app is published this way — `public/` holds the two association files and `_headers`, nothing else.
+5. **Custom domains** → add `moraki.app` (and `www.moraki.app` only if you want the redirect; see the redirect warning below).
+
+Netlify works the same way (`_headers` included) if you would rather point A
+records at a host than move nameservers.
+
+### 2. Check what the domain actually serves
+
+The committed file has to answer at exactly:
 
 ```
 https://moraki.app/.well-known/apple-app-site-association
@@ -71,7 +92,7 @@ reads, and it lags your deploy by minutes to hours:
 curl -sS "https://app-site-association.cdn-apple.com/a/v1/moraki.app" | python3 -m json.tool
 ```
 
-### 2. Build and install an iOS development build
+### 3. Build and install an iOS development build
 
 `associatedDomains` is a native entitlement, so Expo Go cannot test it and
 neither can the existing builds.
@@ -83,7 +104,27 @@ eas build --platform ios --profile development
 Apple login is interactive the first time. **Commit `app.json` first** — EAS
 archives the committed state, so an uncommitted change is not in the build.
 
-### 3. Tap a real link on the phone
+The **Apple ID** prompt wants the email address the developer account is
+registered to. It is not the Team ID: a Team ID is ten characters
+(`285GZCH8W4`), an Apple ID is an email. EAS caches whatever is typed there in
+the macOS keychain and reuses it silently on the next run, so a wrong entry
+repeats itself — and repeated failed sign-ins are what locks an Apple Account
+(`Apple Service Error -20209`).
+
+Recovering from that:
+
+1. Unlock the account at <https://iforgot.apple.com>, then sign in once at <https://appleid.apple.com> and at <https://developer.apple.com/account> to clear any pending agreement or verification step. EAS cannot get past either.
+2. Delete the cached credential: **Keychain Access** → search the wrong value (for example the Team ID) and also `deliver` and `idmsa.apple.com` → delete the matching entries. Otherwise the next `eas build` reuses it without asking.
+3. Run the build again and enter the email address at the Apple ID prompt.
+
+An App Store Connect API key does not avoid this for a first build. The key
+authenticates App Store Connect operations — `eas submit`, and repairing or
+re-signing credentials in CI, through `EXPO_ASC_API_KEY_PATH`,
+`EXPO_ASC_KEY_ID`, `EXPO_ASC_ISSUER_ID`, `EXPO_APPLE_TEAM_ID` and
+`EXPO_APPLE_TEAM_TYPE` — but creating the distribution certificate and
+provisioning profile the first time still goes through an Apple ID session.
+
+### 4. Tap a real link on the phone
 
 With the build installed and signed in as a household owner:
 
@@ -94,11 +135,11 @@ With the build installed and signed in as a household owner:
 
 If it opens Safari instead, in this order:
 
-- Re-check the CDN URL in step 1 — an unfetched or malformed file is the usual cause.
+- Re-check the CDN URL in step 2 — an unfetched or malformed file is the usual cause.
 - Delete and reinstall the app: the entitlement is read at install time.
 - Only for local debugging, change `app.json` to `applinks:moraki.app?mode=developer` and rebuild. That bypasses Apple's CDN and reads your server directly. **It must never ship** — `universalLinks.test.ts` fails if it is still there at commit time.
 
-### 4. When you have the Android fingerprint
+### 5. When you have the Android fingerprint
 
 ```bash
 eas credentials -p android
