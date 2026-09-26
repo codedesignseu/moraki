@@ -1,0 +1,12 @@
+# Read by Cloudflare Pages and Netlify from the root of the published folder.
+#
+# Apple rejects the association file unless it is served as JSON, and the file
+# has no extension, so a static host guesses wrong by default and the link
+# fails silently — the tap just opens Safari (P2-F6).
+/.well-known/apple-app-site-association
+  Content-Type: application/json
+
+# Android's file has a .json extension, so hosts get it right on their own.
+# Stated anyway, so neither file depends on a host's guess.
+/.well-known/assetlinks.json
+  Content-Type: application/json
