@@ -1,0 +1,18 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": [
+          "285GZCH8W4.eu.codedesigns.moraki"
+        ],
+        "components": [
+          {
+            "/": "/join/*",
+            "comment": "An invite link: opens Moraki on the join screen."
+          }
+        ]
+      }
+    ]
+  }
+}

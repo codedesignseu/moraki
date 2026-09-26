@@ -16,7 +16,11 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "eu.codedesigns.moraki"
+      "bundleIdentifier": "eu.codedesigns.moraki",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "associatedDomains": ["applinks:moraki.app"]
     },
     "android": {
       "adaptiveIcon": {
