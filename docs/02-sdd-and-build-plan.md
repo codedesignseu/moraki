@@ -666,11 +666,11 @@ Dogfood gate: run 14 days. Log every friction point as a GitHub issue labelled `
 - The parents consent for the baby as holders of parental responsibility. The viewer role doesn't write data but still consents, because they read it.
 - Data minimisation: no location, no contacts, no photos at POC. Display names, not legal names.
 - Hosting: Supabase EU region. Sign Supabase's DPA before any outside household joins.
-- Processors list: Supabase (database, auth), Expo (build service, push relay with content-free messages), Apple and Google (push delivery), Sentry EU from P4. Nothing else.
+- Processors list: `docs/compliance/processors.md` is the list, kept current with the code (P4-11). As at 2026-09-26: Supabase (database, auth), Google Workspace SMTP (sign-in code delivery — the built-in sender only mails project members, P2-F5), Sentry EU (crash reports, scrubbed), Expo (build service; and update delivery if EAS Update is switched on), Apple and Google (distribution today, push delivery from P4-02 with content-free messages). Nothing else, and no analytics at all.
 - Rights: export (P4-05), deletion (P4-06), correction (edit on every entry already).
-- Retention: households with no activity for 24 months are warned by email and deleted after 30 more days.
-- DPIA: written at P4-11, before the first outside household. Health data about children at any scale is a strong trigger, so treat it as required.
-- Records of processing kept in `docs/compliance/`.
+- Retention: households with no activity for 24 months are warned by email and deleted after 30 more days. The sweep is not built yet (P4-F5), and `docs/compliance/retention.md` says so rather than implying otherwise.
+- DPIA: `docs/compliance/dpia.md` (P4-11). Health data about children at any scale is a strong trigger, so it is treated as required. It names three things to finish before any public release — P2-F7 (rate limit invite acceptance), P4-06 (erasure) and P5-03 (local database encryption) — and one before the beta: sign the Supabase DPA.
+- Records of processing (Article 30) in `docs/compliance/records-of-processing.md`, retention in `docs/compliance/retention.md`.
 
 Get a short review from a Cyprus data protection lawyer before P5. This plan follows the regulation's structure but it isn't legal advice.
 
