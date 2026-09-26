@@ -1,0 +1,18 @@
+# For Apache hosting (cPanel, GoDaddy shared, most shared hosts). The
+# Cloudflare Pages and Netlify equivalent is `_headers` beside this file; both
+# are committed so the folder can be copied to any host unchanged.
+#
+# Apple rejects the association file unless it is served as JSON, and the file
+# has no extension, so Apache sends it as text/plain by default and the link
+# fails silently — the tap just opens the browser (P2-F6).
+<Files "apple-app-site-association">
+  ForceType application/json
+</Files>
+
+# Never rewrite or redirect these two paths. Apple refuses to follow a redirect
+# for the association file, including a plain apex-to-www one, and a landing
+# page's rewrite rules are the usual thing that swallows them.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^\.well-known/ - [L]
+</IfModule>

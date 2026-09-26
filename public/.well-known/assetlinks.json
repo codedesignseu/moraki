@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "eu.codedesigns.moraki",
+      "sha256_cert_fingerprints": [
+        "48:AA:E0:98:79:AF:26:CC:3B:B2:6B:AB:A5:62:2F:68:B3:67:25:E3:2E:85:01:12:47:BE:D8:85:40:97:65:C6"
+      ]
+    }
+  }
+]
