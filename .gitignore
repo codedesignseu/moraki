@@ -15,6 +15,17 @@ node_modules/
 .env.*
 !.env.example
 
+# Apple signing material. An App Store Connect API key (.p8) is a credential
+# that can publish and read sales data, and it cannot be re-downloaded — it
+# belongs outside this repository, in the keychain or a password manager.
+# These patterns are a backstop, not permission to keep one here.
+*.p8
+*.p12
+*.cer
+*.certSigningRequest
+*.mobileprovision
+credentials.json
+
 # EAS / Supabase local state
 .eas/
 supabase/.branches
