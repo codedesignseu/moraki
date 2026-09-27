@@ -71,12 +71,14 @@ combinations), single use, 7-day expiry, revocable by the owner from the app
 (P2-F8), and `accept_invite` runs as the caller under RLS. The invite message
 carries a link a parent sends through their own messaging app.
 
-**Not mitigated:** there is no rate limit and no lockout on `accept_invite`
-(P2-F7). Guessing is impractical, not impossible, and an unthrottled endpoint is
-also a way to learn whether a code exists.
+Also mitigated as of 2026-09-27 (P2-F7): 20 attempts per rolling hour, per
+user, enforced server-side and proven to survive every failed guess rather
+than only counting the ones that happen to raise no exception — a genuine
+constraint in Postgres/PostgREST this took real design work to get right, not
+a rate limit bolted on top. An unthrottled endpoint was also a way to learn
+whether a code exists; that channel is closed with it.
 
-_Residual: Low–Medium._ Accept for a beta of five households. **P2-F7 must be
-done before any public release.**
+_Residual: Low._
 
 ### R2 — A phone is lost or stolen
 
@@ -208,12 +210,12 @@ _Residual: Low–Medium._ The intent is documented and the mechanism is not buil
 
 ## 5. Where the risk sits overall
 
-Nothing here is a reason not to ship to a small beta, and three things are
-reasons not to ship publicly without finishing them first:
+Nothing here is a reason not to ship to a small beta. Two things are still
+reasons not to ship publicly without finishing them first — a third, invite
+rate limiting, closed 2026-09-27 (R1):
 
-1. **P2-F7** — rate limit invite acceptance (R1).
-2. **P4-06** — erasure (R8), and the consent copy corrected in the same release.
-3. **P5-03** — decide on local database encryption (R2), with the decision recorded as an ADR whichever way it goes.
+1. **P4-06** — erasure (R8), and the consent copy corrected in the same release.
+2. **P5-03** — decide on local database encryption (R2), with the decision recorded as an ADR whichever way it goes.
 
 No paperwork blocks the beta: Supabase's DPA arrives with its Terms of Service
 rather than needing a signature (R7, confirmed 2026-09-27). What remains before
@@ -236,5 +238,5 @@ mitigation, and no residual above Medium is recorded here.
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Assessment carried out by | the developer, with Claude Code                                                                                                                     |
 | Reviewed by a lawyer      | **not yet** — required before P5 (SDD 12.1)                                                                                                         |
-| Decision                  | proceed to a beta of up to five households; do not release publicly before P2-F7, P4-06 and P5-03 are resolved                                      |
+| Decision                  | proceed to a beta of up to five households; do not release publicly before P4-06 and P5-03 are resolved (P2-F7 closed 2026-09-27)                   |
 | Next review               | before the first outside household, and on any change to §4 — a new processor, a new category of data, push notifications, or analytics of any kind |

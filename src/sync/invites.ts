@@ -17,7 +17,14 @@ export type OpenInvite = Invite & { role: InviteRole };
 export type Joined = { householdId: string; role: MemberRole; babyId: string; babyName: string };
 
 export type InviteFailure =
-  'not_found' | 'used' | 'expired' | 'already_in_household' | 'signed_out' | 'offline' | 'unknown';
+  | 'not_found'
+  | 'used'
+  | 'expired'
+  | 'already_in_household'
+  | 'signed_out'
+  | 'rate_limited'
+  | 'offline'
+  | 'unknown';
 
 export class InviteError extends Error {
   override name = 'InviteError';
@@ -31,6 +38,10 @@ const REASONS: Record<string, InviteFailure> = {
   MKI02: 'used',
   MKI03: 'expired',
   MKI04: 'already_in_household',
+  // P2-F7: too many guesses. Raised by record_invite_attempt when the caller
+  // is over invite_attempt_limit(), and by accept_invite when there is no
+  // attempt on record recent enough to trust.
+  MKI05: 'rate_limited',
   '42501': 'signed_out',
 };
 
@@ -109,13 +120,25 @@ export async function revokeInvite(auth: Auth, code: string): Promise<void> {
   if (error) throw failure(error);
 }
 
-/** Redeems a code: joins the household with the invite's role. */
+/**
+ * Redeems a code: joins the household with the invite's role.
+ *
+ * Records the attempt first (P2-F7). `accept_invite` refuses outright unless
+ * a very recent attempt is on record, which is what makes the count durable:
+ * a wrong guess can never log itself from inside accept_invite (any error it
+ * raises rolls back everything that call did), so the record has to happen
+ * in a call that never fails for the guess itself — this one, which either
+ * records the attempt or refuses because there have already been too many.
+ */
 export async function acceptInvite(
   auth: Auth,
   code: string,
   displayName: string,
   relation: Relation | null,
 ): Promise<Joined> {
+  const attempt = await auth.client.rpc('record_invite_attempt');
+  if (attempt.error) throw failure(attempt.error);
+
   const { data, error } = await auth.client
     .rpc('accept_invite', {
       code: normaliseCode(code),

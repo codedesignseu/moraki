@@ -3,7 +3,7 @@
 -- a caregiver in it; users 3 and 4 are outsiders.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(31);
+select plan(32);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-000000000001', 'owner@example.test'),
@@ -33,6 +33,8 @@ select ok(not has_function_privilege('anon', 'public.accept_invite(text, text, t
   'anon can''t accept an invite');
 select ok(not has_function_privilege('authenticated', 'public.joined_household(uuid, uuid)', 'execute'),
   'joined_household is internal to accept_invite');
+select ok(not has_function_privilege('anon', 'public.record_invite_attempt()', 'execute'),
+  'anon can''t record an invite attempt either (P2-F7)');
 
 -- The code itself.
 select col_has_check('public', 'invites', 'code', 'the code is checked');
@@ -75,6 +77,7 @@ select is((select count(distinct code)::int from (
 
 -- Accepting.
 select pg_temp.login(3);
+select public.record_invite_attempt();
 select results_eq(
   format($$select household_id, role::text, baby_id, baby_name from public.accept_invite(%L, ' Yiayia ', 'grandparent')$$,
     (select code from made)),
@@ -99,19 +102,22 @@ set local role authenticated;
 select pg_temp.login(3);
 
 -- Retrying the same accept is harmless; anyone else is refused.
+select public.record_invite_attempt();
 select lives_ok(format($$select public.accept_invite(%L, 'Yiayia')$$, (select code from made)),
   'the same person retrying gets the same answer');
 reset role;
 select is((select count(*)::int from public.memberships), 3, 'and joins only once');
 set local role authenticated;
 select pg_temp.login(4);
+select public.record_invite_attempt();
 select throws_ok(format($$select public.accept_invite(%L, 'Nobody')$$, (select code from made)),
   'MKI02', null, 'a used code is refused');
 reset role;
 select is((select count(*)::int from public.memberships), 3, 'and nobody else is added');
 set local role authenticated;
 
--- Codes that don't work.
+-- Codes that don't work. Still user 4, still recently attempted.
+select public.record_invite_attempt();
 select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Nobody')$$, 'MKI01', null,
   'an unknown code is refused');
 reset role; -- an expired invite, made before it ran out
@@ -120,6 +126,7 @@ insert into public.invites (code, household_id, created_by, expires_at) values
    now() - interval '1 minute');
 set local role authenticated;
 select pg_temp.login(4);
+select public.record_invite_attempt();
 select throws_ok($$select public.accept_invite('EXPRDAB2', 'Nobody')$$, 'MKI03', null,
   'an expired code is refused');
 
@@ -127,11 +134,13 @@ select throws_ok($$select public.accept_invite('EXPRDAB2', 'Nobody')$$, 'MKI03',
 select pg_temp.login(1);
 create temp table fresh as select * from public.create_invite('aaaaaaaa-0000-0000-0000-000000000001', 'viewer');
 select pg_temp.login(2);
+select public.record_invite_attempt();
 select throws_ok(format($$select public.accept_invite(%L, 'Nik')$$, (select code from fresh)),
   'MKI04', null, 'someone already in a household is refused');
 
 -- A viewer invite makes a viewer.
 select pg_temp.login(4);
+select public.record_invite_attempt();
 select results_eq(
   format($$select role::text from public.accept_invite(%L, 'Watcher')$$, (select code from fresh)),
   $$values ('viewer')$$, 'a viewer invite makes a viewer');
@@ -154,6 +163,7 @@ insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000005
 set local role authenticated;
 select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-000000000005","role":"authenticated"}', true);
+select public.record_invite_attempt();
 select lives_ok(
   format($$select public.accept_invite(%L, 'Five')$$,
     lower(substr((select code from loose), 1, 4)) || '-' || lower(substr((select code from loose), 5, 4))),

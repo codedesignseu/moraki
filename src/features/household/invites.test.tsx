@@ -290,6 +290,7 @@ describe('joining through the link', () => {
     ['MKI02', 'That invite has already been used. Ask for a new one.'],
     ['MKI03', 'That invite has expired. Ask for a new one.'],
     ['MKI04', 'You’re already in a household.'],
+    ['MKI05', 'Too many attempts. Wait a while, then try again.'],
   ])('explains %s', async (code, message) => {
     await signedIn(
       {
@@ -305,6 +306,40 @@ describe('joining through the link', () => {
     await press('Join');
     expect(await screen.findByText(message)).toBeOnTheScreen();
     await waitFor(() => expect(h.prefs.get('accountHousehold')).toBeNull());
+  });
+
+  it('records the attempt before checking the code, and stops there if that is refused (P2-F7)', async () => {
+    const server = await signedIn(
+      {
+        recordInviteAttempt: () =>
+          new Response(JSON.stringify({ code: 'MKI05', message: 'too many attempts' }), {
+            status: 400,
+            headers: { 'content-type': 'application/json' },
+          }),
+      },
+      { initialUrl: `/join/${CODE}` },
+    );
+    await type('Your name', 'Nik');
+    await press('Join');
+    expect(
+      await screen.findByText('Too many attempts. Wait a while, then try again.'),
+    ).toBeOnTheScreen();
+    // The real code check never ran: nothing to be right or wrong about yet.
+    expect(server.calls.some((c) => c.path === '/rest/v1/rpc/accept_invite')).toBe(false);
+  });
+
+  it('calls record_invite_attempt before accept_invite, every time', async () => {
+    const server = await signedIn({}, { initialUrl: `/join/${CODE}` });
+    await type('Your name', 'Nik');
+    await press('Join');
+    await screen.findByRole('button', { name: 'Log feed' });
+
+    const paths = server.calls
+      .map((c) => c.path)
+      .filter(
+        (p) => p === '/rest/v1/rpc/record_invite_attempt' || p === '/rest/v1/rpc/accept_invite',
+      );
+    expect(paths).toEqual(['/rest/v1/rpc/record_invite_attempt', '/rest/v1/rpc/accept_invite']);
   });
 
   it('says joining needs a connection', async () => {

@@ -98,6 +98,8 @@ export function authServer(
     /** Rows a pull finds; `seq` is the PostgREST filter, e.g. "gt.7". */
     events?: (seq: string) => unknown[];
     acceptInvite?: () => Response;
+    /** record_invite_attempt (P2-F7), called before accept_invite. Defaults to success. */
+    recordInviteAttempt?: () => Response;
     /** A message left through the feedback form (P4-13), and a way to refuse one. */
     feedback?: (row: Record<string, unknown>) => Response | undefined;
     /** grant_consent and withdraw_consent (P3-09). */
@@ -241,6 +243,8 @@ export function authServer(
             one({ code: 'ABCD2345', expires_at: new Date(Date.now() + WEEK_MS).toISOString() }),
           )
         );
+      case '/rest/v1/rpc/record_invite_attempt':
+        return options.recordInviteAttempt?.() ?? json(200, null);
       case '/rest/v1/rpc/accept_invite':
         return (
           options.acceptInvite?.() ??

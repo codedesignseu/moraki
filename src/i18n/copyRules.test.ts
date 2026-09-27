@@ -60,6 +60,8 @@ const LANGUAGES = [
 const ABOUT_THE_APP: Record<string, string> = {
   'signIn.problem.rate_limited':
     'counts sign-in attempts, which is the auth server refusing a request',
+  'join.problem.rate_limited':
+    'counts guesses at an invite code (P2-F7), which is the server refusing a request',
 };
 
 type Entry = { key: string; text: string };
