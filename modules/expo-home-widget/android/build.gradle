@@ -1,0 +1,19 @@
+// Never built (README.md): this machine has no Android SDK, so nothing
+// here has run through Gradle even once. Written from the pattern in
+// other Expo modules under node_modules/expo-*/android (e.g.
+// expo-secure-store's build.gradle).
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'eu.codedesigns.moraki'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.homewidget"
+  defaultConfig {
+    versionCode 1
+    versionName '0.1.0'
+  }
+}
