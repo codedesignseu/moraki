@@ -728,23 +728,31 @@ Two things have to stay cheap to change: adding a new kind of thing to track, an
 Dependencies point inward only. Nothing ever points back out.
 
 ```
-app/          routes, navigation, composition only
+app/                                       routes, navigation, composition only
   ↓
-features/     screens and hooks for one area
+features/                                  screens and hooks for one area
   ↓
-ui/           tokens and primitives (knows nothing about babies)
+notifications/, privacy/, observability/   device and account services
   ↓
-sync/         outbox, push, pull
+ui/                                        tokens and primitives (knows nothing about babies)
   ↓
-db/           sqlite, repositories
+sync/                                      outbox, push, pull
   ↓
-domain/       pure logic. imports nothing from this list
+db/                                        sqlite, repositories
+  ↓
+domain/                                    pure logic. imports nothing from this list
 ```
+
+`i18n/` sits beside this stack rather than in it: `app/`, `features/` and the
+service modules may read it, and it imports nothing itself.
 
 - `domain/` imports no React, no SQLite, no navigation, no `Date.now()`.
 - `ui/` imports no feature, no repository and no domain type. It takes props.
 - A feature never imports another feature. Shared behaviour moves down into `domain/` or `ui/`.
-- Enforced by eslint `import/no-restricted-paths` plus dependency-cruiser in CI (P4-03). A violation fails the build.
+- `notifications/`, `privacy/` and `observability/` hold behaviour two features need that is too impure for `domain/` and too specific for `ui/` — scheduling with the operating system, consent, export, crash reporting. They sit below the features and know of no screen. `observability/` is the strictest of the three: it imports nothing at all, since a scrubber able to read a repository or an event payload would be a way for health data to reach Sentry (rule 8).
+- `architecture.js` is the one place this table is written down. `eslint.config.js` reads it to check each file as it is saved, `.dependency-cruiser.js` reads it to check the graph the modules make together (P4-03) — a layer added there is enforced by both at once. A violation fails the build.
+- Tests are exempt from the rule in both tools: an app-level test drives the app from whatever layer it needs, which is what makes it app-level. `src/testing/` (the test harness and its fakes) is exempt the same way, and nothing shipped may import it regardless — `dependency-cruiser`'s own rule catches that half.
+- A cycle between two modules fails the build, with one exception: a cycle that exists only in types (two modules naming each other's types, erased before anything runs) is allowed, since it is not a cycle in the built app. `src/sync/household.ts` and `invites.ts` are exactly this case.
 
 ### 15.2 The activity module contract
 
