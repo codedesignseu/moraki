@@ -46,7 +46,11 @@ to it whenever a task's done-when can only be met on a device.
       of migrations and the database gate (P1-03, P1-06).
       **Android done 2026-09-23**: #9's config was rebuilt on main as #72, the
       development build is installed on the Android phone and the app runs from it.
-      The iPhone half needs an Apple team id (P2-F6 waits on the same).
+      **iPhone done 2026-09-27**: `APPLE_TEAM_ID` resolved (the D-U-N-S wait cleared),
+      both a development build (Metro-connected) and a `preview` build (ad-hoc signed,
+      airplane-mode capable) installed and ran on two real iPhones — see the P2-15 run
+      and P2-F14's device-registration note. `#9` was closed, superseded by `#72`
+      (merged 2026-09-23), so there is nothing left to rebase
 - [x] P1-09: start a sleep, force-quit the app, reopen it a few minutes later,
       and check the running sleep card shows the right time and Stop works.
       P1-09 stays `in_progress` until this passes.
@@ -121,7 +125,7 @@ Gate to move on: dev build installed on an iPhone and an Android.
 - [x] P0-06 `feat(ui): primitives Card, Sheet, Stepper, Segmented, Chip, Button, TimerText` — depends: P0-05 — done when: storybook-style demo route renders all primitives
 - [x] P0-07 `feat(i18n): i18next with en locale and typed keys` — depends: P0-01 — done when: no hardcoded strings lint rule on
 - [x] P0-08 `chore(supabase): init supabase project folder, local docker, env handling` — depends: P0-01 — done when: `supabase start` works, `.env.example` committed
-- [ ] P0-09 `build: eas config with development, preview, production profiles` — depends: P0-01 — done when: dev build installed on your iPhone and an Android
+- [x] P0-09 `build: eas config with development, preview, production profiles` — depends: P0-01 — done when: dev build installed on your iPhone and an Android — done: Android 2026-09-23, iPhone 2026-09-27 (both a development and a preview build, once `APPLE_TEAM_ID` and the per-device UDID registration for ad-hoc signing were sorted — P2-F14)
 
 ### Found while working (P0)
 
@@ -254,7 +258,7 @@ Gate to move on: 14 day household dogfood starts.
 - [x] P3-10 `docs: in-app medical disclaimer and copy review against never list` — depends: P3-07 — done when: every string checked, no advice language — done: all 410 strings read against SDD 12.3's never list and the findings written up in `docs/07-copy-review.md`; one reworded (`insights.none`), one kept with a recorded reason (`signIn.problem.rate_limited`, about sign-in attempts). `src/i18n/copyRules.test.ts` now walks every string on every run, with exceptions listed by key and two tests that make an unused exception fail. The disclaimer is its own screen (`app/about.tsx`) reached from Settings, with 5 tests
 - [x] P3-12 `feat(appointments): add, edit, home card, questions list, reminders day-before and 1h before` — depends: P1-04, P1-14 — done when: appointment shows on both phones, both reminders fire on a real device — done (built and tested 2026-09-24, **both reminders seen firing on the phone 2026-09-25**): add and edit a visit with its doctor, clinic, notes and the questions to ask; the next one on home; and a reminder a day before and an hour before, gathered with the feed reminders so one scheduling pass holds every category. 34 tests. The two-phone half of the done-when is P2-15's job, on this list
 - [x] P3-13 `feat(report): questions-to-ask pulled into the call script` — depends: P3-07, P3-12 — done when: questions saved on the next appointment appear at the end of the script — done: the call script ends with the questions saved on the next visit, under the visit they belong to, and the PDF prints them as its own section. The soonest visit still to come is the one that counts, whatever the report's range: the script exists to be read while talking to a clinic. 5 app tests and one on the printed document
-- [ ] P3-11 `release: preview builds to both phones, start 14 day dogfood` — depends: all P3 above — done when: both caregivers logging, diary of issues opened — status: ready on Android, waiting on a second phone (2026-09-25). P3-12 is done and the preview APK from `b631b5e5` passed its device pass, so the Android half is in hand. What is left is literally a second caregiver's phone: an iPhone build needs the Apple team id (P0-09, stuck on the D-U-N-S number with no ETA), so unless the second phone is an Android taking the same APK, the dogfood starts one-sided. Two things to settle before it starts: **P3-F3's branch protection**, which was explicitly deferred to this point, and whether P4-06 (deleting data) should exist before real data goes in
+- [ ] P3-11 `release: preview builds to both phones, start 14 day dogfood` — depends: all P3 above — done when: both caregivers logging, diary of issues opened — status: both phones ready as of 2026-09-27. The Android half has been ready since the preview APK's device pass; the iPhone half cleared this week — `APPLE_TEAM_ID` resolved, a second tester's UDID registered (P2-F14), a preview build installed on both iPhones, and the full P2-15 two-phone checklist run and passed. One of the two things that were set to gate this start is now done: **P3-F3's branch protection is live** (2026-09-27, the repository went public). The other is still the owner's open call: **whether P4-06 (deleting data) should exist before real data goes in.** Nothing code-side is left — this is a decide-and-go, not a build task
 
 **Dogfood gate:** run 14 days. Log every friction point as a GitHub issue labelled `dogfood`. Fix the ones that caused a missed or doubled log before P4.
 
