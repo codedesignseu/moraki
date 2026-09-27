@@ -193,17 +193,17 @@ Gate to move on: two phones in airplane mode log 20 entries each, reconnect, bot
       address, no request, no console breadcrumbs and no route params. The scrubbing is
       proven in 27 tests against events shaped like the real ones; this is the half only a
       real report can answer. Needs a new development build (a native module was added).
-- [ ] P2-F6: **blocked 2026-09-26 on two owner-side things**, neither in the code:
-      `moraki.app` is still parked at GoDaddy, so nothing serves the two association
-      files (`docs/09-universal-links.md` step 1 sets up Cloudflare Pages from `public/`),
-      and the Apple Account is locked — `Apple Service Error -20209`, after `eas build`
-      was given the Team ID at its Apple ID prompt and cached it in the keychain. Once
-      hosted: tap a real invite link on each phone, from a chat or a note rather than the
-      browser's address bar, and check Moraki opens on the join screen with the code
-      filled in. Both need a fresh development build, since the iOS entitlement and the
-      Android intent filter are native. Android is independent of Apple and can go first;
-      `adb shell pm get-app-links eu.codedesigns.moraki` says why if it doesn't.
-      Every step, and the triage for each platform, is in `docs/09-universal-links.md`.
+- [ ] P2-F6: **hosting done and verified 2026-09-27.** Both files answer on `moraki.app`
+      with `200`, `application/json`, no redirect, and checksums identical to the repo;
+      Apple's CDN serves the association file, and Google's `digitalassetlinks` API — the
+      service Android itself verifies against — parses the statement with the right
+      package and fingerprint. What is left is one tap per phone. Both platforms check at
+      install time, so an app installed before the files existed has to re-verify first:
+      **iOS** delete and reinstall, **Android** `adb shell pm verify-app-links --re-verify
+    eu.codedesigns.moraki` then `adb shell pm get-app-links eu.codedesigns.moraki`
+      (want `verified`). Then Settings > Invite a caregiver > Share link, open it from a
+      chat or a note — not the browser's address bar — and check Moraki opens on the join
+      screen with the code filled in. Triage per platform: `docs/09-universal-links.md`.
 - [ ] P2-15 `test(manual): two phone airplane mode checklist in docs` — depends: P2-10 — done when: checklist passes and is committed: the checklist is written and committed (`docs/06-two-phone-checklist.md`, ten sections covering both phones offline, one-sided edits, undo, app kill, reboot, signing in with a history, roles, attribution and a long catch-up). It stays in_progress until it has been run on two real phones, which needs the development build P0-09 is waiting for
 
 ### Found while working (P2)
