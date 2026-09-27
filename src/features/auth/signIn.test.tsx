@@ -10,7 +10,22 @@ import {
   offline,
 } from '@/testing/fakeSupabaseAuth';
 
+import { SocialSignInCancelled } from './socialSignIn';
+
 jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
+
+const mockAppleAvailable = jest.fn().mockResolvedValue(false);
+const mockSignInWithApple = jest.fn();
+const mockSignInWithGoogle = jest.fn();
+jest.mock('./socialSignIn', () => ({
+  SocialSignInCancelled: class SocialSignInCancelled extends Error {},
+  isAppleSignInAvailable: () => mockAppleAvailable(),
+  signInWithApple: () => mockSignInWithApple(),
+  signInWithGoogle: (webClientId: string) => mockSignInWithGoogle(webClientId),
+}));
+
+const mockGoogleWebClientId = jest.fn(() => undefined as string | undefined);
+jest.mock('@/sync/googleEnv', () => ({ readGoogleWebClientId: () => mockGoogleWebClientId() }));
 
 let h: Harness;
 beforeEach(async () => {
@@ -159,5 +174,99 @@ describe('sign in with an emailed code', () => {
     await openSettings(null);
     expect(screen.queryByTestId('settings-account')).toBeNull();
     expect(screen.getByText('Night mode')).toBeOnTheScreen();
+  });
+});
+
+describe('Sign in with Apple (P5-04)', () => {
+  afterEach(() => {
+    mockAppleAvailable.mockResolvedValue(false);
+    mockSignInWithApple.mockReset();
+  });
+
+  it('offers no Apple button where the device says it is unavailable', async () => {
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
+    await press('Sign in');
+    expect(screen.queryByRole('button', { name: 'Continue with Apple' })).toBeNull();
+  });
+
+  it('signs in with the native identity token, straight to the consent screen', async () => {
+    mockAppleAvailable.mockResolvedValue(true);
+    mockSignInWithApple.mockResolvedValue({
+      identityToken: 'the-identity-token',
+      nonce: 'the-raw-nonce',
+    });
+    const server = authServer();
+
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
+    await press('Sign in');
+    await screen.findByRole('button', { name: 'Continue with Apple' });
+    await press('Continue with Apple');
+    await press('Not now'); // the consent screen (P3-09)
+
+    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(server.calls.find((c) => c.path === '/auth/v1/token')).toEqual({
+      path: '/auth/v1/token',
+      body: expect.objectContaining({
+        provider: 'apple',
+        id_token: 'the-identity-token',
+        nonce: 'the-raw-nonce',
+      }),
+    });
+  });
+
+  it('leaves the sign-in screen exactly as it was when the person dismisses the sheet', async () => {
+    mockAppleAvailable.mockResolvedValue(true);
+    mockSignInWithApple.mockRejectedValue(new SocialSignInCancelled());
+
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
+    await press('Sign in');
+    await screen.findByRole('button', { name: 'Continue with Apple' });
+    await press('Continue with Apple');
+
+    expect(await screen.findByRole('button', { name: 'Continue with Apple' })).toBeOnTheScreen();
+    expect(screen.queryByText(/Couldn.t sign in/)).toBeNull();
+  });
+});
+
+describe('Sign in with Google (P5-04)', () => {
+  afterEach(() => {
+    mockGoogleWebClientId.mockReturnValue(undefined);
+    mockSignInWithGoogle.mockReset();
+  });
+
+  it('offers no Google button in a build with no client ID configured', async () => {
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
+    await press('Sign in');
+    expect(screen.queryByRole('button', { name: 'Continue with Google' })).toBeNull();
+  });
+
+  it('signs in with the native ID token, straight to the consent screen', async () => {
+    mockGoogleWebClientId.mockReturnValue('web-client-id.apps.googleusercontent.com');
+    mockSignInWithGoogle.mockResolvedValue('the-google-token');
+    const server = authServer();
+
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
+    await press('Sign in');
+    await press('Continue with Google');
+    await press('Not now'); // the consent screen (P3-09)
+
+    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(mockSignInWithGoogle).toHaveBeenCalledWith('web-client-id.apps.googleusercontent.com');
+    expect(server.calls.find((c) => c.path === '/auth/v1/token')).toEqual({
+      path: '/auth/v1/token',
+      body: expect.objectContaining({ provider: 'google', id_token: 'the-google-token' }),
+    });
+  });
+
+  it('leaves the sign-in screen exactly as it was when the person dismisses the sheet', async () => {
+    mockGoogleWebClientId.mockReturnValue('web-client-id');
+    mockSignInWithGoogle.mockRejectedValue(new SocialSignInCancelled());
+
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
+    await press('Sign in');
+    await press('Continue with Google');
+
+    expect(await screen.findByRole('button', { name: 'Continue with Google' })).toBeOnTheScreen();
+    expect(screen.queryByText(/Couldn.t sign in/)).toBeNull();
   });
 });

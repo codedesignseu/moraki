@@ -549,6 +549,9 @@
     "verify": "Sign in",
     "resend": "Send a new code",
     "changeEmail": "Use a different email",
+    "apple": "Continue with Apple",
+    "google": "Continue with Google",
+    "or": "or",
     "problem": {
       "invalid_email": "Check the email address.",
       "short_code": "Enter the whole code from the email.",

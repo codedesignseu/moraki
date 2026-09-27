@@ -36,6 +36,27 @@ export function SignInScreen({ onDone }: { onDone: (user: AuthUser) => void }) {
             onPress={() => void signIn.sendCode()}
             disabled={signIn.busy}
           />
+          {signIn.appleAvailable || signIn.googleAvailable ? (
+            <>
+              <Text style={theme.text.body}>{t('signIn.or')}</Text>
+              {signIn.appleAvailable ? (
+                <Button
+                  label={t('signIn.apple')}
+                  variant="secondary"
+                  onPress={() => void signIn.continueWithApple()}
+                  disabled={signIn.busy}
+                />
+              ) : null}
+              {signIn.googleAvailable ? (
+                <Button
+                  label={t('signIn.google')}
+                  variant="secondary"
+                  onPress={() => void signIn.continueWithGoogle()}
+                  disabled={signIn.busy}
+                />
+              ) : null}
+            </>
+          ) : null}
         </>
       ) : (
         <>

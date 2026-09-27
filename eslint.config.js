@@ -167,6 +167,12 @@ module.exports = defineConfig([
       ],
     },
   },
+  {
+    // Jest's manual-mock convention for a node_modules package: a plain file
+    // outside any *.test.* glob, so it needs the `jest` global spelled out.
+    files: ['__mocks__/**/*.js'],
+    languageOptions: { globals: { jest: 'readonly' } },
+  },
   // Last: turns off every rule that would fight Prettier.
   prettierConfig,
 ]);
