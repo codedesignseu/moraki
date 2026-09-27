@@ -171,4 +171,29 @@ describe('HomeScreen', () => {
     await renderHome();
     expect(screen.getByText('Yesterday 22:30')).toBeOnTheScreen();
   });
+
+  // An appointment is the one entry that can be in the future (found on a
+  // real phone: a visit booked weeks out read as "402 days ago" in Recent,
+  // because dayBucket's daysAgo goes negative and nothing handled that sign).
+  it('marks an appointment tomorrow as tomorrow, not "-1 days ago"', async () => {
+    repo.insert({
+      type: 'appointment',
+      occurredAt: Date.parse('2026-07-02T07:30:00Z'), // 10:30 local, next day
+      payload: { title: 'Check-up' },
+    });
+    await renderHome();
+    expect(screen.getByText('Tomorrow 10:30')).toBeOnTheScreen();
+    expect(screen.queryByText(/ago/)).toBeNull();
+  });
+
+  it('marks an appointment further out as "in N days", not a huge wrong past count', async () => {
+    repo.insert({
+      type: 'appointment',
+      occurredAt: NOW + 55 * 24 * HOUR,
+      payload: { title: 'Vaccination' },
+    });
+    await renderHome();
+    expect(screen.getByText(/^In 55 days, /)).toBeOnTheScreen();
+    expect(screen.queryByText(/ago/)).toBeNull();
+  });
 });

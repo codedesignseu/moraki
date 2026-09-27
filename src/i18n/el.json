@@ -105,7 +105,9 @@
       "you": "Εσύ",
       "other": "Άλλο άτομο",
       "yesterday": "Χθες {{time}}",
+      "tomorrow": "Αύριο {{time}}",
       "daysAgo": "Πριν {{count}} ημέρες, {{time}}",
+      "inDays": "Σε {{count}} ημέρες, {{time}}",
       "lastBy": "Τελευταία εγγραφή από {{name}}"
     },
     "logFeed": "Κατάγραψε τάισμα",
