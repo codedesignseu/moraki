@@ -95,9 +95,17 @@ to it whenever a task's done-when can only be met on a device.
       (expo-print and expo-sharing are native modules added in P3-08).
       P3-08 stays `in_progress` until this passes.
       **Android passed 2026-09-23**: the share sheet opens with a readable PDF. iOS outstanding.
-- [ ] P2-15: run `docs/06-two-phone-checklist.md` on two phones and record the
+- [x] P2-15: run `docs/06-two-phone-checklist.md` on two phones and record the
       result in its table. This is the Phase 2 gate: two phones in airplane
       mode, 20 entries each, reconnect, both screens match.
+      **Passed 2026-09-27** on two iPhones (preview build): §1's core gate — both
+      offline, 20+ entries each, reconnect — matched top to bottom on both phones.
+      All ten sections run; two items turned out to be the architecture working
+      as designed rather than failures (an undo can flash on the other phone
+      before it's removed; a demoted phone can still edit locally, refused only
+      at sync), both decided to leave as built, recorded in the checklist file.
+      One real bug found and fixed separately: P3-F13, an appointment showing
+      the wrong relative date on Home.
 
 ---
 
@@ -206,9 +214,9 @@ Gate to move on: two phones in airplane mode log 20 entries each, reconnect, bot
       both phones: Settings > Invite a caregiver > Share link, open it from a chat or a
       note — not the browser's address bar — and check Moraki opens on the join screen
       with the code filled in. Android needs `adb shell pm verify-app-links --re-verify
-    eu.codedesigns.moraki` first (want `verified`), since it was also installed before
+eu.codedesigns.moraki` first (want `verified`), since it was also installed before
       the files existed. Triage per platform: `docs/09-universal-links.md`.
-- [ ] P2-15 `test(manual): two phone airplane mode checklist in docs` — depends: P2-10 — done when: checklist passes and is committed: the checklist is written and committed (`docs/06-two-phone-checklist.md`, ten sections covering both phones offline, one-sided edits, undo, app kill, reboot, signing in with a history, roles, attribution and a long catch-up). It stays in_progress until it has been run on two real phones, which needs the development build P0-09 is waiting for
+- [x] P2-15 `test(manual): two phone airplane mode checklist in docs` — depends: P2-10 — done when: checklist passes and is committed: the checklist is written and committed (`docs/06-two-phone-checklist.md`, ten sections covering both phones offline, one-sided edits, undo, app kill, reboot, signing in with a history, roles, attribution and a long catch-up). Run on two real iPhones (preview build) 2026-09-27 — Phase 2 gate
 
 ### Found while working (P2)
 
