@@ -215,12 +215,19 @@ function Row({
   t: Translate;
   onOpen?: ((id: string) => void) | undefined;
 }) {
+  // An appointment is the one entry that can be in the future: dayBucket's
+  // daysAgo goes negative rather than 0-based, so it needs its own words
+  // rather than falling into "N days ago" with a sign nobody reads.
   const when =
     row.daysAgo === 0
       ? row.time
       : row.daysAgo === 1
         ? t('home.recent.yesterday', { time: row.time })
-        : t('home.recent.daysAgo', { count: row.daysAgo, time: row.time });
+        : row.daysAgo === -1
+          ? t('home.recent.tomorrow', { time: row.time })
+          : row.daysAgo < 0
+            ? t('home.recent.inDays', { count: -row.daysAgo, time: row.time })
+            : t('home.recent.daysAgo', { count: row.daysAgo, time: row.time });
   return (
     <EntryRow
       testID={`recent-${row.id}`}

@@ -105,7 +105,9 @@
       "you": "You",
       "other": "Another caregiver",
       "yesterday": "Yesterday {{time}}",
+      "tomorrow": "Tomorrow {{time}}",
       "daysAgo": "{{count}} days ago, {{time}}",
+      "inDays": "In {{count}} days, {{time}}",
       "lastBy": "Last entry by {{name}}"
     },
     "logFeed": "Log feed",
