@@ -20,7 +20,8 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "associatedDomains": ["applinks:moraki.app"]
+      "associatedDomains": ["applinks:moraki.app"],
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -52,7 +53,14 @@
       "expo-secure-store",
       "expo-notifications",
       "expo-sharing",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-apple-authentication",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "REPLACE_WITH_REVERSED_IOS_CLIENT_ID"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

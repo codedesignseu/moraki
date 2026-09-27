@@ -549,6 +549,9 @@
     "verify": "Σύνδεση",
     "resend": "Στείλε νέο κωδικό",
     "changeEmail": "Χρησιμοποίησε άλλο email",
+    "apple": "Συνέχεια με Apple",
+    "google": "Συνέχεια με Google",
+    "or": "ή",
     "problem": {
       "invalid_email": "Έλεγξε τη διεύθυνση email.",
       "short_code": "Γράψε ολόκληρο τον κωδικό από το email.",

@@ -155,3 +155,52 @@ describe('email OTP sign in', () => {
     expect(error.message).not.toContain('123456');
   });
 });
+
+describe('Apple and Google sign in (P5-04)', () => {
+  it('exchanges an Apple identity token and nonce for a session', async () => {
+    const server = authServer();
+    const user = await launch(keychain().store, server.fetchImpl).signInWithIdToken(
+      'apple',
+      'the-identity-token',
+      'the-raw-nonce',
+    );
+
+    expect(user).toEqual({ id: USER_ID, email: EMAIL });
+    expect(server.calls.at(-1)).toEqual({
+      path: '/auth/v1/token',
+      body: expect.objectContaining({
+        provider: 'apple',
+        id_token: 'the-identity-token',
+        nonce: 'the-raw-nonce',
+      }),
+    });
+  });
+
+  it('exchanges a Google ID token with no nonce', async () => {
+    const server = authServer();
+    const user = await launch(keychain().store, server.fetchImpl).signInWithIdToken(
+      'google',
+      'the-google-token',
+    );
+
+    expect(user).toEqual({ id: USER_ID, email: EMAIL });
+    expect(server.calls.at(-1)).toEqual({
+      path: '/auth/v1/token',
+      body: expect.objectContaining({ provider: 'google', id_token: 'the-google-token' }),
+    });
+    expect(server.calls.at(-1)?.body).not.toHaveProperty('nonce');
+  });
+
+  it('reports a rejected token the same way a wrong email code is reported', async () => {
+    const server = authServer({
+      idToken: () =>
+        new Response(JSON.stringify({ code: 'invalid_credentials' }), {
+          status: 403,
+          headers: { 'content-type': 'application/json' },
+        }),
+    });
+    await expect(
+      launch(keychain().store, server.fetchImpl).signInWithIdToken('apple', 'bad-token', 'nonce'),
+    ).rejects.toEqual(new AuthError('invalid_code'));
+  });
+});

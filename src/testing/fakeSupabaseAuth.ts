@@ -105,6 +105,8 @@ export function authServer(
     /** grant_consent and withdraw_consent (P3-09). */
     consent?: (path: string) => Response;
     createHousehold?: () => Response;
+    /** Apple/Google sign in (P5-04), grant_type=id_token. */
+    idToken?: () => Response;
   } = {},
 ) {
   const calls: Call[] = [];
@@ -126,6 +128,11 @@ export function authServer(
         return json(200, {});
       case '/auth/v1/verify':
         return options.verify?.() ?? json(200, session(Math.floor(Date.now() / 1000) + HOUR_S));
+      case '/auth/v1/token':
+        // Apple/Google sign in (P5-04) only ever calls this with
+        // grant_type=id_token; email OTP's own refresh calls never reach a
+        // fake that never expires a session within a test's lifetime.
+        return options.idToken?.() ?? json(200, session(Math.floor(Date.now() / 1000) + HOUR_S));
       case '/auth/v1/logout':
         return new Response(null, { status: 204 });
       case '/rest/v1/events': {

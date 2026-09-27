@@ -96,6 +96,28 @@ export function createAuth(env: SupabaseEnv, store: SecureKeyValueStore, fetchIm
       return user;
     },
 
+    /**
+     * Apple and Google sign in (P5-04): the native SDK on the phone does the
+     * actual authentication and hands back an ID token, which this exchanges
+     * for a Supabase session. `nonce` only applies to Apple — Supabase
+     * verifies the token against it (see `features/auth/socialSignIn.ts`).
+     */
+    async signInWithIdToken(
+      provider: 'apple' | 'google',
+      idToken: string,
+      nonce?: string,
+    ): Promise<AuthUser> {
+      const { data, error } = await client.auth.signInWithIdToken({
+        provider,
+        token: idToken,
+        ...(nonce ? { nonce } : {}),
+      });
+      if (error) throw failure(error);
+      const user = toUser(data.user);
+      if (!user) throw new AuthError('unknown');
+      return user;
+    },
+
     /** Ends this device's session only; other phones stay signed in. */
     async signOut(): Promise<void> {
       await client.auth.signOut({ scope: 'local' });
