@@ -120,6 +120,15 @@ only by its author and the controller. The form asks people to leave health
 details out; it cannot enforce that, so a message is treated as potentially
 containing them.
 
+**Not in the household export (P4-F2, decided 2026-09-27).** Settings → Your
+data (P4-05) exports the _household's_ entries; a feedback row belongs to the
+person, not the household, so it was never in scope for that export and
+adding it there would mean building a second, person-scoped export path for
+one small table. The row is not unreachable, though: its author can already
+read it back through the same API the app itself uses (`select` is allowed
+for `user_id = auth.uid()`), and GDPR access (Article 15) is met by providing
+it on request rather than through the self-serve export.
+
 ### 3.6 On the device only, never synced
 
 The local SQLite database mirrors §3.2 and §3.3 and adds: the outbox of
