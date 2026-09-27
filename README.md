@@ -49,7 +49,21 @@ supabase start     # local Postgres, auth and a mail catcher
 supabase db reset  # apply migrations from zero
 supabase test db   # pgTAP: schema, policies, RPCs
 npm run test:local # real sign in and invites against the local stack
+npm run seed:dogfood # a realistic household to look at -- see below
 ```
+
+**`npm run seed:dogfood`** fills the local database with one household's
+worth of a real-looking 100-day newborn history — feeds, diapers, sleep,
+weight with the early dip and regain, a couple of appointments, over 2,000
+events from two caregivers — so History, Insights and the stock card have
+something real to scroll through instead of an empty app. Safe to re-run any
+time; it clears its own household first. It is `supabase/seed-dogfood.sql`,
+not `supabase/seed.sql` on purpose: that filename auto-loads on every
+`supabase db reset`, which runs right before `supabase test db` both locally
+and in CI, and several pgTAP assertions count rows with no filter — seed data
+sitting there permanently would throw every one of those off. Pull the
+household to a phone and there are enough events on it to run P1-11's own
+60fps scroll check for real.
 
 Moraki does not use the Supabase CLI's usual ports (see `supabase/config.toml`):
 
