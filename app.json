@@ -58,9 +58,10 @@
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": "REPLACE_WITH_REVERSED_IOS_CLIENT_ID"
+          "iosUrlScheme": "com.googleusercontent.apps.REPLACE_WITH_IOS_CLIENT_ID"
         }
-      ]
+      ],
+      "expo-live-activity"
     ],
     "experiments": {
       "typedRoutes": true

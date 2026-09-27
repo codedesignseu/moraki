@@ -1,0 +1,17 @@
+{
+  "name": "expo-live-activity",
+  "version": "0.1.0",
+  "description": "P5-01 scaffold: an iOS Live Activity showing time since the last feed. Never compiled — see README.md.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "sideEffects": false,
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@expo/config-plugins": "*"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "expo-modules-core": "*"
+  }
+}
