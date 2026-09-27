@@ -74,6 +74,7 @@ to it whenever a task's done-when can only be met on a device.
       build, whose bundle is baked in.
       **Passed 2026-09-25** on the preview APK: signed in, force-quit, airplane
       mode, reopened, still signed in.
+      **iOS passed 2026-09-27** on the preview build, same steps, same result.
 - [ ] P2-06: once P2-F6 is done, tap a real https://moraki.app/join/CODE
       link on a second phone and check it opens Moraki on the join screen.
 - [x] P1-14: with the development build installed, turn reminders on in
@@ -193,21 +194,25 @@ Gate to move on: two phones in airplane mode log 20 entries each, reconnect, bot
       address, no request, no console breadcrumbs and no route params. The scrubbing is
       proven in 27 tests against events shaped like the real ones; this is the half only a
       real report can answer. Needs a new development build (a native module was added).
-- [ ] P2-F6: **hosting done and verified 2026-09-27.** Both files answer on `moraki.app`
-      with `200`, `application/json`, no redirect, and checksums identical to the repo;
-      Apple's CDN serves the association file, and Google's `digitalassetlinks` API — the
-      service Android itself verifies against — parses the statement with the right
-      package and fingerprint. What is left is one tap per phone. Both platforms check at
-      install time, so an app installed before the files existed has to re-verify first:
-      **iOS** delete and reinstall, **Android** `adb shell pm verify-app-links --re-verify
-    eu.codedesigns.moraki` then `adb shell pm get-app-links eu.codedesigns.moraki`
-      (want `verified`). Then Settings > Invite a caregiver > Share link, open it from a
-      chat or a note — not the browser's address bar — and check Moraki opens on the join
-      screen with the code filled in. Triage per platform: `docs/09-universal-links.md`.
+- [ ] P2-F6: hosting verified 2026-09-27 (both files, checksums, Apple's CDN and Google's
+      `digitalassetlinks` API all agree). The owner's own iPhone reinstalled the iOS preview
+      build from a fresh QR and passed the airplane-mode/force-quit check. The tap test
+      itself is still blocked: the second iPhone had no Moraki installed, so the link fell
+      through to the domain's `/join/CODE` 404 as expected for an uninstalled app — now
+      answered by `public/404.html` instead of a dead end (2026-09-27) — and separately hit
+      "this app cannot be installed because its integrity could not be verified" trying to
+      install the preview build at all. That is P2-F14, not a hosting problem. Once the
+      second device is registered and a new preview build installs, redo the tap test on
+      both phones: Settings > Invite a caregiver > Share link, open it from a chat or a
+      note — not the browser's address bar — and check Moraki opens on the join screen
+      with the code filled in. Android needs `adb shell pm verify-app-links --re-verify
+    eu.codedesigns.moraki` first (want `verified`), since it was also installed before
+      the files existed. Triage per platform: `docs/09-universal-links.md`.
 - [ ] P2-15 `test(manual): two phone airplane mode checklist in docs` — depends: P2-10 — done when: checklist passes and is committed: the checklist is written and committed (`docs/06-two-phone-checklist.md`, ten sections covering both phones offline, one-sided edits, undo, app kill, reboot, signing in with a history, roles, attribution and a long catch-up). It stays in_progress until it has been run on two real phones, which needs the development build P0-09 is waiting for
 
 ### Found while working (P2)
 
+- [x] P2-F14 an iOS preview build only installs on devices registered before it was made — found during P2-F6's device pass 2026-09-27 — the `preview` profile is `internal` distribution, which is ad-hoc signed: the provisioning profile lists device UDIDs at build time, and any device not in it gets "this app cannot be installed because its integrity could not be verified" from iOS, not a clearer error. Only the owner's phone was registered (`eas device:create`, done once for the first build); a second tester's phone had never been added. Fix, and the same fix every time a new iOS tester joins: `eas device:create` (the tester opens the registration link in Safari on their own phone, not in the app, since there is no app yet), then `eas build --platform ios --profile preview` again — the new UDID only takes effect in a build made after it was registered — then send the new QR, since the old one's profile does not cover the new device. TestFlight (P4-12) does not have this problem: Apple registers a tester's device automatically on install, so this whole step disappears once distribution moves off ad-hoc internal builds — done when: the fix is in `docs/09-universal-links.md` and the second phone installs from a rebuilt profile
 - [ ] P2-F13 `assetlinks.json` lists the EAS keystore only, not Play's signing key — found during P2-F6 — with Play App Signing on (the default for a new app) Google re-signs the upload with its own key, so an app installed from the Play Store presents a different certificate than the one in the file. Verification fails, and every invite link silently opens a browser for real users while working perfectly in every test build. The file takes an array for exactly this reason — done when: the SHA-256 from Play Console > Setup > App signing sits beside the EAS one in `sha256_cert_fingerprints`, before the first Play track goes out (P4-12)
 
 - [ ] P2-F12 realtime doesn't deliver on the CI runner — found during P2-10 — the two-phone test passes locally in about half a second, and fails on GitHub with the channel joined but no change ever arriving, even after handing realtime the signed-in token. The CI job runs the rest of the real-server tests and skips this one, so the promise in SDD 5.4 is proven on a developer machine but not on every push — done when: the two-phone realtime test runs in CI, or the reason it cannot is written down here

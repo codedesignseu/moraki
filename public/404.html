@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moraki</title>
+    <meta name="robots" content="noindex" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --background: #f4efe7;
+        --surface: #faf6f0;
+        --text: #2b2621;
+        --text-muted: #6b6259;
+        --accent: #4a6550;
+        --accent-subtle: #dce4d9;
+        --border: #ddd4c5;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: #1c1814;
+          --surface: #27221d;
+          --text: #ddd2c2;
+          --text-muted: #a89d8c;
+          --accent: #9bb59f;
+          --accent-subtle: #2e3830;
+          --border: #3a332b;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: var(--background);
+        color: var(--text);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      .card {
+        width: 100%;
+        max-width: 420px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 32px 28px;
+        text-align: center;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 4px;
+      }
+      p {
+        font-size: 15px;
+        line-height: 1.5;
+        color: var(--text-muted);
+        margin: 0 0 20px;
+      }
+      .code {
+        display: none;
+        gap: 8px;
+        margin: 0 0 20px;
+      }
+      .code-value {
+        flex: 1;
+        font-family: 'SF Mono', 'Menlo', monospace;
+        font-size: 22px;
+        letter-spacing: 0.08em;
+        padding: 14px;
+        border-radius: 10px;
+        background: var(--accent-subtle);
+        color: var(--text);
+      }
+      button {
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 14px 18px;
+        border-radius: 10px;
+        border: none;
+        background: var(--accent);
+        color: var(--surface);
+        cursor: pointer;
+      }
+      button:active {
+        opacity: 0.85;
+      }
+      .hint {
+        font-size: 13px;
+      }
+      .not-found p:last-child {
+        margin-bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card" id="card">
+      <h1>Moraki</h1>
+      <p id="intro">
+        Someone invited you to help track their baby's care with Moraki.
+      </p>
+
+      <div class="code" id="codeRow">
+        <div class="code-value" id="codeValue"></div>
+        <button type="button" id="copyButton">Copy</button>
+      </div>
+
+      <p class="hint" id="hint">
+        Moraki isn't released to app stores yet. Ask whoever invited you to
+        add you directly, or open the invite link again once you have the
+        app installed — it will fill this code in for you.
+      </p>
+    </main>
+
+    <script>
+      // Mirrors the format in src/sync/invites.ts: normaliseCode and
+      // formatCode. Kept as a plain copy rather than an import, because this
+      // page is served from wherever moraki.app is hosted, not built by Expo.
+      var ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+      var CODE_LENGTH = 8;
+
+      function normalise(input) {
+        var upper = input.toUpperCase();
+        var kept = '';
+        for (var i = 0; i < upper.length && kept.length < CODE_LENGTH; i++) {
+          if (ALPHABET.indexOf(upper[i]) !== -1) kept += upper[i];
+        }
+        return kept;
+      }
+
+      function format(code) {
+        return code.length > 4 ? code.slice(0, 4) + '-' + code.slice(4) : code;
+      }
+
+      var match = /^\/join\/([^/]+)\/?$/.exec(window.location.pathname);
+      var raw = match ? decodeURIComponent(match[1]) : '';
+      var code = normalise(raw);
+
+      var card = document.getElementById('card');
+      if (code.length === CODE_LENGTH) {
+        document.getElementById('codeValue').textContent = format(code);
+        document.getElementById('codeRow').style.display = 'flex';
+        document.getElementById('copyButton').addEventListener('click', function () {
+          var button = document.getElementById('copyButton');
+          var done = function () {
+            button.textContent = 'Copied';
+            setTimeout(function () {
+              button.textContent = 'Copy';
+            }, 1500);
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).then(done, done);
+          } else {
+            done();
+          }
+        });
+      } else {
+        card.classList.add('not-found');
+        document.getElementById('intro').textContent = 'Page not found.';
+        document.getElementById('hint').textContent =
+          "The page you're looking for doesn't exist.";
+      }
+    </script>
+  </body>
+</html>

@@ -1,7 +1,9 @@
 # Universal links: making `https://moraki.app/join/CODE` open the app
 
-**Task:** P2-F6. **Both platforms configured:** 2026-09-26. **Outstanding:**
-hosting the two files on `moraki.app`, and the tap test on each phone.
+**Task:** P2-F6. **Both platforms configured:** 2026-09-26. **Hosting verified:**
+2026-09-27. **Outstanding:** the tap test on each phone, blocked as of
+2026-09-27 by P2-F14 (a second iOS tester's device needs registering before a
+new build).
 
 An invite link is how a second caregiver gets in (P2-06). The app has had the
 `/join/[code]` route since then, but nothing told a phone to open Moraki for
@@ -33,6 +35,10 @@ The third is a hosting step, and only a device can prove it.
   certificate's SHA-256 fingerprint.
 - `app.json` → `android.intentFilters`, one `VIEW` filter for
   `https://moraki.app/join` with `autoVerify: true`.
+- `public/404.html` — what a browser shows when a link is tapped with no
+  Moraki installed: reads the code out of the path and displays it, rather
+  than a dead end. `public/.htaccess` wires it in for Apache; Cloudflare
+  Pages and Netlify serve `404.html` automatically with no config.
 
 `public/` is Expo's own convention for files copied verbatim into a web export,
 so the path in the repository is the path on the domain. Beside the two files
@@ -89,10 +95,27 @@ as well and serve both.
 
 **The `/join/CODE` path itself.** A tapped link reaches a browser whenever the
 app is not installed — a desktop, someone else's phone, a mail client that
-rewrites URLs. Today that is a 404. A short page at `/join/*` saying what
-Moraki is, with the code shown so it can be typed into the app, turns a dead
-end into an install. It is landing-page work, not app work, and the invite
-message already carries the code as a fallback (P2-06).
+rewrites URLs. Confirmed on a real phone 2026-09-27: the second person's
+iPhone had no Moraki installed yet, and the tap landed on `moraki.app/join/…`
+as a 404, exactly as the universal link config would produce for an uninstalled
+app. `public/404.html` now turns that into a page saying what Moraki is, with
+the code read out of the path and shown to copy — not a dead end, and the
+invite message still carries the code as a fallback either way (P2-06).
+
+It ships as `404.html` because that is the one convention every static host
+recognises without extra config: Cloudflare Pages and Netlify serve it
+automatically for any unmatched path, and `public/.htaccess` adds
+`ErrorDocument 404 /404.html` for Apache (cPanel, most shared hosting). On
+nginx, add to the server block instead:
+
+```nginx
+error_page 404 /404.html;
+```
+
+**This is not what happens when a link is tapped with the app installed** —
+that case is the universal link succeeding, handled entirely by iOS and
+Android before the request ever reaches the domain. The 404 page only ever
+answers a phone the app has not reached yet.
 
 ### 2. Check what the domain actually serves
 
@@ -127,17 +150,42 @@ reads, and it lags your deploy by minutes to hours:
 curl -sS "https://app-site-association.cdn-apple.com/a/v1/moraki.app" | python3 -m json.tool
 ```
 
-### 3. Build and install an iOS development build
+### 3. Register every tester's device, then build
 
 `associatedDomains` is a native entitlement, so Expo Go cannot test it and
-neither can the existing builds.
+neither can the existing builds — a fresh build is needed. Use the `preview`
+profile, not `development`: development streams its JS from a Metro server
+over Wi-Fi and has nothing to load in airplane mode, which is most of what
+this checklist and P2-15 need to prove.
+
+`preview` is `internal` distribution, which iOS signs ad-hoc: the
+provisioning profile only covers device UDIDs registered **before** the build
+runs. Skip this and a device not in the profile gets _"this app cannot be
+installed because its integrity could not be verified"_ from iOS — not a
+clearer error (confirmed 2026-09-27, P2-F14).
+
+For each phone that will install it, including a caregiver's:
 
 ```bash
-eas build --platform ios --profile development
+eas device:create
+```
+
+This prints a registration link/QR. **The device's own owner opens it in
+Safari on their phone**, not in the app — there is no app yet. It installs a
+small profile that registers the UDID with the Apple team. Do this before the
+build, not after: a UDID only takes effect in a build made after it was
+registered.
+
+```bash
+eas build --platform ios --profile preview
 ```
 
 Apple login is interactive the first time. **Commit `app.json` first** — EAS
 archives the committed state, so an uncommitted change is not in the build.
+
+TestFlight (P4-12) does not have this problem — Apple registers a tester's
+device automatically on install — so this step disappears once distribution
+moves off ad-hoc internal builds.
 
 The **Apple ID** prompt wants the email address the developer account is
 registered to. It is not the Team ID: a Team ID is ten characters
@@ -161,6 +209,12 @@ provisioning profile the first time still goes through an Apple ID session.
 
 ### 4. Tap a real link on the phone
 
+**The app must already be installed on the phone doing the tapping.** A tap on
+a phone with no Moraki falls through to the domain — `public/404.html` reads
+the code and shows it, which is correct behaviour for an uninstalled app, but
+it is not the test. It only proves the universal link when the app is present
+to intercept the request before it ever reaches the domain.
+
 With the build installed and signed in as a household owner:
 
 1. Settings → **Invite a caregiver** → create an invite → **Share link**.
@@ -168,7 +222,8 @@ With the build installed and signed in as a household owner:
 3. Tap it. Moraki must open on the join screen with the code already filled in.
 4. Record the result in `docs/TASKS.md` under "Waiting on device".
 
-If it opens Safari instead, in this order:
+If it opens Safari (or the 404 page) instead, on a phone that **does** have the
+app installed, in this order:
 
 - Re-check the CDN URL in step 2 — an unfetched or malformed file is the usual cause.
 - Delete and reinstall the app: the entitlement is read at install time.

@@ -16,3 +16,9 @@
   RewriteEngine On
   RewriteRule ^\.well-known/ - [L]
 </IfModule>
+
+# A tapped invite link reaches the browser whenever the app isn't installed
+# (P2-F6). 404.html reads the code out of the path itself and shows it, rather
+# than a dead end. Cloudflare Pages and Netlify serve 404.html automatically
+# with no config; Apache needs telling.
+ErrorDocument 404 /404.html
