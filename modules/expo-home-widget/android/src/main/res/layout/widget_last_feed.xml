@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Never built (README.md). Plain English text set from Kotlin
+  (LastFeedWidgetProvider.kt), not a string resource — the same "no
+  src/i18n here" reasoning as the iOS widget's view (module README). The
+  background reuses app.json's own splash colour; a widget's layout is
+  outside src/ui's token system (SDD 15.4) the same way its text is
+  outside src/i18n — a native RemoteViews layout can't import
+  src/ui/tokens.ts either.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  android:padding="12dp"
+  android:background="#F4EFE7">
+
+  <TextView
+    android:id="@+id/widget_last_feed_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textSize="12sp" />
+
+  <TextView
+    android:id="@+id/widget_last_feed_value"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textSize="18sp"
+    android:textStyle="bold" />
+</LinearLayout>

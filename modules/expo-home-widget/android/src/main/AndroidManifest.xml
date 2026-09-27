@@ -1,0 +1,21 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <!--
+      Never built (README.md). Unlike the iOS widget, this doesn't need a
+      second build target — Gradle's manifest merger folds a library
+      module's own receiver declaration straight into the host app's merged
+      manifest. Still unverified: no Android SDK on this machine to confirm
+      the merge, the layout, or the provider actually behave.
+    -->
+    <receiver
+      android:name=".LastFeedWidgetProvider"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/last_feed_widget_info" />
+    </receiver>
+  </application>
+</manifest>
