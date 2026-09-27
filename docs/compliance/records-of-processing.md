@@ -142,9 +142,9 @@ app beyond the crash reporter.
 
 ## 5. Transfers outside the EU/EEA
 
-None intended. Supabase is an EU-region project and Sentry an EU-region
-organisation; both are chosen for that reason and the Sentry DSN is rejected at
-startup unless it points at the EU ingest host. Apple and Google process data
+None intended. Supabase runs in `eu-central-1` (Frankfurt) and Sentry is an
+EU-region organisation; both are chosen for that reason, and the Sentry DSN is
+rejected at startup unless it points at the EU ingest host. Apple and Google process data
 outside the EU when an app is distributed or a push is delivered — see
 [`processors.md`](./processors.md) for what reaches them, which today is a
 tester's email address and no household data at all.

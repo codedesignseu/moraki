@@ -14,13 +14,13 @@ than forgotten.
 
 ### Supabase — database, authentication
 
-|                   |                                                                                                                         |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| What it processes | everything in records-of-processing §3.1–§3.3 and §3.5: the account, the baby, every entry, consents, invites, feedback |
-| Region            | EU. Project `tjcahnjpbkgrjytrazfs` — **confirm the exact region in the dashboard and record it here**                   |
-| Sub-processors    | AWS (hosting)                                                                                                           |
-| Legal             | Supabase's DPA. **Must be signed before any household outside the developer's own joins** (SDD 12.1)                    |
-| Status            | live                                                                                                                    |
+|                   |                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What it processes | everything in records-of-processing §3.1–§3.3 and §3.5: the account, the baby, every entry, consents, invites, feedback                                                                                                                                                                                                                                                                                              |
+| Region            | **`eu-central-1` (Frankfurt)**, confirmed in the dashboard 2026-09-27. Project `tjcahnjpbkgrjytrazfs`                                                                                                                                                                                                                                                                                                                |
+| Sub-processors    | AWS (hosting)                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Legal             | **No separate signature required.** Supabase incorporates its Data Processing Addendum into its Terms of Service, so it applies to every organisation automatically (confirmed 2026-09-27; an earlier signed DPA, if any, stays binding). Keep a dated copy of that statement — Article 28 wants a contract in writing, and incorporation by reference qualifies only if you can show what the terms said on the day |
+| Status            | live                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 ### Google Workspace — sign-in code delivery (SMTP)
 
@@ -38,7 +38,7 @@ than forgotten.
 | ----------------- | --------------------------------------------------------------------------------------- |
 | What it processes | records-of-processing §3.4: a scrubbed crash report. No user, no IP address, no payload |
 | Region            | EU organisation, `*.ingest.de.sentry.io`. The app refuses any other DSN at startup      |
-| Legal             | Sentry's DPA                                                                            |
+| Legal             | Sentry's DPA. Error retention is set to **30 days**                                     |
 | Status            | live from P4-08, and inert in any build without a DSN                                   |
 
 ### Expo — build service, and later update delivery

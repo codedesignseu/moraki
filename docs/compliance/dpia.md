@@ -159,9 +159,11 @@ _Low × High._ Supabase holds everything.
 
 Mitigated: EU region, RLS so a leaked anon key grants nothing, no secret key in
 any client bundle (the env parser refuses one), and the publishable key is
-public by design. Sentry holds only scrubbed reports. **The Supabase DPA must be
-signed before an outside household joins** — currently outstanding, and the one
-paperwork item that blocks the beta.
+public by design. Sentry holds only scrubbed reports, for 30 days. Supabase runs
+in `eu-central-1` (Frankfurt), and its Data Processing Addendum is incorporated
+into its Terms of Service, so it applies without a separate signature
+(confirmed 2026-09-27). A dated copy of that statement is the evidence that
+Article 28's written-contract requirement is met, so keep one.
 
 _Residual: Low–Medium_, and partly outside the controller's hands, which is what
 a DPA exists to allocate.
@@ -213,8 +215,9 @@ reasons not to ship publicly without finishing them first:
 2. **P4-06** — erasure (R8), and the consent copy corrected in the same release.
 3. **P5-03** — decide on local database encryption (R2), with the decision recorded as an ADR whichever way it goes.
 
-Plus one piece of paperwork that blocks the beta itself: **sign the Supabase
-DPA** (R7).
+No paperwork blocks the beta: Supabase's DPA arrives with its Terms of Service
+rather than needing a signature (R7, confirmed 2026-09-27). What remains before
+P5 is the lawyer's review this document was written for.
 
 ## 6. Consultation
 
@@ -233,5 +236,5 @@ mitigation, and no residual above Medium is recorded here.
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Assessment carried out by | the developer, with Claude Code                                                                                                                     |
 | Reviewed by a lawyer      | **not yet** — required before P5 (SDD 12.1)                                                                                                         |
-| Decision                  | proceed to a beta of up to five households once the Supabase DPA is signed; do not release publicly before P2-F7, P4-06 and P5-03 are resolved      |
+| Decision                  | proceed to a beta of up to five households; do not release publicly before P2-F7, P4-06 and P5-03 are resolved                                      |
 | Next review               | before the first outside household, and on any change to §4 — a new processor, a new category of data, push notifications, or analytics of any kind |
