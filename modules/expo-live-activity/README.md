@@ -3,16 +3,23 @@
 P5-01's scaffold: a local Expo module for an iOS Live Activity showing "time
 since last feed" on the lock screen after the app is backgrounded.
 
-**Status: `ios/LiveActivityModule.swift` compiles now, nothing else has run
-on a device.** First real `eas build --profile development --platform ios`
-(2026-09-28) failed on it: `Activity.request`/`.end`/`.update` need iOS
-16.2, not the 16.1 the docs and this file's original `#available` guards
-assumed — a real compiler caught what reading the docs didn't. Fixed and
-rebuilding is the next real signal. `ios/widget/LiveActivityWidget.swift`
-is still untouched by any build (excluded from the podspec on purpose,
-see below) and still needs the Xcode step in "What's not here" — a
-successful module build doesn't mean a Live Activity has ever actually
-shown on a lock screen.
+**Status: two real build errors fixed so far, a clean build still hasn't
+happened.** First real `eas build --profile development --platform ios`
+(2026-09-28) failed twice on `ios/LiveActivityModule.swift`, each fix only
+found by the next build, not by re-reading the docs harder:
+
+1. `Activity.request`/`.end`/`.update` need iOS 16.2, not the 16.1 this
+   file's original `#available` guards assumed.
+2. Swift refuses `@available` on a _stored property_ at all ("stored
+   properties cannot be marked potentially unavailable") — `current`'s own
+   type only needs 16.1 to exist, so it needed no gate in the first place;
+   the gate belongs on the calls that touch it, not the property itself.
+
+Next `eas build` is still the only real signal. `ios/widget/LiveActivityWidget.swift`
+is untouched by any build (excluded from the podspec on purpose, see
+below) and still needs the Xcode step in "What's not here" — a clean
+module build wouldn't mean a Live Activity has ever actually shown on a
+lock screen either.
 
 ## What's here
 
