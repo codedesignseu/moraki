@@ -8,6 +8,11 @@ Pod::Spec.new do |s|
   s.summary        = package['description']
   s.author         = 'Moraki'
   s.homepage       = 'https://moraki.app'
+  # 16.1, not 16.2: the module's own start/update/end need 16.2 (see
+  # ios/LiveActivityModule.swift), but they're #available-guarded and
+  # correctly report unavailable below it, so this stays the app's own
+  # deployment target rather than silently raising the whole app's
+  # minimum supported iOS version for one optional feature.
   s.platforms      = { ios: '16.1' }
   s.source         = { git: '' }
   s.static_framework = true

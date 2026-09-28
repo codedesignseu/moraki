@@ -1,25 +1,30 @@
 import ActivityKit
 import ExpoModulesCore
 
-// Never built (README.md). Written from Apple's ActivityKit docs and the
-// pattern in other Expo modules under node_modules/expo-*/ios (e.g.
-// expo-sharing's SharingModule.swift), not confirmed against a compiler or
-// a device — Live Activities need iOS 16.1+, which this machine can't
-// simulate without Xcode either.
+// First real build (2026-09-28), after this had sat untouched as "never
+// compiled": EAS's Xcode build failed on Activity.request/.end/.update,
+// "only available in iOS 16.2 or newer". Written from Apple's ActivityKit
+// docs at 16.1 (when ActivityKit itself, and simple authorization checks,
+// became available) — these three calls specifically need 16.2, a real
+// compiler caught what reading the docs alone didn't.
 public final class LiveActivityModule: Module {
-  @available(iOS 16.1, *)
+  @available(iOS 16.2, *)
   private var current: Activity<MorakiLiveActivityAttributes>?
 
   public func definition() -> ModuleDefinition {
     Name("LiveActivity")
 
     AsyncFunction("isAvailableAsync") { () -> Bool in
-      guard #available(iOS 16.1, *) else { return false }
+      // 16.2, matching start/update/end below, not 16.1: ActivityKit
+      // itself exists from 16.1, but reporting "available" on a 16.1
+      // device would be wrong when the calls that actually start an
+      // activity need 16.2 and would silently no-op there.
+      guard #available(iOS 16.2, *) else { return false }
       return ActivityAuthorizationInfo().areActivitiesEnabled
     }
 
     AsyncFunction("start") { (payload: LiveActivityPayloadRecord) in
-      guard #available(iOS 16.1, *) else { return }
+      guard #available(iOS 16.2, *) else { return }
       // Starting twice isn't meaningful — update the one already running
       // instead of layering a second on top of it.
       if current != nil {
@@ -36,19 +41,19 @@ public final class LiveActivityModule: Module {
     }
 
     AsyncFunction("update") { (payload: LiveActivityPayloadRecord) in
-      guard #available(iOS 16.1, *) else { return }
+      guard #available(iOS 16.2, *) else { return }
       try await updateCurrent(payload)
     }
 
     AsyncFunction("end") {
-      guard #available(iOS 16.1, *) else { return }
+      guard #available(iOS 16.2, *) else { return }
       guard let activity = current else { return }
       await activity.end(nil, dismissalPolicy: .immediate)
       current = nil
     }
   }
 
-  @available(iOS 16.1, *)
+  @available(iOS 16.2, *)
   private func updateCurrent(_ payload: LiveActivityPayloadRecord) async throws {
     guard let activity = current else { return }
     let state = MorakiLiveActivityAttributes.ContentState(
