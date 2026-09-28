@@ -58,9 +58,45 @@ begin
   delete from auth.users where id in (owner_id, carer_id);
   alter table public.memberships enable trigger memberships_keep_an_owner;
 
-  insert into auth.users (id, email) values
-    (owner_id, 'dogfood-owner@example.test'),
-    (carer_id, 'dogfood-carer@example.test');
+  -- A bare (id, email) row isn't what GoTrue itself would have written for
+  -- a real signup, and it shows the moment someone actually tries to sign
+  -- in as a seeded caregiver: signInWithOtp's "does this email already
+  -- have a confirmed account" check doesn't recognise it (no
+  -- email_confirmed_at, no auth.identities row, no instance_id/aud/role)
+  -- and tries to create the address again, hitting the unique constraint
+  -- on auth.users.email -- a 500, and no way to sign in as either seeded
+  -- caregiver at all. Fixing that turned up a second, sharper failure:
+  -- GoTrue's Go driver scans confirmation_token and the other one-time-
+  -- token columns as plain (non-nullable) strings, so a NULL there --
+  -- this table's own default -- isn't a missing token, it's a query
+  -- GoTrue can't even read the row back for ("Scan error ... converting
+  -- NULL to string is unsupported"), a 500 from a completely different
+  -- place than the one the identities row below fixes. Both fixes, and
+  -- every column and value here, came from making one real local
+  -- signInWithOtp request against a throwaway address and reading back
+  -- exactly what GoTrue itself had written, not from guessing at the
+  -- schema.
+  insert into auth.users (
+    instance_id, id, aud, role, email, email_confirmed_at,
+    confirmation_token, recovery_token, email_change_token_new, email_change,
+    email_change_token_current, phone_change, phone_change_token, reauthentication_token,
+    raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+  ) values
+    ('00000000-0000-0000-0000-000000000000', owner_id, 'authenticated', 'authenticated',
+     'dogfood-owner@example.test', born, '', '', '', '', '', '', '', '',
+     '{"provider":"email","providers":["email"]}'::jsonb,
+     jsonb_build_object('sub', owner_id::text, 'email', 'dogfood-owner@example.test', 'email_verified', true, 'phone_verified', false),
+     born, born),
+    ('00000000-0000-0000-0000-000000000000', carer_id, 'authenticated', 'authenticated',
+     'dogfood-carer@example.test', born, '', '', '', '', '', '', '', '',
+     '{"provider":"email","providers":["email"]}'::jsonb,
+     jsonb_build_object('sub', carer_id::text, 'email', 'dogfood-carer@example.test', 'email_verified', true, 'phone_verified', false),
+     born, born);
+
+  insert into auth.identities (user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
+  values
+    (owner_id, owner_id::text, 'email', jsonb_build_object('sub', owner_id::text, 'email', 'dogfood-owner@example.test', 'email_verified', true, 'phone_verified', false), born, born, born),
+    (carer_id, carer_id::text, 'email', jsonb_build_object('sub', carer_id::text, 'email', 'dogfood-carer@example.test', 'email_verified', true, 'phone_verified', false), born, born, born);
 
   -- Health data needs consent before an event can even be written (P3-09) --
   -- true for real caregivers, so true for seeded ones.
