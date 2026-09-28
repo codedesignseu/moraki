@@ -1,4 +1,3 @@
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 
@@ -47,8 +46,19 @@ export async function signInWithApple(): Promise<{ identityToken: string; nonce:
  * Native Google sign in. `webClientId` is the Google Cloud OAuth web client
  * ID (`EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`) — both platforms need it configured
  * to get back an ID token Supabase's Google provider will accept.
+ *
+ * Requires `@react-native-google-signin/google-signin` lazily, on the first
+ * actual call: that package calls TurboModuleRegistry.getEnforcing at
+ * module-load time, which throws immediately in Expo Go or any build the
+ * native module hasn't been linked into yet — a top-level import would have
+ * crashed the whole sign-in screen (and anything that imports it) before
+ * anyone ever pressed the Google button, not just this function. `require`,
+ * not `import()`: Metro supports a deferred `require` the same way, and
+ * unlike dynamic `import()` it also works under Jest without extra flags.
  */
 export async function signInWithGoogle(webClientId: string): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { GoogleSignin } = require('@react-native-google-signin/google-signin');
   GoogleSignin.configure({ webClientId });
   await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
   const response = await GoogleSignin.signIn();
