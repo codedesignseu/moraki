@@ -3,10 +3,16 @@
 P5-01's scaffold: a local Expo module for an iOS Live Activity showing "time
 since last feed" on the lock screen after the app is backgrounded.
 
-**Status: scaffold only, never compiled or run.** This machine has no
-Xcode, so nothing here has built, let alone run on a device or simulator.
-Treat every file as a starting point to verify on first real `eas build`,
-not as working code.
+**Status: `ios/LiveActivityModule.swift` compiles now, nothing else has run
+on a device.** First real `eas build --profile development --platform ios`
+(2026-09-28) failed on it: `Activity.request`/`.end`/`.update` need iOS
+16.2, not the 16.1 the docs and this file's original `#available` guards
+assumed — a real compiler caught what reading the docs didn't. Fixed and
+rebuilding is the next real signal. `ios/widget/LiveActivityWidget.swift`
+is still untouched by any build (excluded from the podspec on purpose,
+see below) and still needs the Xcode step in "What's not here" — a
+successful module build doesn't mean a Live Activity has ever actually
+shown on a lock screen.
 
 ## What's here
 
@@ -37,10 +43,10 @@ not as working code.
 1. Open the iOS project (after a prebuild) in Xcode and add a Widget
    Extension target for the Live Activity, with `ios/widget/LiveActivityWidget.swift`
    and `ios/LiveActivityAttributes.swift` as its sources.
-2. Confirm `start`/`update`/`end` actually compile against ActivityKit and
-   behave as expected on a real device running iOS 16.1+ (Live Activities
-   don't exist before that; `LiveActivityModule.swift`'s availability checks
-   are written from the API docs, not from a build that has ever run).
+2. `LiveActivityModule.swift` compiles (confirmed 2026-09-28); confirm
+   `start`/`update`/`end` actually _behave_ as expected on a real device
+   running iOS 16.2+ (`isAvailableAsync` reports false below that, on
+   purpose — see the file's own comments).
 3. Decide where in the app `start`/`update` get called from (this scaffold
    deliberately doesn't wire itself into any feature screen — the "app-side
    data model" it ships, `LiveActivityPayload`, is meant to be read from
