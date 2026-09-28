@@ -8,7 +8,13 @@ import ExpoModulesCore
 // became available) — these three calls specifically need 16.2, a real
 // compiler caught what reading the docs alone didn't.
 public final class LiveActivityModule: Module {
-  @available(iOS 16.2, *)
+  // No @available here: Swift refuses it on a stored property ("stored
+  // properties cannot be marked potentially unavailable"), the second real
+  // build error this file produced (2026-09-28). Activity<T> itself only
+  // needs iOS 16.1 to exist as a type — it's specifically .request/.end/
+  // .update that need 16.2, gated below at each call site instead — and
+  // 16.1 already matches this module's own deployment target
+  // (ExpoLiveActivity.podspec), so the type reference alone needs no gate.
   private var current: Activity<MorakiLiveActivityAttributes>?
 
   public func definition() -> ModuleDefinition {
