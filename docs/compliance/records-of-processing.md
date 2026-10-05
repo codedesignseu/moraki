@@ -149,11 +149,19 @@ already signed in with an empty database.
 Other caregivers in the same household, and the processors in
 [`processors.md`](./processors.md). Nothing is sold, used for advertising, or
 used to train any model. There are no analytics and no third-party SDKs in the
-app beyond the crash reporter.
+app beyond the crash reporter and the update client (`expo-updates`), which
+asks Expo for a newer JavaScript bundle on launch.
 
 ## 5. Transfers outside the EU/EEA
 
-None intended. Supabase runs in `eu-central-1` (Frankfurt) and Sentry is an
+**Expo (update checks, P4-12).** On launch the app asks Expo's US CDN for a
+newer JavaScript bundle. That request carries the phone's IP address, platform,
+app runtime version, channel and a random per-install id. It carries no
+account, no household and no entries. Transfer basis: Expo's terms §3.2
+(processor under the EU Standard Contractual Clauses) and Expo's EU-US Data
+Privacy Framework certification (decision D7, `processors.md`).
+
+Nothing else is transferred intentionally. Supabase runs in `eu-central-1` (Frankfurt) and Sentry is an
 EU-region organisation; both are chosen for that reason, and the Sentry DSN is
 rejected at startup unless it points at the EU ingest host. Apple and Google process data
 outside the EU when an app is distributed or a push is delivered — see
