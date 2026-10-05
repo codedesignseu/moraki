@@ -60,9 +60,7 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.865433627932-oq6tjkh24r7d9hc0le0f9or4q7bfhde6"
         }
-      ],
-      "expo-live-activity",
-      "expo-home-widget"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
