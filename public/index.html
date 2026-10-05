@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moraki · a shared newborn notebook</title>
+    <meta
+      name="description"
+      content="Moraki is a shared notebook for the people looking after a newborn: feeds, diapers, sleep and more, on every caregiver's phone."
+    />
+    <link rel="alternate" hreflang="el" href="https://moraki.app/el/" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --background: #f4efe7;
+        --surface: #faf6f0;
+        --text: #2b2621;
+        --text-muted: #6b6259;
+        --accent: #4a6550;
+        --accent-subtle: #dce4d9;
+        --border: #ddd4c5;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: #1c1814;
+          --surface: #27221d;
+          --text: #ddd2c2;
+          --text-muted: #a89d8c;
+          --accent: #9bb59f;
+          --accent-subtle: #2e3830;
+          --border: #3a332b;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 24px 16px 48px;
+        background: var(--background);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 32px 24px;
+      }
+      nav {
+        max-width: 720px;
+        margin: 0 auto 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 14px;
+      }
+      h1 {
+        font-size: 26px;
+        line-height: 1.25;
+        margin: 0 0 4px;
+      }
+      h2 {
+        font-size: 19px;
+        margin: 32px 0 8px;
+      }
+      p,
+      li {
+        overflow-wrap: anywhere;
+      }
+      a {
+        color: var(--accent);
+      }
+      .meta {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin: 0 0 24px;
+      }
+      .note {
+        background: var(--accent-subtle);
+        border-radius: 10px;
+        padding: 14px 16px;
+      }
+      .table {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 8px 10px 8px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        font-weight: 600;
+      }
+      .lead {
+        font-size: 18px;
+        margin: 0 0 24px;
+      }
+      ul {
+        padding-left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="/support/">Support</a>
+      <a href="/el/" hreflang="el" lang="el">Ελληνικά</a>
+    </nav>
+    <main>
+      <h1>Moraki</h1>
+      <p class="meta">μωράκι, "little one"</p>
+      <p class="lead">
+        A shared notebook for the people looking after a newborn. Log a feed at 3 a.m., and the
+        other parent, the grandparent or the nanny sees it on their phone too.
+      </p>
+
+      <h2>What it does</h2>
+      <ul>
+        <li>
+          Feeds, diapers, sleep, pumping, milk stock, weight, temperatures, notes, medication and
+          appointments, as you log them.
+        </li>
+        <li>Everyone in your household sees the same entries, usually within seconds.</li>
+        <li>It works with no signal. Entries are kept on the phone and sent when there is one.</li>
+        <li>A reminder when the next feed might be due, at the interval you choose.</li>
+        <li>A one-page summary to take to an appointment or read out on the phone.</li>
+        <li>In English and Greek.</li>
+      </ul>
+
+      <h2>Your data</h2>
+      <ul>
+        <li>Stored on your phone, encrypted, and on servers in the EU (Frankfurt).</li>
+        <li>Only the people in your household see it.</li>
+        <li>No advertising, no tracking, never sold.</li>
+        <li>Export everything, or delete your account, from Settings.</li>
+      </ul>
+      <p>Details are in the <a href="/privacy/">privacy policy</a>.</p>
+
+      <p class="note">
+        Moraki records what you type and adds it up. It is not a medical device and it does not tell
+        you what a number means. If you are worried about your baby, contact your doctor or your
+        local emergency number.
+      </p>
+
+      <h2>Coming soon</h2>
+      <p>
+        Moraki is in testing and will be on the App Store soon. Questions:
+        <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>.
+      </p>
+    </main>
+  </body>
+</html>
