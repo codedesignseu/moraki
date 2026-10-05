@@ -93,6 +93,7 @@ describe('sign in with an emailed code', () => {
     await openSettings(createAuth(TEST_SUPABASE_ENV, store, authServer().fetchImpl));
     await signInThroughTheApp();
     await press('Sign out');
+    await press('Sign out, keep entries');
     expect(await screen.findByRole('button', { name: 'Sign in' })).toBeOnTheScreen();
 
     await cleanup();

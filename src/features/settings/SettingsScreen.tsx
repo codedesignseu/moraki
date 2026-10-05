@@ -18,6 +18,7 @@ import { INTERVAL_MIN, SECOND_MIN, useReminderSettings } from '@/sync/useReminde
 import { LANGUAGE_CHOICES, useLanguage } from './useLanguage';
 import { useCaregivers, type CaregiverRow } from './useCaregivers';
 import { useRoles } from './useRoles';
+import { useSignOut } from './useSignOut';
 import { useAdoption } from '@/sync/useAdoption';
 import { Button, Card, Segmented, Stepper } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
@@ -82,7 +83,7 @@ export function SettingsScreen({
   const s = styles(theme);
   const [nightMode, setNightMode] = useDevicePref('nightMode');
   const language = useLanguage();
-  const { auth, state } = useAuth();
+  const { state } = useAuth();
   const { household } = useAccountHousehold();
   const caregivers = useCaregivers();
   const { granted: consented } = useConsent();
@@ -93,6 +94,7 @@ export function SettingsScreen({
   const sync = useSyncStatus();
   const syncErrors = useSyncErrors();
   const adoption = useAdoption();
+  const signOut = useSignOut();
 
   return (
     <ScrollView contentContainerStyle={s.content}>
@@ -200,11 +202,33 @@ export function SettingsScreen({
                   />
                 </>
               )}
-              <Button
-                label={t('settings.account.signOut')}
-                variant="secondary"
-                onPress={() => void auth?.signOut()}
-              />
+              {signOut.asking ? (
+                <View testID="settings-sign-out" style={s.group}>
+                  <Text style={theme.text.body}>{t('settings.signOut.question')}</Text>
+                  {signOut.unsent > 0 && (
+                    <Text style={theme.text.bodyStrong}>
+                      {t('settings.signOut.unsent', { count: signOut.unsent })}
+                    </Text>
+                  )}
+                  <Button label={t('settings.signOut.keep')} onPress={signOut.keep} />
+                  <Button
+                    label={t('settings.signOut.clear')}
+                    variant="secondary"
+                    onPress={signOut.clear}
+                  />
+                  <Button
+                    label={t('settings.signOut.cancel')}
+                    variant="secondary"
+                    onPress={signOut.cancel}
+                  />
+                </View>
+              ) : (
+                <Button
+                  label={t('settings.account.signOut')}
+                  variant="secondary"
+                  onPress={signOut.ask}
+                />
+              )}
               <Button
                 label={t('settings.account.leaveOrDelete')}
                 variant="secondary"
@@ -449,4 +473,5 @@ const styles = (theme: Theme) =>
     alert: { ...theme.text.body, color: theme.colors.invalid },
     caregivers: { gap: theme.spacing.md },
     caregiver: { gap: theme.spacing.xs },
+    group: { gap: theme.spacing.sm },
   });
