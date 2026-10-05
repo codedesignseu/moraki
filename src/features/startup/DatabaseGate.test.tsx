@@ -43,6 +43,7 @@ describe('DatabaseGate', () => {
         linked: () => readLinkedIdentity(db),
         localOnly: () => localOnlyCount(db),
         adopt: (target, now) => adoptHousehold(db, target, now),
+        resetPhone: () => {},
       }),
     );
     expect(await screen.findByText('app')).toBeOnTheScreen();

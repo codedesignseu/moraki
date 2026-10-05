@@ -40,6 +40,12 @@ export function createCaregiversRepository(db: SyncDb) {
       for (const listener of listeners) listener();
     },
 
+    /** Tells readers to look again, after the phone was reset (P4-06). */
+    reload(): void {
+      changes += 1;
+      for (const listener of listeners) listener();
+    },
+
     version(): number {
       return changes;
     },

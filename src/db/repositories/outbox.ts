@@ -126,6 +126,11 @@ export function createOutboxRepository(db: SyncDb) {
       return db.select().from(syncErrors).orderBy(asc(syncErrors.failedAt)).all();
     },
 
+    /** Tells readers to look again, after the phone was reset (P4-06). */
+    reload(): void {
+      changed();
+    },
+
     /** Counts changes; a cheap signal for React (useSyncExternalStore). */
     version(): number {
       return changes;

@@ -94,7 +94,7 @@ sequence number, and a `deleted_at` tombstone.
 Two consequences worth stating plainly rather than burying:
 
 - **Free text can hold anything.** `note`, `notes` and `questions` are typed by a parent. The app cannot know what is in them and treats all of it as health data.
-- **A deleted entry is not gone.** The client only ever soft-deletes (engineering rule 7): the row stays with `deleted_at` set, so every other phone learns of the deletion and converges. Erasure of the row itself happens when the household is deleted (P4-06, not yet built).
+- **A deleted entry is not gone.** The client only ever soft-deletes (engineering rule 7): the row stays with `deleted_at` set, so every other phone learns of the deletion and converges. Erasure of the row itself happens when the household is deleted (P4-06).
 
 ### 3.4 Crash reports
 
@@ -179,5 +179,4 @@ See [`retention.md`](./retention.md).
 
 **Known gaps**, each tracked on the board rather than implied to be solved:
 the local database is not encrypted beyond the platform's own file protection
-(P5-03 decides on SQLCipher); `accept_invite` has no rate limit (P2-F7);
-erasure is not implemented yet (P4-06).
+(P5-03 decides on SQLCipher).
