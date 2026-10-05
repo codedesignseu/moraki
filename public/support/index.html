@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Support · Moraki</title>
+    <meta name="description" content="Help with Moraki, the shared newborn tracker." />
+    <link rel="alternate" hreflang="el" href="https://moraki.app/el/support/" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --background: #f4efe7;
+        --surface: #faf6f0;
+        --text: #2b2621;
+        --text-muted: #6b6259;
+        --accent: #4a6550;
+        --accent-subtle: #dce4d9;
+        --border: #ddd4c5;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: #1c1814;
+          --surface: #27221d;
+          --text: #ddd2c2;
+          --text-muted: #a89d8c;
+          --accent: #9bb59f;
+          --accent-subtle: #2e3830;
+          --border: #3a332b;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 24px 16px 48px;
+        background: var(--background);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 32px 24px;
+      }
+      nav {
+        max-width: 720px;
+        margin: 0 auto 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 14px;
+      }
+      h1 {
+        font-size: 26px;
+        line-height: 1.25;
+        margin: 0 0 4px;
+      }
+      h2 {
+        font-size: 19px;
+        margin: 32px 0 8px;
+      }
+      p,
+      li {
+        overflow-wrap: anywhere;
+      }
+      a {
+        color: var(--accent);
+      }
+      .meta {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin: 0 0 24px;
+      }
+      .note {
+        background: var(--accent-subtle);
+        border-radius: 10px;
+        padding: 14px 16px;
+      }
+      .table {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 8px 10px 8px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="/support/">Support</a>
+      <a href="/el/support/" hreflang="el" lang="el">Ελληνικά</a>
+    </nav>
+    <main>
+      <h1>Moraki support</h1>
+      <p class="meta">Help with the shared newborn tracker</p>
+
+      <p class="note">
+        Email <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>, or use Settings → Send
+        feedback in the app. Please leave your baby's health details out of your message.
+      </p>
+
+      <h2>How do other caregivers see my entries?</h2>
+      <p>
+        Sign in, then invite them from Settings → Invite a caregiver. They install Moraki, sign in,
+        and join with the code or the link you send them (Settings → Join with a code). Each code
+        works once and expires after 7 days.
+      </p>
+      <p>
+        From then on, everyone in the household sees the same entries, usually within seconds.
+        Moraki works without signal: an entry made offline stays on the phone and is sent when there
+        is a connection again.
+      </p>
+
+      <h2>An entry isn't showing on another phone</h2>
+      <p>
+        Check that both phones are online and signed in to the same household. If a caregiver has
+        withdrawn consent for health data (Settings → Privacy → Health data), their entries stay on
+        their phone and don't sync until they agree again.
+      </p>
+
+      <h2>Do I need an account?</h2>
+      <p>
+        No. Without one, everything stays on your phone. An account is needed to share with other
+        caregivers and to send feedback.
+      </p>
+
+      <h2>How do I get a copy of my data?</h2>
+      <p>
+        Settings → Your data → Export everything. Moraki makes two files on your phone, one for a
+        spreadsheet (CSV) and one that keeps every detail (JSON), and opens the share sheet so you
+        can save or send them.
+      </p>
+
+      <h2 id="delete">How do I leave a household or delete my account?</h2>
+      <p>Both are in Settings.</p>
+      <ul>
+        <li>
+          <strong>Leave a household</strong> you share with others. It carries on without you.
+        </li>
+        <li>
+          <strong>Delete a household</strong> if you are its owner. The baby and every entry are
+          deleted for everyone in it.
+        </li>
+        <li>
+          <strong>Delete your account.</strong> Your account, your name and your consent records are
+          deleted from our servers. A household where you are the only member is deleted with it. In
+          a household others share, the entries you logged stay as part of their record, and
+          ownership passes to someone else if you were the only owner.
+        </li>
+      </ul>
+      <p>
+        Deleting can't be undone, so export first if you want a copy. The full detail is in the
+        <a href="/privacy/">privacy policy</a>.
+      </p>
+      <p>
+        No longer have the app? Email
+        <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a> from the address you signed in
+        with and ask us to delete your account. We will do it and confirm, within one month.
+      </p>
+
+      <h2>Reminders aren't appearing</h2>
+      <p>
+        Check that notifications are on for Moraki in your phone's settings, and that reminders are
+        on in Settings → Reminders.
+      </p>
+
+      <h2>Can Moraki tell me if something is wrong?</h2>
+      <p>
+        No. Moraki records and adds up what you log; it is not a medical device and does not give
+        medical advice. If you are worried about your baby, contact your doctor or your local
+        emergency number.
+      </p>
+
+      <h2>More</h2>
+      <ul>
+        <li><a href="/privacy/">Privacy policy</a></li>
+        <li><a href="/terms/">Terms of use</a></li>
+      </ul>
+      <p class="meta">Moraki is published by CE Code Designs Ltd, Cyprus.</p>
+    </main>
+  </body>
+</html>
