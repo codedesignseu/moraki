@@ -6,14 +6,15 @@ that is the point of writing it down rather than burying it in a PR.
 
 Closed decisions live in the PR that settled them and in `TASKS.md`.
 
-| #   | Decision                                                                  | Where | Status                         |
-| --- | ------------------------------------------------------------------------- | ----- | ------------------------------ |
-| D1  | A joiner with local entries is asked, and syncs nothing until they answer | P2-11 | **kept as built** (2026-10-05) |
-| D2  | Moving local entries also rewrites who logged them                        | P2-11 | **kept as built** (2026-10-05) |
-| D3  | Deleting an account: the owner picks who takes over                       | P4-06 | **changed** (2026-10-05)       |
-| D4  | The consent version is not bumped when the text promises deletion         | P4-06 | **decided** (2026-10-05)       |
-| D5  | SQLCipher is exempt encryption for export compliance                      | P5-03 | **decided** (2026-10-05)       |
-| D6  | Signing out asks whether to clear the phone                               | P5-F1 | **decided** (2026-10-05)       |
+| #   | Decision                                                                  | Where | Status                                |
+| --- | ------------------------------------------------------------------------- | ----- | ------------------------------------- |
+| D1  | A joiner with local entries is asked, and syncs nothing until they answer | P2-11 | **kept as built** (2026-10-05)        |
+| D2  | Moving local entries also rewrites who logged them                        | P2-11 | **kept as built** (2026-10-05)        |
+| D3  | Deleting an account: the owner picks who takes over                       | P4-06 | **changed, merged #122** (2026-10-05) |
+| D4  | The consent version is not bumped when the text promises deletion         | P4-06 | **decided** (2026-10-05)              |
+| D5  | SQLCipher is exempt encryption for export compliance                      | P5-03 | **decided** (2026-10-05)              |
+| D6  | Signing out asks whether to clear the phone                               | P5-F1 | **decided** (2026-10-05)              |
+| D7  | Expo is covered by its terms §3.2 (SCCs) and the DPF, no separate DPA     | P4-12 | **decided** (2026-10-05)              |
 
 ---
 
@@ -77,7 +78,7 @@ a copy and schema change, not a sync change.
 
 ## D3 — Deleting an account hands ownership on and keeps shared entries
 
-**Decided 2026-10-05: the owner picks the successor.** When the only owner
+**Decided 2026-10-05: the owner picks the successor. Merged 2026-10-05 in #122** (`20261005150000_erasure_successor.sql`). When the only owner
 leaves or deletes their account while others remain, the screen asks who
 becomes owner, and the RPCs take that person's id. The automatic choice below
 stays only as the fallback for a caller that names nobody (an older app
@@ -136,3 +137,15 @@ stays `false`, and App Store Connect's export question is answered "exempt"
 phone's entries, or clear the phone. Clearing uses the same `resetPhone` as
 leaving a household. Keeping is the default, so nothing is lost by accident.
 Entries not yet sent are counted in the question.
+
+---
+
+## D7 — Expo is covered without a separate DPA
+
+**Decided 2026-10-05.** Expo offers no separate DPA to accept. Its terms (§3.2)
+make Expo a processor under the EU Standard Contractual Clauses, and Expo is
+certified under the EU-US Data Privacy Framework. Treated as covered for EAS
+Update, which sends each phone's IP address, platform, app version, channel and
+a random install id to Expo's US CDN when it checks for an update. No household
+data. Recorded in `docs/compliance/processors.md` and records of processing §5,
+and named in the privacy policy.
