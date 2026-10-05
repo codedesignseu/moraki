@@ -54,9 +54,7 @@ is vendored and no new native module is needed.
   either of those.
 - Export compliance: SQLCipher uses AES-256 only to protect the user's own data
   on the device. Under Apple's export rules that use is exempt, so `app.json`
-  keeps `ITSAppUsesNonExemptEncryption: false`. **Confirmed by the owner
-  2026-10-05 (D5)** when answering the export compliance question in App Store
-  Connect. If in doubt, answer "uses exempt encryption", not "none".
+  keeps `ITSAppUsesNonExemptEncryption: false`. **Confirmed by the owner 2026-10-05 (D5).** In App Store Connect, answer the export compliance question as "uses exempt encryption", not "none".
 - The jest suite runs on sql.js and cannot exercise SQLCipher itself. The first
   real check is on a phone: install over an existing plaintext build and
   confirm the history survives; then do a fresh install; then delete the key
