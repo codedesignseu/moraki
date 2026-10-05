@@ -74,6 +74,11 @@ export function authServer(
     updateMembership?: (userId: string, columns: Record<string, unknown>) => void;
     removeMembership?: (userId: string) => void;
     refuseMembership?: (what: 'update' | 'delete', userId: string) => Response | undefined;
+    /**
+     * leave_household, delete_household and delete_account (P4-06): called
+     * with the RPC's name and body; a Response refuses it.
+     */
+    erasure?: (rpc: string, body: Record<string, unknown>) => Response | undefined;
     /** Called when a phone corrects the baby's details (P4-10). */
     updateBaby?: (columns: Record<string, unknown>) => void;
     /** Unused invite codes the owner can see, and a note of one withdrawn (P2-F8). */
@@ -270,6 +275,15 @@ export function authServer(
         return options.consent?.(url.pathname) ?? json(200, new Date().toISOString());
       case '/rest/v1/rpc/create_household':
         return options.createHousehold?.() ?? new Response(null, { status: 204 });
+      case '/rest/v1/rpc/leave_household':
+      case '/rest/v1/rpc/delete_household':
+      case '/rest/v1/rpc/delete_account':
+        return (
+          options.erasure?.(
+            url.pathname.slice('/rest/v1/rpc/'.length),
+            body as Record<string, unknown>,
+          ) ?? new Response(null, { status: 204 })
+        );
       default:
         return json(404, { code: 'not_found' });
     }

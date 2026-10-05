@@ -56,6 +56,7 @@ export function SettingsScreen({
   onBaby,
   onConsent,
   onFeedback,
+  onLeaveOrDelete,
 }: {
   onSignIn: () => void;
   onSetUpHousehold: () => void;
@@ -73,6 +74,8 @@ export function SettingsScreen({
   onConsent: () => void;
   /** Opens the feedback form (P4-13). */
   onFeedback: () => void;
+  /** Opens leaving a household and deleting the account (P4-06). */
+  onLeaveOrDelete: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -201,6 +204,11 @@ export function SettingsScreen({
                 label={t('settings.account.signOut')}
                 variant="secondary"
                 onPress={() => void auth?.signOut()}
+              />
+              <Button
+                label={t('settings.account.leaveOrDelete')}
+                variant="secondary"
+                onPress={onLeaveOrDelete}
               />
             </>
           ) : (

@@ -139,6 +139,12 @@ export function createDevicePrefsRepository(db: SyncDb) {
       for (const listener of listeners) listener();
     },
 
+    /** Reads every pref again, after something else rewrote the meta table (P4-06). */
+    reload(): void {
+      cache.clear();
+      for (const listener of listeners) listener();
+    },
+
     /** Called after every change. Returns an unsubscribe function. */
     subscribe(listener: () => void): () => void {
       listeners.add(listener);

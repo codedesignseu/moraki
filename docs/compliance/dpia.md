@@ -172,16 +172,16 @@ a DPA exists to allocate.
 
 ### R8 — A parent cannot get their data erased
 
-_Certain × Medium._ Erasure is not implemented (P4-06).
+_Certain × Medium_ before P4-06.
 
-Mitigated: export works today (P4-05); the consent screen was corrected so it no
-longer promises deletion the app cannot do (P3-F6); a request is handled by hand
-against the database and recorded here.
+Mitigated: Settings → Leave or delete (P4-06) leaves a household, deletes a
+household, or deletes the account, server first and then the phone, in one
+transaction on each side. Export works before any of it (P4-05). In a shared
+household the person's entries stay with the other caregivers under an author
+id that maps to no one once the account is gone (decision D3).
 
-_Residual: Medium until P4-06 ships._ Acceptable for a beta of five households
-where the controller can act within the Article 12(3) month by hand. **Not
-acceptable at public scale**, and the reason P4-06 is reserved for a review
-window rather than dropped.
+_Residual: Low._ What stays is the shared record of a baby other people care
+for, with nothing left that names the person who left.
 
 ### R9 — The app is read as medical advice
 
