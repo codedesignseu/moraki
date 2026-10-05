@@ -487,6 +487,14 @@
       "body": "Something not working, or an idea for it? Tell us.",
       "needsAccount": "Sending feedback needs an account, so we can reply through the app later. Sign in above first.",
       "open": "Send feedback"
+    },
+    "signOut": {
+      "question": "Keep this phone's entries after signing out, or clear the phone? Clearing is right if someone else will use it.",
+      "unsent_one": "One change hasn't reached the server yet. Clearing the phone loses it.",
+      "unsent_other": "{{count}} changes haven't reached the server yet. Clearing the phone loses them.",
+      "keep": "Sign out, keep entries",
+      "clear": "Sign out and clear this phone",
+      "cancel": "Cancel"
     }
   },
   "insights": {
