@@ -247,7 +247,7 @@ HEALTH DATA CONSENT
 After signing in, each caregiver is asked for explicit consent to process health data, on its own screen (GDPR Article 9). Choosing "Not now" leaves the app working on the phone; entries then do not sync. Consent can be withdrawn in Settings → Privacy → Health data.
 
 ACCOUNT DELETION (guideline 5.1.1(v))
-Settings lets a person leave a household, delete a household they own, or delete their account. Deleting the account removes it from our servers. In a household shared with others, the other caregivers keep the entries, and ownership passes to another member.
+Settings lets a person leave a household, delete a household they own, or delete their account. Deleting the account removes it from our servers. In a household shared with others, the other caregivers keep the entries, and the departing owner chooses who becomes owner.
 
 SHARING
 To see sharing, use Settings → Invite a caregiver to make a single-use code, and join it from a second account with Settings → Join with a code.

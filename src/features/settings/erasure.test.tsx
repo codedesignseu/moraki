@@ -111,16 +111,37 @@ describe('leaving and deleting (P4-06)', () => {
     expect(calls).toEqual([]);
   });
 
-  it('deletes the account, clears the phone and signs it out', async () => {
+  it('makes the last owner choose who takes over before anything is sent (D3)', async () => {
     const calls: string[] = [];
     await openLeaveOrDelete({
       ...household('owner'),
       erasure: (rpc) => void calls.push(rpc),
     });
     await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
+    expect(screen.getByText('Who becomes owner?')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Yes, delete my account' })).toBeDisabled();
+    await fireEvent.press(screen.getByRole('button', { name: 'Yes, delete my account' }));
+    expect(calls).toEqual([]);
+  });
+
+  it('asks a caregiver no such question', async () => {
+    await openLeaveOrDelete(household('caregiver'));
+    await fireEvent.press(screen.getByRole('button', { name: 'Leave household' }));
+    expect(screen.queryByText('Who becomes owner?')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Yes, leave' })).toBeEnabled();
+  });
+
+  it('deletes the account, naming the new owner, clears the phone and signs it out', async () => {
+    const calls: [string, Record<string, unknown>][] = [];
+    await openLeaveOrDelete({
+      ...household('owner'),
+      erasure: (rpc, body) => void calls.push([rpc, body]),
+    });
+    await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Nik' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Yes, delete my account' }));
 
-    await waitFor(() => expect(calls).toEqual(['delete_account']));
+    await waitFor(() => expect(calls).toEqual([['delete_account', { successor: NIK }]]));
     await waitFor(() => expect(h.repo.list()).toEqual([]));
     expect(readLinkedIdentity(h.mem.db)).toBeNull();
     expect(h.prefs.get('consent')).toBeNull();
@@ -145,7 +166,9 @@ describe('leaving and deleting (P4-06)', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Leave household' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Yes, leave' }));
 
-    await waitFor(() => expect(calls).toEqual([['leave_household', { household_id: HOUSEHOLD }]]));
+    await waitFor(() =>
+      expect(calls).toEqual([['leave_household', { household_id: HOUSEHOLD, successor: null }]]),
+    );
     await waitFor(() => expect(h.repo.list()).toEqual([]));
     expect(readLinkedIdentity(h.mem.db)).toBeNull();
     // Still signed in: leaving is not deleting the account.
@@ -175,6 +198,7 @@ describe('leaving and deleting (P4-06)', () => {
         }),
     });
     await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Nik' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Yes, delete my account' }));
 
     expect(await screen.findByTestId('erasure-problem')).toHaveTextContent(

@@ -45,12 +45,12 @@ create function pg_temp.login(n int) returns void language sql as $$
     'sub', ('00000000-0000-0000-0000-00000000000' || n)::uuid, 'role', 'authenticated')::text, true)::void
 $$;
 
-select has_function('public', 'leave_household', array['uuid'], 'leave_household exists');
+select has_function('public', 'leave_household', array['uuid', 'uuid'], 'leave_household exists');
 select has_function('public', 'delete_household', array['uuid'], 'delete_household exists');
-select has_function('public', 'delete_account', 'delete_account exists');
-select ok(not has_function_privilege('authenticated', 'public.hand_over_and_leave(uuid, uuid)', 'execute'),
+select has_function('public', 'delete_account', array['uuid'], 'delete_account exists');
+select ok(not has_function_privilege('authenticated', 'public.hand_over_and_leave(uuid, uuid, uuid)', 'execute'),
   'a client cannot call the handover directly');
-select ok(not has_function_privilege('anon', 'public.delete_account()', 'execute'),
+select ok(not has_function_privilege('anon', 'public.delete_account(uuid)', 'execute'),
   'nobody signed out can delete an account');
 
 set local role authenticated;

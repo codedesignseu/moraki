@@ -845,7 +845,7 @@
     "working": "Working…",
     "leave": {
       "title": "Leave this household",
-      "what": "You stop seeing and logging for {{name}}. The entries stay with the other caregivers. If you are the only owner, the caregiver who joined first becomes owner. This phone is cleared.",
+      "what": "You stop seeing and logging for {{name}}. The entries stay with the other caregivers. If you are the only owner, you choose who becomes owner. This phone is cleared.",
       "button": "Leave household",
       "confirm": "Yes, leave"
     },
@@ -857,7 +857,7 @@
     },
     "deleteAccount": {
       "title": "Delete your account",
-      "what": "Deletes your account, your name and your consent record. You leave {{name}}'s household; its entries stay with the other caregivers, and if you are the only owner, the caregiver who joined first becomes owner. This phone is cleared and signed out.",
+      "what": "Deletes your account, your name and your consent record. You leave {{name}}'s household; its entries stay with the other caregivers, and if you are the only owner, you choose who becomes owner. This phone is cleared and signed out.",
       "whatAlone": "Deletes your account, your name and your consent record, and {{name}}'s household with every entry, since no one else is in it. This phone is cleared and signed out. Export your data first if you want a copy.",
       "button": "Delete account",
       "confirm": "Yes, delete my account"
@@ -866,7 +866,11 @@
       "forbidden": "The server didn't allow that. Your role may have changed. Go back to Settings and try again.",
       "only_member": "You are the only member, so you can't leave. Delete the household instead.",
       "offline": "No connection. Nothing was deleted. Try again when you're online.",
-      "unknown": "Something went wrong. Nothing was deleted. Try again."
+      "unknown": "Something went wrong. Nothing was deleted. Try again.",
+      "successor": "That person is no longer in the household. Go back to Settings and choose again."
+    },
+    "successor": {
+      "question": "Who becomes owner?"
     }
   }
 }
