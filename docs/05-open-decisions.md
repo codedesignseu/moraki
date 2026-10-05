@@ -6,15 +6,20 @@ that is the point of writing it down rather than burying it in a PR.
 
 Closed decisions live in the PR that settled them and in `TASKS.md`.
 
-| #   | Decision                                                                  | Where | Status |
-| --- | ------------------------------------------------------------------------- | ----- | ------ |
-| D1  | A joiner with local entries is asked, and syncs nothing until they answer | P2-11 | open   |
-| D2  | Moving local entries also rewrites who logged them                        | P2-11 | open   |
-| D3  | Deleting an account hands ownership on and keeps shared entries           | P4-06 | open   |
+| #   | Decision                                                                  | Where | Status                         |
+| --- | ------------------------------------------------------------------------- | ----- | ------------------------------ |
+| D1  | A joiner with local entries is asked, and syncs nothing until they answer | P2-11 | **kept as built** (2026-10-05) |
+| D2  | Moving local entries also rewrites who logged them                        | P2-11 | **kept as built** (2026-10-05) |
+| D3  | Deleting an account: the owner picks who takes over                       | P4-06 | **changed** (2026-10-05)       |
+| D4  | The consent version is not bumped when the text promises deletion         | P4-06 | **decided** (2026-10-05)       |
+| D5  | SQLCipher is exempt encryption for export compliance                      | P5-03 | **decided** (2026-10-05)       |
+| D6  | Signing out asks whether to clear the phone                               | P5-F1 | **decided** (2026-10-05)       |
 
 ---
 
 ## D1 — A joiner with local entries is asked, and syncs nothing until they answer
+
+**Decided 2026-10-05: kept as built.**
 
 **The situation.** Someone used the app alone for a while, then joined the
 other parent's household. Their own history may overlap what the household
@@ -49,6 +54,8 @@ migration itself stay either way.
 
 ## D2 — Moving local entries also rewrites who logged them
 
+**Decided 2026-10-05: kept as built.**
+
 **The situation.** Entries made before signing in are attributed to the local
 placeholder user that migration 0001 seeded. When they move into a household,
 that id means nothing to anyone else.
@@ -69,6 +76,12 @@ a copy and schema change, not a sync change.
 ---
 
 ## D3 — Deleting an account hands ownership on and keeps shared entries
+
+**Decided 2026-10-05: the owner picks the successor.** When the only owner
+leaves or deletes their account while others remain, the screen asks who
+becomes owner, and the RPCs take that person's id. The automatic choice below
+stays only as the fallback for a caller that names nobody (an older app
+version). Shared entries still stay, as described.
 
 **The situation.** Apple requires deletion inside the app (guideline
 5.1.1(v)). An account can belong to a household other caregivers share.
@@ -96,3 +109,30 @@ straightforward.
 before deleting (a picker on the delete screen, with the RPC taking the
 successor's id), or soft-delete their entries in shared households too. Each
 is a small change to `hand_over_and_leave` and its tests.
+
+---
+
+## D4 — The consent version is not bumped
+
+**Decided 2026-10-05.** P4-06 changed the consent screen's rights sentence from
+"deletion is coming" back to a promise of deletion. `CONSENT_VERSION` stays as
+it is: the change adds a right and no new processing, so nobody is asked again.
+A change that adds processing still bumps it.
+
+---
+
+## D5 — SQLCipher counts as exempt encryption
+
+**Decided 2026-10-05.** AES on the device, protecting only the user's own data,
+is treated as exempt under Apple's export rules. `ITSAppUsesNonExemptEncryption`
+stays `false`, and App Store Connect's export question is answered "exempt"
+(ADR-011).
+
+---
+
+## D6 — Signing out asks whether to clear the phone
+
+**Decided 2026-10-05 (P5-F1).** Signing out offers two choices: keep this
+phone's entries, or clear the phone. Clearing uses the same `resetPhone` as
+leaving a household. Keeping is the default, so nothing is lost by accident.
+Entries not yet sent are counted in the question.
