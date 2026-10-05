@@ -1,6 +1,8 @@
 import { fireEvent, screen, within } from 'expo-router/testing-library';
+import { Linking } from 'react-native';
 
 import type { EventsRepository } from '@/db/repositories/events';
+import { legalLink } from '@/features/privacy/AboutScreen';
 import { createHarness, renderApp } from '@/testing/appHarness';
 
 jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
@@ -55,5 +57,30 @@ describe('the disclaimer', () => {
     const what = within(screen.getByTestId('about-what'));
     expect(what.getByText(/as you log them/)).toBeOnTheScreen();
     expect(what.getByText(/works with no signal/)).toBeOnTheScreen();
+  });
+
+  it('links to the privacy policy, terms and support, as App Store guideline 5.1.1(i) asks', async () => {
+    const opened = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    await openAbout();
+    const legal = within(screen.getByTestId('about-legal'));
+    await fireEvent.press(legal.getByRole('button', { name: 'Privacy policy' }));
+    await fireEvent.press(legal.getByRole('button', { name: 'Terms of use' }));
+    await fireEvent.press(legal.getByRole('button', { name: 'Help and support' }));
+    await fireEvent.press(legal.getByRole('button', { name: 'Email us' }));
+    expect(opened.mock.calls.map(([url]) => url)).toEqual([
+      'https://moraki.app/privacy/',
+      'https://moraki.app/terms/',
+      'https://moraki.app/support/',
+      'mailto:info@codedesigns.eu',
+    ]);
+    expect(legal.getByText(/info@codedesigns.eu/)).toBeOnTheScreen();
+  });
+});
+
+describe('legalLink', () => {
+  it('sends a Greek reader to the Greek pages', () => {
+    expect(legalLink('privacy', 'el')).toBe('https://moraki.app/el/privacy/');
+    expect(legalLink('terms', 'el-GR')).toBe('https://moraki.app/el/terms/');
+    expect(legalLink('support', 'en')).toBe('https://moraki.app/support/');
   });
 });

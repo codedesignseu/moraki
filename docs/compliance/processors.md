@@ -66,6 +66,15 @@ than forgotten.
 | Note              | same push caveat as Apple, for FCM                                                                              |
 | Status            | from P4-12                                                                                                      |
 
+### Apple and Google — sign-in (P5-04)
+
+|        |                                                                                                                                                                                                                                                         |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role   | **independent controllers, not processors.** The person signs in with their own Apple or Google account, under that provider's terms; the provider learns that this account signed in to Moraki. Moraki receives an ID token, verified by Supabase Auth |
+| Data   | from Apple: a user id and an email (possibly a private relay). From Google: a user id, the email, the account name and a profile picture URL. Stored by Supabase Auth in `auth.identities`; see records-of-processing §3.1                              |
+| Region | Apple and Google, global. Nothing about the household reaches either                                                                                                                                                                                    |
+| Status | live once the console setup in P5-04 is complete                                                                                                                                                                                                        |
+
 ---
 
 ## Not processors, and why

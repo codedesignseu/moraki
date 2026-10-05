@@ -49,6 +49,12 @@ describe('Sign in with Apple (P5-04)', () => {
     expect(result).toEqual({ identityToken: 'the-identity-token', nonce: 'the-raw-nonce' });
   });
 
+  it('asks Apple for the email only, never the name it would not use (P5-F3)', async () => {
+    mockSignInAsync.mockResolvedValue({ identityToken: 'the-identity-token' });
+    await signInWithApple();
+    expect(mockSignInAsync).toHaveBeenCalledWith(expect.objectContaining({ requestedScopes: [1] }));
+  });
+
   it('turns a dismissed sheet into a cancellation, not a failure to explain', async () => {
     const cancelled = Object.assign(new Error('canceled'), { code: 'ERR_REQUEST_CANCELED' });
     mockSignInAsync.mockRejectedValue(cancelled);
