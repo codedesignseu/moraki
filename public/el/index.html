@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moraki · κοινό ημερολόγιο για το νεογέννητο</title>
+    <meta
+      name="description"
+      content="Το Moraki είναι ένα κοινό ημερολόγιο για όσους φροντίζουν ένα νεογέννητο: ταΐσματα, πάνες, ύπνος και άλλα, στο τηλέφωνο κάθε φροντιστή."
+    />
+    <link rel="alternate" hreflang="en" href="https://moraki.app/" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --background: #f4efe7;
+        --surface: #faf6f0;
+        --text: #2b2621;
+        --text-muted: #6b6259;
+        --accent: #4a6550;
+        --accent-subtle: #dce4d9;
+        --border: #ddd4c5;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: #1c1814;
+          --surface: #27221d;
+          --text: #ddd2c2;
+          --text-muted: #a89d8c;
+          --accent: #9bb59f;
+          --accent-subtle: #2e3830;
+          --border: #3a332b;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 24px 16px 48px;
+        background: var(--background);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 32px 24px;
+      }
+      nav {
+        max-width: 720px;
+        margin: 0 auto 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 14px;
+      }
+      h1 {
+        font-size: 26px;
+        line-height: 1.25;
+        margin: 0 0 4px;
+      }
+      h2 {
+        font-size: 19px;
+        margin: 32px 0 8px;
+      }
+      p,
+      li {
+        overflow-wrap: anywhere;
+      }
+      a {
+        color: var(--accent);
+      }
+      .meta {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin: 0 0 24px;
+      }
+      .note {
+        background: var(--accent-subtle);
+        border-radius: 10px;
+        padding: 14px 16px;
+      }
+      .table {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 8px 10px 8px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        font-weight: 600;
+      }
+      .lead {
+        font-size: 18px;
+        margin: 0 0 24px;
+      }
+      ul {
+        padding-left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/el/privacy/">Απόρρητο</a>
+      <a href="/el/terms/">Όροι</a>
+      <a href="/el/support/">Υποστήριξη</a>
+      <a href="/" hreflang="en" lang="en">English</a>
+    </nav>
+    <main>
+      <h1>Moraki</h1>
+      <p class="meta">μωράκι</p>
+      <p class="lead">
+        Ένα κοινό ημερολόγιο για όσους φροντίζουν ένα νεογέννητο. Καταγράφεις ένα τάισμα στις 3 τα
+        ξημερώματα, και ο άλλος γονιός, η γιαγιά ή η νταντά το βλέπουν κι αυτοί στο τηλέφωνό τους.
+      </p>
+
+      <h2>Τι κάνει</h2>
+      <ul>
+        <li>
+          Ταΐσματα, πάνες, ύπνος, άντληση, απόθεμα γάλακτος, βάρος, θερμοκρασίες, σημειώσεις,
+          φάρμακα και ραντεβού, όπως τα καταγράφεις.
+        </li>
+        <li>Όλοι στο νοικοκυριό βλέπουν τις ίδιες εγγραφές, συνήθως μέσα σε λίγα δευτερόλεπτα.</li>
+        <li>
+          Δουλεύει και χωρίς σήμα. Οι εγγραφές μένουν στο τηλέφωνο και στέλνονται όταν υπάρξει.
+        </li>
+        <li>Υπενθύμιση για το επόμενο τάισμα, στο διάστημα που διαλέγεις.</li>
+        <li>Μια σύνοψη μίας σελίδας για το ραντεβού ή για ένα τηλεφώνημα.</li>
+        <li>Στα ελληνικά και στα αγγλικά.</li>
+      </ul>
+
+      <h2>Τα δεδομένα σου</h2>
+      <ul>
+        <li>
+          Αποθηκεύονται στο τηλέφωνό σου, κρυπτογραφημένα, και σε διακομιστές στην ΕΕ (Φρανκφούρτη).
+        </li>
+        <li>Τα βλέπουν μόνο τα άτομα του νοικοκυριού σου.</li>
+        <li>Χωρίς διαφημίσεις, χωρίς παρακολούθηση, δεν πωλούνται ποτέ.</li>
+        <li>Εξαγωγή όλων, ή διαγραφή του λογαριασμού σου, από τις Ρυθμίσεις.</li>
+      </ul>
+      <p>Λεπτομέρειες στην <a href="/el/privacy/">πολιτική απορρήτου</a>.</p>
+
+      <p class="note">
+        Το Moraki καταγράφει ό,τι πληκτρολογείς και το αθροίζει. Δεν είναι ιατροτεχνολογικό προϊόν
+        και δεν σου λέει τι σημαίνει ένας αριθμός. Αν κάτι σε προβληματίζει για το μωρό σου, μίλα με
+        τον γιατρό σου ή κάλεσε το τοπικό τηλέφωνο επείγουσας ανάγκης.
+      </p>
+
+      <h2>Σύντομα</h2>
+      <p>
+        Το Moraki είναι σε δοκιμή και θα είναι σύντομα στο App Store. Ερωτήσεις:
+        <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>.
+      </p>
+    </main>
+  </body>
+</html>

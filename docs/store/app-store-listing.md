@@ -19,19 +19,19 @@ needs trimming to 100 bytes.
 
 ## Fields that are the same in both languages
 
-| Field              | Value                                                                                                                                                                     |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Primary category   | Health & Fitness                                                                                                                                                          |
-| Secondary category | Lifestyle                                                                                                                                                                 |
-| Price              | Free                                                                                                                                                                      |
-| Support URL        | https://moraki.app/support (Greek: https://moraki.app/el/support/)                                                                                                        |
-| Marketing URL      | https://moraki.app. **Optional field.** `public/` has no `index.html` yet, so today this URL serves the 404 page. Leave the field empty until a landing page is published |
-| Privacy policy URL | https://moraki.app/privacy (Greek: https://moraki.app/el/privacy/)                                                                                                        |
-| Terms (EULA)       | Apple's standard EULA applies unless a custom one is entered. `https://moraki.app/terms` can go in the description's last line or as a custom EULA, the owner's choice    |
-| Copyright          | 2026 CE Code Designs Ltd                                                                                                                                                  |
-| Export compliance  | `ITSAppUsesNonExemptEncryption` is already `false` in `app.json` (HTTPS only)                                                                                             |
-| Sign-in required   | No. The app works without an account; an account is needed to share with caregivers                                                                                       |
-| Account deletion   | In the app, in Settings (P4-06), as guideline 5.1.1(v) requires                                                                                                           |
+| Field              | Value                                                                                                                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary category   | Health & Fitness                                                                                                                                                       |
+| Secondary category | Lifestyle                                                                                                                                                              |
+| Price              | Free                                                                                                                                                                   |
+| Support URL        | https://moraki.app/support (Greek: https://moraki.app/el/support/)                                                                                                     |
+| Marketing URL      | https://moraki.app (Greek: https://moraki.app/el/). The landing page is `public/index.html` (P5-F4)                                                                    |
+| Privacy policy URL | https://moraki.app/privacy (Greek: https://moraki.app/el/privacy/)                                                                                                     |
+| Terms (EULA)       | Apple's standard EULA applies unless a custom one is entered. `https://moraki.app/terms` can go in the description's last line or as a custom EULA, the owner's choice |
+| Copyright          | 2026 CE Code Designs Ltd                                                                                                                                               |
+| Export compliance  | `ITSAppUsesNonExemptEncryption` is already `false` in `app.json` (HTTPS only)                                                                                          |
+| Sign-in required   | No. The app works without an account; an account is needed to share with caregivers                                                                                    |
+| Account deletion   | In the app, in Settings (P4-06), as guideline 5.1.1(v) requires                                                                                                        |
 
 ---
 
