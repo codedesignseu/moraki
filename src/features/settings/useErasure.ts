@@ -30,6 +30,14 @@ export function useErasure(onDone: () => void) {
 
   const owner = household?.role === 'owner';
   const others = caregivers.some((person) => !person.you);
+  /**
+   * D3: the last owner of a household others share picks who takes over,
+   * before leaving or deleting the account.
+   */
+  const needsSuccessor =
+    owner && others && !caregivers.some((person) => !person.you && person.role === 'owner');
+  const candidates = needsSuccessor ? caregivers.filter((person) => !person.you) : [];
+  const [successor, setSuccessor] = useState<string | null>(null);
 
   const run = useCallback(
     async (action: ErasureAction) => {
@@ -37,9 +45,10 @@ export function useErasure(onDone: () => void) {
       setBusy(true);
       setProblem(null);
       try {
-        if (action === 'deleteAccount') await deleteAccount(auth);
+        const next = needsSuccessor ? successor : null;
+        if (action === 'deleteAccount') await deleteAccount(auth, next);
         else if (!household) return;
-        else if (action === 'leave') await leaveHousehold(auth, household.householdId);
+        else if (action === 'leave') await leaveHousehold(auth, household.householdId, next);
         else await deleteHousehold(auth, household.householdId);
         resetPhone({ forgetAccount: action === 'deleteAccount' });
         onDone();
@@ -49,7 +58,7 @@ export function useErasure(onDone: () => void) {
         setBusy(false);
       }
     },
-    [auth, state.status, household, resetPhone, onDone],
+    [auth, state.status, household, needsSuccessor, successor, resetPhone, onDone],
   );
 
   return {
@@ -60,6 +69,13 @@ export function useErasure(onDone: () => void) {
     /** Deleting the account also deletes a household nobody else is in. */
     soleMember: household != null && !others,
     babyName: household?.babyName ?? '',
+    /** Who may take over, when this account holds the last owner seat (D3). */
+    candidates,
+    successor,
+    setSuccessor,
+    /** Leaving or deleting the account waits for a successor to be chosen. */
+    ready: (action: ErasureAction) =>
+      action === 'deleteHousehold' || !needsSuccessor || successor !== null,
     busy,
     problem,
     run,

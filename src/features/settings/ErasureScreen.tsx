@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
-import { Button, Card } from '@/ui/primitives';
+import { Button, Card, Segmented } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useErasure, type ErasureAction } from './useErasure';
@@ -30,12 +30,27 @@ export function ErasureScreen({ onDone }: { onDone: () => void }) {
       <Text style={theme.text.body}>{what(action)}</Text>
       {confirming === action ? (
         <>
+          {action !== 'deleteHousehold' && erasure.candidates.length > 0 && (
+            <>
+              <Text style={theme.text.body}>{t('erasure.successor.question')}</Text>
+              <Segmented
+                options={erasure.candidates.map((person) => ({
+                  value: person.userId,
+                  label: person.name,
+                }))}
+                value={erasure.successor}
+                onChange={erasure.setSuccessor}
+                accessibilityLabel={t('erasure.successor.question')}
+                disabled={erasure.busy}
+              />
+            </>
+          )}
           <Text style={theme.text.bodyStrong} accessibilityRole="alert">
             {t('erasure.cannotUndo')}
           </Text>
           <Button
             label={t(erasure.busy ? 'erasure.working' : `erasure.${action}.confirm`)}
-            disabled={erasure.busy}
+            disabled={erasure.busy || !erasure.ready(action)}
             onPress={() => void erasure.run(action)}
           />
           <Button
