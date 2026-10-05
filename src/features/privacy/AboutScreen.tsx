@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
-import { Card } from '@/ui/primitives';
+import { Button, Card } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 /**
@@ -10,8 +10,17 @@ import { useTheme, type Theme } from '@/ui/theme';
  * it is not a medical device. The disclaimer is a screen of its own so it can
  * be read, rather than a line nobody sees at sign-up.
  */
-export function AboutScreen() {
-  const { t } = useTranslation();
+const SITE = 'https://moraki.app';
+const CONTACT = 'info@codedesigns.eu';
+const PAGES = ['privacy', 'terms', 'support'] as const;
+
+/** The pages on moraki.app (P5-06), in Greek when the app is read in Greek. */
+export function legalLink(page: (typeof PAGES)[number], language: string): string {
+  return `${SITE}${language.startsWith('el') ? '/el' : ''}/${page}/`;
+}
+
+export function AboutScreen({ onOpenLink }: { onOpenLink: (url: string) => void }) {
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   return (
@@ -28,6 +37,23 @@ export function AboutScreen() {
         <Text style={theme.text.body}>{t('about.what.records')}</Text>
         <Text style={theme.text.body}>{t('about.what.shares')}</Text>
         <Text style={s.muted}>{t('about.what.offline')}</Text>
+      </Card>
+      <Card testID="about-legal">
+        <Text style={theme.text.heading}>{t('about.legal.title')}</Text>
+        {PAGES.map((page) => (
+          <Button
+            key={page}
+            label={t(`about.legal.${page}`)}
+            variant="secondary"
+            onPress={() => onOpenLink(legalLink(page, i18n.language))}
+          />
+        ))}
+        <Text style={theme.text.body}>{t('about.legal.contact', { email: CONTACT })}</Text>
+        <Button
+          label={t('about.legal.email')}
+          variant="secondary"
+          onPress={() => onOpenLink(`mailto:${CONTACT}`)}
+        />
       </Card>
     </ScrollView>
   );

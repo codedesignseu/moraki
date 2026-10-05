@@ -751,6 +751,14 @@
       "records": "Feeds, diapers, sleep, pumping, milk stock, weight, temperatures, notes, medication and appointments, as you log them.",
       "shares": "Everyone in your household sees the same entries, usually within seconds of being logged.",
       "offline": "It works with no signal. Entries are kept on the phone and sent when there is one."
+    },
+    "legal": {
+      "title": "Privacy and help",
+      "privacy": "Privacy policy",
+      "terms": "Terms of use",
+      "support": "Help and support",
+      "contact": "Questions, or a request about your data: {{email}}",
+      "email": "Email us"
     }
   },
   "consent": {
