@@ -82,21 +82,20 @@ _Residual: Low._
 
 ### R2 — A phone is lost or stolen
 
-_Medium × High._ The local database holds the household's full history in
-plaintext SQLite, protected only by the platform's file encryption and the
-device passcode.
+_Medium × High_ before P5-03. The local database holds the household's full
+history.
 
-Mitigated: the session token is in the OS keychain rather than the database; a
-removed caregiver loses server access immediately (P4-07).
+Mitigated: the database file is encrypted with SQLCipher, keyed by 256 random
+bits kept in the keychain or Keystore and never backed up off the device
+(P5-03, `docs/adr/011-sqlcipher.md`). A backup, a copied file or a forensic
+image without the key is ciphertext. The session token is in the keychain too,
+and a removed caregiver loses server access immediately (P4-07).
 
-**Not mitigated:** no database encryption of our own — P5-03 is the decision on
-SQLCipher, deliberately deferred. A phone with no passcode exposes everything to
-whoever holds it. Removing a caregiver does not reach the copy already on their
-phone, and cannot.
+**Not mitigated, and cannot be:** an unlocked phone in someone else's hands
+shows the app as its owner sees it, and removing a caregiver does not reach the
+copy already on their phone.
 
-_Residual: Medium._ This is the largest residual risk in the app. It is stated
-in the consent copy ("stored on your phone"), and P5-03 should be decided before
-a public release rather than after.
+_Residual: Low._
 
 ### R3 — Health data leaks into a crash report
 
@@ -215,7 +214,7 @@ reasons not to ship publicly without finishing them first — a third, invite
 rate limiting, closed 2026-09-27 (R1):
 
 1. **P4-06** — erasure (R8), and the consent copy corrected in the same release.
-2. **P5-03** — decide on local database encryption (R2), with the decision recorded as an ADR whichever way it goes.
+2. **P5-03** — decide on local database encryption (R2), with the decision recorded as an ADR whichever way it goes. **Done 2026-10-05**: SQLCipher, ADR-011.
 
 No paperwork blocks the beta: Supabase's DPA arrives with its Terms of Service
 rather than needing a signature (R7, confirmed 2026-09-27). What remains before

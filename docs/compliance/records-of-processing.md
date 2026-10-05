@@ -179,10 +179,10 @@ See [`retention.md`](./retention.md).
 | A household cannot be left without an owner                                                  | `memberships_keep_an_owner` trigger                                                                         |
 | Session token in the OS keychain, not in the database                                        | `expo-secure-store`                                                                                         |
 | Transport encryption everywhere                                                              | HTTPS/TLS to Supabase and Sentry                                                                            |
+| Local database encrypted at rest                                                             | SQLCipher, key in the keychain or Keystore, never backed up off the device (P5-03, ADR-011)                 |
 | No health data in notifications, logs or crash reports                                       | engineering rule 8; asserted by tests in `src/i18n/copyRules.test.ts` and `src/observability/scrub.test.ts` |
 | Invite codes: 8 characters from a 30-character alphabet, single use, 7-day expiry, revocable | `invites` table and `accept_invite`                                                                         |
 | Data minimisation by construction                                                            | no location, contacts, photos, or advertising identifiers anywhere                                          |
 
-**Known gaps**, each tracked on the board rather than implied to be solved:
-the local database is not encrypted beyond the platform's own file protection
-(P5-03 decides on SQLCipher).
+**Known gaps**: none open on the board. A removed caregiver keeps the copy
+already on their own phone, which no measure here can reach (DPIA R2).

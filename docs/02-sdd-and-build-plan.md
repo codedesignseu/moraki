@@ -455,7 +455,7 @@ Every entry row shows the author: "Andreas" or "You".
 | Reliability   | Zero data loss across app kill, reboot, airplane mode and reinstall after sync                                                              |
 | Accessibility | Touch targets at least 48dp, WCAG AA contrast in both themes, Dynamic Type and font scale up to 200%, screen reader labels on every control |
 | Battery       | No background location. No polling while backgrounded                                                                                       |
-| Security      | Supabase session in SecureStore. SQLite not encrypted at POC (device encryption covers it), SQLCipher reviewed at P5                        |
+| Security      | Supabase session in SecureStore. SQLite encrypted with SQLCipher from P5-03, key in the keychain (ADR-011)                                  |
 | Privacy       | No third party SDKs that receive health data. No ad SDKs. No analytics at POC                                                               |
 
 ---
@@ -699,6 +699,7 @@ Never: "normal", "healthy", "too little", "concerning", "your baby should", any 
 | 008 | Pricing                                                                  | Deferred until beta retention is known. Leading option: free logging and sync for all caregivers, paid reports and widgets                        | After P4                                                                       |
 | 009 | Activity module registry instead of type switches                        | New activity types (bath, tummy time, vaccination, mother's recovery) cost one file, not edits across the app                                     | If a module needs to change another module's behaviour                         |
 | 010 | Appointments in the POC, not the beta                                    | They were in the original brief, the notification layer already exists at that point, and the questions list feeds the call script. About 4 hours | Never                                                                          |
+| 011 | SQLCipher for the local database, key in the keychain                    | A lost phone was the DPIA's largest residual risk. Whole-file encryption for one config flag; details in `docs/adr/011-sqlcipher.md`              | expo-sqlite drops the option, or it costs a frame on the history screen        |
 
 ---
 

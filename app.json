@@ -47,7 +47,7 @@
     "plugins": [
       "expo-router",
       "expo-localization",
-      "expo-sqlite",
+      ["expo-sqlite", { "useSQLCipher": true }],
       "expo-font",
       "expo-asset",
       "expo-secure-store",
