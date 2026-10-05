@@ -10,6 +10,7 @@ Closed decisions live in the PR that settled them and in `TASKS.md`.
 | --- | ------------------------------------------------------------------------- | ----- | ------ |
 | D1  | A joiner with local entries is asked, and syncs nothing until they answer | P2-11 | open   |
 | D2  | Moving local entries also rewrites who logged them                        | P2-11 | open   |
+| D3  | Deleting an account hands ownership on and keeps shared entries           | P4-06 | open   |
 
 ---
 
@@ -64,3 +65,34 @@ land in sync errors. Rewriting is what makes the history survive at all.
 **If you'd rather.** The entries could keep a note that they were made before
 sharing, shown as "Logged before sharing" rather than as this person. That is
 a copy and schema change, not a sync change.
+
+---
+
+## D3 — Deleting an account hands ownership on and keeps shared entries
+
+**The situation.** Apple requires deletion inside the app (guideline
+5.1.1(v)). An account can belong to a household other caregivers share.
+
+**What P4-06 does now.**
+
+- A household where the person is the only member is deleted whole: baby,
+  entries, invites.
+- A shared household stays. If the person was its only owner, the
+  longest-standing caregiver becomes owner, or the longest-standing viewer if
+  there is no caregiver. Nobody is asked.
+- Entries they logged in a shared household stay, with their author id. The
+  auth row and the membership (their name) are gone, so the id points at no
+  one, and the app shows those entries as logged by someone who has left,
+  the same as after a removal (P4-07). To allow this, `created_by` and
+  `updated_by` are no longer foreign keys to `auth.users`; the insert
+  policies still pin them to the writer.
+
+**Why.** The entries are the other caregivers' record of their baby too, and
+removing them would erase part of someone else's history. Asking the person
+to pick a successor first would add a step to a flow Apple wants to be
+straightforward.
+
+**If you'd rather.** Two alternatives: make the person choose the next owner
+before deleting (a picker on the delete screen, with the RPC taking the
+successor's id), or soft-delete their entries in shared households too. Each
+is a small change to `hand_over_and_leave` and its tests.
