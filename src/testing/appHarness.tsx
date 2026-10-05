@@ -25,6 +25,7 @@ import LogSleep from '../../app/log/sleep';
 import About from '../../app/about';
 import Feedback from '../../app/feedback';
 import Baby from '../../app/baby';
+import LeaveOrDelete from '../../app/leave-or-delete';
 import Invite from '../../app/invite';
 import Join from '../../app/join/[code]';
 import HouseholdSetup from '../../app/onboarding/household';
@@ -38,6 +39,7 @@ import {
   type AppRepositories,
 } from '@/db/react';
 import { UndoProvider } from '@/db/undo';
+import { createResetPhone } from '@/db/resetPhone';
 import { adoptHousehold, localOnlyCount } from '@/db/adoptHousehold';
 import { readLinkedIdentity } from '@/db/identity';
 import {
@@ -110,14 +112,20 @@ export function renderApp(
   const prefs = prefsFor.get(repo);
   const mem = dbFor.get(repo);
   if (!prefs || !mem) throw new Error('renderApp needs a repository from createHarness');
-  const repositories: AppRepositories = {
+  const stores = {
     events: repo,
     devicePrefs: prefs,
     outbox: createOutboxRepository(mem.db),
     caregivers: createCaregiversRepository(mem.db),
+  };
+  const repositories: AppRepositories = {
+    ...stores,
     linked: () => readLinkedIdentity(mem.db),
     localOnly: () => localOnlyCount(mem.db),
     adopt: (target, now) => adoptHousehold(mem.db, target, now),
+    resetPhone: createResetPhone(mem.db, stores, () =>
+      newId(Date.now(), () => new Uint8Array(randomBytes(16))),
+    ),
   };
   function TestLayout() {
     return (
@@ -172,6 +180,7 @@ export function renderApp(
       about: About,
       feedback: Feedback,
       baby: Baby,
+      'leave-or-delete': LeaveOrDelete,
     },
     initialUrl ? { initialUrl } : {},
   );

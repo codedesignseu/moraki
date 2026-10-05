@@ -11,6 +11,7 @@ import type { Event } from '@/domain/activities';
 
 import type { CaregiversRepository } from './repositories/caregivers';
 import type { Adoption, AdoptionTarget } from './adoptHousehold';
+import type { ResetScope } from './resetPhone';
 import type { OutboxRepository } from './repositories/outbox';
 import type {
   DevicePrefName,
@@ -31,6 +32,8 @@ export type AppRepositories = {
   localOnly: () => number;
   /** Takes those entries into the household, and links the phone to it. */
   adopt: (target: AdoptionTarget, now: number) => Adoption;
+  /** Returns the phone to a first launch, after leaving or deleting (P4-06). */
+  resetPhone: (scope: ResetScope) => void;
 };
 
 const EventsRepositoryContext = createContext<EventsRepository | null>(null);
@@ -151,4 +154,9 @@ export function useCaregiverNames(): ReadonlyMap<string, string> {
 export function useAdoption(): Pick<AppRepositories, 'localOnly' | 'adopt'> {
   const { localOnly, adopt } = useRepositories();
   return { localOnly, adopt };
+}
+
+/** Returns the phone to a first launch, after leaving or deleting (P4-06). */
+export function useResetPhone(): AppRepositories['resetPhone'] {
+  return useRepositories().resetPhone;
 }

@@ -9,6 +9,7 @@ import migrations from './migrations/migrations';
 import type { AppRepositories } from './react';
 import { adoptHousehold, localOnlyCount } from './adoptHousehold';
 import { readLinkedIdentity } from './identity';
+import { createResetPhone } from './resetPhone';
 import { createDevicePrefsRepository } from './repositories/devicePrefs';
 import { createCaregiversRepository } from './repositories/caregivers';
 import { createOutboxRepository } from './repositories/outbox';
@@ -44,13 +45,19 @@ export function createAppEventsRepository(db: LocalDb) {
 export async function openAppDatabase(): Promise<AppRepositories> {
   const db = openLocalDb();
   await migrateLocalDb(db);
-  return {
+  const repositories = {
     events: createAppEventsRepository(db),
     devicePrefs: createDevicePrefsRepository(db),
     outbox: createOutboxRepository(db),
     caregivers: createCaregiversRepository(db),
+  };
+  return {
+    ...repositories,
     linked: () => readLinkedIdentity(db),
     localOnly: () => localOnlyCount(db),
     adopt: (target, now) => adoptHousehold(db, target, now),
+    resetPhone: createResetPhone(db, repositories, () =>
+      newId(Date.now(), () => getRandomBytes(16)),
+    ),
   };
 }

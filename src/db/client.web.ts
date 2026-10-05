@@ -17,6 +17,7 @@ import migrations from './migrations/migrations';
 import type { AppRepositories } from './react';
 import { adoptHousehold, localOnlyCount } from './adoptHousehold';
 import { readLinkedIdentity } from './identity';
+import { createResetPhone } from './resetPhone';
 import { createDevicePrefsRepository } from './repositories/devicePrefs';
 import { createCaregiversRepository } from './repositories/caregivers';
 import { createOutboxRepository } from './repositories/outbox';
@@ -34,7 +35,7 @@ export async function openAppDatabase(): Promise<AppRepositories> {
   // The expo migrator only uses the database's dialect and session, which the
   // sql.js driver shares, so this runs the device's exact migration path.
   await migrate(db as unknown as Parameters<typeof migrate>[0], migrations);
-  return {
+  const repositories = {
     events: createEventsRepository(db, {
       now: Date.now,
       newId: (now) => newId(now, () => getRandomBytes(16)),
@@ -42,6 +43,12 @@ export async function openAppDatabase(): Promise<AppRepositories> {
     devicePrefs: createDevicePrefsRepository(db),
     outbox: createOutboxRepository(db),
     caregivers: createCaregiversRepository(db),
+  };
+  return {
+    ...repositories,
+    resetPhone: createResetPhone(db, repositories, () =>
+      newId(Date.now(), () => getRandomBytes(16)),
+    ),
     linked: () => readLinkedIdentity(db),
     localOnly: () => localOnlyCount(db),
     adopt: (target, now) => adoptHousehold(db, target, now),
