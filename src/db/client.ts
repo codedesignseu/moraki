@@ -1,10 +1,18 @@
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { migrate } from 'drizzle-orm/expo-sqlite/migrator';
 import { getRandomBytes } from 'expo-crypto';
-import { openDatabaseSync } from 'expo-sqlite';
+import { File } from 'expo-file-system';
+import * as SecureStore from 'expo-secure-store';
+import {
+  defaultDatabaseDirectory,
+  deleteDatabaseSync,
+  openDatabaseSync,
+  type SQLiteDatabase,
+} from 'expo-sqlite';
 
 import { newId } from '@/domain/ids';
 
+import { keyPragma, openEncrypted, type DbFiles, type KeyStore } from './encryption';
 import migrations from './migrations/migrations';
 import type { AppRepositories } from './react';
 import { adoptHousehold, localOnlyCount } from './adoptHousehold';
@@ -16,11 +24,42 @@ import { createOutboxRepository } from './repositories/outbox';
 import { createEventsRepository } from './repositories/events';
 import * as schema from './schema';
 
-const DB_NAME = 'moraki.db';
+const KEY_ITEM = 'moraki.db.key';
 
-/** Opens the on-device database. SQLite is the source of truth for the UI (rule 1). */
+/**
+ * The database key, in the keychain or Keystore. Readable after the first
+ * unlock, so a reminder rescheduled in the background can still open the
+ * database; never synced off the device by iCloud Keychain.
+ */
+const keys: KeyStore = {
+  get: () => SecureStore.getItem(KEY_ITEM),
+  set: (key) =>
+    SecureStore.setItem(KEY_ITEM, key, {
+      keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
+    }),
+};
+
+const files: DbFiles<SQLiteDatabase> = {
+  exists: (name) => new File(`file://${defaultDatabaseDirectory}/${name}`).exists,
+  pathOf: (name) => `${defaultDatabaseDirectory}/${name}`,
+  open: (name, key) => {
+    const db = openDatabaseSync(name);
+    if (key !== null) db.execSync(keyPragma(key));
+    return db;
+  },
+  remove: (name) => deleteDatabaseSync(name),
+};
+
+const hex = (bytes: Uint8Array) =>
+  Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+
+/**
+ * Opens the on-device database, encrypted with SQLCipher (P5-03, ADR-011).
+ * SQLite is the source of truth for the UI (rule 1).
+ */
 export function openLocalDb() {
-  return drizzle(openDatabaseSync(DB_NAME), { schema });
+  const { db } = openEncrypted(files, keys, () => hex(getRandomBytes(32)));
+  return drizzle(db, { schema });
 }
 
 export type LocalDb = ReturnType<typeof openLocalDb>;
