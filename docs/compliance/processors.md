@@ -41,14 +41,14 @@ than forgotten.
 | Legal             | Sentry's DPA. Error retention is set to **30 days**                                     |
 | Status            | live from P4-08, and inert in any build without a DSN                                   |
 
-### Expo — build service, and later update delivery
+### Expo — build service and update delivery
 
-|                   |                                                                                                                                                                                                               |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| What it processes | the developer's own account, build artefacts and signing credentials. **No household data at runtime**: the app talks to Supabase directly, and EAS Update is not configured (no `updates` key in `app.json`) |
-| Note              | if EAS Update is switched on (P4-12), Expo begins serving JS bundles to devices and will see device identifiers and IP addresses. Revisit this row then                                                       |
-| Region            | US-based company; relevant only to the developer account and build data today                                                                                                                                 |
-| Status            | live for builds                                                                                                                                                                                               |
+|                   |                                                                                                                                                                                                                                                                                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| What it processes | the developer's own account, build artefacts and signing credentials; and, since EAS Update was switched on (P4-12), each phone's IP address, platform, app runtime version, channel and a random per-install id when it checks for an update. **No household data**: the app talks to Supabase directly, and an update check carries nothing the app stores |
+| Region            | US-based company. Update checks are served from Expo's CDN, so the IP address of a phone in the EU reaches a US processor                                                                                                                                                                                                                                    |
+| Legal             | Expo's DPA with Standard Contractual Clauses. **The owner must accept it in the expo.dev account settings** before the first store build ships with updates on                                                                                                                                                                                               |
+| Status            | live for builds; update delivery live from the first build made after P4-12                                                                                                                                                                                                                                                                                  |
 
 ### Apple — distribution
 
@@ -93,6 +93,6 @@ than forgotten.
 Add a row **before** shipping the change, not after:
 
 - push notifications (P4-02) → Apple APNs and Google FCM become runtime processors of device tokens
-- EAS Update (P4-12) → Expo begins serving bundles to devices
+- EAS Update (P4-12) → Expo serves bundles to devices: done 2026-10-05, row above updated
 - any analytics product → would need a lawful basis, a DPIA revision and a consent mechanism. SDD 12.1 says there is none, and that is a design decision, not an omission
 - a landing page with a contact form, newsletter or embedded third-party script

@@ -3,7 +3,7 @@
     "name": "Moraki",
     "slug": "moraki",
     "scheme": "moraki",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -70,6 +70,13 @@
         "projectId": "eaf90151-3528-4c56-b283-4a813a7e822f"
       }
     },
-    "owner": "ce-code-designs-ltd"
+    "owner": "ce-code-designs-ltd",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/eaf90151-3528-4c56-b283-4a813a7e822f",
+      "fallbackToCacheTimeout": 0
+    }
   }
 }
