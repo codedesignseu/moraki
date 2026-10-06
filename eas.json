@@ -28,7 +28,10 @@
     "production": {
       "distribution": "store",
       "autoIncrement": true,
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "SENTRY_ALLOW_FAILURE": "true"
+      }
     }
   },
   "submit": {

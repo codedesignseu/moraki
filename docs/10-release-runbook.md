@@ -36,10 +36,15 @@ Status as of 2026-10-06. Done items keep their instructions for the next app.
      in the EAS `production` environment.
 6. **Sentry.** The EU project exists. `EXPO_PUBLIC_SENTRY_DSN` and
    `EXPO_PUBLIC_SENTRY_ENV` (`production`) are in the EAS `production`
-   environment (2026-10-06). **Open:** `SENTRY_AUTH_TOKEN` as an EAS secret
-   (the owner is adding it), and source-map upload in the app config (P4-F4),
-   which waits on the org and project slugs. Crash reports arrive without it,
-   with minified stack traces.
+   environment (2026-10-06). Source-map upload is configured (P4-F4): the
+   plugin in `app.json` (org `ce-code-designs-ltd`, project `moraki`,
+   `https://de.sentry.io/`) and Sentry's Metro config. `SENTRY_AUTH_TOKEN`
+   goes into EAS as a **secret** (the owner is adding it). Until it is there,
+   the build still succeeds: `SENTRY_ALLOW_FAILURE=true` in `eas.json`'s
+   production profile turns a failed upload into a warning, and crash reports
+   still arrive, only with minified stack traces. To confirm the token works,
+   look in the EAS build log for "Source maps upload" without a
+   `SENTRY_ALLOW_FAILURE` warning.
 7. **EAS `production` environment, 2026-10-06 evening:** 6 variables. Every
    variable the build reads:
 
