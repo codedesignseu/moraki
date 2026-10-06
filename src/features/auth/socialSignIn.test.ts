@@ -73,18 +73,31 @@ describe('Sign in with Google (P5-04)', () => {
     mockHasPlayServices.mockResolvedValue(true);
     mockGoogleSignIn.mockResolvedValue({ type: 'success', data: { idToken: 'the-google-token' } });
 
-    const idToken = await signInWithGoogle('web-client-id.apps.googleusercontent.com');
+    const idToken = await signInWithGoogle(
+      'web-client-id.apps.googleusercontent.com',
+      'ios-client-id.apps.googleusercontent.com',
+    );
 
     expect(mockConfigure).toHaveBeenCalledWith({
       webClientId: 'web-client-id.apps.googleusercontent.com',
+      iosClientId: 'ios-client-id.apps.googleusercontent.com',
     });
     expect(idToken).toBe('the-google-token');
+  });
+
+  it('configures with the web client ID alone when there is no iOS one', async () => {
+    mockHasPlayServices.mockResolvedValue(true);
+    mockGoogleSignIn.mockResolvedValue({ type: 'success', data: { idToken: 'the-google-token' } });
+    await signInWithGoogle('web-client-id', undefined);
+    expect(mockConfigure).toHaveBeenCalledWith({ webClientId: 'web-client-id' });
   });
 
   it('turns a dismissed sheet into a cancellation, not a failure to explain', async () => {
     mockHasPlayServices.mockResolvedValue(true);
     mockGoogleSignIn.mockResolvedValue({ type: 'cancelled', data: null });
 
-    await expect(signInWithGoogle('web-client-id')).rejects.toBeInstanceOf(SocialSignInCancelled);
+    await expect(signInWithGoogle('web-client-id', undefined)).rejects.toBeInstanceOf(
+      SocialSignInCancelled,
+    );
   });
 });

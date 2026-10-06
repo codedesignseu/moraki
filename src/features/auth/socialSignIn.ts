@@ -54,10 +54,14 @@ export async function signInWithApple(): Promise<{ identityToken: string; nonce:
  * not `import()`: Metro supports a deferred `require` the same way, and
  * unlike dynamic `import()` it also works under Jest without extra flags.
  */
-export async function signInWithGoogle(webClientId: string): Promise<string> {
+export async function signInWithGoogle(
+  webClientId: string,
+  iosClientId: string | undefined,
+): Promise<string> {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { GoogleSignin } = require('@react-native-google-signin/google-signin');
-  GoogleSignin.configure({ webClientId });
+  // iOS needs its own client ID as well (P5-F9); Android ignores it.
+  GoogleSignin.configure(iosClientId ? { webClientId, iosClientId } : { webClientId });
   await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
   const response = await GoogleSignin.signIn();
   if (response.type === 'cancelled') throw new SocialSignInCancelled();

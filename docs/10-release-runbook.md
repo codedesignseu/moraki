@@ -10,8 +10,8 @@ Status as of 2026-10-06. Done items keep their instructions for the next app.
 1. **Done 2026-10-05.** Bundle ID `eu.codedesigns.moraki` registered in the
    Apple Developer portal; it matches `app.json`.
 2. **Done 2026-10-05.** App Store Connect app record created (Full Access).
-   Its numeric Apple ID goes into `eas.json` as
-   `submit.production.ios.ascAppId`; until then `eas submit` asks for it.
+   Its numeric Apple ID, `6819394944`, is in `eas.json` as
+   `submit.production.ios.ascAppId` (2026-10-06), so `eas submit` doesn't ask.
 3. **Done 2026-10-05.** App Store Connect API key created and added to EAS
    with `eas credentials` → iOS → App Store Connect API Key. The `.p8` is
    not in the repo.
@@ -34,36 +34,48 @@ Status as of 2026-10-06. Done items keep their instructions for the next app.
    - Publishable key rotated and the old key deleted (P3-F5).
      `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are
      in the EAS `production` environment.
-6. **Sentry.** The EU project exists and `.env` has `EXPO_PUBLIC_SENTRY_DSN`
-   and `EXPO_PUBLIC_SENTRY_ENV`. **Open:** add both to the EAS `production`
-   environment, with `EXPO_PUBLIC_SENTRY_ENV=production`. Source-map upload
-   (P4-F4) is not configured in the app yet. Crash reports still arrive
-   without it, but with minified stack traces.
-7. **EAS `production` environment.** Every variable the build reads:
+6. **Sentry.** The EU project exists. `EXPO_PUBLIC_SENTRY_DSN` and
+   `EXPO_PUBLIC_SENTRY_ENV` (`production`) are in the EAS `production`
+   environment (2026-10-06). **Open:** `SENTRY_AUTH_TOKEN` as an EAS secret
+   (the owner is adding it), and source-map upload in the app config (P4-F4),
+   which waits on the org and project slugs. Crash reports arrive without it,
+   with minified stack traces.
+7. **EAS `production` environment, 2026-10-06 evening:** 6 variables. Every
+   variable the build reads:
 
-   | Variable                               | Status 2026-10-06 |
-   | -------------------------------------- | ----------------- |
-   | `EXPO_PUBLIC_SUPABASE_URL`             | in EAS            |
-   | `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | in EAS (rotated)  |
-   | `EXPO_PUBLIC_SENTRY_DSN`               | being added       |
-   | `EXPO_PUBLIC_SENTRY_ENV`               | being added       |
-   | `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`     | being added       |
+   | Variable                               | Status                          |
+   | -------------------------------------- | ------------------------------- |
+   | `EXPO_PUBLIC_SUPABASE_URL`             | in EAS                          |
+   | `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | in EAS (rotated)                |
+   | `EXPO_PUBLIC_SENTRY_DSN`               | in EAS                          |
+   | `EXPO_PUBLIC_SENTRY_ENV`               | in EAS, `production`            |
+   | `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`     | in EAS                          |
+   | `SENTRY_AUTH_TOKEN`                    | open: owner adding, as a secret |
 
    Not needed in EAS: `APPLE_TEAM_ID` (nothing in the app or its config reads
    it; EAS takes the team from its credentials), `EXPO_TOKEN` (for the CLI,
    not the build) and `SUPABASE_SECRET_KEY` (server only, **never** in a
-   build).
+   build). The Google iOS client ID isn't a variable either: the app derives
+   it from `iosUrlScheme` in `app.json` (P5-F9).
 
 8. **Done 2026-10-06.** `public/` deployed to moraki.app. `/`, `/privacy/`,
    `/terms/`, `/support/` and `/el/` load as real pages, and
    `apple-app-site-association` is reachable (P5-F8).
-9. **Testing on device happens on TestFlight.** There is no local simulator
-   testing: Expo Go and the old development builds crash with "Cannot find
-   native module 'ExpoUpdates'", which is expected since #117 and #118 added
-   native modules, and Xcode isn't used here. The first TestFlight build
-   covers the deletion test on prod (including owner-picks-successor), the
-   history surviving the SQLCipher conversion, PDF sharing, and the invite
-   link.
+9. **Google sign-in, outside the repo: done 2026-10-06.** The iOS OAuth
+   client in Google Cloud has bundle ID `eu.codedesigns.moraki`, and
+   Supabase's Google provider lists both the web and the iOS client IDs.
+10. **Working folder clean, 2026-10-06.** The local `ios/` folder from a
+    prebuild is deleted, and `/ios` and `/android` are now in `.gitignore` so a
+    stray one can't be uploaded to EAS. The `expo run:*` script changes in
+    `package.json` are reverted. `public/Archive.zip` is deleted locally and
+    from the web host.
+11. **Testing on device happens on TestFlight.** There is no local simulator
+    testing: Expo Go and the old development builds crash with "Cannot find
+    native module 'ExpoUpdates'", which is expected since #117 and #118 added
+    native modules, and Xcode isn't used here. The first TestFlight build
+    covers the deletion test on prod (including owner-picks-successor), the
+    history surviving the SQLCipher conversion, PDF sharing, and the invite
+    link.
 
 ## Each TestFlight build
 
