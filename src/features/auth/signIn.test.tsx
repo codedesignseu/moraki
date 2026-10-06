@@ -21,11 +21,15 @@ jest.mock('./socialSignIn', () => ({
   SocialSignInCancelled: class SocialSignInCancelled extends Error {},
   isAppleSignInAvailable: () => mockAppleAvailable(),
   signInWithApple: () => mockSignInWithApple(),
-  signInWithGoogle: (webClientId: string) => mockSignInWithGoogle(webClientId),
+  signInWithGoogle: (webClientId: string, iosClientId: string | undefined) =>
+    mockSignInWithGoogle(webClientId, iosClientId),
 }));
 
 const mockGoogleWebClientId = jest.fn(() => undefined as string | undefined);
-jest.mock('@/sync/googleEnv', () => ({ readGoogleWebClientId: () => mockGoogleWebClientId() }));
+jest.mock('@/sync/googleEnv', () => ({
+  readGoogleWebClientId: () => mockGoogleWebClientId(),
+  readGoogleIosClientId: () => 'ios-client-id.apps.googleusercontent.com',
+}));
 
 let h: Harness;
 beforeEach(async () => {
@@ -252,7 +256,10 @@ describe('Sign in with Google (P5-04)', () => {
     await press('Not now'); // the consent screen (P3-09)
 
     expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
-    expect(mockSignInWithGoogle).toHaveBeenCalledWith('web-client-id.apps.googleusercontent.com');
+    expect(mockSignInWithGoogle).toHaveBeenCalledWith(
+      'web-client-id.apps.googleusercontent.com',
+      'ios-client-id.apps.googleusercontent.com',
+    );
     expect(server.calls.find((c) => c.path === '/auth/v1/token')).toEqual({
       path: '/auth/v1/token',
       body: expect.objectContaining({ provider: 'google', id_token: 'the-google-token' }),

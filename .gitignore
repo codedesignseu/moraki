@@ -34,3 +34,8 @@ credentials.json
 .eas/
 supabase/.branches
 supabase/.temp
+
+# Native projects from `expo prebuild` / `expo run:*`. EAS generates its own
+# from app.json; a stray folder here would be uploaded and skip that step.
+/ios
+/android

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { AuthError, type AuthFailure, type AuthUser } from '@/sync/auth';
 import { useAuth } from '@/sync/AuthProvider';
-import { readGoogleWebClientId } from '@/sync/googleEnv';
+import { readGoogleIosClientId, readGoogleWebClientId } from '@/sync/googleEnv';
 
 import {
   SocialSignInCancelled,
@@ -104,7 +104,7 @@ export function useSignIn(onDone: (user: AuthUser) => void) {
     googleAvailable: googleWebClientId !== undefined,
     continueWithGoogle: () =>
       run(async () => {
-        const idToken = await signInWithGoogle(googleWebClientId!);
+        const idToken = await signInWithGoogle(googleWebClientId!, readGoogleIosClientId());
         onDone(await auth!.signInWithIdToken('google', idToken));
       }),
   };
