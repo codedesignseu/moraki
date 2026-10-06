@@ -5,7 +5,7 @@ accounts; none of it can run from CI yet.
 
 ## Once, before the first store build
 
-Status as of 2026-10-05. Done items keep their instructions for the next app.
+Status as of 2026-10-06. Done items keep their instructions for the next app.
 
 1. **Done 2026-10-05.** Bundle ID `eu.codedesigns.moraki` registered in the
    Apple Developer portal; it matches `app.json`.
@@ -19,33 +19,51 @@ Status as of 2026-10-05. Done items keep their instructions for the next app.
    §3.2 make Expo a processor under the EU Standard Contractual Clauses, and
    Expo is certified under the EU-US Data Privacy Framework. Updates go through
    Expo's CDN from this release on.
-5. **Hosted Supabase (prod).**
-   - **Done.** The Supabase CLI is linked to the **prod** project; the
-     staging-or-prod question is closed. `supabase init` is not needed:
-     `supabase/config.toml` already exists.
-   - **Done.** `supabase db push` reported "Remote database is up to date"
-     before #122; every migration was present on Local and Remote.
-   - **Open: push again.** #122 (D3) is merged and adds
-     `20261005150000_erasure_successor.sql`. Run `supabase db push` against
-     prod before the production build.
-   - **Done (P2-F5).** Hosted email sign-in: the email provider, URL
-     configuration, templates carrying the code, custom SMTP, rate limits,
-     and the Apple and Google providers.
-   - **Open (P3-F5).** Rotate the publishable key on prod, update
-     `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in `.env` and EAS, **before** the
-     production build.
-   - **Open.** Test deletion on prod with a throwaway account. Cover the
-     owner-picks-successor case: a household with a second member, where the
-     owner deletes their account and chooses who takes over.
-6. **Open.** Create an EU Sentry project, then put its DSN
-   (`EXPO_PUBLIC_SENTRY_DSN`) and an auth token (for source maps, P4-F4) into
-   `.env` and the EAS `production` environment.
-7. **Open.** EAS environment variables for `production`: the same
-   `EXPO_PUBLIC_*` values as `preview`, with the rotated key from step 5.
-8. **Open.** Deploy `public/` to moraki.app. On 2026-10-05 the live site
-   served the 404 page for `/`, `/privacy/`, `/terms/`, `/support/` and the
-   Greek pages; only `/.well-known/` was current. App Store Connect needs the
-   privacy and support URLs live.
+5. **Hosted Supabase (prod).** Done 2026-10-05/06.
+   - The Supabase CLI is linked to the **prod** project; the staging-or-prod
+     question is closed. `supabase init` is not needed: `supabase/config.toml`
+     already exists.
+   - `supabase migration list` (at `e1733177`) shows all 13 migrations on
+     Local and Remote, including `20261005150000_erasure_successor`; prod
+     already had them, so `db push` had nothing to apply. The SQL Editor shows
+     `delete_account(successor uuid)`, `hand_over_and_leave(h, who, successor)`
+     and `leave_household(household_id, successor)`, and no old signatures.
+   - Hosted email sign-in (P2-F5): email provider, URL configuration,
+     templates carrying the code, custom SMTP, rate limits, and the Apple and
+     Google providers.
+   - Publishable key rotated and the old key deleted (P3-F5).
+     `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are
+     in the EAS `production` environment.
+6. **Sentry.** The EU project exists and `.env` has `EXPO_PUBLIC_SENTRY_DSN`
+   and `EXPO_PUBLIC_SENTRY_ENV`. **Open:** add both to the EAS `production`
+   environment, with `EXPO_PUBLIC_SENTRY_ENV=production`. Source-map upload
+   (P4-F4) is not configured in the app yet. Crash reports still arrive
+   without it, but with minified stack traces.
+7. **EAS `production` environment.** Every variable the build reads:
+
+   | Variable                               | Status 2026-10-06 |
+   | -------------------------------------- | ----------------- |
+   | `EXPO_PUBLIC_SUPABASE_URL`             | in EAS            |
+   | `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | in EAS (rotated)  |
+   | `EXPO_PUBLIC_SENTRY_DSN`               | being added       |
+   | `EXPO_PUBLIC_SENTRY_ENV`               | being added       |
+   | `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`     | being added       |
+
+   Not needed in EAS: `APPLE_TEAM_ID` (nothing in the app or its config reads
+   it; EAS takes the team from its credentials), `EXPO_TOKEN` (for the CLI,
+   not the build) and `SUPABASE_SECRET_KEY` (server only, **never** in a
+   build).
+
+8. **Done 2026-10-06.** `public/` deployed to moraki.app. `/`, `/privacy/`,
+   `/terms/`, `/support/` and `/el/` load as real pages, and
+   `apple-app-site-association` is reachable (P5-F8).
+9. **Testing on device happens on TestFlight.** There is no local simulator
+   testing: Expo Go and the old development builds crash with "Cannot find
+   native module 'ExpoUpdates'", which is expected since #117 and #118 added
+   native modules, and Xcode isn't used here. The first TestFlight build
+   covers the deletion test on prod (including owner-picks-successor), the
+   history surviving the SQLCipher conversion, PDF sharing, and the invite
+   link.
 
 ## Each TestFlight build
 
