@@ -428,6 +428,15 @@
       "title": "About",
       "open": "About Moraki"
     },
+    "version": "Version {{version}}",
+    "sentryTest": {
+      "confirm": "Send a test error to Sentry? It checks that crash reports arrive readable. It carries no entries and nothing about you or the baby.",
+      "send": "Send test error to Sentry",
+      "cancel": "Cancel",
+      "sent": "Test error sent to Sentry.",
+      "off": "Crash reporting is off in this build, so nothing was sent.",
+      "ok": "OK"
+    },
     "otherAccount": {
       "title": "Entries from another account",
       "body": "This phone still has the entries of the account that signed out here. They stay apart from {{name}}’s household: nothing is added to it and nothing is shared until the phone is cleared. Clearing removes them from this phone only. What already reached the server stays with that account’s household; anything that hadn’t is lost.",

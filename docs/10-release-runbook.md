@@ -96,6 +96,30 @@ not a secret), and later submits stop asking.
 The build number goes up by itself (`autoIncrement`, with the version kept on
 EAS's side). The marketing version is `version` in `app.json`.
 
+### Checking that crash reports are readable (P4-F4)
+
+Each new build should send one test error, so you know its source maps were
+uploaded:
+
+1. In the TestFlight build, open **Settings** and scroll to the bottom.
+2. Tap **Version x.y.z** seven times. A card asks "Send a test error to
+   Sentry?". Tap **Send test error to Sentry**.
+3. A toast says "Test error sent to Sentry." If it says crash reporting is off,
+   the build has no `EXPO_PUBLIC_SENTRY_DSN`. Check the EAS `production`
+   environment and build again.
+4. In Sentry (`https://de.sentry.io/`, org `ce-code-designs-ltd`, project
+   `moraki`), open the newest issue, **SentryTestError: Moraki Sentry test
+   error, sent on purpose from Settings**. The top stack frames should name
+   `src/observability/testError.ts` and `src/features/settings/useSentryTest.ts`
+   with line numbers. If the frames show `main.jsbundle` or bundle offsets
+   instead, the upload failed: look in the EAS build log for "Source maps
+   upload" and a `SENTRY_ALLOW_FAILURE` warning (usually a missing or wrong
+   `SENTRY_AUTH_TOKEN`).
+5. Check the event carries nothing personal: no user, no IP address, no
+   breadcrumbs with entries. `scrubEvent` keeps only the stack trace and the
+   build's details.
+6. Resolve the issue in Sentry, so the next build's test shows up as new.
+
 ## Shipping a JavaScript-only fix
 
 ```sh
