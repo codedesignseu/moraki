@@ -12,7 +12,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 |---|---|---|---|---|
 | #132 | `sage/01-mapping` | Step 1 mapping | merged | green |
 | #133 | `sage/02a-tokens` | Tokens, `design/` export and exclusions | merged | green |
-| _next_ | `sage/02b-icons` | Icons and the `Icon` primitive | in progress | |
+| #134 | `sage/02b-icons` | Icons and the `Icon` primitive | merged | green |
+| _next_ | `sage/02c-components` | New Sage components | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -29,6 +30,21 @@ Each entry gives what was chosen, why, and the alternatives.
   - Why: the set has no files for them, and the design draws them as text glyphs (‹ › × + − ✓).
   - How: `Icon` renders them in the UI font, with `allowFontScaling={false}` so they keep their box like the PNG icons. Their buttons carry the accessibility label.
   - Alternatives: Ionicons, which is already installed (a different line style), or drawing new PNGs (invents artwork).
+
+- **2c adds only new components. The existing primitives are restyled in 3a, not 2c.**
+  - Why: the brief says nothing may look different in step 2 on screens that do not use new components. `Button`, `Card`, `Chip`, `Segmented`, `Stepper`, `TextField`, `Toast` and `EntryRow` are on every screen, so restyling them would change every screen at once.
+  - What happens instead: they get restyled at the start of step 3 (PR 3a). From then on, screens of later groups show Sage controls inside the old layout until their own PR. That is a mixed look on the integration branch only.
+  - Alternative: a per-component legacy or Sage switch, which is more code and gets deleted at the end anyway.
+- **`Sheet` restyled in 2c.** Only the dev showcase uses it, so no app screen changes.
+- **New in 2c:**
+  - `ActivityTile` (the whole tile is one button; its "+" is drawn, not a second target)
+  - `IconButton` (46 visible, hit area grown to 48)
+  - `ListRow`
+  - `TabBar` (floating, icon only)
+  - `EmptyState`
+  - `StatusPill`
+  - all in the `/primitives` showcase in both schemes
+- **The tab bar shows icons only, as the design does.** The labels remain as screen reader labels. The selected tab is a filled pill, so shape, not only colour, shows it. Alternative: icon plus small label, which the design does not show.
 
 ## 3. Problems found
 
@@ -76,8 +92,15 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - **Glyph icons.** Back, close and similar are text glyphs (section 2).
 - **Touch target.** 48, not 44 (D7).
 
+- **Activity tile:** the design's "+" is its own button. Here it is drawn inside a single tile button, to avoid two nested targets doing the same thing.
+- **Empty state:** corners are 32 (`radius.tile`), not the board's 36, which is not a token.
+
 ## 7. Things to check on the device
 
 **Icons (2b)**
 - Icons look crisp in day and night.
 - Glyphs (‹ × +) sit centred in their buttons.
+
+**Components (2c), on the dev screen `/primitives`**
+- Tiles, rows, tab bar and empty state in day and night.
+- Set the phone to the largest text size: tiles and rows grow, nothing is clipped.

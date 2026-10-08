@@ -174,6 +174,21 @@ export const size = {
   tabBarBottomOffset: 30,
   activityTile: 168,
   icon: 24,
+  /** Icon on an activity tile. */
+  iconTile: 42,
+  /** Icon on an empty-state tile. */
+  iconHero: 84,
+  /** Round icon badge at the start of a list row. */
+  rowBadge: 46,
+  /** Tab bar item: a pill the active tab fills. */
+  tabItemWidth: 64,
+  tabItemHeight: 48,
+  /** Picture tile of an empty state. Grows with its content. */
+  emptyArt: 190,
+  /** Status pill ("Now · 05:14"). Grows with its text. */
+  pill: 36,
+  /** Dot inside a status pill that marks something running. */
+  dot: 8,
 } as const;
 
 /** Opacity of a control while it is pressed. */

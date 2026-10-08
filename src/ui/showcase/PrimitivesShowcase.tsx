@@ -3,15 +3,24 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import {
+  ActivityTile,
   Button,
   Card,
   Chip,
+  EmptyState,
+  Icon,
+  IconButton,
+  ListRow,
   Segmented,
   Sheet,
   SheetPanel,
+  StatusPill,
   Stepper,
+  TabBar,
   TimerText,
 } from '../primitives';
+import type { IconName } from '../icons';
+import { ICONS } from '../icons';
 import type { Theme } from '../theme';
 import { ThemeProvider, useTheme } from '../theme';
 import type { Scheme } from '../tokens';
@@ -194,6 +203,114 @@ function SchemeSection() {
           <Button label="Done" onPress={() => setSheetOpen(false)} />
         </Sheet>
       </Group>
+
+      <Group title="Sage icons">
+        <View style={s.row}>
+          {(Object.keys(ICONS) as IconName[]).map((name) => (
+            <Icon key={name} name={name} />
+          ))}
+          <Icon name="back" />
+          <Icon name="close" />
+          <Icon name="plus" />
+          <Icon name="check" />
+        </View>
+      </Group>
+
+      <Group title="Sage tiles">
+        <View style={s.row}>
+          <ActivityTile
+            colour="feed"
+            icon="feed"
+            title="Feed"
+            detail="Detail line"
+            onPress={() => {}}
+            accessibilityLabel="Log"
+          />
+          <ActivityTile
+            colour="sleep"
+            icon="sleep"
+            title="Sleep"
+            detail="Detail line"
+            onPress={() => {}}
+            accessibilityLabel="Log"
+          />
+        </View>
+        <View style={s.row}>
+          <ActivityTile
+            colour="diaper"
+            icon="diaper"
+            title="Diaper"
+            onPress={() => {}}
+            accessibilityLabel="Log"
+          />
+          <ActivityTile
+            colour="pump"
+            icon="pump"
+            title="Pump"
+            onPress={() => {}}
+            accessibilityLabel="Log"
+          />
+        </View>
+      </Group>
+
+      <Group title="Sage rows and buttons">
+        <ListRow
+          title="List row"
+          detail="Pressable"
+          icon="visit"
+          badge="diaper"
+          onPress={() => {}}
+        />
+        <ListRow
+          title="List row"
+          detail="With a button"
+          icon="health"
+          trailing={
+            <IconButton icon="plus" tone="line" onPress={() => {}} accessibilityLabel="Add" />
+          }
+        />
+        <View style={s.row}>
+          <IconButton icon="back" onPress={() => {}} accessibilityLabel="Back" />
+          <IconButton icon="close" tone="chip" onPress={() => {}} accessibilityLabel="Close" />
+          <StatusPill label="Status pill" />
+          <StatusPill label="Running" live />
+        </View>
+      </Group>
+
+      <Group title="Sage empty state">
+        <EmptyState icon="tab-history" colour="sleep" title="Empty title" body="One warm line." />
+      </Group>
+
+      <Group title="Sage tab bar">
+        <View style={s.tabBarFrame}>
+          <TabBar
+            items={[
+              { key: 'a', label: 'Home', icon: 'tab-home', selected: true, onPress: () => {} },
+              {
+                key: 'b',
+                label: 'History',
+                icon: 'tab-history',
+                selected: false,
+                onPress: () => {},
+              },
+              {
+                key: 'c',
+                label: 'Insights',
+                icon: 'tab-insights',
+                selected: false,
+                onPress: () => {},
+              },
+              {
+                key: 'd',
+                label: 'Settings',
+                icon: 'tab-settings',
+                selected: false,
+                onPress: () => {},
+              },
+            ]}
+          />
+        </View>
+      </Group>
     </View>
   );
 }
@@ -228,6 +345,8 @@ const styles = (t: Theme) =>
     group: { gap: t.spacing.lg },
     state: { gap: t.spacing.xs },
     wrapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.sm },
+    row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.spacing.md },
+    tabBarFrame: { height: t.size.tabBar + t.size.tabBarBottomOffset },
     muted: { color: t.colors.textMuted },
     invalidText: { color: t.colors.invalid },
     input: {
