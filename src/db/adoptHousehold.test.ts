@@ -33,7 +33,7 @@ describe('taking a phone’s own entries into a household', () => {
     const diaper = p.events.insert({ type: 'diaper', occurredAt: NOW, payload: { kind: 'wet' } });
 
     expect(localOnlyCount(p.db)).toBe(2);
-    expect(adoptHousehold(p.db, TARGET, NOW)).toEqual({ events: 2, ops: 2 });
+    expect(adoptHousehold(p.db, TARGET, NOW)).toEqual({ events: 2, ops: 2, linked: true });
     p.events.forgetIdentity(); // the repository was still on the old ids
 
     // Same entries, same ids: nothing was lost or made again.
@@ -127,15 +127,16 @@ describe('taking a phone’s own entries into a household', () => {
     const second = adoptHousehold(p.db, TARGET, NOW);
     p.events.forgetIdentity();
 
-    expect(first).toEqual({ events: 1, ops: 1 });
-    expect(second).toEqual({ events: 0, ops: 0 });
+    expect(first).toEqual({ events: 1, ops: 1, linked: true });
+    expect(second).toEqual({ events: 0, ops: 0, linked: false });
     expect(p.events.list()).toHaveLength(1);
   });
 
   it('counts nothing to take on a phone that has logged nothing', async () => {
     const p = await phone();
     expect(localOnlyCount(p.db)).toBe(0);
-    expect(adoptHousehold(p.db, TARGET, NOW)).toEqual({ events: 0, ops: 0 });
+    // Nothing moved, but the phone is now on the household's ids (TestFlight build 2).
+    expect(adoptHousehold(p.db, TARGET, NOW)).toEqual({ events: 0, ops: 0, linked: true });
     expect(readLinkedIdentity(p.db)).not.toBeNull(); // still linked, ready to sync
   });
 

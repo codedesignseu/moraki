@@ -25,27 +25,24 @@ import { useAccountHousehold } from './useAccountHousehold';
  */
 export type AdoptionQuestion = 'none' | 'ask';
 
-export function useAdoption(): {
-  question: AdoptionQuestion;
-  /** How many entries would move. */
-  entries: number;
-  babyName: string;
-  move: () => void;
-  keepForNow: () => void;
-} {
+/**
+ * Links this phone to the account's household as soon as there is one: after
+ * signing in, creating a household, or joining one by invite. Mounted once,
+ * by SyncProvider, so it runs whichever screen is open; it used to live in
+ * Settings, and a phone that never opened Settings never linked (TestFlight
+ * build 2).
+ *
+ * Linking changes the ids the events repository lists by, so it is told to
+ * read them again even when no entry moved. Without that, a phone with
+ * nothing of its own kept listing the placeholder baby, and home and history
+ * stayed empty until a restart.
+ */
+export function useLinkHousehold(): void {
   const { localOnly, adopt } = useRepositories();
   const events = useEventsRepository();
   const { household } = useAccountHousehold();
   const { state } = useAuth();
-  const [answer, setAnswer] = useDevicePref('localEntries');
-  // Recounted after every committed write, straight from the database.
-  const logged = useEvents();
-  const entries = useMemo(
-    () => localOnly(),
-    // `logged` is the change signal: re-read after every committed write.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [localOnly, logged],
-  );
+  const [answer] = useDevicePref('localEntries');
 
   const signedIn = state.status === 'signedIn';
   const mine = household && signedIn ? household : null;
@@ -65,9 +62,35 @@ export function useAdoption(): {
         },
         Date.now(),
       );
-      if (moved.events > 0 || moved.ops > 0) events.forgetIdentity();
+      if (moved.linked) events.forgetIdentity();
     }
   }, [mine, owner, answer, adopt, localOnly, events]);
+}
+
+export function useAdoption(): {
+  question: AdoptionQuestion;
+  /** How many entries would move. */
+  entries: number;
+  babyName: string;
+  move: () => void;
+  keepForNow: () => void;
+} {
+  const { localOnly } = useRepositories();
+  const { household } = useAccountHousehold();
+  const { state } = useAuth();
+  const [answer, setAnswer] = useDevicePref('localEntries');
+  // Recounted after every committed write, straight from the database.
+  const logged = useEvents();
+  const entries = useMemo(
+    () => localOnly(),
+    // `logged` is the change signal: re-read after every committed write.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [localOnly, logged],
+  );
+
+  const signedIn = state.status === 'signedIn';
+  const mine = household && signedIn ? household : null;
+  const owner = mine?.role === 'owner';
 
   return {
     question: mine && !owner && entries > 0 && answer === null ? 'ask' : 'none',
