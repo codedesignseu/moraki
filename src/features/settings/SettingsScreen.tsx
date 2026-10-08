@@ -98,6 +98,15 @@ export function SettingsScreen({
 
   return (
     <ScrollView contentContainerStyle={s.content}>
+      {adoption.otherAccount && (
+        <Card testID="settings-other-account">
+          <Text style={theme.text.heading}>{t('settings.otherAccount.title')}</Text>
+          <Text style={theme.text.body}>
+            {t('settings.otherAccount.body', { name: adoption.babyName })}
+          </Text>
+          <Button label={t('settings.otherAccount.clear')} onPress={adoption.clearPhone} />
+        </Card>
+      )}
       {adoption.question === 'ask' && (
         <Card testID="settings-local-entries">
           <Text style={theme.text.heading}>{t('settings.localEntries.title')}</Text>
