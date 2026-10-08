@@ -1,0 +1,51 @@
+/* Moraki Sage tokens for the website and any web views */
+:root {
+  --bg: #E9EDE6;
+  --card: #FFFFFF;
+  --ink: #1E2A23;
+  --text-soft: #56615A;
+  --line: #DCE2D8;
+  --outline: #C7CFC3;
+  --chip: #E9EDE6;
+  --selected: #CFE0D3;
+  --button: #1E2A23;
+  --on-button: #FFFFFF;
+  --feed: #E4E6CB;
+  --sleep: #DAE1E3;
+  --diaper: #D4E3DA;
+  --pump: #E3DFD1;
+  --on-tile: #1E2A23;
+  --on-tile-soft: #3B463F;
+
+  --logo-ink: #2A211C;
+  --logo-honey: #E8A55A;
+
+  --font-ui: "Ysabeau Infant", system-ui, sans-serif;
+  --font-wordmark: "Commissioner", system-ui, sans-serif;
+
+  --radius-tile: 32px;
+  --radius-card: 26px;
+  --radius-pill: 999px;
+  --space-screen: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131814;
+    --card: #1E2520;
+    --ink: #E6ECE4;
+    --text-soft: #A9B5AB;
+    --line: #2A322C;
+    --outline: #3A453D;
+    --chip: #2A322C;
+    --selected: #2E3830;
+    --button: #CFE0D3;
+    --on-button: #131814;
+    --feed: #353A28;
+    --sleep: #2A3236;
+    --diaper: #263630;
+    --pump: #353329;
+    --on-tile: #E6ECE4;
+    --on-tile-soft: #C2CCC3;
+  }
+}
