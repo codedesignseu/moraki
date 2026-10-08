@@ -61,6 +61,6 @@ const styles = (t: Theme) =>
       paddingHorizontal: t.spacing.md,
       borderRadius: t.radius.sm,
     },
-    pressed: { opacity: 0.7 },
+    pressed: { opacity: t.opacity.pressed },
     actionText: { ...t.text.bodyStrong, color: t.colors.background },
   });
