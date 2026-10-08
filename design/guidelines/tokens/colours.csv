@@ -1,0 +1,19 @@
+token,day,night,used for
+background,#E9EDE6,#131814,screen
+card,#FFFFFF,#1E2520,cards and sheets
+ink,#1E2A23,#E6ECE4,main text
+text-soft,#56615A,#A9B5AB,details and times
+line,#DCE2D8,#2A322C,dividers
+outline,#C7CFC3,#3A453D,outlined buttons
+chip,#E9EDE6,#2A322C,chips and inputs
+selected,#CFE0D3,#2E3830,selected states
+button,#1E2A23,#CFE0D3,the one main button
+on-button,#FFFFFF,#131814,text on the main button
+feed,#E4E6CB,#353A28,feed tile
+sleep,#DAE1E3,#2A3236,sleep tile
+diaper,#D4E3DA,#263630,diaper tile
+pump,#E3DFD1,#353329,pump tile
+on-tile,#1E2A23,#E6ECE4,text on tiles
+on-tile-soft,#3B463F,#C2CCC3,detail text on tiles
+logo-ink,#2A211C,#2A211C,logo only
+logo-honey,#E8A55A,#E8A55A,logo only

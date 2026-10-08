@@ -1,5 +1,5 @@
-import type { ColorName, Scheme } from '../tokens';
-import { colors, size } from '../tokens';
+import type { ColorName, PaletteName, Scheme } from '../tokens';
+import { colors, logo, palette, size } from '../tokens';
 import { AA, contrastRatio } from './contrast';
 
 const schemes = Object.keys(colors) as Scheme[];
@@ -64,4 +64,43 @@ describe.each(schemes)('%s theme', (scheme) => {
 
 it('touch target token is at least 48dp', () => {
   expect(size.touchTarget).toBeGreaterThanOrEqual(48);
+});
+
+describe.each(schemes)('Sage %s palette', (scheme) => {
+  const sage = palette[scheme];
+  const surfaces: PaletteName[] = ['background', 'card', 'chip', 'selected'];
+  const tiles: PaletteName[] = ['feed', 'sleep', 'diaper', 'pump'];
+
+  // Every foreground that carries text, on every surface the design puts it on.
+  const sageTextPairs: [PaletteName, PaletteName][] = [
+    ...(['ink', 'textSoft'] as const).flatMap((fg) =>
+      surfaces.map((bg): [PaletteName, PaletteName] => [fg, bg]),
+    ),
+    ...(['onTile', 'onTileSoft', 'textSoft'] as const).flatMap((fg) =>
+      tiles.map((bg): [PaletteName, PaletteName] => [fg, bg]),
+    ),
+    ['onButtonPrimary', 'buttonPrimary'],
+    ['onTabBar', 'tabBar'],
+    ['onTabActive', 'tabActive'],
+    // D3: validation text on every surface a form field sits on.
+    ...(['background', 'card', 'chip', 'selected', ...tiles] as const).map(
+      (bg): [PaletteName, PaletteName] => ['invalid', bg],
+    ),
+  ];
+
+  it.each(sageTextPairs)('%s on %s meets AA for text (4.5:1)', (fg, bg) => {
+    expect(contrastRatio(sage[fg], sage[bg])).toBeGreaterThanOrEqual(AA.text);
+  });
+
+  it('shows the active tab apart from the tab bar (3:1)', () => {
+    expect(contrastRatio(sage.tabActive, sage.tabBar)).toBeGreaterThanOrEqual(AA.nonText);
+  });
+
+  it('has the same colour names as the other scheme', () => {
+    expect(Object.keys(sage).sort()).toEqual(Object.keys(palette.light).sort());
+  });
+});
+
+it('keeps the logo in its own colours', () => {
+  expect(logo).toEqual({ ink: '#2A211C', honey: '#E8A55A', honeyDeep: '#C9802F' });
 });

@@ -1,0 +1,7 @@
+/* Moraki fonts. Both are free under the SIL Open Font License 1.1. */
+@import url("https://fonts.googleapis.com/css2?family=Commissioner:wght@600&family=Ysabeau+Infant:wght@500;600;800&display=swap");
+
+:root {
+  --font-ui: "Ysabeau Infant", system-ui, sans-serif;     /* all app text */
+  --font-wordmark: "Commissioner", system-ui, sans-serif; /* the word "moraki" only */
+}

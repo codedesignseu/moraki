@@ -13,7 +13,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#F4EFE7"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": ["assets/**/*"],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "eu.codedesigns.moraki",
