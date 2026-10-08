@@ -54,9 +54,10 @@ function rewriteBody(
 export function adoptHousehold(db: SyncDb, target: AdoptionTarget, now: number): Adoption {
   const linked = readLinkedIdentity(db);
   // Already done: the phone belongs to this household, and its entries with it.
-  if (linked?.householdId === target.householdId && linked.userId === target.userId) {
-    return { events: 0, ops: 0, linked: false };
-  }
+  // Linked anywhere else, the entries here belong to that account and household
+  // (P5-F11): a phone signed out keeping them (D6) must never hand them to the
+  // next account. Only clearing the phone (resetPhone) unlinks it.
+  if (linked) return { events: 0, ops: 0, linked: false };
   const before = readIdentity(db);
   const from = { household: before.householdId, baby: before.babyId, user: before.userId };
   let moved = 0;
@@ -118,8 +119,12 @@ export function adoptHousehold(db: SyncDb, target: AdoptionTarget, now: number):
   return { events: moved, ops, linked: true };
 }
 
-/** How many entries a phone would take with it, for the question it asks first. */
+/**
+ * How many entries a phone would take with it, for the question it asks first.
+ * None once linked: those entries already belong to a household (P5-F11).
+ */
 export function localOnlyCount(db: SyncDb): number {
+  if (readLinkedIdentity(db)) return 0;
   const identity = readIdentity(db);
   return (
     db

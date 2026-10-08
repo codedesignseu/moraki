@@ -4,7 +4,8 @@ import { adoptHousehold, localOnlyCount } from './adoptHousehold';
 import { readIdentity, readLinkedIdentity } from './identity';
 import { createEventsRepository } from './repositories/events';
 import { createOutboxRepository } from './repositories/outbox';
-import { babies, events, outbox } from './schema';
+import { META_KEYS } from './meta';
+import { babies, events, meta, outbox } from './schema';
 import { createMemoryDb, testDeps } from './testing/memoryDb';
 
 const NOW = Date.UTC(2026, 9, 28, 12, 0);
@@ -150,5 +151,66 @@ describe('taking a phone’s own entries into a household', () => {
     expect(ops.map((op) => op.op)).toEqual(['insert', 'delete']);
     expect(ops.find((op) => op.op === 'delete')?.notBefore).toBeGreaterThan(NOW);
     expect(JSON.parse(ops[0]!.body)).toMatchObject({ household_id: TARGET.householdId });
+  });
+});
+
+/*
+ * P5-F11: a phone keeps its entries when an account signs out (D6). Those
+ * entries belong to that account's household, and to no one else's.
+ */
+describe('a phone already linked to another household', () => {
+  const FIRST = {
+    userId: '0190a0b0-0000-7000-8000-0000000000c1',
+    householdId: '0190a0b0-0000-7000-8000-0000000000a1',
+    babyId: '0190a0b0-0000-7000-8000-0000000000b1',
+    babyName: 'Nina',
+  };
+
+  async function linkedPhone() {
+    const p = await phone();
+    adoptHousehold(p.db, FIRST, NOW);
+    p.events.forgetIdentity();
+    const entry = p.events.insert({ type: 'diaper', occurredAt: NOW, payload: { kind: 'wet' } });
+    return { ...p, entry };
+  }
+
+  it('never moves the first account’s entries into another account’s household', async () => {
+    const p = await linkedPhone();
+
+    expect(adoptHousehold(p.db, TARGET, NOW)).toEqual({ events: 0, ops: 0, linked: false });
+    expect(readLinkedIdentity(p.db)).toEqual({
+      householdId: FIRST.householdId,
+      userId: FIRST.userId,
+    });
+    const row = p.db.select().from(events).where(eq(events.id, p.entry.id)).get();
+    expect(row).toMatchObject({ householdId: FIRST.householdId, createdBy: FIRST.userId });
+    for (const op of p.db.select().from(outbox).all()) {
+      expect(op.body).not.toContain(TARGET.householdId);
+      expect(op.body).not.toContain(TARGET.userId);
+    }
+  });
+
+  it('nor into another household of the same account', async () => {
+    const p = await linkedPhone();
+
+    const other = { ...FIRST, householdId: TARGET.householdId, babyId: TARGET.babyId };
+    expect(adoptHousehold(p.db, other, NOW)).toEqual({ events: 0, ops: 0, linked: false });
+    expect(p.db.select().from(events).where(eq(events.id, p.entry.id)).get()).toMatchObject({
+      householdId: FIRST.householdId,
+    });
+  });
+
+  it('counts none of them as this phone’s own to take along', async () => {
+    const p = await linkedPhone();
+    expect(localOnlyCount(p.db)).toBe(0);
+  });
+
+  it('takes nothing once cleared: a fresh phone links to the new household', async () => {
+    const p = await linkedPhone();
+    p.db.delete(events).run();
+    p.db.delete(meta).where(eq(meta.key, META_KEYS.householdId)).run();
+    p.db.delete(meta).where(eq(meta.key, META_KEYS.userId)).run();
+
+    expect(adoptHousehold(p.db, TARGET, NOW)).toMatchObject({ linked: true });
   });
 });

@@ -5,6 +5,8 @@ import {
   useDevicePref,
   useEvents,
   useEventsRepository,
+  useLinkedIdentity,
+  useResetPhone,
 } from '@/db/react';
 
 import { useAuth } from './AuthProvider';
@@ -69,6 +71,14 @@ export function useLinkHousehold(): void {
 
 export function useAdoption(): {
   question: AdoptionQuestion;
+  /**
+   * This phone is linked to another account or household: it still holds the
+   * entries of an account that signed out keeping them (D6). They stay apart,
+   * never moved and never sent, until the phone is cleared (P5-F11).
+   */
+  otherAccount: boolean;
+  /** Clears the phone, after which it links to this account's household. */
+  clearPhone: () => void;
   /** How many entries would move. */
   entries: number;
   babyName: string;
@@ -76,6 +86,8 @@ export function useAdoption(): {
   keepForNow: () => void;
 } {
   const { localOnly } = useRepositories();
+  const linked = useLinkedIdentity();
+  const resetPhone = useResetPhone();
   const { household } = useAccountHousehold();
   const { state } = useAuth();
   const [answer, setAnswer] = useDevicePref('localEntries');
@@ -91,8 +103,20 @@ export function useAdoption(): {
   const signedIn = state.status === 'signedIn';
   const mine = household && signedIn ? household : null;
   const owner = mine?.role === 'owner';
+  const otherAccount = useMemo(() => {
+    const current = linked();
+    return (
+      mine !== null &&
+      current !== null &&
+      (current.userId !== mine.userId || current.householdId !== mine.householdId)
+    );
+    // `logged` is the change signal: linking and clearing both re-read here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linked, mine, logged]);
 
   return {
+    otherAccount,
+    clearPhone: () => resetPhone({ forgetAccount: false }),
     question: mine && !owner && entries > 0 && answer === null ? 'ask' : 'none',
     entries,
     babyName: mine?.babyName ?? '',

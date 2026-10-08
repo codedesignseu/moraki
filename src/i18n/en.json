@@ -428,6 +428,11 @@
       "title": "About",
       "open": "About Moraki"
     },
+    "otherAccount": {
+      "title": "Entries from another account",
+      "body": "This phone still has the entries of the account that signed out here. They stay apart from {{name}}’s household: nothing is added to it and nothing is shared until the phone is cleared. Clearing removes them from this phone only. What already reached the server stays with that account’s household; anything that hadn’t is lost.",
+      "clear": "Clear this phone"
+    },
     "localEntries": {
       "title": "Entries already on this phone",
       "body": "You logged {{count}} entries before joining {{name}}’s household. Add them, and everyone sees them; some may already be there from the other phone.",
