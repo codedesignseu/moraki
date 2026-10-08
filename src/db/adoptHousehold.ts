@@ -12,7 +12,12 @@ export type AdoptionTarget = {
   babyName: string;
 };
 
-export type Adoption = { events: number; ops: number };
+/**
+ * What moved, and whether `meta` now names a different household or baby. A
+ * phone with nothing of its own moves nothing and is still linked, so the
+ * events repository has to read its ids again either way.
+ */
+export type Adoption = { events: number; ops: number; linked: boolean };
 
 /** The ids a body carries; only entries still on the placeholders are rewritten. */
 function rewriteBody(
@@ -50,7 +55,7 @@ export function adoptHousehold(db: SyncDb, target: AdoptionTarget, now: number):
   const linked = readLinkedIdentity(db);
   // Already done: the phone belongs to this household, and its entries with it.
   if (linked?.householdId === target.householdId && linked.userId === target.userId) {
-    return { events: 0, ops: 0 };
+    return { events: 0, ops: 0, linked: false };
   }
   const before = readIdentity(db);
   const from = { household: before.householdId, baby: before.babyId, user: before.userId };
@@ -110,7 +115,7 @@ export function adoptHousehold(db: SyncDb, target: AdoptionTarget, now: number):
     }
   });
 
-  return { events: moved, ops };
+  return { events: moved, ops, linked: true };
 }
 
 /** How many entries a phone would take with it, for the question it asks first. */

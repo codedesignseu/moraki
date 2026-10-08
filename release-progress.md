@@ -1,6 +1,6 @@
 # Moraki: App Store release progress (Makis's manual steps)
 
-Last updated: 2026-10-05 (evening, Cyprus time). Source: Makis confirmed each item in chat.
+Last updated: 2026-10-08 (TestFlight build 2 findings added). Earlier: 2026-10-05 (evening, Cyprus time). Source: Makis confirmed each item in chat.
 Reference: docs/10-release-runbook.md in the repo (not read in this session, so steps below follow the report from the code session).
 
 ## Done (confirmed by Makis)
@@ -23,6 +23,12 @@ Reference: docs/10-release-runbook.md in the repo (not read in this session, so 
 - `supabase db push` reported "Remote database is up to date". `supabase migration list` shows all migrations on both Local and Remote.
 - Auth settings done (Authentication in dashboard): Email provider enabled with confirm email, code length and expiry checked, Site URL and redirect URLs set, email templates include the code, custom SMTP configured, rate limits reviewed, Apple and Google providers set up. This closes P2-F5.
 
+### TestFlight build 2 (main 8a1dc663), 2026-10-08
+
+- Installed from TestFlight on a real iPhone, over an older install that had data (same bundle ID).
+- The encrypted database upgrade (SQLCipher, P5-03) kept the history: after a restart, Home and History showed it. Caveat: Home was empty before sign in, so the history seen afterwards may have come from the server pull rather than from the converted file. Confirming the file itself needs an entry that never reached the server (logged offline on the old build) to still show.
+- Bug found (P5-F10): after signing in and accepting consent, Home (time since last feed, today strip), History and the feed list stayed empty until the app was force-closed and reopened. Settings showed the baby's details straight away. Root cause and fix in the P5-F10 PR. Needs a new build (build 3) to check on the phone.
+
 ## Still open
 
 ### Needs a decision or confirmation
@@ -38,7 +44,7 @@ Reference: docs/10-release-runbook.md in the repo (not read in this session, so 
 3. Create the EU Sentry project (EU region at creation). Add the DSN and auth token to .env and EAS.
 4. `eas build -p ios --profile production` in his own terminal (first run asks for Apple login and 2FA to create the distribution certificate and provisioning profile).
 5. `eas submit -p ios --profile production --latest`. Check `usesNonExemptEncryption: false` in app.json. Answer "no non-exempt encryption" if asked (D5).
-6. Install via TestFlight (internal tester) and check on a real iPhone: history survives the encrypted-database conversion (needs an older install with data under the same bundle ID), leave / delete / sign-out work, PDF report shares, a real invite link opens the app (if universal links: moraki.app must serve the Apple association file after the landing page from #124 is deployed).
+6. Install via TestFlight (internal tester) and check on a real iPhone. Build 2 done for the upgrade check (see above); build 3 needed for P5-F10: sign in and accept consent, then Home and History fill without a restart; the same after joining by invite on a second phone. Original list: history survives the encrypted-database conversion (needs an older install with data under the same bundle ID), leave / delete / sign-out work, PDF report shares, a real invite link opens the app (if universal links: moraki.app must serve the Apple association file after the landing page from #124 is deployed).
 7. Store review prep: 6.9" iPhone screenshots (about 1320x2868), demo account that works without reading Makis's inbox (sign-in is by emailed code), age rating, App Privacy answers from #115, privacy policy URL, support URL, optional marketing URL (moraki.app now exists), lawyer review of policy, terms and DPIA.
 
 ### Not started by design

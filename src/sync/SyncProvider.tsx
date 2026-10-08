@@ -25,6 +25,7 @@ import { createPullEngine, type PullEngine } from './pullEngine';
 import { pushBlock } from './pushEngine';
 import { watchHousehold } from './realtime';
 import { createPushEngine, type PushEngine, type PushStatus } from './pushEngine';
+import { useLinkHousehold } from './useAdoption';
 
 /** Every 60 seconds while the app is open, as SDD 5.4's safety net. */
 export const PULL_EVERY_MS = 60_000;
@@ -73,6 +74,14 @@ export function SyncProvider({
   );
   // Re-pushes after every committed write (the events repository's signal).
   const events = useEvents();
+  // Links the phone once the account has a household, whichever screen is open.
+  useLinkHousehold();
+  // Which household this phone is linked to, read again on every change signal:
+  // linking (or resetting) tells the events repository to forget its ids, which
+  // re-renders here. A new link means a first pull and a realtime channel now,
+  // not after the next 60-second read.
+  const linkedNow = linked();
+  const link = linkedNow ? `${linkedNow.householdId}/${linkedNow.userId}` : null;
   const [status, setStatus] = useState<PushStatus>(EMPTY);
   // The current cycle, so a write can start one without the subscription
   // being torn down and made again every time something is logged.
@@ -133,11 +142,11 @@ export function SyncProvider({
     // The other phone's entries arrive as a ping (SDD 5.4): never the row
     // itself, only "something changed here", which starts the same cycle.
     // Joining the channel again is how a phone notices it is back online.
-    const linkedNow = linked();
-    const blocked = pushBlock(linkedNow, auth, state);
+    const current = linked();
+    const blocked = pushBlock(current, auth, state);
     const watching =
-      auth && linkedNow && !blocked
-        ? watch(auth, linkedNow.householdId, {
+      auth && current && !blocked
+        ? watch(auth, current.householdId, {
             onPing: run,
             onConnected: () => {
               engine.resetBackoff();
@@ -159,7 +168,7 @@ export function SyncProvider({
       subscription.remove();
       watching?.close();
     };
-  }, [engine, pull, outbox, linked, auth, state, watch]);
+  }, [engine, pull, outbox, linked, link, auth, state, watch]);
 
   // Every committed write starts a cycle: send it, then read what else is new
   // (SDD 5.1 step 4). The subscription above is left alone.
