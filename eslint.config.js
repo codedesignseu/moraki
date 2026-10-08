@@ -80,7 +80,8 @@ const COPY_SELECTORS = [
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*', '.expo/*', 'expo-env.d.ts'],
+    // design/ is the Sage export: reference only, never imported by the app.
+    ignores: ['dist/*', '.expo/*', 'expo-env.d.ts', 'design/**'],
   },
   {
     // Root config files run in Node.

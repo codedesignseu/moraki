@@ -64,6 +64,14 @@ module.exports = {
       to: { path: '^src/testing/' },
     },
     {
+      name: 'no-design-export-in-the-app',
+      comment:
+        'design/ is the Sage export, kept for reference. Its values live in src/ui/tokens.ts.',
+      severity: 'error',
+      from: { path: '^(app|src)/' },
+      to: { path: '^design/' },
+    },
+    {
       name: 'no-circular',
       comment: 'A cycle means the two modules are one module that has not been written yet.',
       severity: 'error',
