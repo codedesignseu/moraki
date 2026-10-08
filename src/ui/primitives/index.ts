@@ -5,6 +5,7 @@ export { Card } from './Card';
 export { Chip } from './Chip';
 export { DateTimeField } from './DateTimeField';
 export { EntryRow } from './EntryRow';
+export { Icon } from './Icon';
 export { Notice } from './Notice';
 export type { ChartLine, ChartMark, ChartPoint } from './PointChart';
 export { PointChart } from './PointChart';
