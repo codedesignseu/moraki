@@ -101,4 +101,4 @@ The app uses the closest icon from the set for each of these.
 | Medication | `health` | open |
 | Appointment | `visit` | open |
 | Milk stock | `pump` | open |
-| Back, close, chevron, plus, check | none in the set (the design draws them as text glyphs) | open; decided in PR 2b |
+| Back, forward, close, plus, minus, check | text glyphs in the UI font, as the design draws them (PR 2b) | open |
