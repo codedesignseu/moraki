@@ -13,7 +13,7 @@ type Props = {
   /** Icon in a round badge at the start. */
   icon?: IconName;
   /** Badge fill; a tile colour or chip. */
-  badge?: Extract<PaletteName, 'feed' | 'sleep' | 'diaper' | 'pump' | 'chip' | 'selected'>;
+  badge?: Extract<PaletteName, 'feed' | 'sleep' | 'diaper' | 'pump' | 'chip'>;
   /** Content at the end, e.g. an IconButton or a value. */
   trailing?: ReactNode;
   /** Pressable rows show a › at the end unless `trailing` is given. */
