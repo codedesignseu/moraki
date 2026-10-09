@@ -5,61 +5,15 @@ import { Platform } from 'react-native';
  * pixel numbers, type sizes and motion timings. Plain data, no components.
  * Every other file styles itself from the theme built on top of this.
  *
- * Two generations live here while the Sage refresh is under way:
- * - `palette`, `type`, `fonts`, `logo` and the Sage entries in `radius`,
- *   `spacing` and `size` come from design/guidelines/tokens/theme.ts
- *   (Sage v1.0). Restyled screens use only these.
- * - `colors` and `typography` are the pre-Sage tokens. Screens not yet
- *   restyled still read them, so they look the same until their turn.
- *   Both go once no screen reads them.
+ * Values come from design/guidelines/tokens/theme.ts (Sage v1.0):
+ * `palette`, `type`, `fonts`, `logo` and the Sage entries in `radius`,
+ * `spacing` and `size`. `colors` and `typography` are the pre-Sage names,
+ * now pointing at Sage values; step 4 of the refresh removes them.
  *
  * Contrast is checked by src/ui/theme/contrast.test.ts, not by eye.
  */
 
-/** Pre-Sage colours. Warm neutrals, one muted sage accent. */
-export const colors = {
-  light: {
-    background: '#F4EFE7',
-    surface: '#FAF6F0',
-    surfaceSunken: '#EAE3D8',
-    text: '#2B2621',
-    textMuted: '#5E564C',
-    accent: '#4A6550',
-    accentPressed: '#3C5442',
-    accentSubtle: '#DCE4D9',
-    onAccent: '#FAF6F0',
-    surfacePressed: '#E3DBCE',
-    // Form validation only (a value out of range, a required choice missing).
-    // Muted clay, not red. Never used to colour a health number (SDD 12.3).
-    invalid: '#9A4B3D',
-    // Dims the screen behind a sheet. Not a text or UI colour.
-    scrim: '#2B262166',
-    // Outline of a control when it is the only visual cue (3:1 non-text).
-    borderStrong: '#857B6E',
-    // Decorative separators only; never the sole indicator of anything.
-    divider: '#DDD4C7',
-  },
-  // Warm dark, not black. Text is dimmed from white to cut glare at night.
-  night: {
-    background: '#1C1814',
-    surface: '#27221D',
-    surfaceSunken: '#141210',
-    text: '#DDD2C2',
-    textMuted: '#AFA392',
-    accent: '#9BB59F',
-    accentPressed: '#B3C9B6',
-    accentSubtle: '#2E3830',
-    onAccent: '#1C1814',
-    surfacePressed: '#332D27',
-    invalid: '#DDA08F',
-    scrim: '#0E0C0AB3',
-    borderStrong: '#7A7064',
-    divider: '#352F29',
-  },
-} as const;
-
-export type Scheme = keyof typeof colors;
-export type ColorName = keyof (typeof colors)['light'];
+export type Scheme = 'light' | 'night';
 
 /**
  * Sage palettes. `light` is the design's day palette; `night` is the
@@ -93,6 +47,9 @@ export const palette = {
     // export: the pre-Sage clay, darkened to pass AA on every Sage surface.
     // Never used to colour a health number (SDD 12.3).
     invalid: '#8E4434',
+    // Edge of a text input, 3:1 on card, chip and background (WCAG 1.4.11).
+    // Not in the Sage export, which draws inputs without an edge.
+    inputBorder: '#717E75',
   },
   night: {
     background: '#131814',
@@ -117,10 +74,44 @@ export const palette = {
     onTile: '#E6ECE4',
     onTileSoft: '#C2CCC3',
     invalid: '#DDA08F',
+    inputBorder: '#7E8B81',
   },
 } as const satisfies Record<Scheme, Record<string, string>>;
 
 export type PaletteName = keyof (typeof palette)['light'];
+
+type SagePalette = (typeof palette)[Scheme];
+
+/**
+ * The pre-Sage colour names, now pointing at Sage values. Screens written
+ * before the refresh read these; every one of them shows Sage colours, and
+ * step 4 of the refresh moves them to the Sage names and removes this map.
+ */
+function legacyNames(p: SagePalette) {
+  return {
+    background: p.background,
+    surface: p.card,
+    surfaceSunken: p.chip,
+    text: p.ink,
+    textMuted: p.textSoft,
+    accent: p.buttonPrimary,
+    accentPressed: p.buttonPrimary,
+    accentSubtle: p.selected,
+    onAccent: p.onButtonPrimary,
+    surfacePressed: p.line,
+    invalid: p.invalid,
+    scrim: p.scrim,
+    borderStrong: p.inputBorder,
+    divider: p.line,
+  };
+}
+
+export const colors = {
+  light: legacyNames(palette.light),
+  night: legacyNames(palette.night),
+} as const;
+
+export type ColorName = keyof (typeof colors)['light'];
 
 /** The logo keeps its own colours in every theme. Never tint it sage. */
 export const logo = { ink: '#2A211C', honey: '#E8A55A', honeyDeep: '#C9802F' } as const;
@@ -142,7 +133,8 @@ export const spacing = {
 export const radius = {
   sm: 8,
   md: 12,
-  lg: 20,
+  /** Cards; the same as the Sage card corner. */
+  lg: 26,
   /** Sage: activity tiles. */
   tile: 32,
   /** Sage: cards and list rows. */
@@ -197,25 +189,6 @@ export const opacity = {
 } as const;
 
 /**
- * Type scale in sp. Line heights scale with the font, so text grows to
- * 200% font scale without clipping as long as no container fixes a height.
- * Family is the platform system font: no font name in the app.
- */
-export const typography = {
-  // Elapsed-time display. Tabular figures keep every digit the same width.
-  timer: { fontSize: 56, lineHeight: 64, fontWeight: '500', fontVariant: ['tabular-nums'] },
-  display: { fontSize: 34, lineHeight: 42, fontWeight: '600' },
-  title: { fontSize: 24, lineHeight: 30, fontWeight: '600' },
-  heading: { fontSize: 20, lineHeight: 26, fontWeight: '600' },
-  body: { fontSize: 17, lineHeight: 24, fontWeight: '400' },
-  bodyStrong: { fontSize: 17, lineHeight: 24, fontWeight: '600' },
-  label: { fontSize: 15, lineHeight: 20, fontWeight: '500' },
-  caption: { fontSize: 13, lineHeight: 18, fontWeight: '400' },
-} as const;
-
-export type TypeVariant = keyof typeof typography;
-
-/**
  * The one UI font. Today the platform system font, so nothing is loaded.
  * A custom font is a one-line change here (and loading it with expo-font).
  */
@@ -242,6 +215,24 @@ export const type = {
 } as const;
 
 export type TypeStyle = keyof typeof type;
+
+/**
+ * The pre-Sage type names, now set in the Sage scale. Like `colors`, they
+ * go in step 4 of the refresh.
+ */
+export const typography = {
+  // Elapsed-time display. Tabular figures keep every digit the same width.
+  timer: { ...type.display, lineHeight: 62, fontVariant: ['tabular-nums'] },
+  display: type.title,
+  title: type.heading,
+  heading: type.tileTitle,
+  body: type.body,
+  bodyStrong: type.rowTitle,
+  label: type.detail,
+  caption: type.small,
+} as const;
+
+export type TypeVariant = keyof typeof typography;
 
 /** Milliseconds. Short and soft; honour the OS reduce-motion setting when animating. */
 export const motion = {

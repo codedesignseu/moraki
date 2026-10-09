@@ -36,8 +36,16 @@ describe('Sage theme', () => {
     expect(themes[nightScheme(mode, now, TZ)].palette).toEqual(expected);
   });
 
-  it('keeps the pre-Sage colours for screens not yet restyled', () => {
-    expect(themes.light.colors.background).toBe('#F4EFE7');
-    expect(themes.night.colors.background).toBe('#1C1814');
+  it('points the pre-Sage colour names at Sage values', () => {
+    for (const scheme of ['light', 'night'] as const) {
+      const { colors, palette: sage } = themes[scheme];
+      expect(colors.background).toBe(sage.background);
+      expect(colors.surface).toBe(sage.card);
+      expect(colors.text).toBe(sage.ink);
+      expect(colors.textMuted).toBe(sage.textSoft);
+      expect(colors.accent).toBe(sage.buttonPrimary);
+      expect(colors.onAccent).toBe(sage.onButtonPrimary);
+      expect(colors.invalid).toBe(sage.invalid);
+    }
   });
 });

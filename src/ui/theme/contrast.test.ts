@@ -6,6 +6,8 @@ const schemes = Object.keys(colors) as Scheme[];
 
 const backgrounds: ColorName[] = ['background', 'surface', 'surfaceSunken', 'accentSubtle'];
 
+// The pre-Sage names now point at Sage values; these pairs check the aliases.
+
 // Every foreground that carries text, on every surface it can sit on.
 const textPairs: [ColorName, ColorName][] = [
   ...(['text', 'textMuted', 'accent'] as const).flatMap((fg) =>
@@ -54,9 +56,9 @@ describe.each(schemes)('%s theme', (scheme) => {
     expect(contrastRatio(palette[fg], palette[bg])).toBeGreaterThanOrEqual(AA.nonText);
   });
 
-  it('uses no pure white or pure black', () => {
+  it('uses no pure black', () => {
+    // Sage cards are pure white by design; pure black stays out.
     for (const value of Object.values(palette)) {
-      expect(value.toUpperCase()).not.toBe('#FFFFFF');
       expect(value.toUpperCase()).not.toBe('#000000');
     }
   });
@@ -91,6 +93,13 @@ describe.each(schemes)('Sage %s palette', (scheme) => {
   it.each(sageTextPairs)('%s on %s meets AA for text (4.5:1)', (fg, bg) => {
     expect(contrastRatio(sage[fg], sage[bg])).toBeGreaterThanOrEqual(AA.text);
   });
+
+  it.each(['background', 'card', 'chip', 'selected'] as const)(
+    'inputBorder on %s meets AA for non-text UI (3:1)',
+    (bg) => {
+      expect(contrastRatio(sage.inputBorder, sage[bg])).toBeGreaterThanOrEqual(AA.nonText);
+    },
+  );
 
   it('shows the active tab apart from the tab bar (3:1)', () => {
     expect(contrastRatio(sage.tabActive, sage.tabBar)).toBeGreaterThanOrEqual(AA.nonText);
