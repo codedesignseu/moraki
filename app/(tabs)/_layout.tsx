@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useWindowDimensions } from 'react-native';
 
 import type { IconName } from '@/ui/icons';
-import { Icon } from '@/ui/primitives';
+import { Icon, Logo } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
 import { type } from '@/ui/tokens';
 
@@ -83,6 +83,9 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: t('app.name'),
+          // Home shows the Moraki mark, centred, instead of the text title.
+          headerTitle: () => <Logo accessibilityLabel={t('app.name')} />,
+          headerTitleAlign: 'center',
           tabBarLabel: t('tabs.home'),
           tabBarIcon: ({ focused }) => <TabIcon name="tab-home" focused={focused} />,
         }}
