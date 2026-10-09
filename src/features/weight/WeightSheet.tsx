@@ -81,5 +81,6 @@ export function WeightSheet({
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+    // By analogy with the 03 weight field and the 08 stepper.
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
   });
