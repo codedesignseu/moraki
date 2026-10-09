@@ -206,8 +206,9 @@ const styles = (theme: Theme) =>
     },
     // Read at arm's length: the figure is the biggest thing on the line.
     line: { gap: theme.spacing.xs },
-    label: { ...theme.text.body, color: theme.colors.textMuted },
+    // onTileSoft, not textSoft: some of these cards sit on tile colours.
+    label: { ...theme.text.body, color: theme.palette.onTileSoft },
     value: theme.text.title,
     section: theme.type.tileTitle,
-    muted: { ...theme.text.body, color: theme.colors.textMuted },
+    muted: { ...theme.text.body, color: theme.palette.onTileSoft },
   });
