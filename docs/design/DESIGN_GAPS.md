@@ -32,6 +32,8 @@ Status:
 | 05-home-empty | Avatar header, invite "+" circle, "Day N" chip, invite card with the code pill on Home | Home has no avatars, invite card or day count | Household and member reads on Home, plus a new card. **M**. | open |
 | 06-home | Notifications bell button | Reminders exist, but there is no notifications screen | A notifications route. **M**. | open |
 | 06-home | "Coming up" section with "See all" | Reminder line inside the timer card; next-appointment card | An aggregated upcoming view and its list screen. **M**. | open |
+| 06-home | Tile detail lines ("Last one 2 h ago", "Changed at 03:52", "240 ml in the fridge") | Tiles show the activity name only; the timer card shows the last feed | Pass the home view model into the tiles. **S**. | open |
+| 06-home | The baby's name as the screen heading | Header says "Moraki" | Home view model carries the baby's name. **S**. | open |
 | 06-home | Overlapping caregiver avatars; greeting by time of day ("Good morning, …") | none | Member reads plus copy. **S**. | open |
 | 07-home-timer | Progress ring toward the next feed | Text timer; reminder line | Needs `react-native-svg` (not installed) and a target interval on Home. **M**. | open |
 | 07-home-timer | "Left next / Right" side picker and "Start breastfeed" | Next-side hint text; breast feeds are logged after the fact | Depends on the live breast timer below. **L**. | open |
@@ -55,6 +57,7 @@ Status:
 
 | Design id | What it shows | App today | Building it would involve | Status |
 |---|---|---|---|---|
+| empty-states | History empty state body line and "Log a feed" button | Title only (the existing text) | History opens no log sheet today; a navigation callback. **S**. | open |
 | 12-history | One-day pager with ‹ › and a day summary line | One continuous list grouped by day | Paging and a per-day summary. **M**. | open |
 | 12-history | Author avatar on each row | Who logged it is in the row's meta text | Avatar from member data. **S**. | open |
 | 12-history | Pump filter chip | Filters: feeds, diapers, sleep, health, other (pump is in other) | A filter change. **S**. | open |

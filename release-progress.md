@@ -31,6 +31,13 @@ Reference: docs/10-release-runbook.md in the repo (not read in this session, so 
 
 ## Still open
 
+### Sage design refresh (2026-10-09, overnight run)
+
+- The whole app is restyled to Sage on the integration branch `design/sage-refresh`: PRs #132 to #145, all merged into that branch, none into main.
+- Build 3 and the store submission are on hold until the owner has tested the branch and merged it into main.
+- One EAS preview build (iOS, `--profile preview`) was run from the branch. Its link is at the top of `docs/design/REVIEW_NOTES.md`. It is the first real test of the new app icon, the splash (`expo-splash-screen`, newly added) and the Sage screens.
+- What to check first: `docs/design/REVIEW_NOTES.md`, sections 3 and 7.
+
 ### Needs a decision or confirmation
 
 - #122 (D3, owner picks who takes over): confirmed NOT merged yet (2026-10-05). Review and merge.

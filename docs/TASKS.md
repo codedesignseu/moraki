@@ -356,3 +356,20 @@ URL) and P2-F5 (hosted auth email).
 - [x] P5-F5 the app does not link to the privacy policy, terms or a contact address — found 2026-10-05 writing P5-06 — RoP §1 says the contact address is in the About screen, and it is not; App Store guideline 5.1.1(i) wants the privacy policy reachable inside the app too — done when: About (or Settings → Privacy) links to https://moraki.app/privacy, /terms and info@codedesigns.eu, in both languages — done 2026-10-05: About has a Privacy and help card linking to the privacy policy, terms and support pages (in Greek when the app is read in Greek) and showing the contact address with an email button; 2 tests
 - [x] P5-F6 Greek invite label is misspelt — found 2026-10-05 writing P5-06 — `settings.account.invite` in `el.json` reads "Πρόσκαλεσε κάποιον να βοηθήσει"; the imperative is "Προσκάλεσε". The Greek support page quotes the label as the app shows it, so fix both together — done when: both read "Προσκάλεσε" — done 2026-10-05: spelt correctly in the app and on the Greek support page
 - [ ] P5-F7 `public/404.html` fails `prettier --check` on main — found 2026-10-05 writing P5-06 — pre-existing, not touched by P5-06 — done when: formatted, or `public/` is deliberately excluded in `.prettierignore`
+
+## Design refresh — Sage (integration branch `design/sage-refresh`)
+
+Restyle only; no feature added or removed. Mapping, gaps and review notes are in `docs/design/` (MAPPING.md, DESIGN_GAPS.md, REVIEW_NOTES.md).
+
+- [x] SAGE-01 `docs(design): map the app to the Sage design` — done 2026-10-09 (#132)
+- [x] SAGE-02 `feat(ui): Sage tokens, icons, components, app icon and splash` — done 2026-10-09 (#133, #134, #135, #136)
+- [x] SAGE-03 `feat(ui): restyle every screen` — done 2026-10-09 (#137 to #144)
+- [ ] SAGE-04 `release: merge design/sage-refresh into main` — depends: owner review and the EAS preview build — status: pending (owner)
+
+### Found while working (Sage)
+
+- [ ] SAGE-F1 switch log sheets to formSheet with 32 corners — the D5 fallback is in place; the one-line switch and the device checks are in REVIEW_NOTES section 2 — status: pending
+- [ ] SAGE-F2 move screens from the pre-Sage token names (`colors`, `typography`) to `palette` and `type` and delete the aliases — mechanical; tests that read `colors.*` move too — status: pending
+- [ ] SAGE-F3 `src/sync/householdSettings.test.tsx` test 5 depends on test order with a custom tab bar ("overlapping act()") — status: pending
+- [ ] SAGE-F4 Home tiles without detail lines and a "Moraki" header — needs the home view model passed to the tiles and the baby's name — status: pending
+- [ ] SAGE-F5 expo-doctor: drop `newArchEnabled` from app.json, review the `expo-live-activity`/`expo-home-widget` flags, `npx expo install --check` for 10 patch updates — status: pending
