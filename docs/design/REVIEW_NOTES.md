@@ -19,7 +19,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #138 | `sage/03b-home` | Tab bar, headers, Home | merged | green |
 | #139 | `sage/03c1-sheets-feed` | Sheet styling, feed, diaper, sleep | merged | green |
 | #140 | `sage/03c2-sheets-other` | Pump, weight, health, medication | merged | green |
-| _next_ | `sage/03d-history-insights` | History, Insights, weight card | in progress | |
+| #141 | `sage/03d-history-insights` | History, Insights, weight card | merged | green |
+| _next_ | `sage/03e-settings` | Settings, caregivers, invite, baby | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -119,6 +120,23 @@ Each entry gives what was chosen, why, and the alternatives.
   - The empty and filtered-empty texts use the Sage empty state with the existing copy as its title. No body line and no button: the History screen has no way to open a log sheet, so a button would be new behaviour.
 - **3d, Insights:** cards keep their order and content and get icon headings: feed for the bottle and breast charts, insights for averages, time for days, weight for the weight card. Bars are ink, through the token aliases.
 
+- **3e, Settings:** inline cards kept (D8). Each card heading gets a round badge on a tile colour with an icon:
+  - account: invite
+  - sync: time
+  - privacy: private
+  - reports: share
+  - data: export
+  - feedback: link
+  - about: eu-shield
+  - reminders: reminder
+  - night mode: sleep
+  - language: tab-settings
+  - other account: private
+  - local entries: export
+
+  Feedback and language have no fitting icon in the set; see DESIGN_GAPS.
+- **3e, caregivers** stay inside the Settings account card, restyled through the shared tokens and primitives. There is no separate 20 screen.
+
 ## 3. Problems found
 
 These are recorded here only and not fixed, unless a PR says otherwise.
@@ -149,6 +167,9 @@ These are recorded here only and not fixed, unless a PR says otherwise.
 | Medication sheet | 18 fields; time in a status pill | 3c-2 |
 | Insights days table | 12 timeline card | 3d |
 | History empty states (no design copy used) | `empty-states.html` History card | 3d |
+| Settings sync, privacy, report, data, feedback, about, reminders, language cards | 19 grouped cards with badges | 3e |
+| Settings other-account and local-entries cards | 19 card with badge (feed colour) | 3e |
+| Caregiver roles and Remove (owner) | 20 member rows, via the account card | 3e |
 | Home "Today" stats, appointment and milk stock cards | 06 cards and rows; 15 fridge and freezer tiles; 13 stat values | 3b |
 | Home duplicate question | 12 duplicate warning (feed tint) | 3b |
 | Home recent entries | 12 timeline card | 3b |
@@ -247,3 +268,9 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - History: days as white cards on the pale page; filters as round chips; tap an entry to edit.
 - With no entries: a slate tile with the list icon and "Nothing logged yet".
 - Insights: ink bars; each card has an icon; the weight chart marks clinic and home weights and shows its legend.
+
+**Settings, invite, baby (3e)**
+- Settings: each card starts with a coloured round badge and icon. Night mode Auto/On/Off still switches live.
+- Owner: the roles switcher and Remove still work in the account card.
+- Invite: the code shows large, letter-spaced, on a grey pill; Share opens the system sheet.
+- Baby details: Save still disabled for a caregiver who cannot edit.
