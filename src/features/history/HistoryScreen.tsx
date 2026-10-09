@@ -3,7 +3,7 @@ import { SectionList, StyleSheet, Text, View } from 'react-native';
 
 import { HISTORY_GROUPS } from '@/domain/activities';
 import type { EntryRow as Row } from '@/domain/entries/describeEntry';
-import { Chip, EntryRow } from '@/ui/primitives';
+import { Chip, EmptyState, EntryRow } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useHistory } from './useHistory';
@@ -48,27 +48,48 @@ export function HistoryScreen({
         </View>
       }
       renderSectionHeader={({ section }) => (
-        <Text accessibilityRole="header" style={[theme.text.heading, s.dayHeader]}>
+        <Text accessibilityRole="header" style={[theme.type.heading, s.dayHeader]}>
           {section.title}
         </Text>
       )}
-      renderItem={({ item }: { item: Row }) => (
-        <EntryRow
-          testID={`history-${item.id}`}
-          title={t(item.labelKey)}
-          detail={item.summary ? t(item.summary.key, item.summary.values) : undefined}
-          meta={[
-            item.time,
-            item.byYou ? t('home.recent.you') : (item.by ?? t('home.recent.other')),
+      // Sage 12: each day's entries in one white card.
+      renderItem={({
+        item,
+        index,
+        section,
+      }: {
+        item: Row;
+        index: number;
+        section: { data: readonly Row[] };
+      }) => (
+        <View
+          style={[
+            s.cardRow,
+            index === 0 && s.cardTop,
+            index === section.data.length - 1 && s.cardBottom,
           ]}
-          {...(onOpenEntry && {
-            onPress: () => onOpenEntry(item.id),
-            accessibilityHint: t('entry.openHint'),
-          })}
-        />
+        >
+          <EntryRow
+            testID={`history-${item.id}`}
+            title={t(item.labelKey)}
+            detail={item.summary ? t(item.summary.key, item.summary.values) : undefined}
+            meta={[
+              item.time,
+              item.byYou ? t('home.recent.you') : (item.by ?? t('home.recent.other')),
+            ]}
+            {...(onOpenEntry && {
+              onPress: () => onOpenEntry(item.id),
+              accessibilityHint: t('entry.openHint'),
+            })}
+          />
+        </View>
       )}
       ListEmptyComponent={
-        <Text style={s.muted}>{t(hasAnyEvents ? 'history.emptyFiltered' : 'history.empty')}</Text>
+        <EmptyState
+          icon="tab-history"
+          colour="sleep"
+          title={t(hasAnyEvents ? 'history.emptyFiltered' : 'history.empty')}
+        />
       }
     />
   );
@@ -76,7 +97,7 @@ export function HistoryScreen({
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.xl },
+    content: { paddingHorizontal: theme.spacing.screen, paddingBottom: theme.spacing.xl },
     chips: {
       flexDirection: 'row',
       flexWrap: 'wrap',
@@ -84,9 +105,19 @@ const styles = (theme: Theme) =>
       paddingVertical: theme.spacing.md,
     },
     dayHeader: {
-      backgroundColor: theme.colors.background,
+      backgroundColor: theme.palette.background,
       paddingTop: theme.spacing.lg,
-      paddingBottom: theme.spacing.xs,
+      paddingBottom: theme.spacing.sm,
     },
-    muted: { ...theme.text.body, color: theme.colors.textMuted },
+    cardRow: { backgroundColor: theme.palette.card, paddingHorizontal: theme.spacing.lg },
+    cardTop: {
+      borderTopLeftRadius: theme.radius.card,
+      borderTopRightRadius: theme.radius.card,
+      paddingTop: theme.spacing.sm,
+    },
+    cardBottom: {
+      borderBottomLeftRadius: theme.radius.card,
+      borderBottomRightRadius: theme.radius.card,
+      paddingBottom: theme.spacing.sm,
+    },
   });
