@@ -61,7 +61,7 @@ export function AppointmentSheet({ onDone, entryId }: { onDone: () => void; entr
         multiline
       />
 
-      <Text style={theme.text.heading}>{t('log.appointment.questions')}</Text>
+      <Text style={theme.type.tileTitle}>{t('log.appointment.questions')}</Text>
       <Text style={s.muted}>{t('log.appointment.questionsHint')}</Text>
       {sheet.form.questions.map((question, index) => (
         <View key={`${index}-${question}`} style={s.question} testID={`question-${index}`}>
@@ -100,8 +100,12 @@ export function AppointmentSheet({ onDone, entryId }: { onDone: () => void; entr
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, paddingBottom: theme.spacing.xl, gap: theme.spacing.md },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    content: {
+      padding: theme.spacing.screen,
+      paddingBottom: theme.spacing.xl,
+      gap: theme.spacing.md,
+    },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
     question: { gap: theme.spacing.xs },
     questionText: { flexShrink: 1 },
   });
