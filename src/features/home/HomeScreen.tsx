@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, Card, EntryRow, TimerText } from '@/ui/primitives';
+import { Button, Card, EntryRow, Icon, TimerText } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useHome, type RecentRow, type StockPlaceView } from './useHome';
@@ -33,28 +33,31 @@ export function HomeScreen({
 
   return (
     <ScrollView contentContainerStyle={s.screen}>
-      <Card testID="home-timer">
-        <Text style={s.muted}>{t('home.timer.label')}</Text>
+      {/* Sage 07 timer card, without the ring (D2). */}
+      <View style={[s.hero, s.feedTint]} testID="home-timer">
+        <Text style={s.onTileSoft}>{t('home.timer.label')}</Text>
         {home.sinceLastFeed === null ? (
-          <Text style={theme.text.heading}>{t('home.timer.none')}</Text>
+          <Text style={[theme.type.heading, s.onTile, s.center]}>{t('home.timer.none')}</Text>
         ) : (
           <TimerText text={home.sinceLastFeed} />
         )}
         {home.nextSide && (
-          <Text style={theme.text.body}>{t(`home.nextSide.${home.nextSide}`)}</Text>
+          <Text style={[theme.type.rowTitle, s.onTile, s.center]}>
+            {t(`home.nextSide.${home.nextSide}`)}
+          </Text>
         )}
         {home.reminder && (
-          <Text style={s.muted}>
+          <Text style={s.onTileSoft}>
             {t(home.reminder.passed ? 'home.reminder.passed' : 'home.reminder.upcoming', {
               time: home.reminder.time,
             })}
           </Text>
         )}
-      </Card>
+      </View>
 
       {home.duplicate && (
-        <Card testID="home-duplicate">
-          <Text style={theme.text.body}>
+        <View style={[s.panel, s.feedTint]} testID="home-duplicate">
+          <Text style={[theme.type.body, s.onTile]}>
             {t('home.duplicate.question', { name: home.duplicate.by, time: home.duplicate.time })}
           </Text>
           <Button
@@ -67,19 +70,24 @@ export function HomeScreen({
             variant="secondary"
             onPress={() => home.removeDuplicate(home.duplicate?.id ?? '')}
           />
-        </Card>
+        </View>
       )}
 
       {home.activeSleep && (
-        <Card testID="home-sleep">
-          <Text style={s.muted}>{t('home.sleep.label', { time: home.activeSleep.startedAt })}</Text>
+        <View style={[s.panel, s.sleepTint]} testID="home-sleep">
+          <View style={s.titleRow}>
+            <Icon name="sleep" color={theme.palette.onTile} />
+            <Text style={[s.onTileSoft, s.flex]}>
+              {t('home.sleep.label', { time: home.activeSleep.startedAt })}
+            </Text>
+          </View>
           <TimerText text={home.activeSleep.elapsed} />
           <Button
             label={t('home.sleep.stop')}
             variant="secondary"
             onPress={() => home.activeSleep && home.stopSleep(home.activeSleep.id)}
           />
-        </Card>
+        </View>
       )}
 
       {actions && <View style={s.actions}>{actions}</View>}
@@ -99,7 +107,10 @@ export function HomeScreen({
       </Card>
 
       <Card testID="home-appointment">
-        <Text style={theme.text.heading}>{t('home.appointment.title')}</Text>
+        <View style={s.titleRow}>
+          <Icon name="visit" />
+          <Text style={[theme.type.heading, s.flex]}>{t('home.appointment.title')}</Text>
+        </View>
         {home.appointment ? (
           <Text
             style={theme.text.body}
@@ -127,16 +138,21 @@ export function HomeScreen({
       </Card>
 
       <Card testID="home-stock">
-        <Text style={theme.text.heading}>{t('home.stock.title')}</Text>
+        <View style={s.titleRow}>
+          <Icon name="pump" />
+          <Text style={[theme.type.heading, s.flex]}>{t('home.stock.title')}</Text>
+        </View>
         <View style={s.strip}>
           <Place
             name={t('home.stock.fridge')}
+            tint="diaper"
             place={home.stock.fridge}
             t={t}
             {...(onAdjustStock && { onAdjust: () => onAdjustStock('fridge') })}
           />
           <Place
             name={t('home.stock.freezer')}
+            tint="sleep"
             place={home.stock.freezer}
             t={t}
             {...(onAdjustStock && { onAdjust: () => onAdjustStock('freezer') })}
@@ -172,11 +188,14 @@ function Stat({ label, value }: { label: string; value: number | string }) {
 
 function Place({
   name,
+  tint,
   place,
   t,
   onAdjust,
 }: {
   name: string;
+  /** Sage 15: fridge and freezer each on their tile colour. */
+  tint: 'diaper' | 'sleep';
   place: StockPlaceView;
   t: Translate;
   onAdjust?: (() => void) | undefined;
@@ -184,17 +203,17 @@ function Place({
   const theme = useTheme();
   const s = styles(theme);
   return (
-    <View style={s.stat}>
-      <Text style={s.muted}>{name}</Text>
-      <Text style={theme.text.title}>{t('home.stock.amount', { ml: place.ml })}</Text>
+    <View style={[s.place, { backgroundColor: theme.palette[tint] }]}>
+      <Text style={[theme.type.tileTitle, s.onTile]}>{name}</Text>
+      <Text style={[theme.type.title, s.onTile]}>{t('home.stock.amount', { ml: place.ml })}</Text>
       {place.age && (
-        <Text style={s.muted}>
+        <Text style={s.onTileSoft}>
           {t(`home.stock.oldest.${place.age.scale}`, { count: place.age.value })}
         </Text>
       )}
       {/* A count that has gone past empty is a count to check, not a number
           to trust, so the way to fix it sits right next to it (SDD 6.3). */}
-      {place.short && <Text style={s.muted}>{t('home.stock.short')}</Text>}
+      {place.short && <Text style={s.onTileSoft}>{t('home.stock.short')}</Text>}
       {onAdjust && (
         <Button
           label={t('home.stock.adjust', { place: name })}
@@ -241,9 +260,30 @@ function Row({
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    screen: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+    screen: { padding: theme.spacing.screen, gap: theme.spacing.lg },
     actions: { gap: theme.spacing.md },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
-    strip: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.lg },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
+    strip: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
     stat: { minWidth: theme.size.touchTargetLarge, alignItems: 'flex-start' },
+    hero: {
+      borderRadius: theme.radius.tile,
+      padding: theme.spacing.xl,
+      gap: theme.spacing.sm,
+      alignItems: 'center',
+    },
+    panel: { borderRadius: theme.radius.card, padding: theme.spacing.lg, gap: theme.spacing.md },
+    feedTint: { backgroundColor: theme.palette.feed },
+    sleepTint: { backgroundColor: theme.palette.sleep },
+    onTile: { color: theme.palette.onTile },
+    center: { textAlign: 'center' },
+    onTileSoft: { ...theme.type.detail, color: theme.palette.onTileSoft },
+    titleRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+    flex: { flex: 1 },
+    place: {
+      flex: 1,
+      minWidth: theme.size.activityTile,
+      borderRadius: theme.radius.card,
+      padding: theme.spacing.lg,
+      gap: theme.spacing.xs,
+    },
   });
