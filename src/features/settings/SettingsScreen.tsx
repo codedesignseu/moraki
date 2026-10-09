@@ -538,7 +538,11 @@ function CardTitle({
 const styles = (theme: Theme) =>
   StyleSheet.create({
     fill: { flex: 1 },
-    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    content: {
+      padding: theme.spacing.screen,
+      paddingBottom: theme.size.tabBarClearance,
+      gap: theme.spacing.lg,
+    },
     version: { ...theme.type.detail, color: theme.palette.textSoft, textAlign: 'center' },
     muted: { ...theme.type.detail, color: theme.palette.textSoft },
     alert: { ...theme.type.body, color: theme.palette.invalid },

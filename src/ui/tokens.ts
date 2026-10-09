@@ -164,6 +164,11 @@ export const size = {
   /** Floating tab bar: its height, and its gap above the bottom edge. */
   tabBar: 66,
   tabBarBottomOffset: 30,
+  /**
+   * Bottom padding of a tab's scroll content: the floating bar, its gap to
+   * the edge and a screen gap, so the last card scrolls clear above the bar.
+   */
+  tabBarClearance: 66 + 30 + 24,
   activityTile: 168,
   icon: 24,
   /** Icon on an activity tile. */
