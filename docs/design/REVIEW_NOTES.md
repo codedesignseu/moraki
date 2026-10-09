@@ -2,7 +2,21 @@
 
 Written during the overnight run (started 2026-10-09). Updated after every PR so it survives a lost session. Mapping is in [MAPPING.md](MAPPING.md), and gaps are in [DESIGN_GAPS.md](DESIGN_GAPS.md).
 
-Final EAS preview build: _not run yet_
+## Final EAS preview build: FAILED (not a design problem)
+
+- **Command:** `eas build --profile preview --platform ios --non-interactive`, run once from `design/sage-refresh` at `2a5ad741` with a clean tree.
+- **Log:** https://expo.dev/accounts/ce-code-designs-ltd/projects/moraki/builds/a648f007-a7ce-4792-950a-d6b69ef1d455
+- **Error:** in the Xcode "Bundle React Native code and images" phase, `sentry-cli` stopped with `error: Auth token is required for this request.` The native project had been generated, and Xcode was archiving the app.
+- **Cause:**
+  - The Sentry plugin (P4-F4, #128) uploads source maps during the build.
+  - The `production` profile sets `SENTRY_ALLOW_FAILURE=true`, but `preview` does not.
+  - The EAS `preview` environment has no `SENTRY_AUTH_TOKEN`.
+  - So any preview build fails, with or without the refresh.
+- **Not retried:** the failure is not transient (network or queue).
+- **Two fixes, both yours, both outside what this run may change (`eas.json`, env, secrets):**
+  - add `SENTRY_AUTH_TOKEN` to the EAS `preview` environment, or
+  - add `"env": { "SENTRY_ALLOW_FAILURE": "true" }` (or `SENTRY_DISABLE_AUTO_UPLOAD`) to the `preview` profile in `eas.json`.
+- **What this means:** the new app icon, the splash (`expo-splash-screen`) and the Sage screens have not been seen on a device yet. After the fix, the same command is the first real test (section 7).
 
 ## 1. Status
 
@@ -23,7 +37,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #142 | `sage/03e-settings` | Settings, caregivers, invite, baby | merged | green |
 | #143 | `sage/03f-visits-stock-reports` | Appointment and stock sheets, call script, report, PDF | merged | green |
 | #144 | `sage/03g-by-analogy` | About, feedback, leave or delete, startup | merged | green |
-| _next_ | `sage/04-final` | Final checks and docs | in progress | |
+| #145 | `sage/04-final` | Final checks and docs | merged | green |
+| _next_ | `sage/04b-build-result` | Build result in the notes | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -152,6 +167,7 @@ Each entry gives what was chosen, why, and the alternatives.
 These are recorded here only and not fixed, unless a PR says otherwise.
 
 - **No splash plugin.** `app.json`'s `splash` key is read by nothing, and `assets/splash.png` is not in git. Details are in MAPPING.md section 1. PR 2d addresses it with `expo-splash-screen` (approved).
+- **Preview builds cannot upload Sentry source maps.** See the build section at the top. This is a config issue already on main, not caused by the refresh.
 - **Uncommitted owner change in the working tree.**
   - `package.json` scripts `ios` and `android` changed to `expo run:ios` / `expo run:android`, and a gitignored `ios/` folder exists. Both are the result of a local `npx expo run:ios`.
   - Not touched and never staged by this run.

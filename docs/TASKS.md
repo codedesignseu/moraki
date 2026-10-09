@@ -372,4 +372,5 @@ Restyle only; no feature added or removed. Mapping, gaps and review notes are in
 - [ ] SAGE-F2 move screens from the pre-Sage token names (`colors`, `typography`) to `palette` and `type` and delete the aliases — mechanical; tests that read `colors.*` move too — status: pending
 - [ ] SAGE-F3 `src/sync/householdSettings.test.tsx` test 5 depends on test order with a custom tab bar ("overlapping act()") — status: pending
 - [ ] SAGE-F4 Home tiles without detail lines and a "Moraki" header — needs the home view model passed to the tiles and the baby's name — status: pending
+- [ ] SAGE-F6 EAS preview builds fail at the Sentry source-map upload: no `SENTRY_AUTH_TOKEN` in the preview environment and no `SENTRY_ALLOW_FAILURE` in the preview profile (build a648f007) — owner — status: pending
 - [ ] SAGE-F5 expo-doctor: drop `newArchEnabled` from app.json, review the `expo-live-activity`/`expo-home-widget` flags, `npx expo install --check` for 10 patch updates — status: pending
