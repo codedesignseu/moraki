@@ -73,7 +73,8 @@
           "project": "moraki",
           "url": "https://de.sentry.io/"
         }
-      ]
+      ],
+      "expo-splash-screen"
     ],
     "experiments": {
       "typedRoutes": true
