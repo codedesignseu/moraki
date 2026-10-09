@@ -36,7 +36,9 @@ describe('Button', () => {
 
   it('meets the touch target', async () => {
     await render(<Button label="Save" onPress={noop} />);
-    expect(screen.getByRole('button')).toHaveStyle({ minHeight: size.touchTarget });
+    // Sage main button is 60 high, above the 48 touch target.
+    expect(screen.getByRole('button')).toHaveStyle({ minHeight: size.button });
+    expect(size.button).toBeGreaterThanOrEqual(size.touchTarget);
   });
 });
 
@@ -146,8 +148,9 @@ describe('Segmented', () => {
       <Segmented options={diaper} value={null} onChange={noop} accessibilityLabel="Diaper" />,
     );
     for (const radio of screen.getAllByRole('radio')) {
-      expect(radio).toHaveStyle({ minHeight: size.touchTarget });
+      expect(radio).toHaveStyle({ minHeight: size.buttonSmall });
     }
+    expect(size.buttonSmall).toBeGreaterThanOrEqual(size.touchTarget);
   });
 });
 

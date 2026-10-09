@@ -19,7 +19,9 @@ describe('TokenShowcase', () => {
       expect(screen.getAllByText(variant)).toHaveLength(schemeCount);
     }
     for (const hex of [...Object.values(colors.light), ...Object.values(colors.night)]) {
-      expect(screen.getAllByText(new RegExp(hex)).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(new RegExp(hex.replace(/[()]/g, '\\$&'))).length).toBeGreaterThan(
+        0,
+      );
     }
     for (const [key, value] of Object.entries(spacing)) {
       expect(screen.getAllByText(`${key} ${value}`)).toHaveLength(schemeCount);

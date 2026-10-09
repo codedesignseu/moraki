@@ -45,24 +45,23 @@ export function Button({
 
 const styles = (t: Theme) =>
   StyleSheet.create({
+    // Sage: 60 high, fully round. The primary is the one dark button.
     base: {
-      minHeight: t.size.touchTarget,
+      minHeight: t.size.button,
       paddingHorizontal: t.spacing.xl,
       paddingVertical: t.spacing.md,
-      borderRadius: t.radius.md,
-      borderWidth: t.size.borderThin,
+      borderRadius: t.radius.pill,
+      borderWidth: t.size.borderThick,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    primary: { backgroundColor: t.colors.accent, borderColor: t.colors.accent },
-    primaryPressed: {
-      backgroundColor: t.colors.accentPressed,
-      borderColor: t.colors.accentPressed,
-    },
-    primaryLabel: { color: t.colors.onAccent, textAlign: 'center' },
-    secondary: { backgroundColor: t.colors.surface, borderColor: t.colors.borderStrong },
-    secondaryPressed: { backgroundColor: t.colors.surfacePressed },
-    secondaryLabel: { color: t.colors.text, textAlign: 'center' },
-    disabled: { backgroundColor: t.colors.surfaceSunken, borderColor: t.colors.surfaceSunken },
-    disabledLabel: { color: t.colors.textMuted, textAlign: 'center' },
+    primary: { backgroundColor: t.palette.buttonPrimary, borderColor: t.palette.buttonPrimary },
+    primaryPressed: { opacity: t.opacity.pressed },
+    primaryLabel: { color: t.palette.onButtonPrimary, textAlign: 'center' },
+    // Outlined: the label carries the meaning, the outline only groups it.
+    secondary: { backgroundColor: 'transparent', borderColor: t.palette.outline },
+    secondaryPressed: { backgroundColor: t.palette.line },
+    secondaryLabel: { color: t.palette.ink, textAlign: 'center' },
+    disabled: { backgroundColor: t.palette.chip, borderColor: t.palette.chip },
+    disabledLabel: { color: t.palette.textSoft, textAlign: 'center' },
   });

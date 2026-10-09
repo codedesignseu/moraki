@@ -87,7 +87,7 @@ export function Stepper({
       style={[s.row, invalid && s.invalid]}
     >
       {stepButton('decrement', canDecrement, decrement)}
-      <Text style={[theme.text.title, s.value, disabled && s.symbolDisabled]}>{valueText}</Text>
+      <Text style={[theme.type.title, s.value, disabled && s.symbolDisabled]}>{valueText}</Text>
       {stepButton('increment', canIncrement, increment)}
     </View>
   );
@@ -109,7 +109,7 @@ const styles = (t: Theme) =>
     button: {
       minWidth: t.size.touchTargetLarge,
       minHeight: t.size.touchTargetLarge,
-      borderRadius: t.radius.lg,
+      borderRadius: t.radius.pill,
       borderWidth: t.size.borderThin,
       borderColor: t.colors.borderStrong,
       backgroundColor: t.colors.surface,
