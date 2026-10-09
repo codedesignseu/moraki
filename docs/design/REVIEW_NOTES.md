@@ -17,7 +17,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #136 | `sage/02d-app-icons` | App icon, splash, `expo-splash-screen` | merged | green |
 | #137 | `sage/03a-onboarding` | Token aliases, primitive shapes, onboarding screens | merged | green |
 | #138 | `sage/03b-home` | Tab bar, headers, Home | merged | green |
-| _next_ | `sage/03c1-sheets-feed` | Sheet styling, feed, diaper, sleep | in progress | |
+| #139 | `sage/03c1-sheets-feed` | Sheet styling, feed, diaper, sleep | merged | green |
+| _next_ | `sage/03c2-sheets-other` | Pump, weight, health, medication | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -136,6 +137,10 @@ These are recorded here only and not fixed, unless a PR says otherwise.
 |---|---|---|
 | Past sleep card and sleep edit form | 08 card and 11 header | 3c-1 |
 | Edit entry (`/entry/[id]`) sheet colour and padding | Log sheets 08 to 11 | 3c-1 |
+| Pump sheet | 08 stepper card on the pump colour; 16 choices | 3c-2 |
+| Weight sheet | 03 weight field; 08 stepper | 3c-2 |
+| Health note sheet | 18 fields; 12 chips; time in a status pill | 3c-2 |
+| Medication sheet | 18 fields; time in a status pill | 3c-2 |
 | Home "Today" stats, appointment and milk stock cards | 06 cards and rows; 15 fridge and freezer tiles; 13 stat values | 3b |
 | Home duplicate question | 12 duplicate warning (feed tint) | 3b |
 | Home recent entries | 12 timeline card | 3b |
@@ -222,3 +227,9 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - Past sleep: grey card with both steppers and both time fields. Save is disabled when the end is before the start.
 - Keyboard: none of these three sheets has a text field.
 - 200% text: the diaper tile labels may wrap onto two lines; they must not be cut off.
+
+**Pump, weight, health, medication (3c-2)**
+- Pump: the amount and the fridge, freezer or fed choice on a pale brown card.
+- Weight: type grams; the field edge turns ink while typing and clay with a message when out of range; Save disabled.
+- Health note: the keyboard must not cover the note or temperature field; scroll works with the keyboard open.
+- Medication: the name is prefilled from the last one; the time shows in a pill.
