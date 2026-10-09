@@ -18,7 +18,9 @@ export function Card({ children, tone = 'card', testID }: Props) {
   const theme = useTheme();
   const s = styles(theme);
   return (
-    <View style={[s.card, { backgroundColor: theme.palette[tone] }]} testID={testID}>
+    // One flat style object, as before the tone existed: callers that read the
+    // card's backgroundColor see it directly.
+    <View style={{ ...s.card, backgroundColor: theme.palette[tone] }} testID={testID}>
       {children}
     </View>
   );
