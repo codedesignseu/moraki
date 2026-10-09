@@ -15,7 +15,7 @@ import { formatClock } from '@/domain/time/formatClock';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
-import { Button, Chip, TextField, TimeShiftField } from '@/ui/primitives';
+import { Button, Chip, StatusPill, TextField, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 type Tag = (typeof HEALTH_TAGS)[number];
@@ -115,7 +115,7 @@ export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?:
           })}
         />
       ) : (
-        <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
+        <StatusPill label={t('log.time', { time: formatClock(openedAt, tz) })} />
       )}
       <TextField
         label={t('log.health.note')}
@@ -135,7 +135,7 @@ export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?:
         invalid={attempted && tempInvalid}
         message={tempMessage}
       />
-      <Text style={theme.text.label}>{t('log.health.tags')}</Text>
+      <Text style={s.muted}>{t('log.health.tags')}</Text>
       <View style={s.tags}>
         {HEALTH_TAGS.map((tag) => (
           <Chip
@@ -154,10 +154,10 @@ export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?:
 const styles = (theme: Theme) =>
   StyleSheet.create({
     content: {
-      padding: theme.spacing.lg,
+      padding: theme.spacing.screen,
       paddingBottom: theme.spacing.xl,
       gap: theme.spacing.lg,
     },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
     tags: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   });
