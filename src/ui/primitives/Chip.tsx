@@ -35,11 +35,20 @@ export function Chip({
       style={({ pressed }) => [
         s.base,
         selected && s.selected,
-        pressed && s.pressed,
+        // A pressed selected chip dims instead of turning light, so its light
+        // label stays readable.
+        pressed && (selected ? s.selectedPressed : s.pressed),
         disabled && s.disabled,
       ]}
     >
-      <Text style={[theme.text.label, disabled ? s.disabledLabel : s.label]}>{label}</Text>
+      <Text
+        style={[
+          theme.text.label,
+          disabled ? s.disabledLabel : selected ? s.selectedLabel : s.label,
+        ]}
+      >
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -56,11 +65,15 @@ const styles = (t: Theme) =>
       alignSelf: 'flex-start',
       justifyContent: 'center',
     },
+    // Stone: a dark fill by day with a light label. At night the fill is
+    // close to the card, so the ink ring marks it too: shape, not only colour.
     selected: {
-      backgroundColor: t.colors.accentSubtle,
-      borderColor: t.colors.accent,
+      backgroundColor: t.palette.selected,
+      borderColor: t.palette.ink,
       borderWidth: t.size.borderThick,
     },
+    selectedPressed: { opacity: t.opacity.pressed },
+    selectedLabel: { color: t.palette.onSelected },
     pressed: { backgroundColor: t.colors.surfacePressed },
     disabled: { backgroundColor: t.colors.surfaceSunken, borderColor: t.colors.surfaceSunken },
     label: { color: t.colors.text },

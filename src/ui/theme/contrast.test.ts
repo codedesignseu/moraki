@@ -68,45 +68,53 @@ it('touch target token is at least 48dp', () => {
   expect(size.touchTarget).toBeGreaterThanOrEqual(48);
 });
 
-describe.each(schemes)('Sage %s palette', (scheme) => {
-  const sage = palette[scheme];
-  const surfaces: PaletteName[] = ['background', 'card', 'chip', 'selected'];
+describe.each(schemes)('Stone %s palette', (scheme) => {
+  const stone = palette[scheme];
   const tiles: PaletteName[] = ['feed', 'sleep', 'diaper', 'pump'];
 
-  // Every foreground that carries text, on every surface the design puts it on.
-  const sageTextPairs: [PaletteName, PaletteName][] = [
+  // Every foreground that carries text, on every surface it is drawn on.
+  const textPairs: [PaletteName, PaletteName][] = [
     ...(['ink', 'textSoft'] as const).flatMap((fg) =>
-      surfaces.map((bg): [PaletteName, PaletteName] => [fg, bg]),
+      (['background', 'card', 'chip', 'line'] as const).map((bg): [PaletteName, PaletteName] => [
+        fg,
+        bg,
+      ]),
     ),
-    ...(['onTile', 'onTileSoft', 'textSoft'] as const).flatMap((fg) =>
-      tiles.map((bg): [PaletteName, PaletteName] => [fg, bg]),
-    ),
+    ['onSelected', 'selected'],
     ['onButtonPrimary', 'buttonPrimary'],
     ['onTabBar', 'tabBar'],
     ['onTabActive', 'tabActive'],
-    // D3: validation text on every surface a form field sits on.
-    ...(['background', 'card', 'chip', 'selected', ...tiles] as const).map(
-      (bg): [PaletteName, PaletteName] => ['invalid', bg],
+    ...(['onTile', 'onTileSoft'] as const).flatMap((fg) =>
+      tiles.map((bg): [PaletteName, PaletteName] => [fg, bg]),
     ),
+    // Validation text on every surface a form field or its message sits on.
+    ...(['background', 'card', 'chip', ...tiles] as const).map((bg): [PaletteName, PaletteName] => [
+      'invalid',
+      bg,
+    ]),
   ];
 
-  it.each(sageTextPairs)('%s on %s meets AA for text (4.5:1)', (fg, bg) => {
-    expect(contrastRatio(sage[fg], sage[bg])).toBeGreaterThanOrEqual(AA.text);
+  it.each(textPairs)('%s on %s meets AA for text (4.5:1)', (fg, bg) => {
+    expect(contrastRatio(stone[fg], stone[bg])).toBeGreaterThanOrEqual(AA.text);
   });
 
-  it.each(['background', 'card', 'chip', 'selected'] as const)(
+  it.each(['background', 'card', 'chip'] as const)(
     'inputBorder on %s meets AA for non-text UI (3:1)',
     (bg) => {
-      expect(contrastRatio(sage.inputBorder, sage[bg])).toBeGreaterThanOrEqual(AA.nonText);
+      expect(contrastRatio(stone.inputBorder, stone[bg])).toBeGreaterThanOrEqual(AA.nonText);
     },
   );
 
   it('shows the active tab apart from the tab bar (3:1)', () => {
-    expect(contrastRatio(sage.tabActive, sage.tabBar)).toBeGreaterThanOrEqual(AA.nonText);
+    expect(contrastRatio(stone.tabActive, stone.tabBar)).toBeGreaterThanOrEqual(AA.nonText);
+  });
+
+  it('marks a selected chip with an ink ring that stands out from the card (3:1)', () => {
+    expect(contrastRatio(stone.ink, stone.card)).toBeGreaterThanOrEqual(AA.nonText);
   });
 
   it('has the same colour names as the other scheme', () => {
-    expect(Object.keys(sage).sort()).toEqual(Object.keys(palette.light).sort());
+    expect(Object.keys(stone).sort()).toEqual(Object.keys(palette.light).sort());
   });
 });
 

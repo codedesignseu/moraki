@@ -31,30 +31,37 @@ Two equal arches hold one small dot. Two parents, one little one.
 - Move the dot or change its size.
 - Set the mark in red, green, or pastel pink or blue.
 
-## Colour · Sage
+## Colour · Stone
 
-Day mode is soft green and white. Night mode is deep green with the same tiles turned down low, so a 3am feed never lights up the room. Night mode runs from 21:00 to 06:00 by default, and parents can set it to Auto, On or Off.
+Stone replaced the Sage colours on 2026-10-09; layout, type, spacing and shape stay as Sage drew them. Day mode is warm stone and white with a near-black ink; night mode is deep warm brown with the same tiles turned down low, so a 3am feed never lights up the room. Night mode runs from 21:00 to 06:00 by default, and parents can set it to Auto, On or Off.
 
 | Token | Day | Night | Used for |
 |---|---|---|---|
-| background | #E9EDE6 | #131814 | screen |
-| card | #FFFFFF | #1E2520 | cards and sheets |
-| ink | #1E2A23 | #E6ECE4 | main text |
-| text-soft | #56615A | #A9B5AB | details and times |
-| line | #DCE2D8 | #2A322C | dividers |
-| outline | #C7CFC3 | #3A453D | outlined buttons |
-| chip | #E9EDE6 | #2A322C | chips and inputs |
-| selected | #CFE0D3 | #2E3830 | selected states |
-| button | #1E2A23 | #CFE0D3 | the one main button |
-| on-button | #FFFFFF | #131814 | text on the main button |
-| feed | #E4E6CB | #353A28 | feed tile |
-| sleep | #DAE1E3 | #2A3236 | sleep tile |
-| diaper | #D4E3DA | #263630 | diaper tile |
-| pump | #E3DFD1 | #353329 | pump tile |
-| on-tile | #1E2A23 | #E6ECE4 | text on tiles |
-| on-tile-soft | #3B463F | #C2CCC3 | detail text on tiles |
+| background | #EEEDE7 | #171411 | screen |
+| card | #FFFFFF | #23201C | cards and sheets |
+| ink | #161412 | #F1EAE0 | main text |
+| text-soft | #5C5852 | #B8AD9F | details and times |
+| line | #E4E2DA | #34302B | dividers |
+| outline | #CFCCC3 | #4A443D | outlined buttons |
+| chip | #EEEDE7 | #2C2823 | chips and inputs |
+| selected | #161412 | #3A352F | selected states |
+| on-selected | #FFFFFF | #F1EAE0 | text on selected states |
+| button | #161412 | #F1EAE0 | the one main button |
+| on-button | #FFFFFF | #171411 | text on the main button |
+| tab-bar | #161412 | #F1EAE0 | tab bar |
+| on-tab-bar | #FFFFFF | #171411 | icons on the tab bar |
+| tab-active | #FFFFFF | #171411 | active tab |
+| on-tab-active | #161412 | #F1EAE0 | icon on the active tab |
+| feed | #F3DF8C | #51432A | feed tile |
+| sleep | #ECD3CA | #47343A | sleep tile |
+| diaper | #CDD1F2 | #33374D | diaper tile |
+| pump | #CDE5DA | #2F4238 | pump tile |
+| on-tile | #161412 | #F1EAE0 | text on tiles |
+| on-tile-soft | #3E3A35 | #D3C8BA | detail text on tiles |
 
-Every text and background pair passes WCAG AA. The lowest sits at about 5.3:1. Colour never carries meaning on its own. Always pair it with an icon and a label.
+Selected states are dark by day (near-black with white text) and a dark fill with a light ink ring at night: text and icons on them use on-selected, never ink.
+
+Every text and background pair in the table passes WCAG AA. One pair outside the table is close: text-soft on the night feed tile is 4.35:1, so detail text on tiles uses on-tile-soft. Colour never carries meaning on its own. Always pair it with an icon and a label.
 
 ## Type
 

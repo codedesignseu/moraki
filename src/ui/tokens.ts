@@ -16,65 +16,76 @@ import { Platform } from 'react-native';
 export type Scheme = 'light' | 'night';
 
 /**
- * Sage palettes. `light` is the design's day palette; `night` is the
- * 21:00 to 06:00 palette, chosen by the night mode setting.
+ * Stone palettes (they replaced Sage on 2026-10-09; layout, type and sizes
+ * are still Sage's). `light` is the day palette; `night` is the 21:00 to
+ * 06:00 palette, chosen by the night mode setting.
  */
 export const palette = {
   light: {
-    background: '#E9EDE6',
+    background: '#EEEDE7',
     card: '#FFFFFF',
-    ink: '#1E2A23',
-    textSoft: '#56615A',
-    line: '#DCE2D8',
-    outline: '#C7CFC3',
-    chip: '#E9EDE6',
-    selected: '#CFE0D3',
-    buttonPrimary: '#1E2A23',
+    ink: '#161412',
+    textSoft: '#5C5852',
+    line: '#E4E2DA',
+    outline: '#CFCCC3',
+    chip: '#EEEDE7',
+    // A control's selected state (chips). Text and icons on it use onSelected.
+    selected: '#161412',
+    onSelected: '#FFFFFF',
+    buttonPrimary: '#161412',
     onButtonPrimary: '#FFFFFF',
-    tabBar: '#1E2A23',
+    tabBar: '#161412',
     onTabBar: '#FFFFFF',
-    tabActive: '#CFE0D3',
-    onTabActive: '#1E2A23',
+    tabActive: '#FFFFFF',
+    onTabActive: '#161412',
     // Dims the screen behind a sheet. Not a text or UI colour.
-    scrim: 'rgba(30, 42, 35, 0.35)',
-    feed: '#E4E6CB',
-    sleep: '#DAE1E3',
-    diaper: '#D4E3DA',
-    pump: '#E3DFD1',
-    onTile: '#1E2A23',
-    onTileSoft: '#3B463F',
-    // Form validation only, always with text or an icon. Not in the Sage
-    // export: the pre-Sage clay, darkened to pass AA on every Sage surface.
-    // Never used to colour a health number (SDD 12.3).
+    scrim: 'rgba(22, 20, 18, 0.35)',
+    feed: '#F3DF8C',
+    sleep: '#ECD3CA',
+    diaper: '#CDD1F2',
+    pump: '#CDE5DA',
+    onTile: '#161412',
+    onTileSoft: '#3E3A35',
+    // Form validation only, always with text or an icon; never on a health
+    // number (SDD 12.3). Not in the Stone table: derived to pass AA (4.5:1)
+    // on card, background, chip and every tile colour.
     invalid: '#8E4434',
-    // Edge of a text input, 3:1 on card, chip and background (WCAG 1.4.11).
-    // Not in the Sage export, which draws inputs without an edge.
-    inputBorder: '#717E75',
+    // Edge of a text input, at least 3:1 on card, chip and background
+    // (WCAG 1.4.11). Not in the Stone table: derived warm-neutral.
+    inputBorder: '#7C7973',
   },
   night: {
-    background: '#131814',
-    card: '#1E2520',
-    ink: '#E6ECE4',
-    textSoft: '#A9B5AB',
-    line: '#2A322C',
-    outline: '#3A453D',
-    chip: '#2A322C',
-    selected: '#2E3830',
-    buttonPrimary: '#CFE0D3',
-    onButtonPrimary: '#131814',
-    tabBar: '#CFE0D3',
-    onTabBar: '#131814',
-    tabActive: '#131814',
-    onTabActive: '#E6ECE4',
+    background: '#171411',
+    card: '#23201C',
+    ink: '#F1EAE0',
+    textSoft: '#B8AD9F',
+    line: '#34302B',
+    outline: '#4A443D',
+    chip: '#2C2823',
+    // A control's selected state (chips). Text and icons on it use onSelected.
+    selected: '#3A352F',
+    onSelected: '#F1EAE0',
+    buttonPrimary: '#F1EAE0',
+    onButtonPrimary: '#171411',
+    tabBar: '#F1EAE0',
+    onTabBar: '#171411',
+    tabActive: '#171411',
+    onTabActive: '#F1EAE0',
+    // Dims the screen behind a sheet. Not a text or UI colour.
     scrim: 'rgba(0, 0, 0, 0.6)',
-    feed: '#353A28',
-    sleep: '#2A3236',
-    diaper: '#263630',
-    pump: '#353329',
-    onTile: '#E6ECE4',
-    onTileSoft: '#C2CCC3',
-    invalid: '#DDA08F',
-    inputBorder: '#7E8B81',
+    feed: '#51432A',
+    sleep: '#47343A',
+    diaper: '#33374D',
+    pump: '#2F4238',
+    onTile: '#F1EAE0',
+    onTileSoft: '#D3C8BA',
+    // Form validation only, always with text or an icon; never on a health
+    // number (SDD 12.3). Not in the Stone table: derived to pass AA (4.5:1)
+    // on card, background, chip and every tile colour.
+    invalid: '#E2A693',
+    // Edge of a text input, at least 3:1 on card, chip and background
+    // (WCAG 1.4.11). Not in the Stone table: derived warm-neutral.
+    inputBorder: '#847E76',
   },
 } as const satisfies Record<Scheme, Record<string, string>>;
 
@@ -96,7 +107,8 @@ function legacyNames(p: SagePalette) {
     textMuted: p.textSoft,
     accent: p.buttonPrimary,
     accentPressed: p.buttonPrimary,
-    accentSubtle: p.selected,
+    // A soft tint behind dark text (not a selected state): Stone's selected is dark.
+    accentSubtle: p.chip,
     onAccent: p.onButtonPrimary,
     surfacePressed: p.line,
     invalid: p.invalid,
