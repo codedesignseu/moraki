@@ -247,3 +247,20 @@ Step 2 is "one PR" in the brief. Split as above it would be four PRs. If one PR 
 - **D7:** the touch target stays 48.
 - **D8:** Settings keeps its inline cards and is restyled only.
 - **D9:** design conflicts follow `theme.ts`, then `brand-guidelines.md` where `theme.ts` is silent. Each PR lists the conflicts it resolved.
+
+## After the refresh (2026-10-09)
+
+Every screen in section 2 was restyled; each one is listed in the PR that did it.
+
+| PR | Screens |
+|---|---|
+| #137 (3a) | Token aliases (every screen), shared primitives, consent, sign in, household setup, join |
+| #138 (3b) | Tab bar, headers, Home |
+| #139 (3c-1) | Sheet styling (all log and edit routes), feed, diaper, sleep, sleep edit |
+| #140 (3c-2) | Pump, weight, health note, medication |
+| #141 (3d) | History, Insights, weight card |
+| #142 (3e) | Settings (all cards, caregivers), invite, baby details |
+| #143 (3f) | Appointment sheet, stock sheet, call script, report preview, PDF colours |
+| #144 (3g) | About, feedback, leave or delete, startup |
+
+The analogy used for each screen with no design is in REVIEW_NOTES.md section 4. Design-only items are in DESIGN_GAPS.md.

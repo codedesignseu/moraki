@@ -22,7 +22,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #141 | `sage/03d-history-insights` | History, Insights, weight card | merged | green |
 | #142 | `sage/03e-settings` | Settings, caregivers, invite, baby | merged | green |
 | #143 | `sage/03f-visits-stock-reports` | Appointment and stock sheets, call script, report, PDF | merged | green |
-| _next_ | `sage/03g-by-analogy` | About, feedback, leave or delete, startup | in progress | |
+| #144 | `sage/03g-by-analogy` | About, feedback, leave or delete, startup | merged | green |
+| _next_ | `sage/04-final` | Final checks and docs | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -142,6 +143,10 @@ Each entry gives what was chosen, why, and the alternatives.
 - **3f: `Card` takes an optional `tone`** (a tile colour). The call script uses it as 14 does: feeds on feed, diapers on diaper, and age on sleep. The rest stay white.
 - **3f, PDF:** `reportHtml.ts` takes ink, soft text and line colours from `palette.light`, on white paper (`palette.light.card`), with the system font stack. It never uses night mode. The 5 hard-coded hex values are gone.
 
+- **Step 4: the pre-Sage token names (`colors`, `typography`) stay as aliases.**
+  - Moving about 330 references to `palette` and `type`, and changing the tests that read `colors.*`, is mechanical but wide. It changes nothing on screen.
+  - Doing it in the middle of the night, right before the only build, was riskier than leaving it. Logged as SAGE-F2 in TASKS.md.
+
 ## 3. Problems found
 
 These are recorded here only and not fixed, unless a PR says otherwise.
@@ -159,6 +164,21 @@ These are recorded here only and not fixed, unless a PR says otherwise.
 - **Order-dependent behaviour test.** `src/sync/householdSettings.test.tsx`, test 5 ("brings the baby's details back too"), fails when Home uses a custom `tabBar` and the three earlier tests in the file have run (React logs "overlapping act() calls"). It passes alone or in pairs. The pull probably races the previous test's cleanup. Suggested fix: await the pull explicitly in that test, or isolate it in its own file. Not changed here; the tab bar uses the default component instead.
 - **Outlined buttons.** Sage `outline` on `card` is 1.6:1 (night 1.57:1), below the 3:1 for a control's edge. The buttons always carry a text label. Fix if wanted: darken `outline` to about `#8A9586` (day) and `#6B776E` (night), which is a design decision.
 - **Greek with names.** Existing strings put the baby's or a caregiver's name after `του/της`, `τον/την` or `Ο/Η` in the nominative. Listed in section 5.
+
+### Final check (step 4)
+
+- **Hard-coded values outside the theme:**
+  - 0 hex values in TS/TSX outside `src/ui/tokens.ts`, including the PDF CSS.
+  - 0 numeric radii.
+  - 1 font stack in the PDF CSS (`-apple-system, Roboto, sans-serif`, the system fonts as approved).
+  - 2 hex values in `app.json` (splash `#E9EDE6` / `#131814`; app config cannot read tokens).
+  - Hex values in tests only (`Icon.test`, `contrast.test`, `settings.test`).
+- **Sample names (Elena, Maria, Andreas, Eleni):** none added. They appear only in test fixtures and `docs/02-sdd-and-build-plan.md` that were already on main (for example "Eleni" in `householdSettings.test.tsx`).
+- **No feature added or removed:**
+  - The `app/` route files are identical to main.
+  - The only dependency change is `expo-splash-screen` (approved).
+  - `@expo/vector-icons` is no longer imported by app code, but stays installed: expo-router uses it.
+- **`design/` is not in the bundle.** `npx expo export --platform ios` emits `assets/icons/*` and `node_modules` assets only, and the export log has no `design/` path. dependency-cruiser fails any import of `design/`.
 
 ## 4. Screens styled by analogy
 
