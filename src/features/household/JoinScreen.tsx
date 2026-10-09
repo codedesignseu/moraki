@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { RELATIONS } from '@/sync/household';
 import { CODE_LENGTH } from '@/sync/invites';
-import { Button, Card, Chip, TextField } from '@/ui/primitives';
+import { Button, Card, Chip, Icon, TextField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useJoin } from './useJoin';
@@ -48,7 +48,11 @@ export function JoinScreen({
   return (
     <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
       <Card testID="join-form">
-        <Text style={theme.text.body}>{t('join.intro')}</Text>
+        {/* Sage 02 "Join with a code" card. */}
+        <View style={s.introRow}>
+          <Icon name="link" size={theme.size.iconButton} />
+          <Text style={[theme.type.body, s.intro]}>{t('join.intro')}</Text>
+        </View>
         <TextField
           label={t('join.code')}
           value={join.formattedCode}
@@ -88,7 +92,9 @@ export function JoinScreen({
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    introRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
+    intro: { flex: 1 },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   });
