@@ -22,7 +22,8 @@ import { useRoles } from './useRoles';
 import { useSentryTest } from './useSentryTest';
 import { useSignOut } from './useSignOut';
 import { useAdoption } from '@/sync/useAdoption';
-import { Button, Card, Segmented, Stepper, Toast } from '@/ui/primitives';
+import type { IconName } from '@/ui/icons';
+import { Button, Card, Icon, Segmented, Stepper, Toast } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 /**
@@ -104,7 +105,7 @@ export function SettingsScreen({
       <ScrollView contentContainerStyle={s.content}>
         {adoption.otherAccount && (
           <Card testID="settings-other-account">
-            <Text style={theme.text.heading}>{t('settings.otherAccount.title')}</Text>
+            <CardTitle icon="private" badge="feed" title={t('settings.otherAccount.title')} />
             <Text style={theme.text.body}>
               {t('settings.otherAccount.body', { name: adoption.babyName })}
             </Text>
@@ -113,7 +114,7 @@ export function SettingsScreen({
         )}
         {adoption.question === 'ask' && (
           <Card testID="settings-local-entries">
-            <Text style={theme.text.heading}>{t('settings.localEntries.title')}</Text>
+            <CardTitle icon="export" badge="feed" title={t('settings.localEntries.title')} />
             <Text style={theme.text.body}>
               {t('settings.localEntries.body', {
                 count: adoption.entries,
@@ -131,7 +132,7 @@ export function SettingsScreen({
         )}
         {(state.status === 'signedIn' || state.status === 'signedOut') && (
           <Card testID="settings-account">
-            <Text style={theme.text.heading}>{t('settings.account.title')}</Text>
+            <CardTitle icon="invite" badge="diaper" title={t('settings.account.title')} />
             {state.status === 'signedIn' ? (
               <>
                 <Text style={theme.text.body}>
@@ -265,7 +266,7 @@ export function SettingsScreen({
         )}
         {state.status === 'signedIn' && (
           <Card testID="settings-sync">
-            <Text style={theme.text.heading}>{t('settings.sync.title')}</Text>
+            <CardTitle icon="time" badge="sleep" title={t('settings.sync.title')} />
             {sync.blocked === 'no_consent' ? (
               <Text style={s.muted}>{t('settings.sync.noConsent')}</Text>
             ) : sync.blocked === 'not_linked' ? (
@@ -304,7 +305,7 @@ export function SettingsScreen({
 
         {state.status === 'signedIn' && (
           <Card testID="settings-privacy">
-            <Text style={theme.text.heading}>{t('settings.privacy.title')}</Text>
+            <CardTitle icon="private" badge="sleep" title={t('settings.privacy.title')} />
             <Text style={s.muted}>
               {t(consented ? 'settings.privacy.agreed' : 'settings.privacy.notAgreed')}
             </Text>
@@ -313,7 +314,7 @@ export function SettingsScreen({
         )}
 
         <Card testID="settings-report">
-          <Text style={theme.text.heading}>{t('settings.report.title')}</Text>
+          <CardTitle icon="share" badge="sleep" title={t('settings.report.title')} />
           <Button label={t('settings.report.call')} variant="secondary" onPress={onCallScript} />
           <Button
             label={t('settings.report.range24h')}
@@ -333,7 +334,7 @@ export function SettingsScreen({
         </Card>
 
         <Card testID="settings-data">
-          <Text style={theme.text.heading}>{t('settings.data.title')}</Text>
+          <CardTitle icon="export" badge="sleep" title={t('settings.data.title')} />
           <Button
             label={t(exporting.busy ? 'settings.data.exporting' : 'settings.data.export')}
             variant="secondary"
@@ -349,7 +350,7 @@ export function SettingsScreen({
         </Card>
 
         <Card testID="settings-feedback">
-          <Text style={theme.text.heading}>{t('settings.feedback.title')}</Text>
+          <CardTitle icon="link" badge="pump" title={t('settings.feedback.title')} />
           <Text style={s.muted}>
             {t(
               state.status === 'signedIn'
@@ -363,13 +364,13 @@ export function SettingsScreen({
         </Card>
 
         <Card testID="settings-about">
-          <Text style={theme.text.heading}>{t('settings.about.title')}</Text>
+          <CardTitle icon="eu-shield" badge="pump" title={t('settings.about.title')} />
           <Text style={s.muted}>{t('about.disclaimer.title')}</Text>
           <Button label={t('settings.about.open')} variant="secondary" onPress={onAbout} />
         </Card>
 
         <Card testID="settings-reminders">
-          <Text style={theme.text.heading}>{t('settings.reminders.title')}</Text>
+          <CardTitle icon="reminder" badge="feed" title={t('settings.reminders.title')} />
           <Text style={theme.text.body}>{t('settings.reminders.toggle')}</Text>
           <Segmented
             options={[
@@ -452,7 +453,7 @@ export function SettingsScreen({
         </Card>
 
         <Card testID="settings-night-mode">
-          <Text style={theme.text.heading}>{t('settings.nightMode.title')}</Text>
+          <CardTitle icon="sleep" badge="sleep" title={t('settings.nightMode.title')} />
           <Segmented
             options={NIGHT_MODES.map((mode) => ({
               value: mode,
@@ -466,7 +467,7 @@ export function SettingsScreen({
         </Card>
 
         <Card testID="settings-language">
-          <Text style={theme.text.heading}>{t('settings.language.title')}</Text>
+          <CardTitle icon="tab-settings" badge="pump" title={t('settings.language.title')} />
           <Segmented
             options={LANGUAGE_CHOICES.map((choice) => ({
               value: choice,
@@ -512,13 +513,44 @@ export function SettingsScreen({
   );
 }
 
+/** Sage 19 group heading: a round tile-coloured badge with the icon, then the title. */
+function CardTitle({
+  icon,
+  badge,
+  title,
+}: {
+  icon: IconName;
+  badge: 'feed' | 'sleep' | 'diaper' | 'pump';
+  title: string;
+}) {
+  const theme = useTheme();
+  const s = styles(theme);
+  return (
+    <View style={s.titleRow}>
+      <View style={[s.badge, { backgroundColor: theme.palette[badge] }]}>
+        <Icon name={icon} color={theme.palette.onTile} />
+      </View>
+      <Text style={[theme.type.tileTitle, s.title]}>{title}</Text>
+    </View>
+  );
+}
+
 const styles = (theme: Theme) =>
   StyleSheet.create({
     fill: { flex: 1 },
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    version: { ...theme.text.label, color: theme.colors.textMuted, textAlign: 'center' },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
-    alert: { ...theme.text.body, color: theme.colors.invalid },
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    version: { ...theme.type.detail, color: theme.palette.textSoft, textAlign: 'center' },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
+    alert: { ...theme.type.body, color: theme.palette.invalid },
+    titleRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
+    badge: {
+      width: theme.size.rowBadge,
+      height: theme.size.rowBadge,
+      borderRadius: theme.radius.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    title: { flex: 1 },
     caregivers: { gap: theme.spacing.md },
     caregiver: { gap: theme.spacing.xs },
     group: { gap: theme.spacing.sm },

@@ -100,5 +100,8 @@ The app uses the closest icon from the set for each of these.
 |---|---|---|
 | Medication | `health` | open |
 | Appointment | `visit` | open |
+| Feedback (Settings) | `link` | open |
+| Language (Settings) | `tab-settings` | open |
+| Sync status (Settings) | `time` | open |
 | Milk stock | `pump` | open |
 | Back, forward, close, plus, minus, check | text glyphs in the UI font, as the design draws them (PR 2b) | open |

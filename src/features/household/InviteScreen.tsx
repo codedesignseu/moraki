@@ -32,7 +32,7 @@ export function InviteScreen() {
   return (
     <ScrollView contentContainerStyle={s.content}>
       <Card testID="invite-role">
-        <Text style={theme.text.heading}>{t('invite.roleTitle')}</Text>
+        <Text style={theme.type.tileTitle}>{t('invite.roleTitle')}</Text>
         <Segmented
           options={INVITE_ROLES.map((role) => ({ value: role, label: t(`invite.role.${role}`) }))}
           value={invite.role}
@@ -54,7 +54,7 @@ export function InviteScreen() {
 
       {invite.invite && (
         <Card testID="invite-code">
-          <Text style={theme.text.heading}>{t('invite.codeTitle')}</Text>
+          <Text style={theme.type.tileTitle}>{t('invite.codeTitle')}</Text>
           <Text
             accessibilityLabel={t('invite.codeLabel', { code: invite.invite.code })}
             style={s.code}
@@ -77,7 +77,7 @@ export function InviteScreen() {
 
       {invite.open.length > 0 && (
         <Card testID="invite-open">
-          <Text style={theme.text.heading}>{t('invite.openTitle')}</Text>
+          <Text style={theme.type.tileTitle}>{t('invite.openTitle')}</Text>
           {invite.open.map((row) => (
             <View key={row.code} style={s.row} testID={`invite-open-${row.code}`}>
               <Text style={theme.text.body}>
@@ -104,9 +104,18 @@ export function InviteScreen() {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
-    alert: { ...theme.text.body, color: theme.colors.invalid },
-    code: { ...theme.text.display, letterSpacing: theme.spacing.xs, textAlign: 'center' },
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
+    alert: { ...theme.type.body, color: theme.palette.invalid },
+    // Sage 20 invite card: the code large and letter-spaced, on the chip colour.
+    code: {
+      ...theme.type.title,
+      letterSpacing: theme.spacing.xs,
+      textAlign: 'center',
+      backgroundColor: theme.palette.chip,
+      borderRadius: theme.radius.card,
+      paddingVertical: theme.spacing.md,
+      overflow: 'hidden',
+    },
     row: { gap: theme.spacing.xs },
   });
