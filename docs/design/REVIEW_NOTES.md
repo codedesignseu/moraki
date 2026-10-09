@@ -39,7 +39,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #144 | `sage/03g-by-analogy` | About, feedback, leave or delete, startup | merged | green |
 | #145 | `sage/04-final` | Final checks and docs | merged | green |
 | #146 | `sage/04b-build-result` | Build result in the notes | merged | green |
-| _next_ | `sage/05a-tab-bar` | Tab bar fix | in progress | |
+| #147 | `sage/05a-tab-bar` | Tab bar fix | merged | green |
+| _next_ | `sage/05b-header-logo` | Home header logo | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -181,6 +182,12 @@ Each entry gives what was chosen, why, and the alternatives.
     - bar: `start` and `end` set, 66 high, round;
     - item wrapper: 48 high, round, clipped;
     - inner pressable: `flex: 1`, centred row, active colour.
+
+- **5b: logo assets rendered from the SVGs, not copied from the PNGs.**
+  - The design's mark PNGs are 1560 × 1240, sharp but far larger than a 28 pt header needs.
+  - `assets/logo/mark-day.png` (honey deep `#C9802F`) and `mark-night.png` (honey `#E8A55A`) are rendered from `design/logos/mark/*.svg` at 141 × 112. That is 4x for 28 pt and covers 3x (84 px). About 4 KB each.
+  - The `Logo` primitive picks the asset by scheme and never sets `tintColor`. It is announced as a header with the label "Moraki".
+  - On Home the header title is the mark, centred (`headerTitleAlign: 'center'` so Android centres it too). The other tabs keep their text titles.
 
 ## 3. Problems found
 
@@ -361,3 +368,8 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - On Home, scroll to the bottom: the "Σήμερα / Today" card and the cards after it scroll fully above the pill.
 - History, Trends and Settings: the last item scrolls clear of the pill.
 - Night: a light pill with a dark active item.
+
+**Header logo (5b)**
+- Home header: the mark alone, centred, about 28 pt high. Honey deep by day, lighter honey at night; never green or grey.
+- VoiceOver on the header reads "Moraki, heading".
+- History, Trends and Settings keep their text titles.
