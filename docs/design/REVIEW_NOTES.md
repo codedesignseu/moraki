@@ -38,7 +38,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #143 | `sage/03f-visits-stock-reports` | Appointment and stock sheets, call script, report, PDF | merged | green |
 | #144 | `sage/03g-by-analogy` | About, feedback, leave or delete, startup | merged | green |
 | #145 | `sage/04-final` | Final checks and docs | merged | green |
-| _next_ | `sage/04b-build-result` | Build result in the notes | in progress | |
+| #146 | `sage/04b-build-result` | Build result in the notes | merged | green |
+| _next_ | `sage/05a-tab-bar` | Tab bar fix | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -161,6 +162,25 @@ Each entry gives what was chosen, why, and the alternatives.
 - **Step 4: the pre-Sage token names (`colors`, `typography`) stay as aliases.**
   - Moving about 330 references to `palette` and `type`, and changing the tests that read `colors.*`, is mechanical but wide. It changes nothing on screen.
   - Doing it in the middle of the night, right before the only build, was riskier than leaving it. Logged as SAGE-F2 in TASKS.md.
+
+- **5a: tab bar width follows the design, not 18 pt margins.**
+  - `design/screens/png/day/06-home.png` shows the pill 286 pt wide, centred, with about 52 pt margins on a 390 pt screen: four 64-wide items, 4 pt gaps, 9 pt inner padding. The brief said 18 pt margins "unless the design image clearly shows otherwise", and it does.
+  - The bar keeps that natural width, centred, and never comes closer than 18 pt to the edge.
+  - Alternative: 18 pt margins on both sides, giving a 354 pt pill with wider items.
+- **5a: root cause of the phone screenshot.** Three causes in how the default React Navigation bar applies `tabBarStyle` and `tabBarItemStyle`:
+  1. Its base style sets `start: 0, end: 0`. Logical `start` overrides `left`, so the bar sat at the left edge with my fixed `width`: off-centre, about two-thirds wide. Fix: set `start` and `end` themselves.
+  2. `tabBarItemStyle` goes on an outer wrapper, but the active colour is painted by an inner pressable. That pressable has corner radius 0, padding 5 and `justifyContent: flex-start`, and only fills the wrapper through the `flex` taken from the item style. With `flex: 0` it was about 38 high inside a 48-high wrapper clipped to round corners, so the active pill looked cut at the bottom and at the left corner. Fix: `flex: 1` (the pressable fills the item; the wrapper's round, clipped corners give round ends), plus `tabBarLabelPosition: 'beside-icon'` (a centred row, so the icon sits in the middle).
+  3. `sceneStyle.paddingBottom` ended every tab's content 96 pt above the bottom in a flat edge, which read as an opaque band. Fix: no scene padding; Home, History, Trends and Settings put `size.tabBarClearance` (66 + 30 + 24) at the bottom of their scroll content. The page shows around and under the pill.
+  - Safe area: the bar's own `paddingBottom` (9) replaces the inset padding the default bar adds (34 on Face ID phones). Inside a 66-high bar, that inset was a second reason items could be squeezed or clipped.
+- **5a, checked from the layout code:**
+  - iPhone SE (375 pt): margins 44.5, the pill 286 wide; there is no home indicator, so 30 pt is clear of the edge.
+  - iPhone 15 or 16 with Dynamic Island (393 / 402 pt): margins 53.5 / 58. The 30 pt offset sits above the home indicator (about 21 pt from the bottom).
+  - Each item is about 64.5 × 48, at least the 48 touch target.
+  - 200% text: the bar holds only icons, which do not scale, so its size does not change. The tab content scrolls fully clear above it.
+  - A temporary probe test (not committed) confirmed the rendered styles:
+    - bar: `start` and `end` set, 66 high, round;
+    - item wrapper: 48 high, round, clipped;
+    - inner pressable: `flex: 1`, centred row, active colour.
 
 ## 3. Problems found
 
@@ -334,3 +354,10 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - Feedback: kind, message, Send; the sent card.
 - Leave or delete: each card's inline confirm, the successor picker and the "cannot undo" line, with no dialog.
 - Cold start: after the splash, the startup screen is the same pale sage (night: deep green), not cream.
+
+**Tab bar (5a)**
+- The pill is centred with equal margins, with the page and the cards visible on both sides and below it.
+- The active tab is a light pill with round ends on every side; all four icons are centred.
+- On Home, scroll to the bottom: the "Σήμερα / Today" card and the cards after it scroll fully above the pill.
+- History, Trends and Settings: the last item scrolls clear of the pill.
+- Night: a light pill with a dark active item.
