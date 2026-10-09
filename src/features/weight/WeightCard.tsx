@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Button, Card, PointChart } from '@/ui/primitives';
+import { Button, Card, Icon, PointChart } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useWeightLog } from './useWeightLog';
@@ -19,7 +19,10 @@ export function WeightCard({ onAddWeight }: { onAddWeight?: () => void }) {
 
   return (
     <Card testID="insights-weight">
-      <Text style={theme.text.heading}>{t('insights.weight.title')}</Text>
+      <View style={s.titleRow}>
+        <Icon name="weight" />
+        <Text style={[theme.type.tileTitle, s.title]}>{t('insights.weight.title')}</Text>
+      </View>
       {view.birthGrams !== null && (
         <Text style={s.muted}>{t('insights.weight.birth', { grams: view.birthGrams })}</Text>
       )}
@@ -88,6 +91,8 @@ export function WeightCard({ onAddWeight }: { onAddWeight?: () => void }) {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
+    titleRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+    title: { flex: 1 },
     rows: { gap: theme.spacing.xs },
   });
