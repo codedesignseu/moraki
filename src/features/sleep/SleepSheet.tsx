@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
-import { Button, Card, DateTimeField, Stepper } from '@/ui/primitives';
+import { Button, DateTimeField, Icon, Stepper } from '@/ui/primitives';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 import { useTheme, type Theme } from '@/ui/theme';
 
@@ -35,18 +35,20 @@ function LogSleep({ onDone }: { onDone: () => void }) {
   return (
     <ScrollView contentContainerStyle={s.content}>
       {running ? (
-        <>
-          <Text style={theme.text.body}>
+        // Sage 11: the running sleep on the sleep colour, one dark Stop.
+        <View style={s.hero}>
+          <Icon name="sleep" size={theme.size.iconTile} color={theme.palette.onTile} />
+          <Text style={[theme.type.heading, s.onTile]}>
             {t('log.sleep.runningSince', { time: running.startedAt })}
           </Text>
           <Button label={t('log.sleep.stop')} onPress={done(() => stop(running.id))} />
-        </>
+        </View>
       ) : (
         <Button label={t('log.sleep.startNow')} onPress={done(startNow)} />
       )}
 
-      <Card testID="sleep-past">
-        <Text style={theme.text.heading}>{t('log.sleep.past.title')}</Text>
+      <View style={s.panel} testID="sleep-past">
+        <Text style={theme.type.heading}>{t('log.sleep.past.title')}</Text>
         <Text style={s.muted}>{t('log.sleep.past.startedAgo')}</Text>
         <Stepper
           value={past.startedAgo}
@@ -104,14 +106,29 @@ function LogSleep({ onDone }: { onDone: () => void }) {
           disabled={past.endsBeforeItStarts}
           onPress={done(past.save)}
         />
-      </Card>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
-    alert: { ...theme.text.body, color: theme.colors.invalid },
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    hero: {
+      backgroundColor: theme.palette.sleep,
+      borderRadius: theme.radius.tile,
+      padding: theme.spacing.xl,
+      gap: theme.spacing.md,
+      alignItems: 'stretch',
+    },
+    onTile: { color: theme.palette.onTile },
+    // Past sleep, by analogy with the 08 card: chip colour on the white sheet.
+    panel: {
+      backgroundColor: theme.palette.chip,
+      borderRadius: theme.radius.tile,
+      padding: theme.spacing.screen,
+      gap: theme.spacing.md,
+    },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
+    alert: { ...theme.type.body, color: theme.palette.invalid },
   });
