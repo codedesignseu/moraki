@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -46,6 +47,7 @@ export function TextField({
   message,
 }: Props) {
   const theme = useTheme();
+  const [focused, setFocused] = useState(false);
   const s = styles(theme);
   return (
     <View style={s.wrap}>
@@ -64,7 +66,15 @@ export function TextField({
         textContentType={textContentType}
         autoCapitalize={autoCapitalize}
         placeholderTextColor={theme.colors.textMuted}
-        style={[theme.text.body, s.input, multiline && s.multiline, invalid && s.invalid]}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={[
+          theme.text.body,
+          s.input,
+          multiline && s.multiline,
+          focused && s.focused,
+          invalid && s.invalid,
+        ]}
       />
       {invalid && message ? (
         <Text accessibilityRole="alert" style={s.message}>
@@ -80,20 +90,28 @@ export function TextField({
 const styles = (t: Theme) =>
   StyleSheet.create({
     wrap: { gap: t.spacing.xs },
-    label: { ...t.text.label, color: t.colors.text },
+    label: { ...t.type.detail, color: t.palette.textSoft, paddingHorizontal: t.spacing.xs },
+    // Sage input: round, chip fill. The 3:1 inputBorder is not in the design;
+    // focus turns it ink, like the design's focused field.
     input: {
-      minHeight: t.size.touchTarget,
-      paddingHorizontal: t.spacing.md,
+      minHeight: t.size.button,
+      paddingHorizontal: t.spacing.screen,
       paddingVertical: t.spacing.sm,
-      borderRadius: t.radius.md,
+      borderRadius: t.radius.pill,
       // Always drawn thick so switching to invalid never shifts layout.
       borderWidth: t.size.borderThick,
-      borderColor: t.colors.borderStrong,
-      backgroundColor: t.colors.surface,
-      color: t.colors.text,
+      borderColor: t.palette.inputBorder,
+      backgroundColor: t.palette.chip,
+      color: t.palette.ink,
     },
-    multiline: { minHeight: t.size.touchTargetLarge * 2, textAlignVertical: 'top' },
-    invalid: { borderColor: t.colors.invalid },
+    multiline: {
+      minHeight: t.size.touchTargetLarge * 2,
+      borderRadius: t.radius.card,
+      paddingVertical: t.spacing.md,
+      textAlignVertical: 'top',
+    },
+    focused: { borderColor: t.palette.ink },
+    invalid: { borderColor: t.palette.invalid },
     hint: { ...t.text.caption, color: t.colors.textMuted },
     message: { ...t.text.caption, color: t.colors.invalid },
   });

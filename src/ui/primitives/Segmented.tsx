@@ -81,7 +81,7 @@ const styles = (t: Theme) =>
       flexDirection: 'row',
       gap: t.spacing.xs,
       padding: t.spacing.xs,
-      borderRadius: t.radius.md,
+      borderRadius: t.radius.pill,
       backgroundColor: t.colors.surfaceSunken,
       // Always drawn so switching to invalid never shifts layout.
       borderWidth: t.size.borderThick,
@@ -90,9 +90,9 @@ const styles = (t: Theme) =>
     invalid: { borderColor: t.colors.invalid },
     segment: {
       flex: 1,
-      minHeight: t.size.touchTarget,
+      minHeight: t.size.buttonSmall,
       paddingHorizontal: t.spacing.sm,
-      borderRadius: t.radius.sm,
+      borderRadius: t.radius.pill,
       alignItems: 'center',
       justifyContent: 'center',
     },
