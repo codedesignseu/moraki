@@ -21,7 +21,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #140 | `sage/03c2-sheets-other` | Pump, weight, health, medication | merged | green |
 | #141 | `sage/03d-history-insights` | History, Insights, weight card | merged | green |
 | #142 | `sage/03e-settings` | Settings, caregivers, invite, baby | merged | green |
-| _next_ | `sage/03f-visits-stock-reports` | Appointment and stock sheets, call script, report, PDF | in progress | |
+| #143 | `sage/03f-visits-stock-reports` | Appointment and stock sheets, call script, report, PDF | merged | green |
+| _next_ | `sage/03g-by-analogy` | About, feedback, leave or delete, startup | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -176,6 +177,11 @@ These are recorded here only and not fixed, unless a PR says otherwise.
 | Caregiver roles and Remove (owner) | 20 member rows, via the account card | 3e |
 | Report preview (`/report/[range]`) | 14 cards; 12 timeline for the days table | 3f |
 | Call script notes, questions and worry field | 14 white cards | 3f |
+| About | 19 grouped cards; disclaimer on the feed colour | 3g |
+| Feedback | 18 fields; 19 segmented control | 3g |
+| Leave or delete | 20 member cards; 19 lists; inline confirm kept | 3g |
+| Startup screen and database failure | Page colour, matching the new splash | 3g |
+| Undo toast, Sentry test toast | `empty-states.html` confirmation toast (3a primitive) | 3a |
 | Home "Today" stats, appointment and milk stock cards | 06 cards and rows; 15 fridge and freezer tiles; 13 stat values | 3b |
 | Home duplicate question | 12 duplicate warning (feed tint) | 3b |
 | Home recent entries | 12 timeline card | 3b |
@@ -286,3 +292,9 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - Stock sheet: fridge or freezer, add or remove, amount, reason.
 - Call script: feeds card pale olive, diapers pale green, age pale slate; the worry field takes text.
 - Share PDF: the PDF prints dark green-grey text on white, even at night.
+
+**About, feedback, leave or delete, startup (3g)**
+- About: the disclaimer on pale olive; links open.
+- Feedback: kind, message, Send; the sent card.
+- Leave or delete: each card's inline confirm, the successor picker and the "cannot undo" line, with no dialog.
+- Cold start: after the splash, the startup screen is the same pale sage (night: deep green), not cream.
