@@ -1,21 +1,22 @@
-/* Moraki Sage tokens for the website and any web views */
+/* Moraki Stone tokens for the website and any web views */
 :root {
-  --bg: #E9EDE6;
+  --bg: #EEEDE7;
   --card: #FFFFFF;
-  --ink: #1E2A23;
-  --text-soft: #56615A;
-  --line: #DCE2D8;
-  --outline: #C7CFC3;
-  --chip: #E9EDE6;
-  --selected: #CFE0D3;
-  --button: #1E2A23;
+  --ink: #161412;
+  --text-soft: #5C5852;
+  --line: #E4E2DA;
+  --outline: #CFCCC3;
+  --chip: #EEEDE7;
+  --selected: #161412;
+  --on-selected: #FFFFFF;
+  --button: #161412;
   --on-button: #FFFFFF;
-  --feed: #E4E6CB;
-  --sleep: #DAE1E3;
-  --diaper: #D4E3DA;
-  --pump: #E3DFD1;
-  --on-tile: #1E2A23;
-  --on-tile-soft: #3B463F;
+  --feed: #F3DF8C;
+  --sleep: #ECD3CA;
+  --diaper: #CDD1F2;
+  --pump: #CDE5DA;
+  --on-tile: #161412;
+  --on-tile-soft: #3E3A35;
 
   --logo-ink: #2A211C;
   --logo-honey: #E8A55A;
@@ -31,21 +32,22 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #131814;
-    --card: #1E2520;
-    --ink: #E6ECE4;
-    --text-soft: #A9B5AB;
-    --line: #2A322C;
-    --outline: #3A453D;
-    --chip: #2A322C;
-    --selected: #2E3830;
-    --button: #CFE0D3;
-    --on-button: #131814;
-    --feed: #353A28;
-    --sleep: #2A3236;
-    --diaper: #263630;
-    --pump: #353329;
-    --on-tile: #E6ECE4;
-    --on-tile-soft: #C2CCC3;
+    --bg: #171411;
+    --card: #23201C;
+    --ink: #F1EAE0;
+    --text-soft: #B8AD9F;
+    --line: #34302B;
+    --outline: #4A443D;
+    --chip: #2C2823;
+    --selected: #3A352F;
+    --on-selected: #F1EAE0;
+    --button: #F1EAE0;
+    --on-button: #171411;
+    --feed: #51432A;
+    --sleep: #47343A;
+    --diaper: #33374D;
+    --pump: #2F4238;
+    --on-tile: #F1EAE0;
+    --on-tile-soft: #D3C8BA;
   }
 }
