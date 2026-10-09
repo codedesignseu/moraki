@@ -89,7 +89,12 @@ export function BabyScreen() {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, paddingBottom: theme.spacing.xl, gap: theme.spacing.md },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
-    alert: { ...theme.text.body, color: theme.colors.invalid },
+    // Sage 03, as in household setup: screen edge, Sage labels.
+    content: {
+      padding: theme.spacing.screen,
+      paddingBottom: theme.spacing.xl,
+      gap: theme.spacing.md,
+    },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
+    alert: { ...theme.type.body, color: theme.palette.invalid },
   });
