@@ -13,6 +13,7 @@ export { Icon } from './Icon';
 export type { IconButtonTone } from './IconButton';
 export { IconButton } from './IconButton';
 export { ListRow } from './ListRow';
+export { Logo } from './Logo';
 export { Notice } from './Notice';
 export type { ChartLine, ChartMark, ChartPoint } from './PointChart';
 export { PointChart } from './PointChart';

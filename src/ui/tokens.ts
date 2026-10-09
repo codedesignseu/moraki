@@ -188,6 +188,8 @@ export const size = {
   pill: 36,
   /** Dot inside a status pill that marks something running. */
   dot: 8,
+  /** Height of the Moraki mark in the Home header. */
+  logoHeader: 28,
 } as const;
 
 /** Opacity of a control while it is pressed. */
