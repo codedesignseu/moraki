@@ -8,11 +8,6 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F4EFE7"
-    },
     "assetBundlePatterns": ["assets/**/*"],
     "ios": {
       "supportsTablet": false,
@@ -21,12 +16,18 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "associatedDomains": ["applinks:moraki.app"],
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "icon": {
+        "light": "./assets/icon.png",
+        "dark": "./assets/icon-dark.png",
+        "tinted": "./assets/icon-tinted.png"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#F4EFE7"
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "package": "eu.codedesigns.moraki",
       "intentFilters": [
@@ -56,7 +57,12 @@
       "expo-font",
       "expo-asset",
       "expo-secure-store",
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png"
+        }
+      ],
       "expo-sharing",
       "@react-native-community/datetimepicker",
       "expo-apple-authentication",
@@ -72,6 +78,19 @@
           "organization": "ce-code-designs-ltd",
           "project": "moraki",
           "url": "https://de.sentry.io/"
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 240,
+          "resizeMode": "contain",
+          "backgroundColor": "#E9EDE6",
+          "dark": {
+            "image": "./assets/splash-icon-dark.png",
+            "backgroundColor": "#131814"
+          }
         }
       ]
     ],
