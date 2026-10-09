@@ -130,7 +130,11 @@ function CardTitle({ icon, title }: { icon: IconName; title: string }) {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    content: {
+      padding: theme.spacing.screen,
+      paddingBottom: theme.size.tabBarClearance,
+      gap: theme.spacing.lg,
+    },
     titleRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
     title: { flex: 1 },
     muted: { ...theme.text.label, color: theme.colors.textMuted },

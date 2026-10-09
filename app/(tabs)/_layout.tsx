@@ -26,7 +26,10 @@ export default function TabsLayout() {
   const { width: screenWidth } = useWindowDimensions();
   const { size, spacing, palette, radius } = theme;
   const itemGap = spacing.xs / 2;
+  // The pill's natural width (four 64 items, their gaps, its inner padding),
+  // centred with equal margins, never closer to the edge than the screen edge.
   const barWidth = TAB_COUNT * (size.tabItemWidth + 2 * itemGap) + 2 * (spacing.sm - itemGap);
+  const sideMargin = Math.max(spacing.screen, (screenWidth - barWidth) / 2);
 
   return (
     <Tabs
@@ -35,18 +38,23 @@ export default function TabsLayout() {
         headerShadowVisible: false,
         headerTintColor: palette.ink,
         headerTitleStyle: type.rowTitle,
-        // Content ends above the floating bar, so nothing hides behind it.
-        sceneStyle: {
-          backgroundColor: palette.background,
-          paddingBottom: size.tabBar + size.tabBarBottomOffset,
-        },
+        // The scene runs under the floating bar; each tab's scroll content
+        // carries size.tabBarClearance at the bottom instead.
+        sceneStyle: { backgroundColor: palette.background },
         tabBarShowLabel: false,
+        // Lays each item out as a centred row, so the icon sits in the middle
+        // of its pill rather than at the top (the "below-icon" column layout).
+        tabBarLabelPosition: 'beside-icon',
         tabBarStyle: {
           position: 'absolute',
+          // The default bar pins itself with start: 0 and end: 0, which win
+          // over left and width; set start and end themselves.
+          start: sideMargin,
+          end: sideMargin,
           bottom: size.tabBarBottomOffset,
-          left: (screenWidth - barWidth) / 2,
-          width: barWidth,
           height: size.tabBar,
+          // Replaces the safe-area bottom padding the default bar adds: the
+          // pill floats 30 above the edge, clear of the home indicator.
           paddingTop: (size.tabBar - size.tabItemHeight) / 2,
           paddingBottom: (size.tabBar - size.tabItemHeight) / 2,
           paddingHorizontal: spacing.sm - itemGap,
@@ -56,9 +64,11 @@ export default function TabsLayout() {
           elevation: 0,
           shadowOpacity: 0,
         },
+        // flex: 1 reaches the inner pressable that paints the active colour,
+        // so it fills the whole 48 high item; the item's round, clipped
+        // corners then give the active pill its round ends.
         tabBarItemStyle: {
-          flex: 0,
-          width: size.tabItemWidth,
+          flex: 1,
           height: size.tabItemHeight,
           marginHorizontal: itemGap,
           borderRadius: radius.pill,

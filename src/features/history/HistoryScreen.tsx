@@ -97,7 +97,10 @@ export function HistoryScreen({
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { paddingHorizontal: theme.spacing.screen, paddingBottom: theme.spacing.xl },
+    content: {
+      paddingHorizontal: theme.spacing.screen,
+      paddingBottom: theme.size.tabBarClearance,
+    },
     chips: {
       flexDirection: 'row',
       flexWrap: 'wrap',

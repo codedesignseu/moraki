@@ -260,7 +260,11 @@ function Row({
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    screen: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    screen: {
+      padding: theme.spacing.screen,
+      paddingBottom: theme.size.tabBarClearance,
+      gap: theme.spacing.lg,
+    },
     actions: { gap: theme.spacing.md },
     muted: { ...theme.type.detail, color: theme.palette.textSoft },
     strip: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
