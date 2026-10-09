@@ -1,4 +1,5 @@
 import type { Report } from '@/domain/report/buildReport';
+import { palette } from '@/ui/tokens';
 
 export type ReportSection = {
   key: string;
@@ -51,6 +52,9 @@ export function reportHtml(report: Report, labels: ReportLabels, lang: string): 
           .map((cells) => `<tr>${cells.map((c) => `<td>${escape(c)}</td>`).join('')}</tr>`)
           .join('')}</tbody></table></section>`;
 
+  // Print colours: the Sage day palette on white paper, whatever the night mode.
+  const { ink, textSoft: soft, line, card: paper } = palette.light;
+
   return `<!DOCTYPE html>
 <html lang="${escape(lang)}">
 <head>
@@ -58,17 +62,17 @@ export function reportHtml(report: Report, labels: ReportLabels, lang: string): 
 <title>${escape(labels.title)}</title>
 <style>
   @page { margin: 16mm; }
-  body { font-family: -apple-system, Roboto, sans-serif; font-size: 11pt; color: #2B2621; }
+  body { font-family: -apple-system, Roboto, sans-serif; font-size: 11pt; color: ${ink}; background: ${paper}; }
   h1 { font-size: 16pt; margin: 0; }
   h2 { font-size: 12pt; margin: 14pt 0 4pt; }
-  p.subtitle { margin: 2pt 0 0; color: #6B635B; }
+  p.subtitle { margin: 2pt 0 0; color: ${soft}; }
   section { page-break-inside: avoid; }
   table { border-collapse: collapse; width: 100%; }
-  th { text-align: left; font-weight: 400; color: #6B635B; padding: 2pt 8pt 2pt 0; width: 55%; }
+  th { text-align: left; font-weight: 400; color: ${soft}; padding: 2pt 8pt 2pt 0; width: 55%; }
   td { padding: 2pt 0; }
-  table.days th, table.days td { border-bottom: 0.5pt solid #E0DAD3; text-align: right; width: auto; }
+  table.days th, table.days td { border-bottom: 0.5pt solid ${line}; text-align: right; width: auto; }
   table.days th:first-child, table.days td:first-child { text-align: left; }
-  footer { margin-top: 16pt; color: #6B635B; font-size: 9pt; }
+  footer { margin-top: 16pt; color: ${soft}; font-size: 9pt; }
 </style>
 </head>
 <body>

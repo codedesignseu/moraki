@@ -35,7 +35,7 @@ export function CallScript() {
       keyboardDismissMode="interactive"
       automaticallyAdjustKeyboardInsets
     >
-      <Card testID="call-age">
+      <Card tone="sleep" testID="call-age">
         {knowsBirth ? (
           <Line
             label={t('report.call.age')}
@@ -78,7 +78,7 @@ export function CallScript() {
         )}
       </Card>
 
-      <Card testID="call-feeds">
+      <Card tone="feed" testID="call-feeds">
         <Text style={s.section}>{t('report.call.feeds.title')}</Text>
         <Line label={t('report.call.feeds.count')} value={`${feeds.count}`} />
         <Line
@@ -100,7 +100,7 @@ export function CallScript() {
         />
       </Card>
 
-      <Card testID="call-diapers">
+      <Card tone="diaper" testID="call-diapers">
         <Text style={s.section}>{t('report.call.diapers.title')}</Text>
         <Line label={t('report.call.diapers.wet')} value={`${report.last24h.wet}`} />
         <Line label={t('report.call.diapers.dirty')} value={`${report.last24h.dirty}`} />
@@ -199,11 +199,15 @@ function Line({ label, value }: { label: string; value: string }) {
 const styles = (theme: Theme) =>
   StyleSheet.create({
     // Room under the last card so the box clears the keyboard once lifted.
-    content: { padding: theme.spacing.lg, paddingBottom: theme.spacing.xl, gap: theme.spacing.md },
+    content: {
+      padding: theme.spacing.screen,
+      paddingBottom: theme.spacing.xl,
+      gap: theme.spacing.md,
+    },
     // Read at arm's length: the figure is the biggest thing on the line.
     line: { gap: theme.spacing.xs },
     label: { ...theme.text.body, color: theme.colors.textMuted },
     value: theme.text.title,
-    section: theme.text.heading,
+    section: theme.type.tileTitle,
     muted: { ...theme.text.body, color: theme.colors.textMuted },
   });

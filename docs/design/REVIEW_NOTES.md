@@ -20,7 +20,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #139 | `sage/03c1-sheets-feed` | Sheet styling, feed, diaper, sleep | merged | green |
 | #140 | `sage/03c2-sheets-other` | Pump, weight, health, medication | merged | green |
 | #141 | `sage/03d-history-insights` | History, Insights, weight card | merged | green |
-| _next_ | `sage/03e-settings` | Settings, caregivers, invite, baby | in progress | |
+| #142 | `sage/03e-settings` | Settings, caregivers, invite, baby | merged | green |
+| _next_ | `sage/03f-visits-stock-reports` | Appointment and stock sheets, call script, report, PDF | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -137,6 +138,9 @@ Each entry gives what was chosen, why, and the alternatives.
   Feedback and language have no fitting icon in the set; see DESIGN_GAPS.
 - **3e, caregivers** stay inside the Settings account card, restyled through the shared tokens and primitives. There is no separate 20 screen.
 
+- **3f: `Card` takes an optional `tone`** (a tile colour). The call script uses it as 14 does: feeds on feed, diapers on diaper, and age on sleep. The rest stay white.
+- **3f, PDF:** `reportHtml.ts` takes ink, soft text and line colours from `palette.light`, on white paper (`palette.light.card`), with the system font stack. It never uses night mode. The 5 hard-coded hex values are gone.
+
 ## 3. Problems found
 
 These are recorded here only and not fixed, unless a PR says otherwise.
@@ -170,6 +174,8 @@ These are recorded here only and not fixed, unless a PR says otherwise.
 | Settings sync, privacy, report, data, feedback, about, reminders, language cards | 19 grouped cards with badges | 3e |
 | Settings other-account and local-entries cards | 19 card with badge (feed colour) | 3e |
 | Caregiver roles and Remove (owner) | 20 member rows, via the account card | 3e |
+| Report preview (`/report/[range]`) | 14 cards; 12 timeline for the days table | 3f |
+| Call script notes, questions and worry field | 14 white cards | 3f |
 | Home "Today" stats, appointment and milk stock cards | 06 cards and rows; 15 fridge and freezer tiles; 13 stat values | 3b |
 | Home duplicate question | 12 duplicate warning (feed tint) | 3b |
 | Home recent entries | 12 timeline card | 3b |
@@ -274,3 +280,9 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - Owner: the roles switcher and Remove still work in the account card.
 - Invite: the code shows large, letter-spaced, on a grey pill; Share opens the system sheet.
 - Baby details: Save still disabled for a caregiver who cannot edit.
+
+**Visits, stock, reports (3f)**
+- Appointment sheet: fields, questions, add and remove question; the keyboard does not hide the question field.
+- Stock sheet: fridge or freezer, add or remove, amount, reason.
+- Call script: feeds card pale olive, diapers pale green, age pale slate; the worry field takes text.
+- Share PDF: the PDF prints dark green-grey text on white, even at night.
