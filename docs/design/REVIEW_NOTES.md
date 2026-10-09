@@ -15,7 +15,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #134 | `sage/02b-icons` | Icons and the `Icon` primitive | merged | green |
 | #135 | `sage/02c-components` | New Sage components | merged | green |
 | #136 | `sage/02d-app-icons` | App icon, splash, `expo-splash-screen` | merged | green |
-| _next_ | `sage/03a-onboarding` | Token aliases, primitive shapes, onboarding screens | in progress | |
+| #137 | `sage/03a-onboarding` | Token aliases, primitive shapes, onboarding screens | merged | green |
+| _next_ | `sage/03b-home` | Tab bar, headers, Home | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -89,6 +90,19 @@ Each entry gives what was chosen, why, and the alternatives.
 - **Consent (3a):** each of the four existing paragraphs sits in a tinted row with an icon: what → health, where → eu-shield, who → private, rights → export. Text, version, buttons and logic are unchanged.
 - **Household setup (3a):** the "Born on {date}" line moves into the 03 feed-tinted note card. Same text.
 
+- **3b: the tab bar is the default React Navigation bar, styled as the Sage pill, not the custom `TabBar` primitive.**
+  - With the custom `tabBar`, one behaviour test (`src/sync/householdSettings.test.tsx`, "brings the baby's details back too") failed every time, but only when run after the three tests before it. It passed alone, in pairs, and with the default bar.
+  - The default bar keeps press handling and accessibility exactly as before. It is drawn as the 66 pill, 30 above the edge, icons only, the active item a filled pill. The `TabBar` primitive stays in the showcase.
+  - Alternative: find the test-harness timing issue. Recorded in section 3 instead.
+- **3b, Home:**
+  - Feed, Sleep, Diaper and Pump are activity tiles. The Feed tile shows the new title "Feed"; its accessible name stays "Log feed".
+  - Health note and Medication are list rows. Medication uses the `health` icon; the set has no medicine icon.
+  - The time-since-feed card is the 07 card on the feed colour, without the ring.
+  - The running sleep, the duplicate question and the fridge and freezer tiles sit on tile colours.
+  - Order and content are unchanged.
+- **3b, tiles without detail lines.** The design shows "Last one 2 h ago" and similar on each tile. The tile row comes from `app/` and does not read the home data, and the timer card already shows the feed time. Alternative: pass the home view model into the tiles (a small `HomeScreen` API change).
+- **3b, the header still says "Moraki".** The design uses the baby's name as the heading, but the home view model does not carry it. Left for later (DESIGN_GAPS has 05/06 headers).
+
 ## 3. Problems found
 
 These are recorded here only and not fixed, unless a PR says otherwise.
@@ -103,6 +117,7 @@ These are recorded here only and not fixed, unless a PR says otherwise.
   - React Native Directory flags `expo-live-activity` as unmaintained and has no metadata for `expo-home-widget`. Both are local modules from the v1 cut; check whether they are still needed.
   - 10 Expo packages are one patch behind the SDK (`npx expo install --check`).
 - **Prettier fails on main.** `npx prettier --check .` flags 6 files nobody in this run touches: `docs/01-research-and-poc-scope.md`, `docs/04-agent-loop-guide.md`, `docs/P0-01-manifest.md`, `public/404.html`, `public/el/terms/index.html`, `supabase/templates/sign-in-code.html`. CI does not run Prettier, so it never noticed. Fix: `npx prettier --write` on those 6 files, in a separate PR to main.
+- **Order-dependent behaviour test.** `src/sync/householdSettings.test.tsx`, test 5 ("brings the baby's details back too"), fails when Home uses a custom `tabBar` and the three earlier tests in the file have run (React logs "overlapping act() calls"). It passes alone or in pairs. The pull probably races the previous test's cleanup. Suggested fix: await the pull explicitly in that test, or isolate it in its own file. Not changed here; the tab bar uses the default component instead.
 - **Outlined buttons.** Sage `outline` on `card` is 1.6:1 (night 1.57:1), below the 3:1 for a control's edge. The buttons always carry a text label. Fix if wanted: darken `outline` to about `#8A9586` (day) and `#6B776E` (night), which is a design decision.
 - **Greek with names.** Existing strings put the baby's or a caregiver's name after `του/της`, `τον/την` or `Ο/Η` in the nominative. Listed in section 5.
 
@@ -110,6 +125,9 @@ These are recorded here only and not fixed, unless a PR says otherwise.
 
 | Screen | Modelled on | PR |
 |---|---|---|
+| Home "Today" stats, appointment and milk stock cards | 06 cards and rows; 15 fridge and freezer tiles; 13 stat values | 3b |
+| Home duplicate question | 12 duplicate warning (feed tint) | 3b |
+| Home recent entries | 12 timeline card | 3b |
 | Sign in (email, code, Apple, Google) | 01 welcome type and buttons; 03 inputs | 3a |
 | Join, signed-out and already-in-household states | 02 join card; 01 for the plain states | 3a |
 
@@ -121,6 +139,7 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 
 | Key | EN | EL | PR |
 |---|---|---|---|
+| `home.actions.feed` (new) | Feed | Τάισμα | 3b |
 
 ### Existing strings with a name inside a sentence (unchanged unless the screen's PR restyles them)
 
@@ -141,6 +160,7 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - **Glyph icons.** Back, close and similar are text glyphs (section 2).
 - **Touch target.** 48, not 44 (D7).
 - **Input border.** Text inputs get a 2 px `inputBorder` edge (day `#717E75`, night `#7E8B81`, at least 3:1 on card, chip and background). The design draws inputs with no edge, which would leave a chip-coloured field nearly invisible on a white card (about 1.2:1). Focus turns the edge ink, like the design's focused field.
+- **Order-dependent behaviour test.** `src/sync/householdSettings.test.tsx`, test 5 ("brings the baby's details back too"), fails when Home uses a custom `tabBar` and the three earlier tests in the file have run (React logs "overlapping act() calls"). It passes alone or in pairs. The pull probably races the previous test's cleanup. Suggested fix: await the pull explicitly in that test, or isolate it in its own file. Not changed here; the tab bar uses the default component instead.
 - **Outlined buttons.** They use the design's `outline` colour (about 1.6:1). Their text label identifies them.
 - **Stepper.** The value uses Sage `title` (36), not the design's 50 or 66, so the row fits at 200% text. The buttons stay 64 (the app's one-handed size) instead of 56.
 - **Join code field.** It uses the standard text field, not the design's letter-spaced 20/800 code style, because `TextField` takes no style override and adding one is out of scope.
@@ -171,3 +191,11 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - Join: link icon beside the intro, and the deep link `moraki.app/join/CODE` still opens the form with the code.
 - Consent: four tinted rows with icons and the existing text in full. Agree, then Withdraw, still work.
 - In every log sheet, the undo toast is an ink pill with a light Undo pill. It sits higher than before (clear of where the tab bar will float).
+
+**Home and tab bar (3b)**
+- The tab bar floats as a dark pill (light at night), centred, with no labels. The active tab is a light pill. VoiceOver reads Home, History, Trends and Settings.
+- Content never hides behind the bar; scroll to the bottom of Home and Settings.
+- The tiles open feed, sleep, diaper and pump. The health note and medication rows open their sheets.
+- The timer card is pale olive, centred, with a large timer.
+- Night mode: tiles turn deep olive, slate, green and brown; the text stays readable.
+- At 200% text, tiles grow taller and nothing is cut off.
