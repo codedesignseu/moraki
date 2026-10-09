@@ -18,7 +18,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #137 | `sage/03a-onboarding` | Token aliases, primitive shapes, onboarding screens | merged | green |
 | #138 | `sage/03b-home` | Tab bar, headers, Home | merged | green |
 | #139 | `sage/03c1-sheets-feed` | Sheet styling, feed, diaper, sleep | merged | green |
-| _next_ | `sage/03c2-sheets-other` | Pump, weight, health, medication | in progress | |
+| #140 | `sage/03c2-sheets-other` | Pump, weight, health, medication | merged | green |
+| _next_ | `sage/03d-history-insights` | History, Insights, weight card | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -113,6 +114,11 @@ Each entry gives what was chosen, why, and the alternatives.
 - **3c-1: cards inside sheets.** The sheet is white, so a white `Card` inside it would vanish. The feed amount and breast blocks use the feed colour (08). The running sleep uses the sleep colour (11). The past-sleep block uses chip colour.
 - **3c-1: the diaper time field moved under the three tiles**, as in 10 ("Changed her earlier? Pick time"). A tap on a tile still saves at once. Setting an earlier time still has to happen before the tap, as before.
 
+- **3d, History:**
+  - Each day's entries sit in one white card under the day heading. The list stays continuous, not paged by day.
+  - The empty and filtered-empty texts use the Sage empty state with the existing copy as its title. No body line and no button: the History screen has no way to open a log sheet, so a button would be new behaviour.
+- **3d, Insights:** cards keep their order and content and get icon headings: feed for the bottle and breast charts, insights for averages, time for days, weight for the weight card. Bars are ink, through the token aliases.
+
 ## 3. Problems found
 
 These are recorded here only and not fixed, unless a PR says otherwise.
@@ -141,6 +147,8 @@ These are recorded here only and not fixed, unless a PR says otherwise.
 | Weight sheet | 03 weight field; 08 stepper | 3c-2 |
 | Health note sheet | 18 fields; 12 chips; time in a status pill | 3c-2 |
 | Medication sheet | 18 fields; time in a status pill | 3c-2 |
+| Insights days table | 12 timeline card | 3d |
+| History empty states (no design copy used) | `empty-states.html` History card | 3d |
 | Home "Today" stats, appointment and milk stock cards | 06 cards and rows; 15 fridge and freezer tiles; 13 stat values | 3b |
 | Home duplicate question | 12 duplicate warning (feed tint) | 3b |
 | Home recent entries | 12 timeline card | 3b |
@@ -182,6 +190,7 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - **Sheet corners.** About 10 (native iOS modal), not 32 (D5 fallback, section 2).
 - **Feed amount.** The stepper keeps −/+ with the amount between them. The design's three tiles (−10, "same as last", +10) are not used, because "same as last" is design only.
 - **Diaper tiles.** Three across in one row, label under the icon, no "+".
+- **History rows** keep their divider line, so the first row of each day shows a line at the top of its card.
 - **Join code field.** It uses the standard text field, not the design's letter-spaced 20/800 code style, because `TextField` takes no style override and adding one is out of scope.
 
 - **Activity tile:** the design's "+" is its own button. Here it is drawn inside a single tile button, to avoid two nested targets doing the same thing.
@@ -233,3 +242,8 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - Weight: type grams; the field edge turns ink while typing and clay with a message when out of range; Save disabled.
 - Health note: the keyboard must not cover the note or temperature field; scroll works with the keyboard open.
 - Medication: the name is prefilled from the last one; the time shows in a pill.
+
+**History and Insights (3d)**
+- History: days as white cards on the pale page; filters as round chips; tap an entry to edit.
+- With no entries: a slate tile with the list icon and "Nothing logged yet".
+- Insights: ink bars; each card has an icon; the weight chart marks clinic and home weights and shows its legend.
