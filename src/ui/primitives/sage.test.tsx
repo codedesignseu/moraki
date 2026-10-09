@@ -3,7 +3,7 @@ import { Text } from 'react-native';
 
 import { ThemeProvider } from '../theme';
 import { palette, radius, size } from '../tokens';
-import { ActivityTile, Card, EmptyState, IconButton, ListRow, StatusPill, TabBar } from '.';
+import { ActivityTile, Card, EmptyState, IconButton, ListRow, Logo, StatusPill, TabBar } from '.';
 
 const noop = () => {};
 const HIDDEN = { includeHiddenElements: true };
@@ -172,4 +172,37 @@ describe('Card', () => {
       expect(screen.getByTestId('feed')).toHaveStyle({ backgroundColor: palette[scheme].feed });
     },
   );
+});
+
+describe('Logo', () => {
+  it.each(['light', 'night'] as const)(
+    'is a header named Moraki, 28 high and untinted, in %s',
+    async (scheme) => {
+      await render(
+        <ThemeProvider scheme={scheme}>
+          <Logo accessibilityLabel="Moraki" testID="logo" />
+        </ThemeProvider>,
+      );
+      const logo = screen.getByRole('header', { name: 'Moraki' });
+      expect(logo).toHaveStyle({ height: size.logoHeader });
+      expect(logo).not.toHaveStyle({ tintColor: palette[scheme].ink });
+      expect(logo.props.style.tintColor).toBeUndefined();
+    },
+  );
+
+  it('uses the day mark by day and the night mark at night', async () => {
+    await render(
+      <>
+        <ThemeProvider scheme="light">
+          <Logo accessibilityLabel="Day" />
+        </ThemeProvider>
+        <ThemeProvider scheme="night">
+          <Logo accessibilityLabel="Night" />
+        </ThemeProvider>
+      </>,
+    );
+    const day = screen.getByRole('header', { name: 'Day' }).props.source;
+    const night = screen.getByRole('header', { name: 'Night' }).props.source;
+    expect(day).not.toEqual(night);
+  });
 });
