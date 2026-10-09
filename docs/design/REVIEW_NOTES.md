@@ -40,7 +40,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #145 | `sage/04-final` | Final checks and docs | merged | green |
 | #146 | `sage/04b-build-result` | Build result in the notes | merged | green |
 | #147 | `sage/05a-tab-bar` | Tab bar fix | merged | green |
-| _next_ | `sage/05b-header-logo` | Home header logo | in progress | |
+| #148 | `sage/05b-header-logo` | Home header logo | merged | green |
+| _next_ | `sage/05c-stone` | Stone palette | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -189,6 +190,36 @@ Each entry gives what was chosen, why, and the alternatives.
   - The `Logo` primitive picks the asset by scheme and never sets `tintColor`. It is announced as a header with the label "Moraki".
   - On Home the header title is the mark, centred (`headerTitleAlign: 'center'` so Android centres it too). The other tabs keep their text titles.
 
+- **5c: Stone palette, colour only.**
+  - Every token is set on its own from the Stone table (no find-and-replace on hex), and `onSelected` is added.
+  - Layout, type, sizes, icons, copy, token names and scheme names are unchanged.
+  - Splash backgrounds: `#EEEDE7` by day and `#171411` at night. Logo colours and app icon files are unchanged.
+- **5c: two values derived, since they are not in the Stone table:**
+
+  | Token | Day | Night | Contrast |
+  |---|---|---|---|
+  | `inputBorder` | `#7C7973` | `#847E76` | Day 4.34 card, 3.70 chip and background. Night 4.04 card, 3.64 chip, 4.57 background. |
+  | `invalid` | `#8E4434` | `#E2A693` | Day kept from Sage: 6.94 card, 5.92 background, at least 4.63 on every tile. Night changed from `#DDA08F`, which was 4.35 on the night feed tile: now 7.81 card, 8.83 background, 4.62 feed, at least 5.17 on the other tiles. |
+
+  Both are warm neutral or clay, and both are tested.
+- **5c: what changed because Stone's `selected` is dark:**
+  - `Chip` (the only control drawing on `accentSubtle`, which was aliased to `selected`):
+    - The selected fill is `palette.selected` and the label `palette.onSelected` (was ink, which would be dark on dark).
+    - A 2 pt ink ring marks it: at night `selected` vs `card` is only 1.34:1, and the ring is 10+:1, so the state shows in shape, not only colour.
+    - A pressed selected chip dims (opacity) instead of turning `line`, which would put a white label on a light fill.
+  - The `accentSubtle` alias now points at `chip`. Its only other user is `Notice` (developer web banner), a soft tint behind dark text, not a selected state.
+  - `ListRow` badges no longer accept `selected` as a fill. No screen used it, but it would put a dark icon on a dark fill.
+  - Call script labels and "none" lines use `onTileSoft` instead of `textSoft`. Three of its cards sit on tile colours, and `textSoft` on the night feed tile is 4.35:1.
+  - Checked and unchanged, because they already draw with their own on-colour:
+    - Segmented selected (`buttonPrimary` / `onButtonPrimary`)
+    - Tab bar active item and `TabBar` primitive (`tabActive` / `onTabActive`)
+    - Toast Undo pill (`tabActive` / `onTabActive`)
+    - Main button
+    - Stepper (card-coloured buttons with ink symbols)
+- **5c, unsure:**
+  - **Chip vs Segmented at night.** A selected chip is a dark fill with an ink ring. A selected segment is the light `buttonPrimary` fill with dark text. Both are readable, but they look different. By day both are near-black with white text. To make them match, Segmented could use `selected`/`onSelected` too, which would be a design change.
+  - **Segmented `selectedDisabled`** (feed kind while editing): a `line` fill with `textSoft` text, 5.45:1 by day and about 5.9 at night. It reads as disabled, not as the dark selected state, as before.
+
 ## 3. Problems found
 
 These are recorded here only and not fixed, unless a PR says otherwise.
@@ -204,6 +235,7 @@ These are recorded here only and not fixed, unless a PR says otherwise.
   - React Native Directory flags `expo-live-activity` as unmaintained and has no metadata for `expo-home-widget`. Both are local modules from the v1 cut; check whether they are still needed.
   - 10 Expo packages are one patch behind the SDK (`npx expo install --check`).
 - **Prettier fails on main.** `npx prettier --check .` flags 6 files nobody in this run touches: `docs/01-research-and-poc-scope.md`, `docs/04-agent-loop-guide.md`, `docs/P0-01-manifest.md`, `public/404.html`, `public/el/terms/index.html`, `supabase/templates/sign-in-code.html`. CI does not run Prettier, so it never noticed. Fix: `npx prettier --write` on those 6 files, in a separate PR to main.
+- **Stone pair outside the table that fails AA:** `textSoft` on the night feed tile, `#B8AD9F` on `#51432A`, is **4.35:1** (needs 4.5). Your value is kept. No screen draws `textSoft` on a tile now (call script moved to `onTileSoft`; tiles use `onTile` / `onTileSoft`). Nearest passing value: night `textSoft` `#BDB2A4` (about 4.6:1 on the feed tile; still above 7:1 on card and background). Alternatively, night `feed` `#4C3F27`.
 - **Order-dependent behaviour test.** `src/sync/householdSettings.test.tsx`, test 5 ("brings the baby's details back too"), fails when Home uses a custom `tabBar` and the three earlier tests in the file have run (React logs "overlapping act() calls"). It passes alone or in pairs. The pull probably races the previous test's cleanup. Suggested fix: await the pull explicitly in that test, or isolate it in its own file. Not changed here; the tab bar uses the default component instead.
 - **Outlined buttons.** Sage `outline` on `card` is 1.6:1 (night 1.57:1), below the 3:1 for a control's edge. The buttons always carry a text label. Fix if wanted: darken `outline` to about `#8A9586` (day) and `#6B776E` (night), which is a design decision.
 - **Greek with names.** Existing strings put the baby's or a caregiver's name after `του/της`, `τον/την` or `Ο/Η` in the nominative. Listed in section 5.
@@ -275,6 +307,7 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 
 ## 6. Deviations from the design
 
+- **Design screens are still Sage.** The HTML and PNG files in `design/screens` show the Sage colours and are now a layout reference only. `design/guidelines/brand-guidelines.md` (colour section) and `design/guidelines/tokens/*` give the Stone values.
 - **Fonts.** System font, not Ysabeau Infant or Commissioner (owner's brief). Weights follow the design: 500, 600, 800.
 - **Icons.** 256 px PNGs with one stroke width. The design varies the stroke from 1.4 to 1.8 by size; here it scales with the icon.
 - **Glyph icons.** Back, close and similar are text glyphs (section 2).
@@ -373,3 +406,16 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - Home header: the mark alone, centred, about 28 pt high. Honey deep by day, lighter honey at night; never green or grey.
 - VoiceOver on the header reads "Moraki, heading".
 - History, Trends and Settings keep their text titles.
+
+**Stone palette (5c), read from the code**
+- Day pages are warm stone `#EEEDE7` with white cards and near-black text. Tiles are saturated: yellow feed, pink sleep, lavender diaper, mint pump. Check that the tile text (near-black) is comfortable on the yellow feed tile and the Home timer card.
+- Night: deep warm brown, tiles muted olive, plum, indigo and pine with light text. The night feed tile is the darkest pair; its detail text uses `onTileSoft` (`#D3C8BA`, 5.8:1).
+- Chips (History filters, relation chips in setup and join, health tags): selected is near-black with white text by day; dark with a light ring and light text at night. Press a selected chip: it dims and the label stays readable.
+- Segmented controls (feed kind, milk, side, stock, night mode, language): selected is near-black with white text by day, light with dark text at night.
+- Inputs: chip-coloured with a grey-brown edge that turns ink on focus. An error turns the edge and the message clay (night: lighter clay).
+- Toast: dark pill with a white Undo pill by day; light pill with a dark Undo pill at night.
+- Main button: near-black by day, light at night.
+- Diaper sheet: three lavender tiles with dark icons.
+- Tab bar: near-black pill, white active item by day; light pill, dark active item at night.
+- Splash: `#EEEDE7` by day and `#171411` at night, with the honey mark.
+- PDF: near-black text on white, whatever the night mode.
