@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { BarChart, Card } from '@/ui/primitives';
+import type { IconName } from '@/ui/icons';
+import { BarChart, Card, Icon } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useInsights } from './useInsights';
@@ -17,14 +18,14 @@ export function InsightsScreen({ weight }: { weight?: ReactNode }) {
   return (
     <ScrollView contentContainerStyle={s.content}>
       <Card testID="insights-bottle">
-        <Text style={theme.text.heading}>{t('insights.bottle.title')}</Text>
+        <CardTitle icon="feed" title={t('insights.bottle.title')} />
         <BarChart bars={insights.bottleBars} testID="insights-bottle-chart" />
         <Text style={theme.text.body}>{t('insights.total', { value: insights.bottleTotal })}</Text>
       </Card>
 
       {insights.breastBars && (
         <Card testID="insights-breast">
-          <Text style={theme.text.heading}>{t('insights.breast.title')}</Text>
+          <CardTitle icon="feed" title={t('insights.breast.title')} />
           <BarChart bars={insights.breastBars} testID="insights-breast-chart" />
           <Text style={theme.text.body}>
             {t('insights.total', { value: insights.breastTotal })}
@@ -36,7 +37,7 @@ export function InsightsScreen({ weight }: { weight?: ReactNode }) {
       {weight}
 
       <Card testID="insights-averages">
-        <Text style={theme.text.heading}>{t('insights.averages.title')}</Text>
+        <CardTitle icon="tab-insights" title={t('insights.averages.title')} />
         <Figure
           label={t('insights.averages.bottle')}
           value={insights.averageBottle ?? t('insights.none')}
@@ -48,7 +49,7 @@ export function InsightsScreen({ weight }: { weight?: ReactNode }) {
       </Card>
 
       <Card testID="insights-days">
-        <Text style={theme.text.heading}>{t('insights.days.title')}</Text>
+        <CardTitle icon="time" title={t('insights.days.title')} />
         <Row
           header
           cells={[
@@ -115,9 +116,23 @@ function Row({
   );
 }
 
+/** Sage 13 card heading: icon and title. */
+function CardTitle({ icon, title }: { icon: IconName; title: string }) {
+  const theme = useTheme();
+  const s = styles(theme);
+  return (
+    <View style={s.titleRow}>
+      <Icon name={icon} />
+      <Text style={[theme.type.tileTitle, s.title]}>{title}</Text>
+    </View>
+  );
+}
+
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    titleRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+    title: { flex: 1 },
     muted: { ...theme.text.label, color: theme.colors.textMuted },
     figure: { gap: theme.spacing.xs },
     row: { flexDirection: 'row', gap: theme.spacing.sm },
