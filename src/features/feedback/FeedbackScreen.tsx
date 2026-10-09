@@ -27,7 +27,7 @@ export function FeedbackScreen({ onDone }: { onDone: () => void }) {
     return (
       <ScrollView contentContainerStyle={s.content}>
         <Card testID="feedback-sent">
-          <Text style={theme.text.heading}>{t('feedback.sent.title')}</Text>
+          <Text style={theme.type.tileTitle}>{t('feedback.sent.title')}</Text>
           <Text style={theme.text.body}>{t('feedback.sent.body')}</Text>
         </Card>
         <Button label={t('feedback.close')} onPress={onDone} />
@@ -74,7 +74,8 @@ export function FeedbackScreen({ onDone }: { onDone: () => void }) {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
-    problem: { ...theme.text.body, color: theme.colors.invalid },
+    // By analogy with the 18 fields and the 19 segmented control.
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
+    problem: { ...theme.type.body, color: theme.palette.invalid },
   });
