@@ -74,6 +74,6 @@ export function StockSheet({ place, onDone }: { place: StockPlace; onDone: () =>
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
   });
