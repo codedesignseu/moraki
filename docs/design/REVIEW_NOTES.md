@@ -16,7 +16,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #135 | `sage/02c-components` | New Sage components | merged | green |
 | #136 | `sage/02d-app-icons` | App icon, splash, `expo-splash-screen` | merged | green |
 | #137 | `sage/03a-onboarding` | Token aliases, primitive shapes, onboarding screens | merged | green |
-| _next_ | `sage/03b-home` | Tab bar, headers, Home | in progress | |
+| #138 | `sage/03b-home` | Tab bar, headers, Home | merged | green |
+| _next_ | `sage/03c1-sheets-feed` | Sheet styling, feed, diaper, sleep | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -103,6 +104,14 @@ Each entry gives what was chosen, why, and the alternatives.
 - **3b, tiles without detail lines.** The design shows "Last one 2 h ago" and similar on each tile. The tile row comes from `app/` and does not read the home data, and the timer card already shows the feed time. Alternative: pass the home view model into the tiles (a small `HomeScreen` API change).
 - **3b, the header still says "Moraki".** The design uses the baby's name as the heading, but the home view model does not carry it. Left for later (DESIGN_GAPS has 05/06 headers).
 
+- **D5: formSheet was not adopted; the fallback is used.**
+  - D5 asked for a check with the keyboard open, at 200% text and on iOS and Android before adopting formSheet. None of that can run overnight without a device or a native build.
+  - So the safe fallback applies: the platform modal stays, and the sheet, its header and content are on the card colour (`useSheetOptions` in `src/ui/theme/sheet.ts`, used by every log and edit route).
+  - iOS draws its own modal corners, about 10, not 32. The design's 32 cannot be set on a plain modal.
+  - To switch later, change `presentation: 'modal'` in `useSheetOptions` to `'formSheet'` and add `sheetCornerRadius: 32`, `sheetGrabberVisible: true` and `sheetAllowedDetents: [1]`. Then check the keyboard over the health note, the appointment questions and the weight field on both platforms.
+- **3c-1: cards inside sheets.** The sheet is white, so a white `Card` inside it would vanish. The feed amount and breast blocks use the feed colour (08). The running sleep uses the sleep colour (11). The past-sleep block uses chip colour.
+- **3c-1: the diaper time field moved under the three tiles**, as in 10 ("Changed her earlier? Pick time"). A tap on a tile still saves at once. Setting an earlier time still has to happen before the tap, as before.
+
 ## 3. Problems found
 
 These are recorded here only and not fixed, unless a PR says otherwise.
@@ -125,6 +134,8 @@ These are recorded here only and not fixed, unless a PR says otherwise.
 
 | Screen | Modelled on | PR |
 |---|---|---|
+| Past sleep card and sleep edit form | 08 card and 11 header | 3c-1 |
+| Edit entry (`/entry/[id]`) sheet colour and padding | Log sheets 08 to 11 | 3c-1 |
 | Home "Today" stats, appointment and milk stock cards | 06 cards and rows; 15 fridge and freezer tiles; 13 stat values | 3b |
 | Home duplicate question | 12 duplicate warning (feed tint) | 3b |
 | Home recent entries | 12 timeline card | 3b |
@@ -163,6 +174,9 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - **Order-dependent behaviour test.** `src/sync/householdSettings.test.tsx`, test 5 ("brings the baby's details back too"), fails when Home uses a custom `tabBar` and the three earlier tests in the file have run (React logs "overlapping act() calls"). It passes alone or in pairs. The pull probably races the previous test's cleanup. Suggested fix: await the pull explicitly in that test, or isolate it in its own file. Not changed here; the tab bar uses the default component instead.
 - **Outlined buttons.** They use the design's `outline` colour (about 1.6:1). Their text label identifies them.
 - **Stepper.** The value uses Sage `title` (36), not the design's 50 or 66, so the row fits at 200% text. The buttons stay 64 (the app's one-handed size) instead of 56.
+- **Sheet corners.** About 10 (native iOS modal), not 32 (D5 fallback, section 2).
+- **Feed amount.** The stepper keeps −/+ with the amount between them. The design's three tiles (−10, "same as last", +10) are not used, because "same as last" is design only.
+- **Diaper tiles.** Three across in one row, label under the icon, no "+".
 - **Join code field.** It uses the standard text field, not the design's letter-spaced 20/800 code style, because `TextField` takes no style override and adding one is out of scope.
 
 - **Activity tile:** the design's "+" is its own button. Here it is drawn inside a single tile button, to avoid two nested targets doing the same thing.
@@ -199,3 +213,12 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - The timer card is pale olive, centred, with a large timer.
 - Night mode: tiles turn deep olive, slate, green and brown; the text stays readable.
 - At 200% text, tiles grow taller and nothing is cut off.
+
+**Log sheets: feed, diaper, sleep (3c-1)**
+- Each sheet opens as the usual modal, now white (night: dark green-grey).
+- Feed: time in a pill at the top; the bottle amount, milk and stock choices on a pale olive card; Save at the bottom.
+- Diaper: one tap on Wet, Dirty or Both saves, closes the sheet and shows Undo. Pick an earlier time first by scrolling down to the time field.
+- Sleep running: pale slate card, moon, "since 03:12", dark Stop.
+- Past sleep: grey card with both steppers and both time fields. Save is disabled when the end is before the start.
+- Keyboard: none of these three sheets has a text field.
+- 200% text: the diaper tile labels may wrap onto two lines; they must not be cut off.
