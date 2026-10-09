@@ -38,7 +38,7 @@ export function SignInScreen({ onDone }: { onDone: (user: AuthUser) => void }) {
           />
           {signIn.appleAvailable || signIn.googleAvailable ? (
             <>
-              <Text style={theme.text.body}>{t('signIn.or')}</Text>
+              <Text style={s.or}>{t('signIn.or')}</Text>
               {signIn.appleAvailable ? (
                 <Button
                   label={t('signIn.apple')}
@@ -98,5 +98,8 @@ export function SignInScreen({ onDone }: { onDone: (user: AuthUser) => void }) {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+    // Sage, by analogy with 01 and 03: screen edge 18, round inputs, one dark
+    // button, outlined alternatives.
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    or: { ...theme.type.detail, color: theme.palette.textSoft, textAlign: 'center' },
   });
