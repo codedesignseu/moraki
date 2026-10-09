@@ -13,7 +13,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #132 | `sage/01-mapping` | Step 1 mapping | merged | green |
 | #133 | `sage/02a-tokens` | Tokens, `design/` export and exclusions | merged | green |
 | #134 | `sage/02b-icons` | Icons and the `Icon` primitive | merged | green |
-| _next_ | `sage/02c-components` | New Sage components | in progress | |
+| #135 | `sage/02c-components` | New Sage components | merged | green |
+| _next_ | `sage/02d-app-icons` | App icon, splash, `expo-splash-screen` | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -46,6 +47,21 @@ Each entry gives what was chosen, why, and the alternatives.
   - all in the `/primitives` showcase in both schemes
 - **The tab bar shows icons only, as the design does.** The labels remain as screen reader labels. The selected tab is a filled pill, so shape, not only colour, shows it. Alternative: icon plus small label, which the design does not show.
 
+- **2d: `expo-splash-screen ~57.0.9` added in its own commit with `npx expo install`, as approved.**
+  - `npx expo install` also re-registered the plugin and reformatted `app.json`; Prettier put the formatting back.
+  - Your uncommitted `package.json` script change was stashed during the install and restored straight after. It was never committed.
+- **2d icon and splash choices:**
+  - iOS uses `ios.icon` with `light`, `dark` and `tinted` from `design/app-icons/ios`.
+  - Android uses the adaptive foreground, background and monochrome layers. The background is now an image, not `#F4EFE7`.
+  - Splash: `splash-mark-light/dark.png` with `imageWidth: 240` (the mark is about 31% of its canvas, so it shows about 75 dp wide), on `#E9EDE6` and `#131814`.
+  - Alternatives: a smaller `imageWidth` (160 gives a mark about 50 dp wide).
+- **2d also sets the Android notification icon.** `expo-notifications` gets `icon: ./assets/notification-icon.png`, which is white on transparent as Android requires. This changes no notification text. Alternative: leave the default icon.
+- **The splash follows the phone's appearance, not Moraki's night mode.** The splash shows before any app code runs, so it can only follow the system light or dark setting (`userInterfaceStyle: automatic`). At 03:00 with the phone in light mode, the splash is day green, and then the app opens in night mode.
+- **Not used from `design/app-icons`:**
+  - `play-store-512.png` and `social-share-1200x630.svg`: store and marketing assets, not app config.
+  - `apple-touch-icon-180`: the app has no web build to use it.
+  - Icon Composer layers (`.icon` files for iOS 26 Liquid Glass): Expo SDK 57 takes them only through a separate `ios.icon` file path, so they are left for later.
+
 ## 3. Problems found
 
 These are recorded here only and not fixed, unless a PR says otherwise.
@@ -55,6 +71,10 @@ These are recorded here only and not fixed, unless a PR says otherwise.
   - `package.json` scripts `ios` and `android` changed to `expo run:ios` / `expo run:android`, and a gitignored `ios/` folder exists. Both are the result of a local `npx expo run:ios`.
   - Not touched and never staged by this run.
   - For the final build, the change is stashed and restored afterwards, so the tree is clean (see section 1).
+- **expo-doctor: 3 checks fail on main as well, and none is caused by this run.**
+  - The `app.json` schema rejects `newArchEnabled`. It is the default in SDK 57; remove the key.
+  - React Native Directory flags `expo-live-activity` as unmaintained and has no metadata for `expo-home-widget`. Both are local modules from the v1 cut; check whether they are still needed.
+  - 10 Expo packages are one patch behind the SDK (`npx expo install --check`).
 - **Prettier fails on main.** `npx prettier --check .` flags 6 files nobody in this run touches: `docs/01-research-and-poc-scope.md`, `docs/04-agent-loop-guide.md`, `docs/P0-01-manifest.md`, `public/404.html`, `public/el/terms/index.html`, `supabase/templates/sign-in-code.html`. CI does not run Prettier, so it never noticed. Fix: `npx prettier --write` on those 6 files, in a separate PR to main.
 - **Outlined buttons.** Sage `outline` on `card` is 1.6:1 (night 1.57:1), below the 3:1 for a control's edge. The buttons always carry a text label. Fix if wanted: darken `outline` to about `#8A9586` (day) and `#6B776E` (night), which is a design decision.
 - **Greek with names.** Existing strings put the baby's or a caregiver's name after `του/της`, `τον/την` or `Ο/Η` in the nominative. Listed in section 5.
@@ -104,3 +124,10 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 **Components (2c), on the dev screen `/primitives`**
 - Tiles, rows, tab bar and empty state in day and night.
 - Set the phone to the largest text size: tiles and rows grow, nothing is clipped.
+
+**App icon and splash (2d): native, so only the EAS preview build shows them**
+- The final EAS preview build is the first real test of the splash plugin and the new icons. The dev client cannot show them, and no local native build was run.
+- Home screen icon: light, dark and tinted (long-press the home screen, then Edit, then Customize).
+- Cold start with the phone in light mode: mark on pale sage `#E9EDE6`. With the phone in dark mode: mark on `#131814`.
+- Android (if you build it): adaptive icon in round and squircle masks, the themed (monochrome) icon, and the notification icon in the status bar.
+- To see them locally later without EAS: `npx expo run:ios` builds on your Mac. It rewrites the `ios`/`android` scripts in `package.json`, as happened before.
