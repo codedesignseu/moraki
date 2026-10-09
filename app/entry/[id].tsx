@@ -13,7 +13,7 @@ import { HealthSheet } from '@/features/health/HealthSheet';
 import { MedicationSheet } from '@/features/health/MedicationSheet';
 import { SleepSheet } from '@/features/sleep/SleepSheet';
 import { Button } from '@/ui/primitives';
-import { useTheme, type Theme } from '@/ui/theme';
+import { useSheetOptions, useTheme, type Theme } from '@/ui/theme';
 
 type Editor = ComponentType<{ entryId: string; onDone: () => void }>;
 
@@ -43,6 +43,7 @@ export default function EditEntry() {
   const t = typedT as unknown as (key: string) => string;
   const router = useRouter();
   const theme = useTheme();
+  const sheet = useSheetOptions();
   const s = styles(theme);
   const repository = useEventsRepository();
   const saves = useUndoableSaves(repository);
@@ -51,7 +52,7 @@ export default function EditEntry() {
   if (!entry) {
     return (
       <View style={s.screen}>
-        <Stack.Screen options={{ presentation: 'modal' }} />
+        <Stack.Screen options={{ ...sheet }} />
         <Text style={theme.text.body}>{t('entry.gone')}</Text>
       </View>
     );
@@ -69,9 +70,7 @@ export default function EditEntry() {
 
   return (
     <View style={s.screen}>
-      <Stack.Screen
-        options={{ title: t(getActivity(entry.type)?.i18nKey ?? ''), presentation: 'modal' }}
-      />
+      <Stack.Screen options={{ title: t(getActivity(entry.type)?.i18nKey ?? ''), ...sheet }} />
       <View style={s.editor}>
         {Editor ? (
           <Editor entryId={entry.id} onDone={() => router.back()} />
@@ -95,7 +94,8 @@ export default function EditEntry() {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    screen: { flex: 1, backgroundColor: theme.colors.background },
+    // Sage sheet, by analogy with the log sheets: card colour, screen edge.
+    screen: { flex: 1, backgroundColor: theme.palette.card },
     editor: { flex: 1 },
-    padded: { padding: theme.spacing.lg },
+    padded: { padding: theme.spacing.screen },
   });
