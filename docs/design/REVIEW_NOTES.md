@@ -2,7 +2,15 @@
 
 Written during the overnight run (started 2026-10-09). Updated after every PR so it survives a lost session. Mapping is in [MAPPING.md](MAPPING.md), and gaps are in [DESIGN_GAPS.md](DESIGN_GAPS.md).
 
-## Final EAS preview build: FAILED (not a design problem)
+## Latest EAS preview build: OK (2026-10-10, after 5a, 5b, 5c)
+
+- Install link: https://expo.dev/accounts/ce-code-designs-ltd/projects/moraki/builds/ef58fc17-9740-4617-912b-263ad6e72011
+- Built with `eas build --profile preview --platform ios --non-interactive` from `design/sage-refresh` at `93139cb0`, clean tree.
+- It includes the tab bar fix (5a), the Home header logo (5b) and the Stone palette (5c).
+- It is the first device build of the new app icon, the `expo-splash-screen` splash (now on Stone backgrounds) and all restyled screens. Use the checklist in section 7.
+
+### Earlier build (2026-10-09)
+
 
 - **Command:** `eas build --profile preview --platform ios --non-interactive`, run once from `design/sage-refresh` at `2a5ad741` with a clean tree.
 - **Log:** https://expo.dev/accounts/ce-code-designs-ltd/projects/moraki/builds/a648f007-a7ce-4792-950a-d6b69ef1d455
@@ -41,7 +49,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #146 | `sage/04b-build-result` | Build result in the notes | merged | green |
 | #147 | `sage/05a-tab-bar` | Tab bar fix | merged | green |
 | #148 | `sage/05b-header-logo` | Home header logo | merged | green |
-| _next_ | `sage/05c-stone` | Stone palette | in progress | |
+| #149 | `sage/05c-stone` | Stone palette | merged | green |
+| _next_ | `sage/05d-build-link` | Build link in the notes | in progress | |
 
 ## 2. Decisions made without asking
 
