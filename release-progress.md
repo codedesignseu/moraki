@@ -36,7 +36,7 @@ Reference: docs/10-release-runbook.md in the repo (not read in this session, so 
 - The whole app is restyled to Sage on the integration branch `design/sage-refresh`: PRs #132 to #145, all merged into that branch, none into main.
 - Build 3 and the store submission are on hold until the owner has tested the branch and merged it into main.
 - One EAS preview build (iOS, `--profile preview`) was run from the branch and **failed at the Sentry source-map upload**: the `preview` profile has no `SENTRY_AUTH_TOKEN` and no `SENTRY_ALLOW_FAILURE`. Log: https://expo.dev/accounts/ce-code-designs-ltd/projects/moraki/builds/a648f007-a7ce-4792-950a-d6b69ef1d455
-- To fix (owner): add the token to the EAS preview environment, or `SENTRY_ALLOW_FAILURE=true` to the preview profile. Then rebuild. That build is the first real test of the new icon, the splash and the Sage screens.
+- 2026-10-10: after the tab bar fix, the header logo and the Stone palette, the preview build succeeded: https://expo.dev/accounts/ce-code-designs-ltd/projects/moraki/builds/ef58fc17-9740-4617-912b-263ad6e72011 . It is the first device test of the new icon, the splash and the restyled screens.
 - What to check first: `docs/design/REVIEW_NOTES.md`, sections 3 and 7.
 
 ### Needs a decision or confirmation
