@@ -14,7 +14,8 @@ All PRs target `design/sage-refresh` and use merge commits.
 | #133 | `sage/02a-tokens` | Tokens, `design/` export and exclusions | merged | green |
 | #134 | `sage/02b-icons` | Icons and the `Icon` primitive | merged | green |
 | #135 | `sage/02c-components` | New Sage components | merged | green |
-| _next_ | `sage/02d-app-icons` | App icon, splash, `expo-splash-screen` | in progress | |
+| #136 | `sage/02d-app-icons` | App icon, splash, `expo-splash-screen` | merged | green |
+| _next_ | `sage/03a-onboarding` | Token aliases, primitive shapes, onboarding screens | in progress | |
 
 ## 2. Decisions made without asking
 
@@ -62,6 +63,32 @@ Each entry gives what was chosen, why, and the alternatives.
   - `apple-touch-icon-180`: the app has no web build to use it.
   - Icon Composer layers (`.icon` files for iOS 26 Liquid Glass): Expo SDK 57 takes them only through a separate `ios.icon` file path, so they are left for later.
 
+- **3a: the pre-Sage token names now point at Sage values.**
+  - Why: every screen, designed or not, shows Sage colours and type in day and night from this PR on, so no screen stays in the old style (step g).
+  - Mapping (old name → Sage):
+    - background → background
+    - surface → card
+    - surfaceSunken → chip
+    - text → ink
+    - textMuted → textSoft
+    - accent → buttonPrimary
+    - accentSubtle → selected
+    - onAccent → onButtonPrimary
+    - surfacePressed and divider → line
+    - borderStrong → inputBorder
+    - typography: display → title, title → heading, heading → tileTitle, bodyStrong → rowTitle, label → detail, caption → small
+  - Step 4 moves the screens to the Sage names and deletes the aliases.
+  - Alternative: restyle every style object screen by screen. That leaves the old look on any screen not reached and is far more churn.
+- **3a: the shared primitives get the Sage shapes.**
+  - main button 60 high and round
+  - outlined secondary
+  - round 50-high segments
+  - round stepper buttons
+  - round chip-filled inputs whose edge turns ink on focus
+  - ink pill toast with a light Undo pill, raised clear of the floating tab bar
+- **Consent (3a):** each of the four existing paragraphs sits in a tinted row with an icon: what → health, where → eu-shield, who → private, rights → export. Text, version, buttons and logic are unchanged.
+- **Household setup (3a):** the "Born on {date}" line moves into the 03 feed-tinted note card. Same text.
+
 ## 3. Problems found
 
 These are recorded here only and not fixed, unless a PR says otherwise.
@@ -83,6 +110,8 @@ These are recorded here only and not fixed, unless a PR says otherwise.
 
 | Screen | Modelled on | PR |
 |---|---|---|
+| Sign in (email, code, Apple, Google) | 01 welcome type and buttons; 03 inputs | 3a |
+| Join, signed-out and already-in-household states | 02 join card; 01 for the plain states | 3a |
 
 ## 5. Greek
 
@@ -111,6 +140,10 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - **Icons.** 256 px PNGs with one stroke width. The design varies the stroke from 1.4 to 1.8 by size; here it scales with the icon.
 - **Glyph icons.** Back, close and similar are text glyphs (section 2).
 - **Touch target.** 48, not 44 (D7).
+- **Input border.** Text inputs get a 2 px `inputBorder` edge (day `#717E75`, night `#7E8B81`, at least 3:1 on card, chip and background). The design draws inputs with no edge, which would leave a chip-coloured field nearly invisible on a white card (about 1.2:1). Focus turns the edge ink, like the design's focused field.
+- **Outlined buttons.** They use the design's `outline` colour (about 1.6:1). Their text label identifies them.
+- **Stepper.** The value uses Sage `title` (36), not the design's 50 or 66, so the row fits at 200% text. The buttons stay 64 (the app's one-handed size) instead of 56.
+- **Join code field.** It uses the standard text field, not the design's letter-spaced 20/800 code style, because `TextField` takes no style override and adding one is out of scope.
 
 - **Activity tile:** the design's "+" is its own button. Here it is drawn inside a single tile button, to avoid two nested targets doing the same thing.
 - **Empty state:** corners are 32 (`radius.tile`), not the board's 36, which is not a token.
@@ -131,3 +164,10 @@ Rule (MAPPING.md section 6): the name stays in the nominative, as a label or aft
 - Cold start with the phone in light mode: mark on pale sage `#E9EDE6`. With the phone in dark mode: mark on `#131814`.
 - Android (if you build it): adaptive icon in round and squircle masks, the themed (monochrome) icon, and the notification icon in the status bar.
 - To see them locally later without EAS: `npx expo run:ios` builds on your Mac. It rewrites the `ios`/`android` scripts in `package.json`, as happened before.
+
+**Onboarding (3a)**
+- Sign in: round email and code fields, a dark main button, outlined Apple, Google, Resend and Change email.
+- Household setup: "Born on" in the pale green note card; chips wrap at 200% text.
+- Join: link icon beside the intro, and the deep link `moraki.app/join/CODE` still opens the form with the code.
+- Consent: four tinted rows with icons and the existing text in full. Agree, then Withdraw, still work.
+- In every log sheet, the undo toast is an ink pill with a light Undo pill. It sits higher than before (clear of where the tab bar will float).
