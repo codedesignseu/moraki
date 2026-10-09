@@ -21,7 +21,7 @@ export function ReportPreview({ range }: { range: ReportRange }) {
   return (
     <ScrollView contentContainerStyle={s.content}>
       <Card testID="report-header">
-        <Text style={theme.text.heading}>{labels.title}</Text>
+        <Text style={theme.type.heading}>{labels.title}</Text>
         <Text style={s.muted}>{labels.subtitle}</Text>
       </Card>
 
@@ -29,7 +29,7 @@ export function ReportPreview({ range }: { range: ReportRange }) {
         .filter((section) => section.rows.length > 0)
         .map((section) => (
           <Card key={section.key} testID={`report-${section.key}`}>
-            <Text style={theme.text.heading}>{section.heading}</Text>
+            <Text style={theme.type.tileTitle}>{section.heading}</Text>
             {section.rows.map((row, i) => (
               <View
                 key={`${row.label}-${i}`}
@@ -83,7 +83,7 @@ export function ReportPreview({ range }: { range: ReportRange }) {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.md },
+    content: { padding: theme.spacing.screen, gap: theme.spacing.md },
     muted: { ...theme.text.label, color: theme.colors.textMuted },
     row: { flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing.md },
     label: { ...theme.text.body, color: theme.colors.textMuted, flexShrink: 1 },
