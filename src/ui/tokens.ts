@@ -177,6 +177,8 @@ export const size = {
   tabItemHeight: 48,
   /** Picture tile of an empty state. Grows with its content. */
   emptyArt: 190,
+  /** One-tap choice tile in a sheet (wet, dirty, both). Grows with its text. */
+  choiceTile: 150,
   /** Status pill ("Now · 05:14"). Grows with its text. */
   pill: 36,
   /** Dot inside a status pill that marks something running. */

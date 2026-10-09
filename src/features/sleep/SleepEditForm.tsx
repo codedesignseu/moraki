@@ -87,6 +87,7 @@ export function SleepEditForm({ entryId, onDone }: { entryId: string; onDone: ()
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    // By analogy with the 08 and 11 sheets: screen edge, Sage detail labels.
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
   });

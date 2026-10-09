@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
@@ -8,7 +8,8 @@ import type { DiaperPayload } from '@/domain/activities/diaper';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
-import { Button, DateTimeField, TimeShiftField } from '@/ui/primitives';
+import type { IconName } from '@/ui/icons';
+import { DateTimeField, Icon, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 type Kind = DiaperPayload['kind'];
@@ -21,6 +22,12 @@ const MINUTE_MS = 60_000;
  * which leaves the one-tap case alone (P3-F10). With `entryId` it edits that
  * entry instead: move its time, then tap the kind (P1-12).
  */
+const ICONS: Record<Kind, IconName> = {
+  wet: 'diaper-wet',
+  dirty: 'diaper-dirty',
+  both: 'diaper-both',
+};
+
 export function DiaperSheet({ onDone, entryId }: { onDone: () => void; entryId?: string }) {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
@@ -57,6 +64,22 @@ export function DiaperSheet({ onDone, entryId }: { onDone: () => void; entryId?:
 
   return (
     <ScrollView contentContainerStyle={s.content}>
+      {/* Sage 10: one tap on a tile saves it; undo follows, no confirm. */}
+      <View style={s.tiles}>
+        {kinds.map(({ value, label }) => (
+          <Pressable
+            key={value}
+            onPress={() => log(value)}
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            accessibilityHint={t('log.diaper.hint')}
+            style={({ pressed }) => [s.tile, pressed && s.pressed]}
+          >
+            <Icon name={ICONS[value]} size={theme.size.iconTile} color={theme.palette.onTile} />
+            <Text style={[theme.type.tileTitle, s.tileLabel]}>{label}</Text>
+          </Pressable>
+        ))}
+      </View>
       {entry ? (
         <TimeShiftField
           label={t('entry.moveTime')}
@@ -82,19 +105,23 @@ export function DiaperSheet({ onDone, entryId }: { onDone: () => void; entryId?:
           testID="diaper-when"
         />
       )}
-      {kinds.map(({ value, label }) => (
-        <Button
-          key={value}
-          label={label}
-          onPress={() => log(value)}
-          accessibilityHint={t('log.diaper.hint')}
-        />
-      ))}
     </ScrollView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    tiles: { flexDirection: 'row', gap: theme.spacing.md },
+    tile: {
+      flex: 1,
+      minHeight: theme.size.choiceTile,
+      borderRadius: theme.radius.card,
+      padding: theme.spacing.lg,
+      justifyContent: 'space-between',
+      gap: theme.spacing.sm,
+      backgroundColor: theme.palette.diaper,
+    },
+    pressed: { opacity: theme.opacity.pressed },
+    tileLabel: { color: theme.palette.onTile },
   });
