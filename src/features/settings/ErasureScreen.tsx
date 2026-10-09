@@ -95,6 +95,11 @@ export function ErasureScreen({ onDone }: { onDone: () => void }) {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, paddingBottom: theme.spacing.xl, gap: theme.spacing.md },
-    alert: { ...theme.text.body, color: theme.colors.invalid },
+    // By analogy with the 20 member cards and the 19 lists.
+    content: {
+      padding: theme.spacing.screen,
+      paddingBottom: theme.spacing.xl,
+      gap: theme.spacing.md,
+    },
+    alert: { ...theme.type.body, color: theme.palette.invalid },
   });

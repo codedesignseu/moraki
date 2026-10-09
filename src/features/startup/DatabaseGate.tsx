@@ -55,7 +55,7 @@ export function DatabaseGate({
     <View
       style={[
         StyleSheet.absoluteFill,
-        { backgroundColor: theme.colors.background, padding: theme.spacing.xl },
+        { backgroundColor: theme.palette.background, padding: theme.spacing.xl },
       ]}
     >
       {state.status === 'failed' && (

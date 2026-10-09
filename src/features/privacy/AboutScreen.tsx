@@ -25,21 +25,21 @@ export function AboutScreen({ onOpenLink }: { onOpenLink: (url: string) => void 
   const s = styles(theme);
   return (
     <ScrollView contentContainerStyle={s.content}>
-      <Card testID="about-disclaimer">
-        <Text style={theme.text.heading}>{t('about.disclaimer.title')}</Text>
+      <Card tone="feed" testID="about-disclaimer">
+        <Text style={theme.type.tileTitle}>{t('about.disclaimer.title')}</Text>
         <Text style={theme.text.body}>{t('about.disclaimer.notMedical')}</Text>
         <Text style={theme.text.body}>{t('about.disclaimer.noInterpretation')}</Text>
         <Text style={theme.text.body}>{t('about.disclaimer.askSomeone')}</Text>
         <Text style={theme.text.body}>{t('about.disclaimer.urgent')}</Text>
       </Card>
       <Card testID="about-what">
-        <Text style={theme.text.heading}>{t('about.what.title')}</Text>
+        <Text style={theme.type.tileTitle}>{t('about.what.title')}</Text>
         <Text style={theme.text.body}>{t('about.what.records')}</Text>
         <Text style={theme.text.body}>{t('about.what.shares')}</Text>
         <Text style={s.muted}>{t('about.what.offline')}</Text>
       </Card>
       <Card testID="about-legal">
-        <Text style={theme.text.heading}>{t('about.legal.title')}</Text>
+        <Text style={theme.type.tileTitle}>{t('about.legal.title')}</Text>
         {PAGES.map((page) => (
           <Button
             key={page}
@@ -61,6 +61,7 @@ export function AboutScreen({ onOpenLink }: { onOpenLink: (url: string) => void 
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    // By analogy with the 19 grouped cards.
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
   });
