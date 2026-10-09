@@ -13,7 +13,7 @@ type Props = {
   title: string;
   detail?: string | undefined;
   onPress: () => void;
-  /** What a tap does, e.g. "Log a feed". The title and detail are read too. */
+  /** The button's name, e.g. "Log feed". The detail is read as its value. */
   accessibilityLabel: string;
   testID?: string;
 };
@@ -39,7 +39,8 @@ export function ActivityTile({
       onPress={onPress}
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={[accessibilityLabel, title, detail].filter(Boolean).join(', ')}
+      accessibilityLabel={accessibilityLabel}
+      {...(detail ? { accessibilityValue: { text: detail } } : {})}
       style={({ pressed }) => [
         s.tile,
         { backgroundColor: theme.palette[colour] },

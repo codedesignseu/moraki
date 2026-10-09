@@ -29,7 +29,7 @@ describe('IconButton', () => {
 });
 
 describe('ActivityTile', () => {
-  it('is one button that reads its action, name and detail', async () => {
+  it('is one button named by its action, with the detail as its value', async () => {
     const onPress = jest.fn();
     await render(
       <ActivityTile
@@ -41,7 +41,8 @@ describe('ActivityTile', () => {
         accessibilityLabel="Log a feed"
       />,
     );
-    const tile = screen.getByRole('button', { name: 'Log a feed, Feed, 2 h ago' });
+    const tile = screen.getByRole('button', { name: 'Log a feed' });
+    expect(tile).toHaveAccessibilityValue({ text: '2 h ago' });
     await fireEvent.press(tile);
     expect(onPress).toHaveBeenCalledTimes(1);
     expect(screen.getAllByRole('button')).toHaveLength(1);
@@ -106,9 +107,9 @@ describe('TabBar', () => {
         ]}
       />,
     );
-    expect(screen.getByRole('tab', { name: 'Home' })).toBeSelected();
-    expect(screen.getByRole('tab', { name: 'History' })).not.toBeSelected();
-    await fireEvent.press(screen.getByRole('tab', { name: 'History' }));
+    expect(screen.getByRole('button', { name: 'Home' })).toBeSelected();
+    expect(screen.getByRole('button', { name: 'History' })).not.toBeSelected();
+    await fireEvent.press(screen.getByRole('button', { name: 'History' }));
     expect(onHistory).toHaveBeenCalledTimes(1);
   });
 
@@ -119,7 +120,7 @@ describe('TabBar', () => {
         testID="bar"
       />,
     );
-    expect(screen.getByRole('tab')).toHaveStyle({
+    expect(screen.getByRole('button')).toHaveStyle({
       width: size.tabItemWidth,
       height: size.tabItemHeight,
     });

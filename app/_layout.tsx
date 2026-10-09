@@ -18,6 +18,7 @@ import { DEFAULT_NIGHT_MODE } from '@/domain/time/night';
 import { startCrashReporting } from '@/observability/sentry';
 import { Notice } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
+import { type } from '@/ui/tokens';
 
 // Before anything else, so a crash while the database opens is still reported.
 // Does nothing unless the build carries an EU Sentry DSN (P4-08).
@@ -61,9 +62,12 @@ function ThemedStack() {
       {WEB_STAND_IN && <Notice text={t('dev.webStandIn')} testID="web-stand-in-notice" />}
       <Stack
         screenOptions={{
-          contentStyle: { backgroundColor: theme.colors.background },
-          headerStyle: { backgroundColor: theme.colors.surface },
-          headerTintColor: theme.colors.text,
+          contentStyle: { backgroundColor: theme.palette.background },
+          // Sage: the header sits on the page colour, without a rule under it.
+          headerStyle: { backgroundColor: theme.palette.background },
+          headerShadowVisible: false,
+          headerTintColor: theme.palette.ink,
+          headerTitleStyle: type.rowTitle,
         }}
       >
         {/* The tabs draw their own headers (SDD 7). */}

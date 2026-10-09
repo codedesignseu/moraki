@@ -28,12 +28,13 @@ export function TabBar({ items, testID }: Props) {
   const s = styles(theme);
   return (
     <View style={s.wrap} pointerEvents="box-none" testID={testID}>
-      <View style={s.bar} accessibilityRole="tablist">
+      <View style={s.bar}>
         {items.map((item) => (
           <Pressable
             key={item.key}
             onPress={item.onPress}
-            accessibilityRole="tab"
+            // Buttons with a selected state, as the default tab bar exposes them.
+            accessibilityRole="button"
             accessibilityLabel={item.label}
             accessibilityState={{ selected: item.selected }}
             style={({ pressed }) => [s.item, item.selected && s.selected, pressed && s.pressed]}
