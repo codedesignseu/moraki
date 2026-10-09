@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { PUMP_ML, type PumpPrefill } from '@/domain/activities';
 import { Button, DateTimeField, Segmented, Stepper } from '@/ui/primitives';
@@ -31,21 +31,24 @@ export function PumpSheet({ onDone }: { onDone: () => void }) {
         maximumDate={new Date()}
         testID="pump-when"
       />
-      <Stepper
-        value={form.ml}
-        onChange={(ml) => update({ ml })}
-        step={PUMP_ML.step}
-        min={PUMP_ML.min}
-        max={PUMP_ML.max}
-        unit={t('log.pump.unit')}
-        accessibilityLabel={t('log.pump.amount')}
-      />
-      <Segmented
-        options={dests}
-        value={form.dest}
-        onChange={(dest) => update({ dest })}
-        accessibilityLabel={t('log.pump.dest.label')}
-      />
+      {/* By analogy with the 16 stock card: amount and destination together. */}
+      <View style={s.panel}>
+        <Stepper
+          value={form.ml}
+          onChange={(ml) => update({ ml })}
+          step={PUMP_ML.step}
+          min={PUMP_ML.min}
+          max={PUMP_ML.max}
+          unit={t('log.pump.unit')}
+          accessibilityLabel={t('log.pump.amount')}
+        />
+        <Segmented
+          options={dests}
+          value={form.dest}
+          onChange={(dest) => update({ dest })}
+          accessibilityLabel={t('log.pump.dest.label')}
+        />
+      </View>
       <Button
         label={t('log.save')}
         onPress={() => {
@@ -59,5 +62,11 @@ export function PumpSheet({ onDone }: { onDone: () => void }) {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    panel: {
+      backgroundColor: theme.palette.pump,
+      borderRadius: theme.radius.tile,
+      padding: theme.spacing.screen,
+      gap: theme.spacing.md,
+    },
   });

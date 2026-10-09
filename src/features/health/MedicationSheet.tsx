@@ -14,7 +14,7 @@ import { formatClock } from '@/domain/time/formatClock';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
-import { Button, TextField, TimeShiftField } from '@/ui/primitives';
+import { Button, StatusPill, TextField, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 /**
@@ -100,8 +100,8 @@ export function MedicationSheet({ onDone, entryId }: { onDone: () => void; entry
         />
       ) : (
         <>
-          <Text style={theme.text.heading}>{t('log.medication.adding')}</Text>
-          <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
+          <Text style={theme.type.heading}>{t('log.medication.adding')}</Text>
+          <StatusPill label={t('log.time', { time: formatClock(openedAt, tz) })} />
           {last !== null && <Text style={s.muted}>{t('log.medication.prefilled')}</Text>}
         </>
       )}
@@ -129,9 +129,9 @@ export function MedicationSheet({ onDone, entryId }: { onDone: () => void; entry
 const styles = (theme: Theme) =>
   StyleSheet.create({
     content: {
-      padding: theme.spacing.lg,
+      padding: theme.spacing.screen,
       paddingBottom: theme.spacing.xl,
       gap: theme.spacing.lg,
     },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
   });
