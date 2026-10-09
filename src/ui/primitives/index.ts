@@ -3,6 +3,7 @@ export { ActivityTile } from './ActivityTile';
 export type { Bar } from './BarChart';
 export { BarChart } from './BarChart';
 export { Button } from './Button';
+export type { CardTone } from './Card';
 export { Card } from './Card';
 export { Chip } from './Chip';
 export { DateTimeField } from './DateTimeField';

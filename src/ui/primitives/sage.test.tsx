@@ -3,7 +3,7 @@ import { Text } from 'react-native';
 
 import { ThemeProvider } from '../theme';
 import { palette, radius, size } from '../tokens';
-import { ActivityTile, EmptyState, IconButton, ListRow, StatusPill, TabBar } from '.';
+import { ActivityTile, Card, EmptyState, IconButton, ListRow, StatusPill, TabBar } from '.';
 
 const noop = () => {};
 const HIDDEN = { includeHiddenElements: true };
@@ -152,4 +152,24 @@ describe('StatusPill', () => {
     expect(screen.getByText('Timer running')).toBeTruthy();
     expect(screen.getByTestId('pill')).toHaveStyle({ minHeight: size.pill });
   });
+});
+
+describe('Card', () => {
+  it.each(['light', 'night'] as const)(
+    'is white by default and takes a tile tone in %s',
+    async (scheme) => {
+      await render(
+        <ThemeProvider scheme={scheme}>
+          <Card testID="plain">
+            <Text>a</Text>
+          </Card>
+          <Card tone="feed" testID="feed">
+            <Text>b</Text>
+          </Card>
+        </ThemeProvider>,
+      );
+      expect(screen.getByTestId('plain')).toHaveStyle({ backgroundColor: palette[scheme].card });
+      expect(screen.getByTestId('feed')).toHaveStyle({ backgroundColor: palette[scheme].feed });
+    },
+  );
 });
