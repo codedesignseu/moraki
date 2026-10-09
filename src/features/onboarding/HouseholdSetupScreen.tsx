@@ -23,7 +23,9 @@ export function HouseholdSetupScreen({ onDone }: { onDone: () => void }) {
   return (
     <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
       <Card testID="setup-you">
-        <Text style={theme.text.heading}>{t('householdSetup.you.title')}</Text>
+        <Text style={theme.type.heading} accessibilityRole="header">
+          {t('householdSetup.you.title')}
+        </Text>
         <TextField
           label={t('householdSetup.you.name')}
           value={setup.displayName}
@@ -49,7 +51,9 @@ export function HouseholdSetupScreen({ onDone }: { onDone: () => void }) {
       </Card>
 
       <Card testID="setup-baby">
-        <Text style={theme.text.heading}>{t('householdSetup.baby.title')}</Text>
+        <Text style={theme.type.heading} accessibilityRole="header">
+          {t('householdSetup.baby.title')}
+        </Text>
         <TextField
           label={t('householdSetup.baby.name')}
           value={setup.babyName}
@@ -67,9 +71,12 @@ export function HouseholdSetupScreen({ onDone }: { onDone: () => void }) {
           unit={t('householdSetup.baby.daysAgo')}
           accessibilityLabel={t('householdSetup.baby.born')}
         />
-        <Text style={theme.text.body}>
-          {t('householdSetup.baby.bornOn', { date: setup.bornOn })}
-        </Text>
+        {/* Sage 03 note card: the date the stepper gives. */}
+        <View style={s.note}>
+          <Text style={[theme.type.body, s.noteText]}>
+            {t('householdSetup.baby.bornOn', { date: setup.bornOn })}
+          </Text>
+        </View>
         <TextField
           label={t('householdSetup.baby.birthWeight')}
           value={setup.birthWeight}
@@ -94,8 +101,15 @@ export function HouseholdSetupScreen({ onDone }: { onDone: () => void }) {
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-    alert: { ...theme.text.body, color: theme.colors.invalid },
+    note: {
+      backgroundColor: theme.palette.feed,
+      borderRadius: theme.radius.card,
+      paddingVertical: theme.spacing.lg,
+      paddingHorizontal: theme.spacing.screen,
+    },
+    noteText: { color: theme.palette.onTile },
+    alert: { ...theme.type.body, color: theme.palette.invalid },
   });
