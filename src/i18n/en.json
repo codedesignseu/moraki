@@ -117,7 +117,8 @@
       "health": "Health note",
       "medication": "Medication",
       "pump": "Pump",
-      "weight": "Weight"
+      "weight": "Weight",
+      "feed": "Feed"
     },
     "sleep": {
       "label": "Sleeping since {{time}}",
