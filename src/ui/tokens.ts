@@ -204,6 +204,10 @@ export const spacing = {
   screen: 18,
   /** G name for `screen`. */
   screenEdge: 18,
+  /** G: inside edge of a text field and of the stepper's grey box. */
+  field: 14,
+  /** G: inside edge of a segmented control's track. */
+  track: 5,
 } as const;
 
 export const radius = {
@@ -224,6 +228,10 @@ export const radius = {
   sheet: 32,
   /** G: the 64-high kind buttons in a sheet. */
   choice: 20,
+  /** G: a text field (every sheet and account screen). */
+  input: 16,
+  /** G: the stepper's grey box (sheets/feed-bottle). */
+  stepper: 24,
   /** G `button` and `chip`: fully round. */
   pill: 999,
   button: 999,
@@ -238,6 +246,8 @@ export const size = {
   /** Controls used one-handed while holding a baby (Stepper +/-). */
   touchTargetLarge: 64,
   borderThin: 1,
+  /** G: the edge of a text field and of an outlined button. */
+  borderControl: 1.5,
   borderThick: 2,
   /** Plot height of a bar chart; the tallest bar fills it. */
   chartHeight: 160,
@@ -246,6 +256,14 @@ export const size = {
   /** G: the one main button, and outlined buttons. */
   button: 60,
   buttonSmall: 50,
+  /** G: an outlined button ("Invite someone", "Clear filters"). */
+  buttonSecondary: 52,
+  /** G: a text field, one line. */
+  input: 54,
+  /** G: a text field that takes several lines (sheets/health-note). */
+  inputMultiline: 110,
+  /** G: the round - and + of a stepper. A hit slop takes the target to 64. */
+  stepperButton: 52,
   iconButton: 46,
   /** G: a kind choice in a sheet (Bottle, Breast, Mixed). */
   choiceButton: 64,
@@ -268,6 +286,10 @@ export const size = {
   /** Kept name for `tile`; a minimum, so a tile still grows with its text. */
   activityTile: 132,
   icon: 24,
+  /** G: an icon inside a button or at the start of a text field. */
+  iconField: 20,
+  /** G: the alert icon before an error message. */
+  iconError: 18,
   /** Icon on an activity tile. */
   iconTile: 42,
   /** Icon on an empty-state tile. */
@@ -319,6 +341,7 @@ export type FontName = (typeof fonts)[keyof typeof fonts];
 const heading = { fontFamily: fonts.heading } as const;
 const text = { fontFamily: fonts.text } as const;
 const textSemi = { fontFamily: fonts.textSemi } as const;
+const textBold = { fontFamily: fonts.textBold } as const;
 const textHeavy = { fontFamily: fonts.textHeavy } as const;
 
 /**
@@ -344,7 +367,20 @@ export const type = {
   cardTitle: { ...heading, fontSize: 17, lineHeight: 20 },
   tileLabel: { ...textHeavy, fontSize: 16, lineHeight: 22 },
   body: { ...text, fontSize: 17, lineHeight: 25 },
+  /** G: the stepper's number (48) and its compact size in the weight sheet (32). */
+  stepperValue: { ...heading, fontSize: 48, lineHeight: 55 },
+  stepperValueCompact: { ...heading, fontSize: 32, lineHeight: 37 },
+  /** G: a stepper's unit, set beside its number in soft text. */
+  stepperUnit: { ...textBold, fontSize: 18, lineHeight: 24 },
+  /** G: the main button's label (17/700) and an outlined button's (16/700). */
+  button: { ...textBold, fontSize: 17, lineHeight: 23 },
+  buttonSecondary: { ...textBold, fontSize: 16, lineHeight: 22 },
+  /** G: the unit after a field's value ("g", "°C"). */
+  suffix: { ...textSemi, fontSize: 16, lineHeight: 22 },
   detail: { ...textSemi, fontSize: 15, lineHeight: 21 },
+  /** G: a selected chip (15/700) and a selected segment or kind button (15/800). */
+  detailBold: { ...textBold, fontSize: 15, lineHeight: 21 },
+  detailHeavy: { ...textHeavy, fontSize: 15, lineHeight: 21 },
   small: { ...textSemi, fontSize: 13, lineHeight: 18 },
 } as const;
 

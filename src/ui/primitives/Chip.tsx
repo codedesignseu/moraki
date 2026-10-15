@@ -2,28 +2,43 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
+import { Icon } from './Icon';
 
 type Props = {
   label: string;
   selected: boolean;
   onPress: () => void;
   disabled?: boolean;
+  /**
+   * The chip's fill when not selected. `chip` (default) on a card or sheet;
+   * `card` on the screen background, as History's filters are drawn.
+   */
+  fill?: 'chip' | 'card';
   accessibilityLabel?: string;
   /** Renders the pressed state without a touch. Demo and tests only. */
   testOnly_pressed?: boolean;
 };
 
-/** Toggleable filter. The visual pill is compact but the hit area is a full touch target. */
+/**
+ * Toggleable choice (G: filled, no border, 48 high). Selected is the dark
+ * selected fill with a check icon, so it reads by shape as well as colour.
+ */
 export function Chip({
   label,
   selected,
   onPress,
   disabled = false,
+  fill = 'chip',
   accessibilityLabel,
   testOnly_pressed,
 }: Props) {
   const theme = useTheme();
   const s = styles(theme);
+  const labelColour = disabled
+    ? theme.palette.disabledText
+    : selected
+      ? theme.palette.onSelected
+      : theme.palette.ink;
   return (
     <Pressable
       onPress={onPress}
@@ -34,6 +49,7 @@ export function Chip({
       testOnly_pressed={testOnly_pressed}
       style={({ pressed }) => [
         s.base,
+        { backgroundColor: theme.palette[fill] },
         selected && s.selected,
         // A pressed selected chip dims instead of turning light, so its light
         // label stays readable.
@@ -41,12 +57,10 @@ export function Chip({
         disabled && s.disabled,
       ]}
     >
-      <Text
-        style={[
-          theme.text.label,
-          disabled ? s.disabledLabel : selected ? s.selectedLabel : s.label,
-        ]}
-      >
+      {selected ? (
+        <Icon name="check" size={theme.size.iconError} color={labelColour} testID="chip-check" />
+      ) : null}
+      <Text style={[selected ? theme.type.detailBold : theme.type.detail, { color: labelColour }]}>
         {label}
       </Text>
     </Pressable>
@@ -56,26 +70,17 @@ export function Chip({
 const styles = (t: Theme) =>
   StyleSheet.create({
     base: {
-      minHeight: t.size.touchTarget,
+      minHeight: t.size.minTouch,
       paddingHorizontal: t.spacing.lg,
-      borderRadius: t.radius.pill,
-      borderWidth: t.size.borderThin,
-      borderColor: t.colors.borderStrong,
-      backgroundColor: t.colors.surface,
+      borderRadius: t.radius.chip,
       alignSelf: 'flex-start',
+      flexDirection: 'row',
+      alignItems: 'center',
       justifyContent: 'center',
+      gap: t.spacing.xs,
     },
-    // Stone: a dark fill by day with a light label. At night the fill is
-    // close to the card, so the ink ring marks it too: shape, not only colour.
-    selected: {
-      backgroundColor: t.palette.selected,
-      borderColor: t.palette.ink,
-      borderWidth: t.size.borderThick,
-    },
+    selected: { backgroundColor: t.palette.selected },
     selectedPressed: { opacity: t.opacity.pressed },
-    selectedLabel: { color: t.palette.onSelected },
-    pressed: { backgroundColor: t.colors.surfacePressed },
-    disabled: { backgroundColor: t.colors.surfaceSunken, borderColor: t.colors.surfaceSunken },
-    label: { color: t.colors.text },
-    disabledLabel: { color: t.colors.textMuted },
+    pressed: { backgroundColor: t.palette.line },
+    disabled: { backgroundColor: t.palette.disabledFill },
   });

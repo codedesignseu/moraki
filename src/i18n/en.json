@@ -887,5 +887,8 @@
     "successor": {
       "question": "Who becomes owner?"
     }
+  },
+  "common": {
+    "error": "Error"
   }
 }

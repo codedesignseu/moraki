@@ -6,10 +6,12 @@ import {
   ActivityTile,
   Button,
   Card,
+  ChoiceButtons,
   Chip,
   EmptyState,
   Icon,
   IconButton,
+  InlineError,
   ListRow,
   Segmented,
   Sheet,
@@ -17,6 +19,7 @@ import {
   StatusPill,
   Stepper,
   TabBar,
+  TextField,
   TimerText,
 } from '../primitives';
 import type { IconName } from '../icons';
@@ -51,6 +54,11 @@ const diaper = [
   { value: 'dirty', label: 'Dirty' },
   { value: 'both', label: 'Both' },
 ] as const;
+const kinds = [
+  { value: 'bottle', label: 'Bottle', tone: 'feed' },
+  { value: 'breast', label: 'Breast', tone: 'sleep' },
+  { value: 'mixed', label: 'Mixed', tone: 'pump' },
+] as const;
 
 function SchemeSection() {
   const theme = useTheme();
@@ -60,6 +68,9 @@ function SchemeSection() {
   const [kind, setKind] = useState<'wet' | 'dirty' | 'both' | null>(null);
   const [feeds, setFeeds] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [feedKind, setFeedKind] = useState<'bottle' | 'breast' | 'mixed' | null>('bottle');
+  const [note, setNote] = useState('');
+  const [grams, setGrams] = useState(3240);
 
   return (
     <View style={s.section}>
@@ -88,8 +99,17 @@ function SchemeSection() {
         <State name="secondary pressed">
           <Button label="Cancel" variant="secondary" onPress={() => {}} testOnly_pressed />
         </State>
+        <State name="secondary with icon">
+          <Button label="Invite" variant="secondary" icon="invite" onPress={() => {}} />
+        </State>
         <State name="disabled">
           <Button label="Save" onPress={() => {}} disabled />
+        </State>
+        <State name="secondary disabled">
+          <Button label="Cancel" variant="secondary" onPress={() => {}} disabled />
+        </State>
+        <State name="busy">
+          <Button label="Save" onPress={() => {}} busy />
         </State>
       </Group>
 
@@ -121,8 +141,67 @@ function SchemeSection() {
         </State>
         <State name="invalid">
           <Stepper value={0} onChange={() => {}} unit="mL" accessibilityLabel="Amount" invalid />
-          <Text style={[theme.text.caption, s.invalidText]}>Enter an amount</Text>
+          <InlineError prefix="Error" message="Enter an amount" />
         </State>
+        <State name="compact (interactive)">
+          <Stepper
+            value={grams}
+            onChange={setGrams}
+            step={10}
+            unit="g"
+            accessibilityLabel="Grams"
+            size="compact"
+          />
+        </State>
+      </Group>
+
+      <Group title="ChoiceButtons">
+        <State name="default (interactive)">
+          <ChoiceButtons
+            options={kinds}
+            value={feedKind}
+            onChange={setFeedKind}
+            accessibilityLabel="Kind"
+          />
+        </State>
+        <State name="pressed">
+          <ChoiceButtons
+            options={kinds}
+            value="bottle"
+            onChange={() => {}}
+            accessibilityLabel="Kind"
+            testOnly_pressedValue="breast"
+          />
+        </State>
+        <State name="disabled">
+          <ChoiceButtons
+            options={kinds}
+            value="bottle"
+            onChange={() => {}}
+            accessibilityLabel="Kind"
+            disabled
+          />
+        </State>
+      </Group>
+
+      <Group title="TextField">
+        <TextField label="Note (interactive)" value={note} onChangeText={setNote} hint="0 of 500" />
+        <TextField label="Email" value="parent@example.com" onChangeText={() => {}} icon="mail" />
+        <TextField
+          label="Weight"
+          value="32400"
+          onChangeText={() => {}}
+          suffix="g"
+          invalid
+          message="enter a weight between 500 and 10,000 g."
+          errorPrefix="Error"
+        />
+        <TextField label="Disabled" value="Baby" onChangeText={() => {}} disabled />
+        <TextField label="Multiline" value="" onChangeText={() => {}} multiline />
+      </Group>
+
+      <Group title="InlineError">
+        <InlineError prefix="Error" message="enter an amount above 0 ml." />
       </Group>
 
       <Group title="Segmented">
@@ -155,9 +234,7 @@ function SchemeSection() {
             accessibilityLabel="Diaper"
             invalid={kind === null}
           />
-          {kind === null ? (
-            <Text style={[theme.text.caption, s.invalidText]}>Choose one</Text>
-          ) : null}
+          {kind === null ? <InlineError prefix="Error" message="Choose one" /> : null}
         </State>
       </Group>
 
@@ -168,6 +245,7 @@ function SchemeSection() {
           <Chip label="Sleep" selected={false} onPress={() => {}} testOnly_pressed />
           <Chip label="Health" selected={false} onPress={() => {}} disabled />
           <Chip label="Pump" selected onPress={() => {}} disabled />
+          <Chip label="Card fill" selected={false} fill="card" onPress={() => {}} />
         </View>
       </Group>
 
@@ -348,7 +426,6 @@ const styles = (t: Theme) =>
     row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.spacing.md },
     tabBarFrame: { height: t.size.tabBar + t.size.tabBarBottomOffset },
     muted: { color: t.colors.textMuted },
-    invalidText: { color: t.colors.invalid },
     input: {
       minHeight: t.size.touchTarget * 2,
       padding: t.spacing.md,
