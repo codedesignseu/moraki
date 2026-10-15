@@ -208,3 +208,11 @@ All of these drop the native header for an in-page header: a round 48 back or cl
 19. Review notes and an EAS preview build.
 
 Each screen is checked against its day and night HTML before its PR. `lint`, `typecheck`, `npm run arch` and the tests pass on every PR.
+
+## Decided (2026-10-16)
+
+- **G1:** native `formSheet`.
+- **G2:** yes, all the listed wiring.
+- **G5:** a mix. Keep the informal register and Φόρμουλα, Κατάψυξη, Κοινή χρήση. Adopt κινητό, καταχωρίσεις, Φροντιστής / Θεατής.
+- **G3, G4, G6:** the proposed defaults stand.
+- **How the build runs:** all of section 8 as stacked PRs into `design/direction-g`. Nothing merges without the owner. One report at the end, with open questions in `docs/design/REVIEW_NOTES_G.md`.
