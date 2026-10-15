@@ -14,13 +14,12 @@ describe('G theme', () => {
     expect(themes.night.palette).toEqual(palette.night);
   });
 
-  it('sets every G type style in the one UI font, coloured ink', () => {
+  it('sets every G type style in a G font, coloured ink', () => {
     for (const scheme of ['light', 'night'] as const) {
       const theme = buildTheme(scheme);
       for (const [name, style] of Object.entries(theme.type)) {
         expect(style).toMatchObject({
           ...type[name as keyof typeof type],
-          fontFamily: fonts.ui,
           color: palette[scheme].ink,
         });
       }
@@ -49,14 +48,21 @@ describe('G theme', () => {
     }
   });
 
-  it('has the G type scale', () => {
-    expect(type.heroNumber).toMatchObject({ fontSize: 38, fontWeight: '700' });
-    expect(type.title).toMatchObject({ fontSize: 30, fontWeight: '700' });
-    expect(type.sheetTitle).toMatchObject({ fontSize: 20, fontWeight: '700' });
-    expect(type.cardTitle).toMatchObject({ fontSize: 17, fontWeight: '700' });
-    expect(type.tileLabel).toMatchObject({ fontSize: 16, fontWeight: '800' });
-    expect(type.body).toMatchObject({ fontSize: 17, fontWeight: '500' });
-    expect(type.detail).toMatchObject({ fontSize: 15, fontWeight: '600' });
-    expect(type.small).toMatchObject({ fontSize: 13, fontWeight: '600' });
+  it('has the G type scale, each weight carried by its family', () => {
+    expect(type.heroNumber).toMatchObject({ fontSize: 38, fontFamily: 'Comfortaa_700Bold' });
+    expect(type.title).toMatchObject({ fontSize: 30, fontFamily: 'Comfortaa_700Bold' });
+    expect(type.sheetTitle).toMatchObject({ fontSize: 20, fontFamily: 'Comfortaa_700Bold' });
+    expect(type.cardTitle).toMatchObject({ fontSize: 17, fontFamily: 'Comfortaa_700Bold' });
+    expect(type.tileLabel).toMatchObject({ fontSize: 16, fontFamily: 'Manrope_800ExtraBold' });
+    expect(type.body).toMatchObject({ fontSize: 17, fontFamily: 'Manrope_500Medium' });
+    expect(type.detail).toMatchObject({ fontSize: 15, fontFamily: 'Manrope_600SemiBold' });
+    expect(type.small).toMatchObject({ fontSize: 13, fontFamily: 'Manrope_600SemiBold' });
+  });
+
+  it('never sets a fontWeight next to a weighted family (Android takes the weight from the name)', () => {
+    for (const style of Object.values(type)) {
+      expect(style).not.toHaveProperty('fontWeight');
+      expect(Object.values(fonts)).toContain(style.fontFamily);
+    }
   });
 });

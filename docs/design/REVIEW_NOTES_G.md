@@ -14,6 +14,8 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
   - The steps that restyle each reader remove the kept names.
 - **Step 1, screen-only values** added to `tokens.ts` with the screen they came from: `chartFeed`/`chartSleep` (tabs/trends), `switchOn` (tabs/settings; `#34A853` by day, ink `#F1EAE0` at night as the night file draws it), `navShadow` plus `shadow.nav` (0 6 24 at 10%; the night bar has none, so the night colour is transparent).
 - **Step 1, Android adaptive icon** uses a background image, not `#EEEDE7`, so only the splash colour changed. MAPPING_G says brand files stay byte-identical.
+- **Step 2, font loading holds the startup screen.** `app/_layout.tsx` loads the five faces with `useFonts` and passes `hold` to `DatabaseGate`, which keeps its blank opening screen until they load. If loading fails, the app goes on in the system font rather than staying blank. Only the five files are imported (subpaths), not every weight of each package.
+- **Step 2, no `fontWeight` in type styles.** Each style names its weighted family (`Comfortaa_700Bold`, `Manrope_500Medium` …). Android takes the weight from the family name, and a `fontWeight` next to it could add a fake bold. `BarChart`'s "today" label used `fontWeight` from `bodyStrong`. It now spreads `type.tileLabel` (Manrope 800) at the caption size.
 
 ## Problems found
 
@@ -22,5 +24,7 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
 ## Things to check on the device
 
 - The splash background change (`#F3F2EE`) needs a native build to show.
+- Greek text in Comfortaa and Manrope, at 200% text size. Comfortaa line height is 1.15, so check that accents on capitals aren't clipped.
+- The first launch shows no flash of system font. The startup screen stays blank until the fonts are in.
 
 ## Found while working

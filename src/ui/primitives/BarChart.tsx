@@ -75,5 +75,11 @@ const styles = (t: Theme) =>
       borderTopRightRadius: t.radius.sm,
     },
     label: { ...t.text.caption, color: t.colors.textMuted },
-    current: { color: t.colors.text, fontWeight: t.text.bodyStrong.fontWeight },
+    // Today's label in the heavy face, at the caption size.
+    current: {
+      ...t.type.tileLabel,
+      fontSize: t.text.caption.fontSize,
+      lineHeight: t.text.caption.lineHeight,
+      color: t.colors.text,
+    },
   });

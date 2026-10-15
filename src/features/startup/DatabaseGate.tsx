@@ -17,12 +17,18 @@ type State =
  * Opens the database and runs migrations before the first screen (P1-F3).
  * Nothing renders data until the schema is current, and a failed migration
  * shows a message instead of a half-working app.
+ *
+ * `hold` keeps the blank opening screen up while something else the first
+ * screen needs is still loading (the app fonts), so nothing draws in a
+ * fallback font and then changes.
  */
 export function DatabaseGate({
   open,
+  hold = false,
   children,
 }: {
   open: () => Promise<AppRepositories>;
+  hold?: boolean;
   children: ReactNode;
 }) {
   const [state, setState] = useState<State>({ status: 'opening' });
@@ -40,7 +46,7 @@ export function DatabaseGate({
     };
   }, [open]);
 
-  if (state.status === 'ready') {
+  if (state.status === 'ready' && !hold) {
     return (
       <EventsRepositoryProvider repository={state.repositories.events}>
         <DevicePrefsProvider repository={state.repositories.devicePrefs}>
@@ -58,7 +64,7 @@ export function DatabaseGate({
         { backgroundColor: theme.palette.background, padding: theme.spacing.xl },
       ]}
     >
-      {state.status === 'failed' && (
+      {state.status === 'failed' && !hold && (
         <Text accessibilityRole="alert" style={theme.text.body}>
           {t('startup.databaseFailed')}
         </Text>

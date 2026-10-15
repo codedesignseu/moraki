@@ -1,5 +1,3 @@
-import { Platform } from 'react-native';
-
 /**
  * Design tokens: the only place in the app that holds colour values,
  * pixel numbers, type sizes and motion timings. Plain data, no components.
@@ -302,39 +300,52 @@ export const opacity = {
 } as const;
 
 /**
- * The one UI font. Today the platform system font, so nothing is loaded.
- * Step 2 of MAPPING_G section 8 loads Comfortaa and Manrope and sets them here.
+ * G fonts (design/moraki-final-app/tokens/theme.ts): Comfortaa for headings,
+ * sheet titles and big numbers, Manrope for everything else. Both ship
+ * Greek. app/_layout.tsx loads each face under these names before the first
+ * screen. Each face is its own family, because Android picks the weight from
+ * the family name; so a type style sets the family and never a fontWeight.
  */
 export const fonts = {
-  ui: Platform.select({ ios: 'System', android: 'sans-serif', default: 'system-ui' }),
+  heading: 'Comfortaa_700Bold',
+  text: 'Manrope_500Medium',
+  textSemi: 'Manrope_600SemiBold',
+  textBold: 'Manrope_700Bold',
+  textHeavy: 'Manrope_800ExtraBold',
 } as const;
+
+export type FontName = (typeof fonts)[keyof typeof fonts];
+
+const heading = { fontFamily: fonts.heading } as const;
+const text = { fontFamily: fonts.text } as const;
+const textSemi = { fontFamily: fonts.textSemi } as const;
+const textHeavy = { fontFamily: fonts.textHeavy } as const;
 
 /**
  * G type scale in sp. Line heights follow the screens (1.15 for headings,
  * about 1.35 for text) and scale with the font, so text grows to 200%
  * without clipping when no container fixes a height.
  *
- * G names: heroNumber, title, sheetTitle, cardTitle, tileLabel, body,
- * detail, small. Kept names, set where screens still read them: display
- * (the 54 running timer), heading (22, the account pages' h1), tileTitle
- * and rowTitle (the primitive and screen steps move them to sheetTitle,
- * cardTitle and tileLabel, then remove them).
+ * G names: heroNumber, title, sheetTitle, cardTitle (Comfortaa 700),
+ * tileLabel (Manrope 800), body (500), detail and small (600). Kept names,
+ * set where screens still read them: display (the 54 running timer),
+ * heading (22, the account pages' h1), tileTitle and rowTitle (the
+ * primitive and screen steps move them to sheetTitle, cardTitle and
+ * tileLabel, then remove them).
  */
-const uiFont = { fontFamily: fonts.ui } as const;
-
 export const type = {
-  display: { ...uiFont, fontSize: 54, lineHeight: 62, fontWeight: '700' },
-  heroNumber: { ...uiFont, fontSize: 38, lineHeight: 44, fontWeight: '700' },
-  title: { ...uiFont, fontSize: 30, lineHeight: 35, fontWeight: '700' },
-  heading: { ...uiFont, fontSize: 22, lineHeight: 26, fontWeight: '700' },
-  sheetTitle: { ...uiFont, fontSize: 20, lineHeight: 23, fontWeight: '700' },
-  tileTitle: { ...uiFont, fontSize: 20, lineHeight: 24, fontWeight: '800' },
-  rowTitle: { ...uiFont, fontSize: 18, lineHeight: 23, fontWeight: '800' },
-  cardTitle: { ...uiFont, fontSize: 17, lineHeight: 20, fontWeight: '700' },
-  tileLabel: { ...uiFont, fontSize: 16, lineHeight: 22, fontWeight: '800' },
-  body: { ...uiFont, fontSize: 17, lineHeight: 25, fontWeight: '500' },
-  detail: { ...uiFont, fontSize: 15, lineHeight: 21, fontWeight: '600' },
-  small: { ...uiFont, fontSize: 13, lineHeight: 18, fontWeight: '600' },
+  display: { ...heading, fontSize: 54, lineHeight: 62 },
+  heroNumber: { ...heading, fontSize: 38, lineHeight: 44 },
+  title: { ...heading, fontSize: 30, lineHeight: 35 },
+  heading: { ...heading, fontSize: 22, lineHeight: 26 },
+  sheetTitle: { ...heading, fontSize: 20, lineHeight: 23 },
+  tileTitle: { ...textHeavy, fontSize: 20, lineHeight: 24 },
+  rowTitle: { ...textHeavy, fontSize: 18, lineHeight: 23 },
+  cardTitle: { ...heading, fontSize: 17, lineHeight: 20 },
+  tileLabel: { ...textHeavy, fontSize: 16, lineHeight: 22 },
+  body: { ...text, fontSize: 17, lineHeight: 25 },
+  detail: { ...textSemi, fontSize: 15, lineHeight: 21 },
+  small: { ...textSemi, fontSize: 13, lineHeight: 18 },
 } as const;
 
 export type TypeStyle = keyof typeof type;
