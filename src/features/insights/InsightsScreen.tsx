@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { IconName } from '@/ui/icons';
-import { BarChart, Card, Icon } from '@/ui/primitives';
+import { BarChart, Card, Icon, ScreenTitle } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useInsights } from './useInsights';
@@ -17,6 +17,7 @@ export function InsightsScreen({ weight }: { weight?: ReactNode }) {
 
   return (
     <ScrollView contentContainerStyle={s.content}>
+      <ScreenTitle title={t('tabs.insights')} />
       <Card testID="insights-bottle">
         <CardTitle icon="feed" title={t('insights.bottle.title')} />
         <BarChart bars={insights.bottleBars} testID="insights-bottle-chart" />
@@ -131,7 +132,7 @@ function CardTitle({ icon, title }: { icon: IconName; title: string }) {
 const styles = (theme: Theme) =>
   StyleSheet.create({
     content: {
-      padding: theme.spacing.screen,
+      paddingHorizontal: theme.spacing.screen,
       paddingBottom: theme.size.tabBarClearance,
       gap: theme.spacing.lg,
     },

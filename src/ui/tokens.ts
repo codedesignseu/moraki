@@ -23,10 +23,10 @@ export type Scheme = 'light' | 'night';
  * - G: every name in the design's theme.ts, with the design's value.
  * - Screen-only: values the screens use that theme.ts leaves out, each
  *   with the screen it came from.
- * - Kept names: pre-G names screens still read (tabBar, tabActive, onTile,
+ * - Kept names: pre-G names screens still read (onTile,
  *   invalid ...), pointed at G values. The screen and primitive steps of
  *   docs/design/MAPPING_G.md section 8 move their readers to the G names and
- *   remove them (tab bar: step 6; tiles: step 8; invalid: step 4).
+ *   remove them (tiles: step 8; invalid: step 4).
  */
 export const palette = {
   light: {
@@ -80,10 +80,6 @@ export const palette = {
     // Screen-only. The floating tab bar's shadow (every tab file); see `shadow.nav`.
     navShadow: 'rgba(22,20,18,0.10)',
     // Kept names (see above).
-    tabBar: '#FFFFFF',
-    onTabBar: '#161412',
-    tabActive: '#161412',
-    onTabActive: '#FFFFFF',
     onTile: '#161412',
     onTileSoft: '#3E3A35',
     invalid: '#8E4434',
@@ -141,10 +137,6 @@ export const palette = {
     // Screen-only. The night tab bar has no shadow (every night tab file).
     navShadow: 'rgba(0,0,0,0)',
     // Kept names (see above).
-    tabBar: '#23201C',
-    onTabBar: '#F1EAE0',
-    tabActive: '#F1EAE0',
-    onTabActive: '#171411',
     onTile: '#F1EAE0',
     onTileSoft: '#D3C8BA',
     invalid: '#E2A693',
@@ -291,11 +283,8 @@ export const size = {
   navBar: 68,
   navButton: 52,
   navBottom: 30,
-  /** Kept names for navBar, navBottom and navButton (tab bar step removes them). */
-  tabBar: 68,
-  tabBarBottomOffset: 30,
-  tabItemWidth: 52,
-  tabItemHeight: 52,
+  /** G: the icon inside a tab bar button (22 in every tabs/* file). */
+  navIcon: 22,
   /**
    * Bottom padding of a tab's scroll content: the floating bar, its gap to
    * the edge and a screen gap, so the last card scrolls clear above the bar.

@@ -21,6 +21,8 @@ import {
   Segmented,
   Sheet,
   SheetPanel,
+  ScreenHeader,
+  ScreenTitle,
   StatCell,
   StatusPill,
   Stepper,
@@ -450,7 +452,12 @@ function SchemeSection() {
         />
       </Group>
 
-      <Group title="Sage tab bar">
+      <Group title="Screen title and header">
+        <ScreenTitle title="Trends" subtitle="Last 7 days" />
+        <ScreenHeader title="About Moraki" onBack={() => {}} backLabel="Back" />
+      </Group>
+
+      <Group title="Tab bar">
         <View style={s.tabBarFrame}>
           <TabBar
             items={[
@@ -517,7 +524,7 @@ const styles = (t: Theme) =>
     row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.spacing.md },
     cells: { flexDirection: 'row', gap: t.spacing.sm },
     toastFrame: { height: t.size.toast + t.size.navBar + t.size.navBottom + t.spacing.xl },
-    tabBarFrame: { height: t.size.tabBar + t.size.tabBarBottomOffset },
+    tabBarFrame: { height: t.size.navBar + t.size.navBottom },
     muted: { color: t.colors.textMuted },
     input: {
       minHeight: t.size.touchTarget * 2,

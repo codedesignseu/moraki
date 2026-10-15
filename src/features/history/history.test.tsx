@@ -48,7 +48,7 @@ describe('history timeline', () => {
       list()
         .getAllByRole('header')
         .map((hdr) => hdr.props.children),
-    ).toEqual(['Today', 'Yesterday', 'Friday 23 October']);
+    ).toEqual(['History', 'Today', 'Yesterday', 'Friday 23 October']);
     expect(rowTitles()).toEqual(['Bottle', 'Diaper', 'Bottle', 'Medication']);
     expect(list().getByText('120 mL formula')).toBeOnTheScreen();
     expect(list().getByText('21:00')).toBeOnTheScreen();
@@ -102,6 +102,7 @@ describe('history timeline', () => {
     expect(rendered.length).toBeGreaterThan(0);
     expect(rendered.length).toBeLessThanOrEqual(INITIAL_ROWS);
     expect(rowTitles()[0]).toBe('Bottle');
-    expect(list().getAllByRole('header')[0]?.props.children).toBe('Today');
+    // The tab's title, then the newest day.
+    expect(list().getAllByRole('header')[1]?.props.children).toBe('Today');
   });
 });

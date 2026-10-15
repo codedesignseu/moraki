@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, Card, EntryRow, Icon, TimerText } from '@/ui/primitives';
+import { Button, Card, EntryRow, Icon, Logo, TimerText } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useHome, type RecentRow, type StockPlaceView } from './useHome';
@@ -33,6 +33,10 @@ export function HomeScreen({
 
   return (
     <ScrollView contentContainerStyle={s.screen}>
+      {/* Until the G greeting (MAPPING_G step 8): the mark the native header showed. */}
+      <View style={s.logo}>
+        <Logo accessibilityLabel={t('app.name')} />
+      </View>
       {/* Sage 07 timer card, without the ring (D2). */}
       <View style={[s.hero, s.feedTint]} testID="home-timer">
         <Text style={s.onTileSoft}>{t('home.timer.label')}</Text>
@@ -261,10 +265,11 @@ function Row({
 const styles = (theme: Theme) =>
   StyleSheet.create({
     screen: {
-      padding: theme.spacing.screen,
+      paddingHorizontal: theme.spacing.screen,
       paddingBottom: theme.size.tabBarClearance,
       gap: theme.spacing.lg,
     },
+    logo: { alignItems: 'center', paddingTop: theme.spacing.md },
     actions: { gap: theme.spacing.md },
     muted: { ...theme.type.detail, color: theme.palette.textSoft },
     strip: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },

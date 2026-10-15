@@ -1,5 +1,8 @@
+import type { ReactNode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
+
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ThemeProvider } from '../theme';
 import { palette, radius, size } from '../tokens';
@@ -7,6 +10,14 @@ import { ActivityTile, Card, EmptyState, IconButton, ListRow, Logo, StatusPill, 
 
 const noop = () => {};
 const HIDDEN = { includeHiddenElements: true };
+// A phone whose bottom inset is smaller than the bar's 30 gap.
+const metrics = {
+  frame: { x: 0, y: 0, width: 390, height: 844 },
+  insets: { top: 0, left: 0, right: 0, bottom: 0 },
+};
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <SafeAreaProvider initialMetrics={metrics}>{children}</SafeAreaProvider>
+);
 
 describe('IconButton', () => {
   it('is a labelled button with a full touch target', async () => {
@@ -106,6 +117,7 @@ describe('TabBar', () => {
           },
         ]}
       />,
+      { wrapper },
     );
     expect(screen.getByRole('button', { name: 'Home' })).toBeSelected();
     expect(screen.getByRole('button', { name: 'History' })).not.toBeSelected();
@@ -113,20 +125,57 @@ describe('TabBar', () => {
     expect(onHistory).toHaveBeenCalledTimes(1);
   });
 
-  it('gives each tab at least a 44 dp target and floats above the edge', async () => {
+  it('gives each tab a 52 round button and floats 30 above the edge', async () => {
     await render(
       <TabBar
         items={[{ key: 'h', label: 'Home', icon: 'tab-home', selected: true, onPress: noop }]}
         testID="bar"
       />,
+      { wrapper },
     );
     expect(screen.getByRole('button')).toHaveStyle({
-      width: size.tabItemWidth,
-      height: size.tabItemHeight,
+      width: size.navButton,
+      height: size.navButton,
     });
-    expect(Math.min(size.tabItemWidth, size.tabItemHeight)).toBeGreaterThanOrEqual(44);
-    expect(screen.getByTestId('bar')).toHaveStyle({ bottom: size.tabBarBottomOffset });
+    expect(size.navButton).toBeGreaterThanOrEqual(44);
+    expect(screen.getByTestId('bar')).toHaveStyle({ bottom: size.navBottom });
   });
+
+  it('keeps above a system bar taller than its gap', async () => {
+    const tall = { ...metrics, insets: { ...metrics.insets, bottom: 48 } };
+    await render(
+      <SafeAreaProvider initialMetrics={tall}>
+        <TabBar
+          items={[{ key: 'h', label: 'Home', icon: 'tab-home', selected: true, onPress: noop }]}
+          testID="bar"
+        />
+      </SafeAreaProvider>,
+    );
+    expect(screen.getByTestId('bar')).toHaveStyle({ bottom: 48 });
+  });
+
+  it.each(['light', 'night'] as const)(
+    'fills the buttons from the %s palette, the active one apart',
+    async (scheme) => {
+      await render(
+        <ThemeProvider scheme={scheme}>
+          <TabBar
+            items={[
+              { key: 'h', label: 'Home', icon: 'tab-home', selected: true, onPress: noop },
+              { key: 's', label: 'Settings', icon: 'tab-settings', selected: false, onPress: noop },
+            ]}
+          />
+        </ThemeProvider>,
+        { wrapper },
+      );
+      expect(screen.getByRole('button', { name: 'Home' })).toHaveStyle({
+        backgroundColor: palette[scheme].navActive,
+      });
+      expect(screen.getByRole('button', { name: 'Settings' })).toHaveStyle({
+        backgroundColor: palette[scheme].navButton,
+      });
+    },
+  );
 });
 
 describe('EmptyState', () => {

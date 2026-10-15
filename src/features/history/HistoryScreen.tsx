@@ -3,7 +3,7 @@ import { SectionList, StyleSheet, Text, View } from 'react-native';
 
 import { HISTORY_GROUPS } from '@/domain/activities';
 import type { EntryRow as Row } from '@/domain/entries/describeEntry';
-import { Chip, EmptyState, EntryRow } from '@/ui/primitives';
+import { Chip, EmptyState, EntryRow, ScreenTitle } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useHistory } from './useHistory';
@@ -36,16 +36,23 @@ export function HistoryScreen({
       stickySectionHeadersEnabled
       contentContainerStyle={s.content}
       ListHeaderComponent={
-        <View style={s.chips} accessibilityRole="toolbar" accessibilityLabel={t('history.filters')}>
-          {HISTORY_GROUPS.map((group) => (
-            <Chip
-              key={group}
-              label={t(`history.group.${group}`)}
-              selected={groups.has(group)}
-              onPress={() => toggle(group)}
-            />
-          ))}
-        </View>
+        <>
+          <ScreenTitle title={t('tabs.history')} />
+          <View
+            style={s.chips}
+            accessibilityRole="toolbar"
+            accessibilityLabel={t('history.filters')}
+          >
+            {HISTORY_GROUPS.map((group) => (
+              <Chip
+                key={group}
+                label={t(`history.group.${group}`)}
+                selected={groups.has(group)}
+                onPress={() => toggle(group)}
+              />
+            ))}
+          </View>
+        </>
       }
       renderSectionHeader={({ section }) => (
         <Text accessibilityRole="header" style={[theme.type.heading, s.dayHeader]}>

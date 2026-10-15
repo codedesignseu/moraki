@@ -86,8 +86,8 @@ describe.each(schemes)('G %s palette', (scheme) => {
     ['onUndo', 'undo'],
     ['navActiveIcon', 'navActive'],
     ['disabledText', 'disabledFill'],
-    ['onTabBar', 'tabBar'],
-    ['onTabActive', 'tabActive'],
+    ['ink', 'navBar'],
+    ['ink', 'navButton'],
     ...(['onTile', 'onTileSoft'] as const).flatMap((fg) =>
       tiles.map((bg): [PaletteName, PaletteName] => [fg, bg]),
     ),
@@ -115,7 +115,6 @@ describe.each(schemes)('G %s palette', (scheme) => {
   it('shows the active tab apart from the bar and the other buttons (3:1)', () => {
     expect(contrastRatio(g.navActive, g.navBar)).toBeGreaterThanOrEqual(AA.nonText);
     expect(contrastRatio(g.navActive, g.navButton)).toBeGreaterThanOrEqual(AA.nonText);
-    expect(contrastRatio(g.tabActive, g.tabBar)).toBeGreaterThanOrEqual(AA.nonText);
   });
 
   it('shows the Undo pill apart from the toast (3:1)', () => {
@@ -124,10 +123,6 @@ describe.each(schemes)('G %s palette', (scheme) => {
 
   it('points the kept names at G values', () => {
     expect(g.invalid).toBe(g.error);
-    expect(g.tabBar).toBe(g.navBar);
-    expect(g.onTabBar).toBe(g.ink);
-    expect(g.tabActive).toBe(g.navActive);
-    expect(g.onTabActive).toBe(g.navActiveIcon);
     expect(g.onTile).toBe(g.ink);
   });
 

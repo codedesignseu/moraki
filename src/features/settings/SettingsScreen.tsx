@@ -23,7 +23,7 @@ import { useSentryTest } from './useSentryTest';
 import { useSignOut } from './useSignOut';
 import { useAdoption } from '@/sync/useAdoption';
 import type { IconName } from '@/ui/icons';
-import { Button, Card, Icon, Segmented, Stepper, Toast } from '@/ui/primitives';
+import { Button, Card, Icon, ScreenTitle, Segmented, Stepper, Toast } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 /**
@@ -103,6 +103,7 @@ export function SettingsScreen({
   return (
     <View style={s.fill}>
       <ScrollView contentContainerStyle={s.content}>
+        <ScreenTitle title={t('tabs.settings')} />
         {adoption.otherAccount && (
           <Card testID="settings-other-account">
             <CardTitle icon="private" badge="feed" title={t('settings.otherAccount.title')} />
@@ -539,7 +540,7 @@ const styles = (theme: Theme) =>
   StyleSheet.create({
     fill: { flex: 1 },
     content: {
-      padding: theme.spacing.screen,
+      paddingHorizontal: theme.spacing.screen,
       paddingBottom: theme.size.tabBarClearance,
       gap: theme.spacing.lg,
     },

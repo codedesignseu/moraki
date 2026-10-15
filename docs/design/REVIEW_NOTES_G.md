@@ -34,6 +34,12 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
 - **Step 5, DateTimeField** is now one input-shaped button (54 high, clock icon, value). `openLabel` ("Set exact time") moved from a visible button to the field's accessibility hint, and the field's name is still `label`. The visible "Set exact time" text is gone. If the owner wants the words visible, they can go back as a hint line under the field.
 - **Step 5, Toast** uses `toast`/`onToast`/`undo`/`onUndo`, 56 high, message 16/600, Undo 15/700 in a 48 pill. Left padding is 20, right 4 (G: 6).
 - **Step 5, no Switch.** The app has no on/off switch today: reminders use a Segmented, and the one G switch ("From stock") is design-only (MAPPING_G section 3). `palette.switchOn` stays unused.
+- **Step 6, the tab bar is the navigator's own bar, styled.** A custom `tabBar` (the `TabBar` primitive) was tried first and is cleaner, but it makes `src/sync/householdSettings.test.tsx` test 5 fail when the file runs in order ("overlapping act()"), the same problem SAGE-F3 records. So `app/(tabs)/_layout.tsx` keeps Sage's approach (start/end, items flex 1, clipped round items) with G values: 52 round buttons in `navButton`, active `navActive` with a `navActiveIcon` icon, gap 8, padding 8, 22 icons, `shadow.nav` by day and none at night (Android elevation is off at night, because elevation draws its own grey). The `TabBar` primitive is restyled the same way for the showcase. If SAGE-F3 is fixed, the layout can switch to `tabBar={(props) => <TabBar … />}`.
+- **Step 6, the bar sits `max(30, bottom inset)` above the edge.** G draws 30. On an iPhone with a home indicator that is 34, and on Android with three-button navigation it is the system bar's height (about 48), so the pill never covers the system buttons. `size.tabBarClearance` (122) still clears it. If the owner wants exactly 30 everywhere: set `bottom: size.navBottom` in the layout.
+- **Step 6, the tab scene starts below the status bar.** The tabs have no native header now, so the scene gets `paddingTop` = the top inset, and `ScreenTitle` adds 12: 59 from the top on a 47-inset iPhone (G: 58–60). Content no longer scrolls under the clock, and History's sticky day headers stay readable. If the owner wants content to scroll under a translucent status bar instead, move the inset into `ScreenTitle` and turn off History's sticky headers.
+- **Step 6, Home keeps the logo** centred at the top of its content until the step 8 greeting replaces it. Its native header is gone with the others.
+- **Step 6, tab titles use the tab names** (`tabs.history`, `tabs.insights`, `tabs.settings`). The app's Insights tab is already "Trends" / "Τάσεις", so it matches G. G's "Last 7 days" subtitle is left for step 13, which adds the string; `ScreenTitle` takes a `subtitle`.
+- **Step 6, `ScreenHeader` keeps clear of the status bar itself** (inset + 8, about 55; G: 56), because the pushed and modal pages that will use it have no tab scene to pad them. `IconButton` gets `size="large"` (48) for its round back or close button; the default stays 46.
 
 ## Problems found
 
@@ -46,5 +52,7 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
 - Greek text in Comfortaa and Manrope, at 200% text size. Comfortaa line height is 1.15, so check that accents on capitals aren't clipped.
 - The first launch shows no flash of system font. The startup screen stays blank until the fonts are in.
 - Step 4: the Stepper and ChoiceButtons at 200% text. The 48 number may wrap to two lines on a narrow phone.
+- Step 6: the floating tab bar on Android with three-button and with gesture navigation (it sits above the system bar), and its shadow by day (Android draws elevation, iOS the shadow). Night has none.
+- Step 6: the area under the status bar on each tab is the page colour, and scrolling stops at it.
 
 ## Found while working

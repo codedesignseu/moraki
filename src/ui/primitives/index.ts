@@ -26,6 +26,8 @@ export { Notice } from './Notice';
 export { PillButton } from './PillButton';
 export type { ChartLine, ChartMark, ChartPoint } from './PointChart';
 export { PointChart } from './PointChart';
+export { ScreenHeader } from './ScreenHeader';
+export { ScreenTitle } from './ScreenTitle';
 export type { SegmentedOption } from './Segmented';
 export { Segmented } from './Segmented';
 export { Sheet, SheetPanel } from './Sheet';

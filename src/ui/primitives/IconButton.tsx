@@ -15,23 +15,30 @@ type Props = {
   accessibilityLabel: string;
   accessibilityHint?: string;
   tone?: IconButtonTone;
+  /** `regular` 46 (Sage), `large` 48: G's round back and close buttons. */
+  size?: 'regular' | 'large';
   disabled?: boolean;
   testID?: string;
 };
 
-/** Sage round icon button: 46 visible, with the hit area grown to the 48 touch target. */
+/**
+ * Round icon button: 46 visible (Sage) with the hit area grown to the 48
+ * touch target, or 48 (G back and close).
+ */
 export function IconButton({
   icon,
   onPress,
   accessibilityLabel,
   accessibilityHint,
   tone = 'card',
+  size = 'regular',
   disabled = false,
   testID,
 }: Props) {
   const theme = useTheme();
   const s = styles(theme);
-  const slop = (theme.size.touchTarget - theme.size.iconButton) / 2;
+  const side = size === 'large' ? theme.size.circleControl : theme.size.iconButton;
+  const slop = Math.max(0, (theme.size.touchTarget - side) / 2);
   return (
     <Pressable
       onPress={onPress}
@@ -44,7 +51,7 @@ export function IconButton({
       accessibilityState={{ disabled }}
       style={({ pressed }) => [
         s.base,
-        { backgroundColor: theme.palette[tone] },
+        { width: side, height: side, backgroundColor: theme.palette[tone] },
         pressed && s.pressed,
         disabled && s.disabled,
       ]}
@@ -57,8 +64,6 @@ export function IconButton({
 const styles = (t: Theme) =>
   StyleSheet.create({
     base: {
-      width: t.size.iconButton,
-      height: t.size.iconButton,
       borderRadius: t.radius.pill,
       alignItems: 'center',
       justifyContent: 'center',
