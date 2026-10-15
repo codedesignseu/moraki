@@ -4,28 +4,32 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { IconName } from '../icons';
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
-import type { PaletteName } from '../tokens';
 import { Icon } from './Icon';
+import type { CircleTone } from './IconCircle';
+import { IconCircle } from './IconCircle';
 
 type Props = {
   title: string;
   detail?: string | undefined;
   /** Icon in a round badge at the start. */
   icon?: IconName;
-  /** Badge fill; a tile colour or chip. */
-  badge?: Extract<PaletteName, 'feed' | 'sleep' | 'diaper' | 'pump' | 'chip'>;
+  /** Badge fill: a tile colour, chip or card. */
+  badge?: CircleTone;
   /** Content at the end, e.g. an IconButton or a value. */
   trailing?: ReactNode;
   /** Pressable rows show a › at the end unless `trailing` is given. */
   onPress?: () => void;
   accessibilityLabel?: string;
   accessibilityHint?: string;
-  /** Row inside a grouped card: no own background or corners. */
+  /** Row inside a grouped card (ListGroup): no own background, corners or side padding. */
   grouped?: boolean;
   testID?: string;
 };
 
-/** Sage list row (corner 26): badge, title, detail and an end slot. */
+/**
+ * G list row (foundations, tabs/settings): a 40 icon badge, a 17/600 title,
+ * a soft detail line and a chevron when it can be pressed. 60 high.
+ */
 export function ListRow({
   title,
   detail,
@@ -42,16 +46,20 @@ export function ListRow({
   const s = styles(theme);
   const body = (
     <>
-      {icon ? (
-        <View style={[s.badge, { backgroundColor: theme.palette[badge] }]}>
-          <Icon name={icon} />
-        </View>
-      ) : null}
+      {icon ? <IconCircle icon={icon} tone={badge} /> : null}
       <View style={s.text}>
-        <Text style={theme.type.rowTitle}>{title}</Text>
+        <Text style={theme.type.rowLabel}>{title}</Text>
         {detail ? <Text style={[theme.type.detail, s.detail]}>{detail}</Text> : null}
       </View>
-      {trailing ?? (onPress ? <Icon name="forward" color={theme.palette.textSoft} /> : null)}
+      {trailing ??
+        (onPress ? (
+          <Icon
+            name="chevron"
+            size={theme.size.iconField}
+            color={theme.palette.textSoft}
+            testID="list-row-chevron"
+          />
+        ) : null)}
     </>
   );
   const rowStyle = [s.row, !grouped && s.standalone];
@@ -80,22 +88,18 @@ export function ListRow({
 const styles = (t: Theme) =>
   StyleSheet.create({
     row: {
-      minHeight: t.size.touchTarget,
+      minHeight: t.size.listRow,
       flexDirection: 'row',
       alignItems: 'center',
       gap: t.spacing.md,
-      paddingVertical: t.spacing.md,
-      paddingHorizontal: t.spacing.lg,
+      paddingVertical: t.spacing.sm,
     },
-    standalone: { backgroundColor: t.palette.card, borderRadius: t.radius.card },
+    standalone: {
+      paddingHorizontal: t.spacing.screenEdge,
+      backgroundColor: t.palette.card,
+      borderRadius: t.radius.card,
+    },
     pressed: { opacity: t.opacity.pressed },
-    badge: {
-      width: t.size.rowBadge,
-      height: t.size.rowBadge,
-      borderRadius: t.radius.pill,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
     text: { flex: 1 },
     detail: { color: t.palette.textSoft },
   });

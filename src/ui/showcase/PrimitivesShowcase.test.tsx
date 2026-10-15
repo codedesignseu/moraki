@@ -31,6 +31,14 @@ it('renders every primitive group in every scheme', async () => {
     'Segmented',
     'Chip',
     'Card',
+    'IconCircle',
+    'StatCell',
+    'PillButton',
+    'TextButton',
+    'Toast',
+    'Legend',
+    'DateTimeField',
+    'ListRow',
     'Sheet',
   ]) {
     expect(screen.getAllByRole('header', { name: group })).toHaveLength(schemes.length);

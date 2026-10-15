@@ -208,6 +208,8 @@ export const spacing = {
   field: 14,
   /** G: inside edge of a segmented control's track. */
   track: 5,
+  /** G: side padding of the dark "Log a feed" pill. */
+  pill: 20,
 } as const;
 
 export const radius = {
@@ -232,6 +234,8 @@ export const radius = {
   input: 16,
   /** G: the stepper's grey box (sheets/feed-bottle). */
   stepper: 24,
+  /** G: a tinted stat cell (tabs/home "Today" and milk stock). */
+  stat: 18,
   /** G `button` and `chip`: fully round. */
   pill: 999,
   button: 999,
@@ -264,6 +268,20 @@ export const size = {
   inputMultiline: 110,
   /** G: the round - and + of a stepper. A hit slop takes the target to 64. */
   stepperButton: 52,
+  /** G: a list row (tabs/settings, tabs/home grouped card). */
+  listRow: 60,
+  /** G: the toast pill; its Undo pill is the 48 touch target (G draws 44). */
+  toast: 56,
+  /** G: a round icon badge, by where it sits (every screen; the icon is half its size). */
+  circleRow: 40,
+  circleCard: 44,
+  circleSheet: 46,
+  circleControl: 48,
+  circleTile: 58,
+  circleEmpty: 64,
+  /** G: a chart legend dot (tabs/trends) and the ring of a hollow one. */
+  legendDot: 12,
+  legendRing: 2.5,
   iconButton: 46,
   /** G: a kind choice in a sheet (Bottle, Breast, Mixed). */
   choiceButton: 64,
@@ -372,6 +390,14 @@ export const type = {
   stepperValueCompact: { ...heading, fontSize: 32, lineHeight: 37 },
   /** G: a stepper's unit, set beside its number in soft text. */
   stepperUnit: { ...textBold, fontSize: 18, lineHeight: 24 },
+  /** G: a list row's title (17/600). */
+  rowLabel: { ...textSemi, fontSize: 17, lineHeight: 23 },
+  /** G: the line in a warning or notice card, and the toast message (16/600). */
+  lead: { ...textSemi, fontSize: 16, lineHeight: 22 },
+  /** G: an empty state's title (tabs/history-empty, 18/700). */
+  emptyTitle: { ...textBold, fontSize: 18, lineHeight: 24 },
+  /** G: the label of a stat cell (12/700). */
+  statLabel: { ...textBold, fontSize: 12, lineHeight: 16 },
   /** G: the main button's label (17/700) and an outlined button's (16/700). */
   button: { ...textBold, fontSize: 17, lineHeight: 23 },
   buttonSecondary: { ...textBold, fontSize: 16, lineHeight: 22 },

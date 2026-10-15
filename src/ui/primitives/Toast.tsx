@@ -9,7 +9,11 @@ type Props = {
   onAction: () => void;
 };
 
-/** A short confirmation along the bottom of the screen with one action, e.g. Undo. */
+/**
+ * A short confirmation along the bottom of the screen with one action, e.g.
+ * Undo (G: foundations). Its own tokens: an ink pill with a butter Undo pill
+ * by day, reversed at night. The Undo pill is 48 high (G draws 44).
+ */
 export function Toast({ message, actionLabel, onAction }: Props) {
   const theme = useTheme();
   const s = styles(theme);
@@ -40,31 +44,32 @@ const styles = (t: Theme) =>
       left: 0,
       right: 0,
       // Clear of the floating tab bar.
-      bottom: t.size.tabBar + t.size.tabBarBottomOffset + t.spacing.md,
+      bottom: t.size.navBar + t.size.navBottom + t.spacing.md,
       alignItems: 'center',
-      paddingHorizontal: t.spacing.lg,
+      paddingHorizontal: t.spacing.screenEdge,
     },
     toast: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: t.spacing.md,
       alignSelf: 'stretch',
-      minHeight: t.size.touchTargetLarge,
-      paddingVertical: t.spacing.sm,
-      paddingLeft: t.spacing.xl,
-      paddingRight: t.spacing.sm,
+      minHeight: t.size.toast,
+      paddingVertical: t.spacing.xs,
+      paddingLeft: t.spacing.pill,
+      paddingRight: t.spacing.xs,
       borderRadius: t.radius.pill,
-      backgroundColor: t.palette.tabBar,
+      backgroundColor: t.palette.toast,
     },
-    message: { ...t.type.rowTitle, color: t.palette.onTabBar, flex: 1 },
+    message: { ...t.type.lead, color: t.palette.onToast, flex: 1 },
     action: {
-      minHeight: t.size.touchTarget,
-      minWidth: t.size.touchTarget,
+      minHeight: t.size.minTouch,
+      minWidth: t.size.minTouch,
       justifyContent: 'center',
-      paddingHorizontal: t.spacing.lg,
+      alignItems: 'center',
+      paddingHorizontal: t.spacing.screenEdge,
       borderRadius: t.radius.pill,
-      backgroundColor: t.palette.tabActive,
+      backgroundColor: t.palette.undo,
     },
     pressed: { opacity: t.opacity.pressed },
-    actionText: { ...t.type.rowTitle, color: t.palette.onTabActive },
+    actionText: { ...t.type.detailBold, color: t.palette.onUndo },
   });

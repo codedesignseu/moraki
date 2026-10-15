@@ -4,12 +4,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { IconName } from '../icons';
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
-import type { TileColour } from './ActivityTile';
-import { Icon } from './Icon';
+import type { CircleTone } from './IconCircle';
+import { IconCircle } from './IconCircle';
 
 type Props = {
   icon: IconName;
-  colour: TileColour;
+  /** The circle's fill. G draws it in the card colour on the screen background. */
+  colour?: CircleTone;
   title: string;
   body?: string | undefined;
   /** At most one button, as the design shows: one warm line, one button. */
@@ -17,21 +18,20 @@ type Props = {
   testID?: string;
 };
 
-/** Sage empty state: a picture tile with the icon, a title, a line and one action. */
-export function EmptyState({ icon, colour, title, body, action, testID }: Props) {
+/**
+ * G empty state (tabs/history-empty, tabs/trends-empty): a 64 circle with a
+ * soft icon, a title, one warm line and at most one action, centred.
+ */
+export function EmptyState({ icon, colour = 'card', title, body, action, testID }: Props) {
   const theme = useTheme();
   const s = styles(theme);
   return (
-    <View style={s.card} testID={testID}>
-      <View style={[s.art, { backgroundColor: theme.palette[colour] }]}>
-        <Icon name={icon} size={theme.size.iconHero} color={theme.palette.onTile} />
-      </View>
-      <View style={s.text}>
-        <Text style={theme.type.heading} accessibilityRole="header">
-          {title}
-        </Text>
-        {body ? <Text style={[theme.type.body, s.body]}>{body}</Text> : null}
-      </View>
+    <View style={s.wrap} testID={testID}>
+      <IconCircle icon={icon} tone={colour} size="empty" iconColour="soft" />
+      <Text style={[theme.type.emptyTitle, s.centre]} accessibilityRole="header">
+        {title}
+      </Text>
+      {body ? <Text style={[theme.type.detail, s.body, s.centre]}>{body}</Text> : null}
       {action}
     </View>
   );
@@ -39,18 +39,12 @@ export function EmptyState({ icon, colour, title, body, action, testID }: Props)
 
 const styles = (t: Theme) =>
   StyleSheet.create({
-    card: {
-      backgroundColor: t.palette.card,
-      borderRadius: t.radius.tile,
-      padding: t.spacing.xl,
-      gap: t.spacing.lg,
-    },
-    art: {
-      minHeight: t.size.emptyArt,
-      borderRadius: t.radius.tile,
+    wrap: {
       alignItems: 'center',
-      justifyContent: 'center',
+      gap: t.spacing.sm,
+      paddingVertical: t.spacing.xl,
+      paddingHorizontal: t.spacing.md,
     },
-    text: { gap: t.spacing.sm },
+    centre: { textAlign: 'center' },
     body: { color: t.palette.textSoft },
   });

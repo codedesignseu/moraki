@@ -8,8 +8,11 @@ import { Icon } from './Icon';
 type Props = {
   label: string;
   onPress: () => void;
-  /** `primary` is the one dark main button; `secondary` is outlined. */
-  variant?: 'primary' | 'secondary';
+  /**
+   * `primary` is the one dark main button; `secondary` is outlined;
+   * `destructive` is outlined in the error colour (account/leave "Delete account").
+   */
+  variant?: 'primary' | 'secondary' | 'destructive';
   disabled?: boolean;
   /**
    * Work is under way: a spinner shows before the label, presses are ignored
@@ -46,11 +49,14 @@ export function Button({
   const s = styles(theme);
   const primary = variant === 'primary';
   const inactive = disabled || busy;
+  const destructive = variant === 'destructive';
   const labelColour = disabled
     ? theme.palette.disabledText
     : primary
       ? theme.palette.onButtonPrimary
-      : theme.palette.ink;
+      : destructive
+        ? theme.palette.error
+        : theme.palette.ink;
   return (
     <Pressable
       onPress={onPress}
@@ -63,6 +69,7 @@ export function Button({
       style={({ pressed }) => [
         s.base,
         primary ? s.primary : s.secondary,
+        destructive && s.destructive,
         disabled && (primary ? s.primaryDisabled : s.secondaryDisabled),
         pressed && !inactive && (primary ? s.primaryPressed : s.secondaryPressed),
       ]}
@@ -108,5 +115,6 @@ const styles = (t: Theme) =>
     },
     secondaryPressed: { backgroundColor: t.palette.line },
     secondaryDisabled: { borderColor: t.palette.line },
+    destructive: { borderColor: t.palette.error },
     label: { textAlign: 'center', flexShrink: 1 },
   });

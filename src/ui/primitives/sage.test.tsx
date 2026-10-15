@@ -79,14 +79,14 @@ describe('ListRow', () => {
     await render(<ListRow title="Night mode" detail="Auto" icon="sleep" onPress={onPress} />);
     await fireEvent.press(screen.getByRole('button', { name: 'Night mode, Auto' }));
     expect(onPress).toHaveBeenCalledTimes(1);
-    expect(screen.getByText('›', HIDDEN)).toBeTruthy();
+    expect(screen.getByTestId('list-row-chevron', HIDDEN)).toBeTruthy();
   });
 
   it('is plain content without onPress, and shows what it is given at the end', async () => {
     await render(<ListRow title="Version" trailing={<Text>1.0</Text>} />);
     expect(screen.queryByRole('button')).toBeNull();
     expect(screen.getByText('1.0')).toBeTruthy();
-    expect(screen.queryByText('›', HIDDEN)).toBeNull();
+    expect(screen.queryByTestId('list-row-chevron', HIDDEN)).toBeNull();
   });
 });
 
