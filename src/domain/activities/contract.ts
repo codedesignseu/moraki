@@ -46,8 +46,30 @@ export type Event<P> = {
 // Placeholders for types owned by later tasks. Branded so nothing can satisfy
 // them by accident; each is replaced by the real shape when its task lands.
 type Placeholder<Name extends string> = { readonly __placeholder: Name };
-/** Replaced when the home grid gets icons (P1-06). */
-export type IconName = Placeholder<'IconName'>;
+/**
+ * The badge icon of each activity, as a key of the UI icon set
+ * (src/ui/icons.ts, one PNG in assets/icons each). Plain strings, because the
+ * domain imports nothing from the UI; a UI test checks each one exists.
+ */
+export const ACTIVITY_ICONS = [
+  'feed',
+  'sleep',
+  'diaper',
+  'pump',
+  'health',
+  'weight',
+  'visit',
+] as const;
+
+export type IconName = (typeof ACTIVITY_ICONS)[number];
+
+/**
+ * The colour behind an activity's badge (direction G history and recent
+ * rows), as a palette name the UI resolves per scheme, never a colour value.
+ */
+export const BADGE_TONES = ['feed', 'sleep', 'diaper', 'pump'] as const;
+
+export type BadgeTone = (typeof BADGE_TONES)[number];
 /** Replaced by the log sheets (P1-07 onwards). */
 export type LogSheetProps<P> = Placeholder<'LogSheetProps'> & { readonly __payload?: P };
 /**
@@ -167,9 +189,9 @@ export type LogSheetComponent<P> = {
  * everything about itself; nothing outside `domain/activities/` branches on
  * event type.
  *
- * `icon`, `LogSheet` and `summarize` are required by 15.2 but optional here
- * until the tasks that build them (P1-06, P1-07 onwards) fill every module in.
- * The registry completeness test tightens as they land.
+ * `LogSheet` and `summarize` are required by 15.2 but optional here until
+ * the tasks that build them fill every module in. The registry completeness
+ * test tightens as they land.
  */
 export type ActivityModule<P> = {
   type: EventType;
@@ -177,7 +199,9 @@ export type ActivityModule<P> = {
   schema: ZodType<P>;
   /** Label key in src/i18n, never a literal string. */
   i18nKey: string;
-  icon?: IconName;
+  /** The badge on history and recent rows: an icon and the tone behind it. */
+  icon: IconName;
+  tone: BadgeTone;
   /** Which history filter chip shows it (P1-11). Checked by the completeness test. */
   historyGroup?: HistoryGroup;
   /** Present when the module appears on the home grid. */

@@ -13,6 +13,8 @@ export const weightModule: ActivityModule<WeightPayload> = {
   type: 'weight',
   schema: weightSchema,
   i18nKey: 'activity.weight.label',
+  icon: 'weight',
+  tone: 'pump',
   historyGroup: 'other',
 };
 

@@ -6,6 +6,10 @@ import type { ImageSourcePropType } from 'react-native';
  * Swapping to SVG later means changing this map and Icon, nothing else.
  */
 export const ICONS = {
+  alert: require('../../assets/icons/alert.png') as ImageSourcePropType,
+  check: require('../../assets/icons/check.png') as ImageSourcePropType,
+  chevron: require('../../assets/icons/chevron.png') as ImageSourcePropType,
+  close: require('../../assets/icons/close.png') as ImageSourcePropType,
   delete: require('../../assets/icons/delete.png') as ImageSourcePropType,
   diaper: require('../../assets/icons/diaper.png') as ImageSourcePropType,
   'diaper-both': require('../../assets/icons/diaper-both.png') as ImageSourcePropType,
@@ -17,11 +21,15 @@ export const ICONS = {
   health: require('../../assets/icons/health.png') as ImageSourcePropType,
   invite: require('../../assets/icons/invite.png') as ImageSourcePropType,
   link: require('../../assets/icons/link.png') as ImageSourcePropType,
+  mail: require('../../assets/icons/mail.png') as ImageSourcePropType,
+  minus: require('../../assets/icons/minus.png') as ImageSourcePropType,
+  plus: require('../../assets/icons/plus.png') as ImageSourcePropType,
   private: require('../../assets/icons/private.png') as ImageSourcePropType,
   pump: require('../../assets/icons/pump.png') as ImageSourcePropType,
   reminder: require('../../assets/icons/reminder.png') as ImageSourcePropType,
   share: require('../../assets/icons/share.png') as ImageSourcePropType,
   sleep: require('../../assets/icons/sleep.png') as ImageSourcePropType,
+  stop: require('../../assets/icons/stop.png') as ImageSourcePropType,
   'tab-history': require('../../assets/icons/tab-history.png') as ImageSourcePropType,
   'tab-home': require('../../assets/icons/tab-home.png') as ImageSourcePropType,
   'tab-insights': require('../../assets/icons/tab-insights.png') as ImageSourcePropType,
@@ -34,16 +42,12 @@ export const ICONS = {
 export type IconName = keyof typeof ICONS;
 
 /**
- * Small controls the icon set has no file for. The design draws them as text
+ * Back and forward, which the icon set has no file for. The design draws them as text
  * glyphs, so they render as text in the UI font and follow the text size.
  */
 export const GLYPHS = {
   back: '\u2039',
   forward: '\u203A',
-  close: '\u00D7',
-  plus: '+',
-  minus: '\u2212',
-  check: '\u2713',
 } as const;
 
 export type GlyphName = keyof typeof GLYPHS;

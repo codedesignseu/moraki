@@ -36,6 +36,8 @@ export const healthModule: ActivityModule<HealthPayload> = {
   type: 'health',
   schema: healthSchema,
   i18nKey: 'activity.health.label',
+  icon: 'health',
+  tone: 'pump',
   historyGroup: 'health',
   summarize: (e) =>
     e.payload.temp_c === undefined

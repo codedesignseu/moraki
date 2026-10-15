@@ -13,6 +13,8 @@ export const pumpModule: ActivityModule<PumpPayload> = {
   type: 'pump',
   schema: pumpSchema,
   i18nKey: 'activity.pump.label',
+  icon: 'pump',
+  tone: 'pump',
   historyGroup: 'other',
   contributes: {
     // Milk pumped and put away is a batch, dated when it was pumped, so its

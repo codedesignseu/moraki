@@ -26,6 +26,8 @@ export const feedBreastModule: ActivityModule<FeedBreastPayload> = {
   type: 'feed_breast',
   schema: feedBreastSchema,
   i18nKey: 'activity.feed_breast.label',
+  icon: 'feed',
+  tone: 'feed',
   historyGroup: 'feeds',
   summarize: (e) => ({ key: `activity.feed_breast.summary.${e.payload.side}` }),
   contributes: {

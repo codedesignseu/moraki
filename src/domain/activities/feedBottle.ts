@@ -14,6 +14,8 @@ export const feedBottleModule: ActivityModule<FeedBottlePayload> = {
   type: 'feed_bottle',
   schema: feedBottleSchema,
   i18nKey: 'activity.feed_bottle.label',
+  icon: 'feed',
+  tone: 'feed',
   historyGroup: 'feeds',
   summarize: (e) => ({
     key: `activity.feed_bottle.summary.${e.payload.milk}`,

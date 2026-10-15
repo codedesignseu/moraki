@@ -13,6 +13,8 @@ export const sleepModule: ActivityModule<SleepPayload> = {
   type: 'sleep',
   schema: sleepSchema,
   i18nKey: 'activity.sleep.label',
+  icon: 'sleep',
+  tone: 'sleep',
   historyGroup: 'sleep',
   summarize: (e) =>
     e.endedAt === null
