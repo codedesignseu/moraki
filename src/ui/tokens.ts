@@ -5,10 +5,11 @@ import { Platform } from 'react-native';
  * pixel numbers, type sizes and motion timings. Plain data, no components.
  * Every other file styles itself from the theme built on top of this.
  *
- * Values come from design/guidelines/tokens/theme.ts (Sage v1.0):
- * `palette`, `type`, `fonts`, `logo` and the Sage entries in `radius`,
- * `spacing` and `size`. `colors` and `typography` are the pre-Sage names,
- * now pointing at Sage values; step 4 of the refresh removes them.
+ * Values come from design/moraki-final-app/tokens/theme.ts (direction G)
+ * and, where theme.ts leaves a value out, from the G screens, which win
+ * over foundations.html (docs/design/MAPPING_G.md section 1). `colors` and
+ * `typography` are the pre-Sage names, pointing at G values; the screen
+ * steps of MAPPING_G section 8 move their readers off them.
  *
  * Contrast is checked by src/ui/theme/contrast.test.ts, not by eye.
  */
@@ -16,89 +17,152 @@ import { Platform } from 'react-native';
 export type Scheme = 'light' | 'night';
 
 /**
- * Stone palettes (they replaced Sage on 2026-10-09; layout, type and sizes
- * are still Sage's). `light` is the day palette; `night` is the 21:00 to
- * 06:00 palette, chosen by the night mode setting.
+ * Direction G palettes (design/moraki-final-app/tokens/theme.ts, "Faded
+ * Stone"). `light` is the design's `day`; `night` is the 21:00 to 06:00
+ * palette, chosen by the night mode setting.
+ *
+ * Three groups per scheme:
+ * - G: every name in the design's theme.ts, with the design's value.
+ * - Screen-only: values the screens use that theme.ts leaves out, each
+ *   with the screen it came from.
+ * - Kept names: pre-G names screens still read (tabBar, tabActive, onTile,
+ *   invalid ...), pointed at G values. The screen and primitive steps of
+ *   docs/design/MAPPING_G.md section 8 move their readers to the G names and
+ *   remove them (tab bar: step 6; tiles: step 8; invalid: step 4).
  */
 export const palette = {
   light: {
-    background: '#EEEDE7',
+    // G
+    background: '#F3F2EE',
     card: '#FFFFFF',
     ink: '#161412',
     textSoft: '#5C5852',
     line: '#E4E2DA',
     outline: '#CFCCC3',
-    chip: '#EEEDE7',
-    // A control's selected state (chips). Text and icons on it use onSelected.
+    chip: '#F3F2EE',
+    // A control's selected state (chips, segments). Text and icons on it use onSelected.
     selected: '#161412',
     onSelected: '#FFFFFF',
     buttonPrimary: '#161412',
     onButtonPrimary: '#FFFFFF',
-    tabBar: '#161412',
-    onTabBar: '#FFFFFF',
-    tabActive: '#FFFFFF',
-    onTabActive: '#161412',
+    navBar: '#FFFFFF',
+    navButton: '#F3F2EE',
+    navActive: '#161412',
+    navActiveIcon: '#FFFFFF',
+    // Edge of a text input, at least 3:1 on card, chip and background (WCAG 1.4.11).
+    inputBorder: '#7C7973',
+    // Form validation only, always with text or an icon; never on a health
+    // number (SDD 12.3).
+    error: '#8E4434',
+    errorSurface: '#F7E3DD',
+    feed: '#F7EBC0',
+    sleep: '#F4E4DE',
+    diaper: '#E1E3F7',
+    pump: '#E0EEE7',
+    // Decorative circle on the Home hero card. Never behind text.
+    heroCircle: '#F1E1A8',
+    disabledFill: '#E4E2DA',
+    disabledText: '#5C5852',
+    toast: '#161412',
+    onToast: '#FFFFFF',
+    undo: '#F7EBC0',
+    onUndo: '#161412',
+    warning: '#F7EBC0',
     // Dims the screen behind a sheet. Not a text or UI colour.
-    scrim: 'rgba(22, 20, 18, 0.35)',
-    feed: '#F3DF8C',
-    sleep: '#ECD3CA',
-    diaper: '#CDD1F2',
-    pump: '#CDE5DA',
+    scrim: 'rgba(22,20,18,0.35)',
+    skeleton: '#E4E2DA',
+    // The logo's mark colour on this scheme (honey deep by day).
+    logo: '#C9802F',
+    // Screen-only. Bars on Trends (tabs/trends): a deeper step of the tile
+    // colours so short bars stay visible on white. Each bar has its value above it.
+    chartFeed: '#E9CF7A',
+    chartSleep: '#E3BFB2',
+    // Screen-only. A switch that is on (tabs/settings).
+    switchOn: '#34A853',
+    // Screen-only. The floating tab bar's shadow (every tab file); see `shadow.nav`.
+    navShadow: 'rgba(22,20,18,0.10)',
+    // Kept names (see above).
+    tabBar: '#FFFFFF',
+    onTabBar: '#161412',
+    tabActive: '#161412',
+    onTabActive: '#FFFFFF',
     onTile: '#161412',
     onTileSoft: '#3E3A35',
-    // Form validation only, always with text or an icon; never on a health
-    // number (SDD 12.3). Not in the Stone table: derived to pass AA (4.5:1)
-    // on card, background, chip and every tile colour.
     invalid: '#8E4434',
-    // Edge of a text input, at least 3:1 on card, chip and background
-    // (WCAG 1.4.11). Not in the Stone table: derived warm-neutral.
-    inputBorder: '#7C7973',
   },
   night: {
+    // G
     background: '#171411',
     card: '#23201C',
     ink: '#F1EAE0',
-    textSoft: '#B8AD9F',
+    // G draws #B8AD9F, which is 4.35:1 on the night feed tile where Home
+    // draws its hero detail line. The nearest lighter step that passes AA
+    // (4.5:1) is used; see docs/design/REVIEW_NOTES_G.md.
+    textSoft: '#BBB0A2',
     line: '#34302B',
     outline: '#4A443D',
     chip: '#2C2823',
-    // A control's selected state (chips). Text and icons on it use onSelected.
-    selected: '#3A352F',
-    onSelected: '#F1EAE0',
+    // A control's selected state (chips, segments). Text and icons on it use onSelected.
+    selected: '#F1EAE0',
+    onSelected: '#171411',
     buttonPrimary: '#F1EAE0',
     onButtonPrimary: '#171411',
-    tabBar: '#F1EAE0',
-    onTabBar: '#171411',
-    tabActive: '#171411',
-    onTabActive: '#F1EAE0',
-    // Dims the screen behind a sheet. Not a text or UI colour.
-    scrim: 'rgba(0, 0, 0, 0.6)',
+    navBar: '#23201C',
+    navButton: '#2C2823',
+    navActive: '#F1EAE0',
+    navActiveIcon: '#171411',
+    // Edge of a text input, at least 3:1 on card, chip and background (WCAG 1.4.11).
+    inputBorder: '#847E76',
+    // Form validation only, always with text or an icon; never on a health
+    // number (SDD 12.3).
+    error: '#E2A693',
+    errorSurface: '#3A2420',
     feed: '#51432A',
     sleep: '#47343A',
     diaper: '#33374D',
     pump: '#2F4238',
+    // Decorative circle on the Home hero card. Never behind text.
+    heroCircle: '#5E4F31',
+    disabledFill: '#2C2823',
+    disabledText: '#B8AD9F',
+    toast: '#F1EAE0',
+    onToast: '#171411',
+    undo: '#171411',
+    onUndo: '#F1EAE0',
+    warning: '#3A3322',
+    // Dims the screen behind a sheet. Not a text or UI colour.
+    scrim: 'rgba(0,0,0,0.55)',
+    skeleton: '#2C2823',
+    // The logo's mark colour on this scheme (honey at night).
+    logo: '#E8A55A',
+    // Screen-only. Bars on Trends (tabs/trends night).
+    chartFeed: '#8A7438',
+    chartSleep: '#7A5560',
+    // Screen-only. A switch that is on (tabs/settings night draws it in ink).
+    switchOn: '#F1EAE0',
+    // Screen-only. The night tab bar has no shadow (every night tab file).
+    navShadow: 'rgba(0,0,0,0)',
+    // Kept names (see above).
+    tabBar: '#23201C',
+    onTabBar: '#F1EAE0',
+    tabActive: '#F1EAE0',
+    onTabActive: '#171411',
     onTile: '#F1EAE0',
     onTileSoft: '#D3C8BA',
-    // Form validation only, always with text or an icon; never on a health
-    // number (SDD 12.3). Not in the Stone table: derived to pass AA (4.5:1)
-    // on card, background, chip and every tile colour.
     invalid: '#E2A693',
-    // Edge of a text input, at least 3:1 on card, chip and background
-    // (WCAG 1.4.11). Not in the Stone table: derived warm-neutral.
-    inputBorder: '#847E76',
   },
 } as const satisfies Record<Scheme, Record<string, string>>;
 
 export type PaletteName = keyof (typeof palette)['light'];
 
-type SagePalette = (typeof palette)[Scheme];
+type GPalette = (typeof palette)[Scheme];
 
 /**
  * The pre-Sage colour names, now pointing at Sage values. Screens written
  * before the refresh read these; every one of them shows Sage colours, and
  * step 4 of the refresh moves them to the Sage names and removes this map.
  */
-function legacyNames(p: SagePalette) {
+function legacyNames(p: GPalette) {
   return {
     background: p.background,
     surface: p.card,
@@ -111,7 +175,7 @@ function legacyNames(p: SagePalette) {
     accentSubtle: p.chip,
     onAccent: p.onButtonPrimary,
     surfacePressed: p.line,
-    invalid: p.invalid,
+    invalid: p.error,
     scrim: p.scrim,
     borderStrong: p.inputBorder,
     divider: p.line,
@@ -138,28 +202,41 @@ export const spacing = {
   xl: 24,
   xxl: 32,
   xxxl: 48,
-  /** Sage: left and right edge of every screen. */
+  /** G `space.screenEdge`: left and right edge of every screen. */
   screen: 18,
+  /** G name for `screen`. */
+  screenEdge: 18,
 } as const;
 
 export const radius = {
   sm: 8,
   md: 12,
-  /** Cards; the same as the Sage card corner. */
+  /** Kept name for `card`. */
   lg: 26,
-  /** Sage: activity tiles. */
-  tile: 32,
-  /** Sage: cards and list rows. */
+  /**
+   * G: activity tiles and the Home hero. theme.ts says 28 for every card,
+   * but the screens draw most cards at 26 and only the hero and tiles at 28
+   * (tabs/home); the screens win.
+   */
+  tile: 28,
+  hero: 28,
+  /** G: cards and grouped list rows (tabs/home, tabs/settings). */
   card: 26,
-  /** Sage: top corners of a bottom sheet. */
+  /** G: top corners of a bottom sheet. */
   sheet: 32,
-  /** Buttons and chips, fully round. */
+  /** G: the 64-high kind buttons in a sheet. */
+  choice: 20,
+  /** G `button` and `chip`: fully round. */
   pill: 999,
+  button: 999,
+  chip: 999,
 } as const;
 
 export const size = {
   /** Minimum touch target, SDD section 8. Use for min height and width, never height. */
   touchTarget: 48,
+  /** G name for `touchTarget`. */
+  minTouch: 48,
   /** Controls used one-handed while holding a baby (Stepper +/-). */
   touchTargetLarge: 64,
   borderThin: 1,
@@ -168,20 +245,30 @@ export const size = {
   chartHeight: 160,
   /** Diameter of one plotted measurement on a point chart. */
   point: 10,
-  // Sage sizes. The touch minimum stays touchTarget (48), above the design's 44.
-  /** The one main button, and outlined buttons. */
+  /** G: the one main button, and outlined buttons. */
   button: 60,
   buttonSmall: 50,
   iconButton: 46,
-  /** Floating tab bar: its height, and its gap above the bottom edge. */
-  tabBar: 66,
+  /** G: a kind choice in a sheet (Bottle, Breast, Mixed). */
+  choiceButton: 64,
+  /** G: an activity tile on Home and in the diaper sheet. */
+  tile: 132,
+  /** G floating tab bar: its height, each round button, its gap above the bottom edge. */
+  navBar: 68,
+  navButton: 52,
+  navBottom: 30,
+  /** Kept names for navBar, navBottom and navButton (tab bar step removes them). */
+  tabBar: 68,
   tabBarBottomOffset: 30,
+  tabItemWidth: 52,
+  tabItemHeight: 52,
   /**
    * Bottom padding of a tab's scroll content: the floating bar, its gap to
    * the edge and a screen gap, so the last card scrolls clear above the bar.
    */
-  tabBarClearance: 66 + 30 + 24,
-  activityTile: 168,
+  tabBarClearance: 68 + 30 + 24,
+  /** Kept name for `tile`; a minimum, so a tile still grows with its text. */
+  activityTile: 132,
   icon: 24,
   /** Icon on an activity tile. */
   iconTile: 42,
@@ -189,9 +276,6 @@ export const size = {
   iconHero: 84,
   /** Round icon badge at the start of a list row. */
   rowBadge: 46,
-  /** Tab bar item: a pill the active tab fills. */
-  tabItemWidth: 64,
-  tabItemHeight: 48,
   /** Picture tile of an empty state. Grows with its content. */
   emptyArt: 190,
   /** One-tap choice tile in a sheet (wet, dirty, both). Grows with its text. */
@@ -204,6 +288,14 @@ export const size = {
   logoHeader: 28,
 } as const;
 
+/**
+ * The floating tab bar's shadow (every G tab file: 0 6px 24px). Its colour
+ * is `palette.navShadow`, transparent at night, where the bar has none.
+ */
+export const shadow = {
+  nav: { offsetY: 6, radius: 24, opacity: 1, elevation: 6 },
+} as const;
+
 /** Opacity of a control while it is pressed. */
 export const opacity = {
   pressed: 0.7,
@@ -211,25 +303,35 @@ export const opacity = {
 
 /**
  * The one UI font. Today the platform system font, so nothing is loaded.
- * A custom font is a one-line change here (and loading it with expo-font).
+ * Step 2 of MAPPING_G section 8 loads Comfortaa and Manrope and sets them here.
  */
 export const fonts = {
   ui: Platform.select({ ios: 'System', android: 'sans-serif', default: 'system-ui' }),
 } as const;
 
 /**
- * Sage type scale in sp, weights 500, 600 and 800. Line heights scale with
- * the font, so text grows to 200% without clipping when no container fixes
- * a height.
+ * G type scale in sp. Line heights follow the screens (1.15 for headings,
+ * about 1.35 for text) and scale with the font, so text grows to 200%
+ * without clipping when no container fixes a height.
+ *
+ * G names: heroNumber, title, sheetTitle, cardTitle, tileLabel, body,
+ * detail, small. Kept names, set where screens still read them: display
+ * (the 54 running timer), heading (22, the account pages' h1), tileTitle
+ * and rowTitle (the primitive and screen steps move them to sheetTitle,
+ * cardTitle and tileLabel, then remove them).
  */
 const uiFont = { fontFamily: fonts.ui } as const;
 
 export const type = {
-  display: { ...uiFont, fontSize: 54, lineHeight: 54, fontWeight: '800' },
-  title: { ...uiFont, fontSize: 36, lineHeight: 40, fontWeight: '800' },
-  heading: { ...uiFont, fontSize: 22, lineHeight: 26, fontWeight: '800' },
+  display: { ...uiFont, fontSize: 54, lineHeight: 62, fontWeight: '700' },
+  heroNumber: { ...uiFont, fontSize: 38, lineHeight: 44, fontWeight: '700' },
+  title: { ...uiFont, fontSize: 30, lineHeight: 35, fontWeight: '700' },
+  heading: { ...uiFont, fontSize: 22, lineHeight: 26, fontWeight: '700' },
+  sheetTitle: { ...uiFont, fontSize: 20, lineHeight: 23, fontWeight: '700' },
   tileTitle: { ...uiFont, fontSize: 20, lineHeight: 24, fontWeight: '800' },
   rowTitle: { ...uiFont, fontSize: 18, lineHeight: 23, fontWeight: '800' },
+  cardTitle: { ...uiFont, fontSize: 17, lineHeight: 20, fontWeight: '700' },
+  tileLabel: { ...uiFont, fontSize: 16, lineHeight: 22, fontWeight: '800' },
   body: { ...uiFont, fontSize: 17, lineHeight: 25, fontWeight: '500' },
   detail: { ...uiFont, fontSize: 15, lineHeight: 21, fontWeight: '600' },
   small: { ...uiFont, fontSize: 13, lineHeight: 18, fontWeight: '600' },
@@ -238,12 +340,12 @@ export const type = {
 export type TypeStyle = keyof typeof type;
 
 /**
- * The pre-Sage type names, now set in the Sage scale. Like `colors`, they
- * go in step 4 of the refresh.
+ * The pre-Sage type names, set in the G scale. Like `colors`, the screen
+ * steps move their readers off them.
  */
 export const typography = {
   // Elapsed-time display. Tabular figures keep every digit the same width.
-  timer: { ...type.display, lineHeight: 62, fontVariant: ['tabular-nums'] },
+  timer: { ...type.display, fontVariant: ['tabular-nums'] },
   display: type.title,
   title: type.heading,
   heading: type.tileTitle,
