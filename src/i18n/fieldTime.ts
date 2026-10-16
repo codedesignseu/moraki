@@ -12,3 +12,11 @@ export function formatFieldTime(
   if (time.day === 'other') return time.text;
   return t(time.now ? 'log.when.todayNow' : 'log.when.today', { time: time.clock });
 }
+
+/** A sheet's date field in words: "Today, 6 Oct", or the date with its weekday for another day. */
+export function formatFieldDate(
+  t: TFunction,
+  date: { day: 'today'; date: string } | { day: 'other'; text: string },
+): string {
+  return date.day === 'other' ? date.text : t('log.when.todayDate', { date: date.date });
+}

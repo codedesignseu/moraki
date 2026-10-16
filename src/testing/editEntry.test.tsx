@@ -94,9 +94,9 @@ describe('editing an entry (P1-12)', () => {
     const before = row(id);
     await renderApp(h.repo);
     await fireEvent.press(screen.getByTestId(`recent-${id}`));
-    expect(screen.getByLabelText('Temperature in °C (optional)').props.value).toBe('37.9');
+    expect(screen.getByLabelText('Temperature').props.value).toBe('37.9');
     await fireEvent.changeText(screen.getByLabelText('Note'), 'Warm, settled after feed');
-    await fireEvent.changeText(screen.getByLabelText('Temperature in °C (optional)'), '');
+    await fireEvent.changeText(screen.getByLabelText('Temperature'), '');
     await press('Save');
 
     expect(h.repo.get(id)?.payload).toEqual({ note: 'Warm, settled after feed', tags: ['cough'] });
@@ -113,8 +113,8 @@ describe('editing an entry (P1-12)', () => {
       payload: { name: 'Vitamin D', dose: '1 drop' },
     });
     await openFromHistory(id);
-    expect(screen.getByLabelText('Medication name').props.value).toBe('Vitamin D');
-    await fireEvent.changeText(screen.getByLabelText('Dose (optional)'), '');
+    expect(screen.getByLabelText('Name').props.value).toBe('Vitamin D');
+    await fireEvent.changeText(screen.getByLabelText('Dose'), '');
     await press('Save');
     expect(h.repo.get(id)?.payload).toEqual({ name: 'Vitamin D' });
   });

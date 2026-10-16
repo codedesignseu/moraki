@@ -1,5 +1,5 @@
 import i18n from '.';
-import { formatFieldTime } from './fieldTime';
+import { formatFieldDate, formatFieldTime } from './fieldTime';
 
 describe('formatFieldTime', () => {
   afterEach(async () => {
@@ -29,5 +29,21 @@ describe('formatFieldTime', () => {
     expect(formatFieldTime(i18n.t, { day: 'today', clock: '21:50', now: false })).toBe(
       'Σήμερα, 21:50',
     );
+  });
+});
+
+describe('formatFieldDate', () => {
+  afterEach(async () => {
+    await i18n.changeLanguage('en');
+  });
+
+  it('reads today with its date, and passes another day through', () => {
+    expect(formatFieldDate(i18n.t, { day: 'today', date: '6 Oct' })).toBe('Today, 6 Oct');
+    expect(formatFieldDate(i18n.t, { day: 'other', text: 'Fri 2 Oct' })).toBe('Fri 2 Oct');
+  });
+
+  it('reads it in Greek', async () => {
+    await i18n.changeLanguage('el');
+    expect(formatFieldDate(i18n.t, { day: 'today', date: '6 Οκτ' })).toBe('Σήμερα, 6 Οκτ');
   });
 });

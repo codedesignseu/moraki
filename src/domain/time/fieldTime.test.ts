@@ -1,4 +1,4 @@
-import { fieldTime } from './fieldTime';
+import { fieldDate, fieldTime } from './fieldTime';
 
 const NICOSIA = 'Europe/Nicosia';
 const MIN = 60_000;
@@ -38,6 +38,31 @@ describe('fieldTime', () => {
     expect(fieldTime(yesterday, NOW, NICOSIA, 'en-GB')).toEqual({
       day: 'other',
       text: 'Tue 30 Jun, 22:40',
+    });
+  });
+});
+
+describe('fieldDate', () => {
+  it('reads today as the day and month (G: "Today, 6 Oct")', () => {
+    expect(fieldDate(NOW - 50 * MIN, NOW, NICOSIA, 'en-GB')).toEqual({
+      day: 'today',
+      date: '1 Jul',
+    });
+  });
+
+  it('adds the weekday for any other day, and leaves the time out', () => {
+    expect(fieldDate(NOW - 24 * 60 * MIN, NOW, NICOSIA, 'en-GB')).toEqual({
+      day: 'other',
+      text: 'Tue 30 Jun',
+    });
+  });
+
+  it('uses the local calendar day, not the UTC one', () => {
+    // 00:10 local on 2 July is still 1 July in UTC.
+    const justAfterMidnight = Date.parse('2026-07-01T21:10:00Z');
+    expect(fieldDate(justAfterMidnight, justAfterMidnight, NICOSIA, 'en-GB')).toEqual({
+      day: 'today',
+      date: '2 Jul',
     });
   });
 });

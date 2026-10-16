@@ -31,6 +31,8 @@ type Props = {
   icon?: IconName | undefined;
   /** A unit after the value, e.g. "g" or "°C". The caller's copy. */
   suffix?: string | undefined;
+  /** Example text in the empty field, e.g. "Name of the medicine". The caller's copy. */
+  placeholder?: string | undefined;
   /** Read-only and greyed. */
   disabled?: boolean | undefined;
   /** Small helper text under the field, e.g. a character count. The caller's copy. */
@@ -61,6 +63,7 @@ export function TextField({
   autoCapitalize,
   icon,
   suffix,
+  placeholder,
   disabled = false,
   hint,
   invalid = false,
@@ -104,6 +107,7 @@ export function TextField({
           autoComplete={autoComplete}
           textContentType={textContentType}
           autoCapitalize={autoCapitalize}
+          placeholder={placeholder}
           placeholderTextColor={theme.palette.textSoft}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}

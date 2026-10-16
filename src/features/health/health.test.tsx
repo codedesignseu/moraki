@@ -6,6 +6,7 @@ import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
 jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
 
 const NOW = Date.parse('2026-07-01T09:00:00Z'); // 12:00 in Nicosia
+const HOUR = 3_600_000;
 
 let h: Harness;
 beforeEach(async () => {
@@ -31,9 +32,12 @@ const save = () => fireEvent.press(screen.getByRole('button', { name: 'Save' }))
 describe('health note sheet', () => {
   it('saves a note with a temperature and tags, and returns home showing it', async () => {
     await open('Health note');
-    expect(screen.getByText('At 12:00')).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: 'Health note' })).toBeOnTheScreen();
+    expect(screen.getByText('Now · 12:00')).toBeOnTheScreen();
+    expect(screen.getByTestId('health-when-value')).toHaveTextContent('Today, 12:00 · now');
+    expect(screen.getByText('°C')).toBeOnTheScreen();
     await type('Note', 'Warm to touch after nap');
-    await type('Temperature in °C (optional)', '37,8');
+    await type('Temperature', '37,8');
     await fireEvent.press(screen.getByRole('togglebutton', { name: 'Cough' }));
     await save();
 
@@ -60,15 +64,15 @@ describe('health note sheet', () => {
   ])('refuses temperature %p with a message and writes nothing', async (input, message) => {
     await open('Health note');
     await type('Note', 'Checked');
-    await type('Temperature in °C (optional)', input);
+    await type('Temperature', input);
     await save();
 
-    expect(screen.getByRole('alert')).toHaveTextContent(message);
+    expect(screen.getByRole('alert')).toHaveTextContent(`Error: ${message}`);
     expect(ofType('health')).toEqual([]);
     expect(outboxCount()).toBe(0);
 
     // Fixing it saves.
-    await type('Temperature in °C (optional)', '38.2');
+    await type('Temperature', '38.2');
     expect(screen.queryByRole('alert')).toBeNull();
     await save();
     expect(ofType('health')[0]?.payload).toMatchObject({ temp_c: 38.2 });
@@ -77,7 +81,7 @@ describe('health note sheet', () => {
   it('accepts the range edges 34.0 and 43.0', async () => {
     await open('Health note');
     await type('Note', 'Edge');
-    await type('Temperature in °C (optional)', '43.0');
+    await type('Temperature', '43.0');
     await save();
     expect(ofType('health')[0]?.payload).toMatchObject({ temp_c: 43 });
   });
@@ -93,7 +97,7 @@ describe('health note sheet', () => {
 
   it('saves a temperature on its own, with no note (P1-F9)', async () => {
     await open('Health note');
-    await type('Temperature in °C (optional)', '37.4');
+    await type('Temperature', '37.4');
     await save();
     expect(ofType('health')).toEqual([
       expect.objectContaining({ occurredAt: NOW, payload: { temp_c: 37.4 } }),
@@ -106,7 +110,7 @@ describe('health note sheet', () => {
     await fireEvent.press(screen.getByRole('togglebutton', { name: 'Rash' }));
     await save();
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'Add a note or a temperature to save this entry.',
+      'Error: Add a note or a temperature to save this entry.',
     );
     expect(ofType('health')).toEqual([]);
     expect(outboxCount()).toBe(0);
@@ -118,28 +122,55 @@ describe('health note sheet', () => {
     expect(ofType('health')[0]?.payload).toEqual({ note: 'Small rash on cheek', tags: ['rash'] });
   });
 
+  it('takes a note written up afterwards, at the time it happened', async () => {
+    await open('Health note');
+    await fireEvent(screen.getByTestId('health-when'), 'change', NOW - HOUR);
+    expect(screen.getByTestId('health-when-value')).toHaveTextContent('Today, 11:00');
+    await type('Note', 'Sneezing after the feed');
+    await save();
+    expect(ofType('health')[0]?.occurredAt).toBe(NOW - HOUR);
+  });
+
   it('refuses a blank note on its own', async () => {
     await open('Health note');
     await type('Note', '   ');
     await save();
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'Add a note or a temperature to save this entry.',
+      'Error: Add a note or a temperature to save this entry.',
     );
     expect(ofType('health')).toEqual([]);
   });
 
   it('shows no messages before Save is pressed', async () => {
     await open('Health note');
-    await type('Temperature in °C (optional)', '99');
+    await type('Temperature', '99');
     expect(screen.queryByRole('alert')).toBeNull();
   });
 });
 
 describe('medication sheet', () => {
+  it('opens as G draws it, with the examples in the empty fields', async () => {
+    await open('Medication');
+    expect(screen.getByRole('header', { name: 'Medication' })).toBeOnTheScreen();
+    expect(screen.getByText('Now · 12:00')).toBeOnTheScreen();
+    expect(screen.getByTestId('medication-when-value')).toHaveTextContent('Today, 12:00 · now');
+    expect(screen.getByLabelText('Name').props.placeholder).toBe('Name of the medicine');
+    expect(screen.getByLabelText('Dose').props.placeholder).toBe('e.g. 1 drop or 2.5 ml');
+  });
+
+  it('takes a dose written up afterwards, at the time it was given', async () => {
+    await open('Medication');
+    await fireEvent(screen.getByTestId('medication-when'), 'change', NOW - HOUR);
+    expect(screen.getByTestId('medication-when-value')).toHaveTextContent('Today, 11:00');
+    await type('Name', 'Vitamin D');
+    await save();
+    expect(ofType('medication')[0]?.occurredAt).toBe(NOW - HOUR);
+  });
+
   it('saves a name and dose and returns home showing it', async () => {
     await open('Medication');
-    await type('Medication name', 'Vitamin D');
-    await type('Dose (optional)', '1 drop');
+    await type('Name', 'Vitamin D');
+    await type('Dose', '1 drop');
     await save();
     expect(ofType('medication')).toEqual([
       expect.objectContaining({ occurredAt: NOW, payload: { name: 'Vitamin D', dose: '1 drop' } }),
@@ -154,10 +185,10 @@ describe('medication sheet', () => {
       payload: { name: 'Vitamin D', dose: '1 drop' },
     });
     await open('Medication');
-    expect(screen.getByLabelText('Medication name').props.value).toBe('Vitamin D');
+    expect(screen.getByLabelText('Name').props.value).toBe('Vitamin D');
     // The amount is typed each time: an infant's dose moves with weight and
     // age, so carrying it forward invites saving it unread (P3-F12).
-    expect(screen.getByLabelText('Dose (optional)').props.value).toBe('');
+    expect(screen.getByLabelText('Dose').props.value).toBe('');
     await save();
     expect(ofType('medication').map((e) => e.payload)).toEqual([
       { name: 'Vitamin D' },
@@ -169,18 +200,18 @@ describe('medication sheet', () => {
     await open('Medication');
     await save();
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'Add the medication name to save this entry.',
+      'Error: Add the medication name to save this entry.',
     );
     expect(ofType('medication')).toEqual([]);
-    await type('Medication name', 'Paracetamol');
+    await type('Name', 'Paracetamol');
     await save();
     expect(ofType('medication')[0]?.payload).toEqual({ name: 'Paracetamol' });
   });
 
   it('caps the name at 60 and the dose at 30 characters', async () => {
     await open('Medication');
-    await type('Medication name', 'n'.repeat(80));
-    await type('Dose (optional)', 'd'.repeat(40));
+    await type('Name', 'n'.repeat(80));
+    await type('Dose', 'd'.repeat(40));
     await save();
     expect(ofType('medication')[0]?.payload).toEqual({
       name: 'n'.repeat(60),

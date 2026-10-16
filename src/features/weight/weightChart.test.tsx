@@ -191,7 +191,7 @@ describe('adding a weight', () => {
     await openInsights();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Add weight' }));
-    await fireEvent.press(await screen.findByRole('radio', { name: 'At the clinic' }));
+    await fireEvent.press(await screen.findByRole('radio', { name: 'Clinic' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     const weights = repo.list().filter((e) => e.type === 'weight');

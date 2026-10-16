@@ -56,7 +56,7 @@ describe('undo toast on every save (P1-12)', () => {
     expect(toast()).toHaveTextContent(/Health note saved/);
     await undo();
     await press('Medication');
-    await fireEvent.changeText(screen.getByLabelText('Medication name'), 'Vitamin D');
+    await fireEvent.changeText(screen.getByLabelText('Name'), 'Vitamin D');
     await press('Save');
     expect(toast()).toHaveTextContent(/Medication saved/);
     await undo();

@@ -278,41 +278,46 @@
     "health": {
       "title": "Health note",
       "note": "Note",
-      "temperature": "Temperature in °C (optional)",
+      "temperature": "Temperature",
       "tempFormat": "Enter the temperature as a number, like 37.5.",
       "tempRange": "Enter a temperature from {{min}} to {{max}} °C.",
-      "tags": "Tags (optional)",
+      "tags": "Symptoms",
       "tag": {
         "rash": "Rash",
         "vomiting": "Vomiting",
         "cough": "Cough",
-        "congestion": "Congestion",
+        "congestion": "Runny nose",
         "fussy": "Fussy",
         "jaundice": "Jaundice",
         "other": "Other"
       },
-      "noteOrTemp": "Add a note or a temperature to save this entry."
+      "noteOrTemp": "Add a note or a temperature to save this entry.",
+      "when": "Time",
+      "tempUnit": "°C"
     },
     "medication": {
       "title": "Medication",
-      "name": "Medication name",
+      "name": "Name",
       "nameMissing": "Add the medication name to save this entry.",
-      "dose": "Dose (optional)",
+      "dose": "Dose",
       "adding": "Add a dose",
-      "prefilled": "Name filled in from the last dose. Enter the amount you are giving now."
+      "prefilled": "Name filled in from the last dose. Enter the amount you are giving now.",
+      "when": "Time",
+      "namePlaceholder": "Name of the medicine",
+      "dosePlaceholder": "e.g. 1 drop or 2.5 ml"
     },
     "weight": {
-      "title": "Weight",
+      "title": "Add weight",
       "amount": "Weight",
       "unit": "g",
       "source": {
-        "label": "Scale",
-        "home": "At home",
-        "clinic": "At the clinic"
+        "label": "Where it was weighed",
+        "home": "Home",
+        "clinic": "Clinic"
       },
-      "when": "Weighed at",
-      "fine": "Adjust by tens",
-      "outOfRange": "A weight in grams, between {{min}} and {{max}}"
+      "when": "Date",
+      "fine": "Fine adjust",
+      "outOfRange": "Enter a weight between {{min}} and {{max}} g."
     },
     "appointment": {
       "screen": "Appointment",
@@ -336,7 +341,8 @@
     "exactTime": "Set exact time",
     "when": {
       "today": "Today, {{time}}",
-      "todayNow": "Today, {{time}} · now"
+      "todayNow": "Today, {{time}} · now",
+      "todayDate": "Today, {{date}}"
     },
     "subtitle": {
       "now": "Now · {{time}}",

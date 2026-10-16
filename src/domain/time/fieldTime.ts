@@ -19,3 +19,21 @@ export function fieldTime(at: number, now: number, tz: string, locale: string): 
   }
   return { day: 'today', clock: formatClock(at, tz), now: Math.abs(now - at) < MINUTE_MS };
 }
+
+/**
+ * What a date field says (direction G sheets/weight: "Today, 6 Oct"). Today
+ * gives the day and month; any other day adds the weekday ("Fri 2 Oct"). The
+ * "Today" around it is copy (formatFieldDate in src/i18n).
+ */
+export type FieldDate = { day: 'today'; date: string } | { day: 'other'; text: string };
+
+export function fieldDate(at: number, now: number, tz: string, locale: string): FieldDate {
+  const today = dayBucket(at, now, tz).daysAgo === 0;
+  const text = new Intl.DateTimeFormat(locale, {
+    ...(!today && { weekday: 'short' }),
+    day: 'numeric',
+    month: 'short',
+    timeZone: tz,
+  }).format(at);
+  return today ? { day: 'today', date: text } : { day: 'other', text };
+}

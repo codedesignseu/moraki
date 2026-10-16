@@ -42,6 +42,22 @@ describe('TextField', () => {
     expect(screen.queryByText('0 of 5')).toBeNull();
   });
 
+  it('shows a placeholder in the soft colour while empty', async () => {
+    await render(
+      <ThemeProvider scheme="light">
+        <TextField
+          label="Name"
+          value=""
+          onChangeText={() => {}}
+          placeholder="Name of the medicine"
+        />
+      </ThemeProvider>,
+    );
+    const input = screen.getByLabelText('Name');
+    expect(input.props.placeholder).toBe('Name of the medicine');
+    expect(input.props.placeholderTextColor).toBe(palette.light.textSoft);
+  });
+
   it('shows a leading icon and a suffix, and the error prefix', async () => {
     await render(
       <ThemeProvider scheme="light">
