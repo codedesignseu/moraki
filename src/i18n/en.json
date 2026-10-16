@@ -237,12 +237,15 @@
       "have": "{{place}} now holds {{ml}} mL"
     },
     "diaper": {
-      "title": "Diaper",
+      "title": "Log a diaper",
       "wet": "Wet",
       "dirty": "Dirty",
-      "both": "Wet and dirty",
+      "both": "Both",
       "hint": "Saves straight away",
-      "when": "Changed at"
+      "when": "When",
+      "tapOne": "Tap one. It saves right away.",
+      "pickTime": "Changed earlier? Pick time",
+      "thenTap": "Now tap what it was."
     },
     "sleep": {
       "title": "Sleep",
