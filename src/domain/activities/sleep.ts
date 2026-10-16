@@ -16,6 +16,7 @@ export const sleepModule: ActivityModule<SleepPayload> = {
   icon: 'sleep',
   tone: 'sleep',
   historyGroup: 'sleep',
+  quickAction: { tile: 'sleep' },
   summarize: (e) =>
     e.endedAt === null
       ? { key: 'activity.sleep.summary.running' }

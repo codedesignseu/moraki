@@ -68,7 +68,8 @@
   "home": {
     "timer": {
       "label": "Since last feed",
-      "none": "No feed logged yet"
+      "none": "No feed yet",
+      "noneHint": "Log the first one when it happens"
     },
     "nextSide": {
       "left": "Next side: left",
@@ -134,6 +135,26 @@
       "question": "{{name}} also logged a feed at {{time}}. Same feed?",
       "keepBoth": "Keep both",
       "removeMine": "Remove mine"
+    },
+    "greeting": {
+      "hello": "Hello",
+      "named": "Hello, {{name}}",
+      "day": "Here’s the day so far",
+      "babyDay": "Here’s {{baby}}’s day so far"
+    },
+    "logAFeed": "Log a feed",
+    "tiles": {
+      "last": {
+        "feed": "Last {{time}}",
+        "sleep": "Last {{time}}",
+        "diaper": "Last {{time}}",
+        "pump": "Last {{time}}"
+      },
+      "yesterday": "Last yesterday",
+      "daysAgo": "{{count}} days ago",
+      "none": "Not yet",
+      "running": "Sleeping",
+      "awake": "Awake {{duration}}"
     }
   },
   "log": {
@@ -891,5 +912,10 @@
   "common": {
     "error": "Error",
     "close": "Close"
+  },
+  "duration": {
+    "minutes": "{{minutes}} min",
+    "long": "{{hours}} h {{minutes}} min",
+    "short": "{{hours}} h {{minutes}}"
   }
 }

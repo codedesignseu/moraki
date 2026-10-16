@@ -3,17 +3,20 @@ import { useTranslation } from 'react-i18next';
 
 import { useCaregiverNames, useDevicePref, useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
-import { nextAppointment } from '@/domain/activities';
+import { nextAppointment, type HomeTile } from '@/domain/activities';
 import { findDuplicateFeeds } from '@/domain/duplicates/duplicateFeeds';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { selectHomeState } from '@/domain/home/homeState';
+import { selectHomeTiles, type TileStatus } from '@/domain/home/homeTiles';
 import { milkAge, type MilkAge } from '@/domain/stock/milkAge';
 import { selectStock } from '@/domain/stock/stockState';
 import { formatClock } from '@/domain/time/formatClock';
+import { durationParts } from '@/domain/time/durationParts';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { formatElapsed } from '@/domain/time/formatElapsed';
 
 import { dateLocale } from '@/i18n';
+import { formatDuration } from '@/i18n/duration';
 import { useReminderSettings } from '@/sync/useReminderSettings';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 import { useNow } from '@/ui/useNow';
@@ -39,7 +42,15 @@ export type StockPlaceView = {
 };
 
 export type HomeViewModel = {
+  /**
+   * Who is reading and whose day it is (G greeting). Null when this phone has
+   * no household or no name for the account, and the greeting goes without.
+   */
+  greeting: { name: string | null; baby: string | null };
+  /** "2 h 15 min" in the app's language, or null before the first feed. */
   sinceLastFeed: string | null;
+  /** The line under each tile's name: "Last 21:40", "Awake 1 h 05", "Not yet". */
+  tiles: Record<HomeTile, string>;
   nextSide: 'left' | 'right' | null;
   reminder: { time: string; passed: boolean } | null;
   /** Bottle mL and breastfeeding time are separate figures, never combined. */
@@ -88,6 +99,7 @@ export function useHome(): HomeViewModel {
   // the line on home and the notification are computed from the same numbers.
   const { settings } = useReminderSettings();
   const [kept, setKept] = useDevicePref('keptDuplicates');
+  const [household] = useDevicePref('accountHousehold');
   const { t, i18n } = useTranslation();
   const locale = dateLocale(i18n.language);
 
@@ -97,6 +109,27 @@ export function useHome(): HomeViewModel {
       secondReminderMin: settings.secondReminderMin,
     });
     const me = repository.currentUserId();
+    const tileLine = (tile: HomeTile, status: TileStatus): string => {
+      switch (status.kind) {
+        case 'none':
+          return t('home.tiles.none');
+        case 'running':
+          return t('home.tiles.running');
+        case 'awake':
+          return t('home.tiles.awake', {
+            duration: formatDuration(t, durationParts(status.sinceMs), 'short'),
+          });
+        case 'last':
+          // A time a little ahead (clock skew) reads as today, like a time today.
+          if (status.daysAgo <= 0) {
+            return t(`home.tiles.last.${tile}`, { time: formatClock(status.at, tz) });
+          }
+          return status.daysAgo === 1
+            ? t('home.tiles.yesterday')
+            : t('home.tiles.daysAgo', { count: status.daysAgo });
+      }
+    };
+    const tiles = selectHomeTiles(events, now, tz);
     const stock = selectStock(events);
     const place = (p: (typeof stock)['fridge']): StockPlaceView => ({
       ml: p.ml,
@@ -104,7 +137,20 @@ export function useHome(): HomeViewModel {
       short: p.short,
     });
     return {
-      sinceLastFeed: state.sinceLastFeedMs === null ? null : formatElapsed(state.sinceLastFeedMs),
+      greeting: {
+        name: household ? (names.get(household.userId) ?? null) : null,
+        baby: household?.babyName || null,
+      },
+      sinceLastFeed:
+        state.sinceLastFeedMs === null
+          ? null
+          : formatDuration(t, durationParts(state.sinceLastFeedMs)),
+      tiles: {
+        feed: tileLine('feed', tiles.feed),
+        sleep: tileLine('sleep', tiles.sleep),
+        diaper: tileLine('diaper', tiles.diaper),
+        pump: tileLine('pump', tiles.pump),
+      },
       nextSide: state.nextSide,
       reminder:
         state.reminderAt === null
@@ -160,5 +206,5 @@ export function useHome(): HomeViewModel {
             ? null
             : (names.get(state.lastEntry.by) ?? null),
     };
-  }, [events, now, tz, repository, saves, names, settings, locale, t, kept, setKept]);
+  }, [events, now, tz, repository, saves, names, settings, locale, t, kept, setKept, household]);
 }

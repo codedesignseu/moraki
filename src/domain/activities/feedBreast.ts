@@ -29,6 +29,7 @@ export const feedBreastModule: ActivityModule<FeedBreastPayload> = {
   icon: 'feed',
   tone: 'feed',
   historyGroup: 'feeds',
+  quickAction: { tile: 'feed' },
   summarize: (e) => ({ key: `activity.feed_breast.summary.${e.payload.side}` }),
   contributes: {
     stats: (acc, e) => ({

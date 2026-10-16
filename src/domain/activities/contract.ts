@@ -70,6 +70,11 @@ export type IconName = (typeof ACTIVITY_ICONS)[number];
 export const BADGE_TONES = ['feed', 'sleep', 'diaper', 'pump'] as const;
 
 export type BadgeTone = (typeof BADGE_TONES)[number];
+
+/** The four activity tiles on Home, in the order the grid shows them (direction G). */
+export const HOME_TILES = ['feed', 'sleep', 'diaper', 'pump'] as const;
+
+export type HomeTile = (typeof HOME_TILES)[number];
 /** Replaced by the log sheets (P1-07 onwards). */
 export type LogSheetProps<P> = Placeholder<'LogSheetProps'> & { readonly __payload?: P };
 /**
@@ -204,8 +209,11 @@ export type ActivityModule<P> = {
   tone: BadgeTone;
   /** Which history filter chip shows it (P1-11). Checked by the completeness test. */
   historyGroup?: HistoryGroup;
-  /** Present when the module appears on the home grid. */
-  quickAction?: { order: number };
+  /**
+   * Present when the module appears on the home grid: the tile that logs it,
+   * and whose "Last 21:40" line it sets. Bottle and breast share the feed tile.
+   */
+  quickAction?: { tile: HomeTile };
   LogSheet?: LogSheetComponent<P>;
   /**
    * The detail line for history and home rows, as an i18n key plus values.

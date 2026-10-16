@@ -1,7 +1,12 @@
-import { act, render, screen, within } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, within } from '@testing-library/react-native';
 import { randomBytes } from 'node:crypto';
 
-import { DevicePrefsProvider, EventsRepositoryProvider } from '@/db/react';
+import {
+  DevicePrefsProvider,
+  EventsRepositoryProvider,
+  SyncRepositoriesProvider,
+  type AppRepositories,
+} from '@/db/react';
 import { UndoProvider } from '@/db/undo';
 import {
   createDevicePrefsRepository,
@@ -13,7 +18,7 @@ import { newId } from '@/domain/ids';
 import '@/i18n';
 import { ThemeProvider } from '@/ui/theme';
 
-import { HomeScreen } from './HomeScreen';
+import { HomeScreen, type LogKind } from './HomeScreen';
 
 jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
 
@@ -41,18 +46,49 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-const renderHome = () =>
+const renderHome = (onLog?: (kind: LogKind) => void) =>
   render(
     <ThemeProvider scheme="light">
       <EventsRepositoryProvider repository={repo}>
         <DevicePrefsProvider repository={prefs}>
           <UndoProvider>
-            <HomeScreen />
+            <HomeScreen {...(onLog && { onLog })} />
           </UndoProvider>
         </DevicePrefsProvider>
       </EventsRepositoryProvider>
     </ThemeProvider>,
   );
+
+const ME = '0190a0b0-0000-7000-8000-00000000000a';
+
+/** Home with a household on this phone and caregiver names from sync. */
+const renderWithHousehold = (names: Record<string, string>) => {
+  prefs.set('accountHousehold', {
+    userId: ME,
+    householdId: '0190a0b0-0000-7000-8000-000000000a01',
+    babyId: '0190a0b0-0000-7000-8000-000000000b01',
+    babyName: 'Ella',
+    role: 'owner',
+  });
+  const caregivers = {
+    names: () => new Map(Object.entries(names)),
+    subscribe: () => () => {},
+    version: () => 0,
+  };
+  return render(
+    <ThemeProvider scheme="light">
+      <EventsRepositoryProvider repository={repo}>
+        <DevicePrefsProvider repository={prefs}>
+          <SyncRepositoriesProvider repositories={{ caregivers } as unknown as AppRepositories}>
+            <UndoProvider>
+              <HomeScreen />
+            </UndoProvider>
+          </SyncRepositoriesProvider>
+        </DevicePrefsProvider>
+      </EventsRepositoryProvider>
+    </ThemeProvider>,
+  );
+};
 
 const bottle = (occurredAt: number, ml = 90) =>
   repo.insert({ type: 'feed_bottle', occurredAt, payload: { ml, milk: 'formula' } });
@@ -65,38 +101,39 @@ const advance = (ms: number) =>
 describe('HomeScreen', () => {
   it('shows empty states before anything is logged', async () => {
     await renderHome();
-    expect(screen.getByText('No feed logged yet')).toBeOnTheScreen();
+    expect(screen.getByText('No feed yet')).toBeOnTheScreen();
+    expect(screen.getByText('Log the first one when it happens')).toBeOnTheScreen();
     expect(screen.getByText('Nothing logged yet')).toBeOnTheScreen();
   });
 
   it('ticks the timer every 30 seconds, not before', async () => {
     bottle(NOW - (42 * MIN + 45_000));
     await renderHome();
-    expect(screen.getByRole('timer')).toHaveTextContent('42m');
+    expect(screen.getByRole('timer')).toHaveTextContent('42 min');
 
     // 15s later the true elapsed time is 43m, but the timer hasn't ticked yet.
     await advance(15_000);
-    expect(screen.getByRole('timer')).toHaveTextContent('42m');
+    expect(screen.getByRole('timer')).toHaveTextContent('42 min');
 
     await advance(15_000);
-    expect(screen.getByRole('timer')).toHaveTextContent('43m');
+    expect(screen.getByRole('timer')).toHaveTextContent('43 min');
 
     await advance(30_000);
-    expect(screen.getByRole('timer')).toHaveTextContent('43m');
+    expect(screen.getByRole('timer')).toHaveTextContent('43 min');
     await advance(30_000);
-    expect(screen.getByRole('timer')).toHaveTextContent('44m');
+    expect(screen.getByRole('timer')).toHaveTextContent('44 min');
   });
 
   it('updates instantly when something is logged, without waiting for a tick', async () => {
     bottle(NOW - 2 * HOUR, 60);
     await renderHome();
-    expect(screen.getByRole('timer')).toHaveTextContent('2h 0m');
+    expect(screen.getByRole('timer')).toHaveTextContent('2 h 0 min');
 
     await act(async () => {
       bottle(NOW, 120);
     });
 
-    expect(screen.getByRole('timer')).toHaveTextContent('0m');
+    expect(screen.getByRole('timer')).toHaveTextContent('0 min');
     expect(screen.getByLabelText('Feeds: 2')).toBeOnTheScreen();
     expect(screen.getByLabelText('mL: 180')).toBeOnTheScreen();
     const recent = within(screen.getByTestId('home-recent'));
@@ -195,5 +232,82 @@ describe('HomeScreen', () => {
     await renderHome();
     expect(screen.getByText(/^In 55 days, /)).toBeOnTheScreen();
     expect(screen.queryByText(/ago/)).toBeNull();
+  });
+
+  describe('greeting (direction G)', () => {
+    it('says hello by name and names the baby', async () => {
+      await renderWithHousehold({ [ME]: 'Makis' });
+      expect(screen.getByRole('header', { name: 'Hello, Makis' })).toBeOnTheScreen();
+      expect(screen.getByText('Here’s Ella’s day so far')).toBeOnTheScreen();
+    });
+
+    it('says plain hello when the account has no name yet', async () => {
+      await renderWithHousehold({});
+      expect(screen.getByRole('header', { name: 'Hello' })).toBeOnTheScreen();
+      expect(screen.getByText('Here’s Ella’s day so far')).toBeOnTheScreen();
+    });
+
+    it('says plain hello on a phone with no household', async () => {
+      await renderHome();
+      expect(screen.getByRole('header', { name: 'Hello' })).toBeOnTheScreen();
+      expect(screen.getByText('Here’s the day so far')).toBeOnTheScreen();
+    });
+  });
+
+  describe('hero and tiles (direction G)', () => {
+    it('opens the feed sheet from "Log a feed" and each tile', async () => {
+      const onLog = jest.fn();
+      await renderHome(onLog);
+      await fireEvent.press(screen.getByRole('button', { name: 'Log a feed' }));
+      await fireEvent.press(screen.getByRole('button', { name: 'Log feed' }));
+      await fireEvent.press(screen.getByRole('button', { name: 'Sleep' }));
+      await fireEvent.press(screen.getByRole('button', { name: 'Diaper' }));
+      await fireEvent.press(screen.getByRole('button', { name: 'Pump' }));
+      expect(onLog.mock.calls).toEqual([['feed'], ['feed'], ['sleep'], ['diaper'], ['pump']]);
+    });
+
+    it('says "Not yet" on every tile before anything is logged', async () => {
+      await renderHome(jest.fn());
+      for (const name of ['Log feed', 'Sleep', 'Diaper', 'Pump']) {
+        expect(screen.getByRole('button', { name })).toHaveAccessibilityValue({ text: 'Not yet' });
+      }
+    });
+
+    it('gives each tile its last time, and the sleep tile the time awake', async () => {
+      bottle(NOW - 2 * HOUR); // 10:00 local
+      repo.insert({ type: 'diaper', occurredAt: NOW - 30 * MIN, payload: { kind: 'wet' } });
+      repo.insert({
+        type: 'pump',
+        occurredAt: Date.parse('2026-06-30T19:30:00Z'), // yesterday, local
+        payload: { ml: 80, dest: 'fridge' },
+      });
+      repo.insert({
+        type: 'sleep',
+        occurredAt: NOW - 3 * HOUR,
+        endedAt: NOW - 65 * MIN,
+        payload: {},
+      });
+      await renderHome(jest.fn());
+      expect(screen.getByRole('button', { name: 'Log feed' })).toHaveAccessibilityValue({
+        text: 'Last 10:00',
+      });
+      expect(screen.getByRole('button', { name: 'Diaper' })).toHaveAccessibilityValue({
+        text: 'Last 11:30',
+      });
+      expect(screen.getByRole('button', { name: 'Pump' })).toHaveAccessibilityValue({
+        text: 'Last yesterday',
+      });
+      expect(screen.getByRole('button', { name: 'Sleep' })).toHaveAccessibilityValue({
+        text: 'Awake 1 h 05',
+      });
+    });
+
+    it('says "Sleeping" on the sleep tile while a sleep runs', async () => {
+      repo.insert({ type: 'sleep', occurredAt: NOW - 20 * MIN, payload: {} });
+      await renderHome(jest.fn());
+      expect(screen.getByRole('button', { name: 'Sleep' })).toHaveAccessibilityValue({
+        text: 'Sleeping',
+      });
+    });
   });
 });

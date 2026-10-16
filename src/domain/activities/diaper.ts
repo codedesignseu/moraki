@@ -20,6 +20,7 @@ export const diaperModule: ActivityModule<DiaperPayload> = {
   icon: 'diaper',
   tone: 'diaper',
   historyGroup: 'diapers',
+  quickAction: { tile: 'diaper' },
   summarize: (e) => ({ key: `activity.diaper.summary.${e.payload.kind}` }),
   contributes: {
     stats: (acc, e) => ({

@@ -57,7 +57,7 @@ describe('logging a feed', () => {
     // Back on home, which shows the new feed straight away.
     expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
     expect(screen.getByLabelText('Feeds: 2')).toBeOnTheScreen();
-    expect(screen.getByRole('timer')).toHaveTextContent('0m');
+    expect(screen.getByRole('timer')).toHaveTextContent('0 min');
   });
 
   it('logs the very first feed in 2 taps with the first-feed defaults', async () => {
@@ -137,7 +137,7 @@ describe('logging a feed', () => {
       });
       expect(today()).toMatchObject({ feeds: 1, ml: 0, breastMs: 15 * MIN });
       // "Since last feed" counts from when the feed started.
-      expect(screen.getByRole('timer')).toHaveTextContent('15m');
+      expect(screen.getByRole('timer')).toHaveTextContent('15 min');
     });
 
     it('saves a changed duration', async () => {

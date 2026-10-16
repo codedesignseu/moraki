@@ -17,6 +17,7 @@ export const feedBottleModule: ActivityModule<FeedBottlePayload> = {
   icon: 'feed',
   tone: 'feed',
   historyGroup: 'feeds',
+  quickAction: { tile: 'feed' },
   summarize: (e) => ({
     key: `activity.feed_bottle.summary.${e.payload.milk}`,
     values: { ml: e.payload.ml },

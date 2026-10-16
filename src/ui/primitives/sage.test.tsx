@@ -59,6 +59,22 @@ describe('ActivityTile', () => {
     expect(screen.getAllByRole('button')).toHaveLength(1);
   });
 
+  it('draws the G "+" badge and the detail line, centred (tabs/home)', async () => {
+    await render(
+      <ActivityTile
+        colour="pump"
+        icon="pump"
+        title="Pump"
+        detail="Last 21:40"
+        onPress={noop}
+        accessibilityLabel="Pump"
+      />,
+    );
+    expect(screen.getByTestId('activity-tile-plus', HIDDEN)).toBeTruthy();
+    expect(screen.getByText('Last 21:40')).toHaveStyle({ textAlign: 'center' });
+    expect(screen.getByRole('button')).toHaveStyle({ alignItems: 'center' });
+  });
+
   it.each(['light', 'night'] as const)(
     'grows with large text and uses the %s tile colour',
     async (scheme) => {

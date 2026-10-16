@@ -202,6 +202,12 @@ export const spacing = {
   track: 5,
   /** G: side padding of the dark "Log a feed" pill. */
   pill: 20,
+  /** G: between the icon, name and detail line of an activity tile (tabs/home). */
+  tile: 6,
+  /** G: between the Home tiles, and between two cells or buttons side by side in a card. */
+  grid: 10,
+  /** G: between the blocks of a tab's content (tabs/home: 14). */
+  section: 14,
 } as const;
 
 export const radius = {
@@ -316,6 +322,25 @@ export const size = {
   dot: 8,
   /** Height of the Moraki mark in the Home header. */
   logoHeader: 28,
+  /** G Home greeting: the butter circle round the mark, its white edge, and the mark in it. */
+  greetingBadge: 52,
+  greetingBadgeBorder: 3,
+  greetingMark: 18,
+  /**
+   * G Home hero (tabs/home): the decorative circle (170, set 24 past the
+   * top right corner), the feed icon's dark circle (92, 26 from the top and
+   * 20 from the right) and the icon in it (40).
+   */
+  heroCircle: 170,
+  heroCircleOffset: 24,
+  heroBadge: 92,
+  heroBadgeTop: 26,
+  heroBadgeRight: 20,
+  heroIcon: 40,
+  /** G activity tile: the dark "+" badge (26, 4 past the icon circle, a 2 edge in the tile colour). */
+  plusBadge: 26,
+  plusBadgeOffset: 4,
+  plusIcon: 14,
 } as const;
 
 /**
@@ -400,6 +425,12 @@ export const type = {
   detailBold: { ...textBold, fontSize: 15, lineHeight: 21 },
   detailHeavy: { ...textHeavy, fontSize: 15, lineHeight: 21 },
   small: { ...textSemi, fontSize: 13, lineHeight: 18 },
+  /** G Home: the greeting (Comfortaa 19). */
+  greeting: { ...heading, fontSize: 19, lineHeight: 22 },
+  /** G Home: the greeting's second line and the hero's reminder line (14/600). */
+  note: { ...textSemi, fontSize: 14, lineHeight: 19 },
+  /** G Home: a tile's "Last 21:40" line (12/600). */
+  tileDetail: { ...textSemi, fontSize: 12, lineHeight: 16 },
 } as const;
 
 export type TypeStyle = keyof typeof type;

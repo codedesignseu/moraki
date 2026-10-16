@@ -2,21 +2,38 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, Card, EntryRow, Icon, Logo, TimerText } from '@/ui/primitives';
+import {
+  ActivityTile,
+  Button,
+  Card,
+  EntryRow,
+  Icon,
+  Logo,
+  PillButton,
+  TimerText,
+} from '@/ui/primitives';
+import { HOME_TILES, type HomeTile } from '@/domain/activities';
 import { useTheme, type Theme } from '@/ui/theme';
 
-import { useHome, type RecentRow, type StockPlaceView } from './useHome';
+import { useHome, type HomeViewModel, type RecentRow, type StockPlaceView } from './useHome';
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
+
+/** What Home can open a log sheet for: the four tiles, then the health rows. */
+export type LogKind = 'feed' | 'sleep' | 'diaper' | 'pump' | 'health' | 'medication';
 
 /** Renders the home view model and nothing else (SDD 15.4). */
 export function HomeScreen({
   actions,
+  onLog,
   onOpenEntry,
   onAdjustStock,
   onAppointment,
 }: {
+  /** Shown under the tiles: the health and medication rows. */
   actions?: ReactNode;
+  /** Opens a log sheet. Supplied by app/, which owns navigation. */
+  onLog?: (kind: LogKind) => void;
   /** Opens an entry to edit (P1-12). Supplied by app/ so features stay independent. */
   onOpenEntry?: (id: string) => void;
   /** Opens the adjust sheet for a store (P3-03). */
@@ -33,31 +50,8 @@ export function HomeScreen({
 
   return (
     <ScrollView contentContainerStyle={s.screen}>
-      {/* Until the G greeting (MAPPING_G step 8): the mark the native header showed. */}
-      <View style={s.logo}>
-        <Logo accessibilityLabel={t('app.name')} />
-      </View>
-      {/* Sage 07 timer card, without the ring (D2). */}
-      <View style={[s.hero, s.feedTint]} testID="home-timer">
-        <Text style={s.onTileSoft}>{t('home.timer.label')}</Text>
-        {home.sinceLastFeed === null ? (
-          <Text style={[theme.type.heading, s.onTile, s.center]}>{t('home.timer.none')}</Text>
-        ) : (
-          <TimerText text={home.sinceLastFeed} />
-        )}
-        {home.nextSide && (
-          <Text style={[theme.type.rowTitle, s.onTile, s.center]}>
-            {t(`home.nextSide.${home.nextSide}`)}
-          </Text>
-        )}
-        {home.reminder && (
-          <Text style={s.onTileSoft}>
-            {t(home.reminder.passed ? 'home.reminder.passed' : 'home.reminder.upcoming', {
-              time: home.reminder.time,
-            })}
-          </Text>
-        )}
-      </View>
+      <Greeting greeting={home.greeting} t={t} />
+      <Hero home={home} t={t} onLog={onLog} />
 
       {home.duplicate && (
         <View style={[s.panel, s.feedTint]} testID="home-duplicate">
@@ -93,6 +87,8 @@ export function HomeScreen({
           />
         </View>
       )}
+
+      {onLog && <Tiles tiles={home.tiles} t={t} onLog={onLog} />}
 
       {actions && <View style={s.actions}>{actions}</View>}
 
@@ -176,6 +172,125 @@ export function HomeScreen({
         )}
       </Card>
     </ScrollView>
+  );
+}
+
+/** G greeting: the mark in a butter circle, "Hello, Name" and whose day it is. */
+function Greeting({ greeting, t }: { greeting: HomeViewModel['greeting']; t: Translate }) {
+  const theme = useTheme();
+  const s = styles(theme);
+  return (
+    <View style={s.greeting} testID="home-greeting">
+      {/* The mark is decoration here: the greeting is the screen's heading. */}
+      <View
+        style={s.greetingBadge}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <Logo accessibilityLabel={t('app.name')} height={theme.size.greetingMark} />
+      </View>
+      <View style={s.flex}>
+        <Text accessibilityRole="header" style={[theme.type.greeting, s.ink]}>
+          {greeting.name === null
+            ? t('home.greeting.hello')
+            : t('home.greeting.named', { name: greeting.name })}
+        </Text>
+        <Text style={[theme.type.note, s.soft]}>
+          {greeting.baby === null
+            ? t('home.greeting.day')
+            : t('home.greeting.babyDay', { baby: greeting.baby })}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+/**
+ * G hero (tabs/home): "Since last feed" on the feed colour, the time since in
+ * Comfortaa 38, the reminder line and "Log a feed". The app's next-side line
+ * stays in it. The circles behind are decoration.
+ */
+function Hero({
+  home,
+  t,
+  onLog,
+}: {
+  home: HomeViewModel;
+  t: Translate;
+  onLog?: ((kind: LogKind) => void) | undefined;
+}) {
+  const theme = useTheme();
+  const s = styles(theme);
+  return (
+    <View style={s.hero} testID="home-timer">
+      <View style={s.heroCircle} pointerEvents="none" />
+      <View style={s.heroBadge} pointerEvents="none">
+        <Icon name="feed" size={theme.size.heroIcon} color={theme.palette.onButtonPrimary} />
+      </View>
+      <View style={s.heroBody}>
+        <View style={s.heroTag}>
+          <Text style={[theme.type.statLabel, s.ink]}>{t('home.timer.label')}</Text>
+        </View>
+        {home.sinceLastFeed === null ? (
+          <>
+            <Text style={[theme.type.title, s.ink, s.heroNumber]}>{t('home.timer.none')}</Text>
+            <Text style={[theme.type.note, s.soft]}>{t('home.timer.noneHint')}</Text>
+          </>
+        ) : (
+          <View style={s.heroNumber}>
+            <TimerText variant="hero" text={home.sinceLastFeed} />
+          </View>
+        )}
+        {home.nextSide && (
+          <Text style={[theme.type.detailBold, s.ink]}>{t(`home.nextSide.${home.nextSide}`)}</Text>
+        )}
+        {home.reminder && (
+          <Text style={[theme.type.note, s.soft]}>
+            {t(home.reminder.passed ? 'home.reminder.passed' : 'home.reminder.upcoming', {
+              time: home.reminder.time,
+            })}
+          </Text>
+        )}
+        {onLog && (
+          <View style={s.heroAction}>
+            <PillButton label={t('home.logAFeed')} onPress={() => onLog('feed')} />
+          </View>
+        )}
+      </View>
+    </View>
+  );
+}
+
+/** G: the four activity tiles, two by two, each with its last-time line. */
+function Tiles({
+  tiles,
+  t,
+  onLog,
+}: {
+  tiles: HomeViewModel['tiles'];
+  t: Translate;
+  onLog: (kind: LogKind) => void;
+}) {
+  const theme = useTheme();
+  const s = styles(theme);
+  const tile = (kind: HomeTile) => (
+    <ActivityTile
+      key={kind}
+      colour={kind}
+      icon={kind}
+      title={t(`home.actions.${kind}`)}
+      detail={tiles[kind]}
+      // The feed tile has always been "Log feed"; the others are named by their kind.
+      accessibilityLabel={kind === 'feed' ? t('home.logFeed') : t(`home.actions.${kind}`)}
+      onPress={() => onLog(kind)}
+      testID={`home-tile-${kind}`}
+    />
+  );
+  return (
+    <View style={s.tiles}>
+      <View style={s.tileRow}>{HOME_TILES.slice(0, 2).map(tile)}</View>
+      <View style={s.tileRow}>{HOME_TILES.slice(2).map(tile)}</View>
+    </View>
   );
 }
 
@@ -266,25 +381,74 @@ const styles = (theme: Theme) =>
   StyleSheet.create({
     screen: {
       paddingHorizontal: theme.spacing.screen,
+      paddingTop: theme.spacing.md,
       paddingBottom: theme.size.tabBarClearance,
-      gap: theme.spacing.lg,
+      gap: theme.spacing.section,
     },
-    logo: { alignItems: 'center', paddingTop: theme.spacing.md },
+    ink: { color: theme.palette.ink },
+    soft: { color: theme.palette.textSoft },
+    greeting: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
+    greetingBadge: {
+      width: theme.size.greetingBadge,
+      height: theme.size.greetingBadge,
+      borderRadius: theme.radius.pill,
+      borderWidth: theme.size.greetingBadgeBorder,
+      borderColor: theme.palette.card,
+      backgroundColor: theme.palette.feed,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    hero: {
+      overflow: 'hidden',
+      borderRadius: theme.radius.hero,
+      padding: theme.spacing.screenEdge,
+      backgroundColor: theme.palette.feed,
+    },
+    heroCircle: {
+      position: 'absolute',
+      top: -theme.size.heroCircleOffset,
+      right: -theme.size.heroCircleOffset,
+      width: theme.size.heroCircle,
+      height: theme.size.heroCircle,
+      borderRadius: theme.radius.pill,
+      backgroundColor: theme.palette.heroCircle,
+    },
+    heroBadge: {
+      position: 'absolute',
+      top: theme.size.heroBadgeTop,
+      right: theme.size.heroBadgeRight,
+      width: theme.size.heroBadge,
+      height: theme.size.heroBadge,
+      borderRadius: theme.radius.pill,
+      backgroundColor: theme.palette.buttonPrimary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    // Clear of the dark circle on the right, whatever the screen width.
+    heroBody: {
+      gap: theme.spacing.xs,
+      paddingRight: theme.size.heroBadge + theme.size.heroBadgeRight - theme.spacing.screenEdge,
+    },
+    heroTag: {
+      alignSelf: 'flex-start',
+      paddingVertical: theme.spacing.xs,
+      paddingHorizontal: theme.spacing.grid,
+      borderWidth: theme.size.borderThin,
+      borderColor: theme.palette.textSoft,
+      borderRadius: theme.radius.md,
+    },
+    heroNumber: { paddingTop: theme.spacing.xs },
+    heroAction: { marginTop: theme.spacing.sm },
+    tiles: { gap: theme.spacing.grid },
+    tileRow: { flexDirection: 'row', gap: theme.spacing.grid },
     actions: { gap: theme.spacing.md },
     muted: { ...theme.type.detail, color: theme.palette.textSoft },
     strip: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md },
     stat: { minWidth: theme.size.touchTargetLarge, alignItems: 'flex-start' },
-    hero: {
-      borderRadius: theme.radius.tile,
-      padding: theme.spacing.xl,
-      gap: theme.spacing.sm,
-      alignItems: 'center',
-    },
     panel: { borderRadius: theme.radius.card, padding: theme.spacing.lg, gap: theme.spacing.md },
     feedTint: { backgroundColor: theme.palette.feed },
     sleepTint: { backgroundColor: theme.palette.sleep },
     onTile: { color: theme.palette.onTile },
-    center: { textAlign: 'center' },
     onTileSoft: { ...theme.type.detail, color: theme.palette.onTileSoft },
     titleRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
     flex: { flex: 1 },

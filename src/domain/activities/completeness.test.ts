@@ -5,6 +5,7 @@ import {
   BADGE_TONES,
   EVENT_TYPES,
   HISTORY_GROUPS,
+  HOME_TILES,
   listActivities,
   type Event,
   type EventType,
@@ -79,6 +80,20 @@ describe('activity registry completeness', () => {
       weight: ['weight', 'pump'],
       appointment: ['visit', 'diaper'],
     });
+  });
+
+  it('fills every Home tile, and only from the kinds G puts on it', () => {
+    const tiles = Object.fromEntries(
+      modules.filter((m) => m.quickAction).map((m) => [m.type, m.quickAction?.tile]),
+    );
+    expect(tiles).toEqual({
+      feed_bottle: 'feed',
+      feed_breast: 'feed',
+      sleep: 'sleep',
+      diaper: 'diaper',
+      pump: 'pump',
+    });
+    expect(new Set(Object.values(tiles))).toEqual(new Set(HOME_TILES));
   });
 
   const locales = Object.entries(resources).map(

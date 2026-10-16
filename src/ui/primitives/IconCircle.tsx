@@ -3,8 +3,10 @@ import { StyleSheet, View } from 'react-native';
 import type { GlyphName, IconName } from '../icons';
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
-import type { TileColour } from './ActivityTile';
 import { Icon } from './Icon';
+
+/** The four activity colours (feed, sleep, diaper, pump), by day and night. */
+export type TileColour = 'feed' | 'sleep' | 'diaper' | 'pump';
 
 /** The circle's fill: a tile colour, or the card or chip colour. */
 export type CircleTone = TileColour | 'card' | 'chip';

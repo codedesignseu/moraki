@@ -372,7 +372,7 @@ function SchemeSection() {
         </View>
       </Group>
 
-      <Group title="Sage tiles">
+      <Group title="Activity tiles">
         <View style={s.row}>
           <ActivityTile
             colour="feed"
