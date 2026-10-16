@@ -16,6 +16,7 @@ import { createEventsRepository, type EventsRepository } from '@/db/repositories
 import { createMemoryDb } from '@/db/testing/memoryDb';
 import { newId } from '@/domain/ids';
 import '@/i18n';
+import { palette } from '@/ui/tokens';
 import { ThemeProvider } from '@/ui/theme';
 
 import { HomeScreen, type LogKind } from './HomeScreen';
@@ -46,13 +47,16 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-const renderHome = (onLog?: (kind: LogKind) => void) =>
+const renderHome = (
+  onLog?: (kind: LogKind) => void,
+  onAdjustStock?: (place: 'fridge' | 'freezer') => void,
+) =>
   render(
     <ThemeProvider scheme="light">
       <EventsRepositoryProvider repository={repo}>
         <DevicePrefsProvider repository={prefs}>
           <UndoProvider>
-            <HomeScreen {...(onLog && { onLog })} />
+            <HomeScreen {...(onLog && { onLog })} {...(onAdjustStock && { onAdjustStock })} />
           </UndoProvider>
         </DevicePrefsProvider>
       </EventsRepositoryProvider>
@@ -134,11 +138,11 @@ describe('HomeScreen', () => {
     });
 
     expect(screen.getByRole('timer')).toHaveTextContent('0 min');
-    expect(screen.getByLabelText('Feeds: 2')).toBeOnTheScreen();
-    expect(screen.getByLabelText('mL: 180')).toBeOnTheScreen();
+    expect(screen.getByLabelText('2 feeds')).toBeOnTheScreen();
+    expect(screen.getByLabelText('180 ml bottle')).toBeOnTheScreen();
     const recent = within(screen.getByTestId('home-recent'));
-    expect(recent.getAllByText('Bottle')).toHaveLength(2);
-    expect(recent.getByText('120 mL formula')).toBeOnTheScreen();
+    expect(recent.getAllByText(/Bottle/)).toHaveLength(2);
+    expect(recent.getByText('12:00 · Bottle, 120 mL formula')).toBeOnTheScreen();
   });
 
   it('shows the next side and the reminder time in local time', async () => {
@@ -159,9 +163,11 @@ describe('HomeScreen', () => {
     repo.insert({ type: 'diaper', occurredAt: NOW - HOUR, payload: { kind: 'both' } });
     repo.insert({ type: 'sleep', occurredAt: NOW - 3 * HOUR, endedAt: NOW - HOUR, payload: {} });
     await renderHome();
-    expect(screen.getByLabelText('Wet: 1')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Dirty: 1')).toBeOnTheScreen();
-    expect(screen.getByText('Sleep in the last 24h: 2h 0m')).toBeOnTheScreen();
+    // G's four cells, then the app's wet and dirty split, which G leaves out (G3).
+    expect(screen.getByLabelText('1 diapers')).toBeOnTheScreen();
+    expect(screen.getByLabelText('2 h sleep')).toBeOnTheScreen();
+    expect(screen.getByText('Wet 1 · Dirty 1 · Breastfeeding 0 min')).toBeOnTheScreen();
+    expect(screen.getByText('Sleep in the last 24 h: 2 h 0 min')).toBeOnTheScreen();
   });
 
   it('shows breastfeeding time next to bottle mL, as separate figures (P1-F10)', async () => {
@@ -175,38 +181,36 @@ describe('HomeScreen', () => {
       },
     ]);
     await renderHome();
-    expect(screen.getByLabelText('Feeds: 1')).toBeOnTheScreen();
-    expect(screen.getByLabelText('mL: 90')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Breastfeeding: 25m')).toBeOnTheScreen();
+    expect(screen.getByLabelText('1 feeds')).toBeOnTheScreen();
+    expect(screen.getByLabelText('90 ml bottle')).toBeOnTheScreen();
+    expect(screen.getByText(/Breastfeeding 25 min$/)).toBeOnTheScreen();
   });
 
-  it('shows 0m breastfeeding on a day without any', async () => {
+  it('shows 0 min breastfeeding on a day without any', async () => {
     bottle(NOW - HOUR, 60);
     await renderHome();
-    expect(screen.getByLabelText('Breastfeeding: 0m')).toBeOnTheScreen();
+    expect(screen.getByText(/Breastfeeding 0 min$/)).toBeOnTheScreen();
   });
 
   it('lists the 6 most recent entries, newest first, with time and author', async () => {
     for (let i = 1; i <= 8; i += 1) bottle(NOW - i * HOUR, 10 * i);
     await renderHome();
     const recent = within(screen.getByTestId('home-recent'));
-    expect(recent.getAllByText('Bottle')).toHaveLength(6);
     expect(recent.getAllByText(/mL formula/).map((n) => n.props.children)).toEqual([
-      '10 mL formula',
-      '20 mL formula',
-      '30 mL formula',
-      '40 mL formula',
-      '50 mL formula',
-      '60 mL formula',
+      '11:00 · Bottle, 10 mL formula',
+      '10:00 · Bottle, 20 mL formula',
+      '09:00 · Bottle, 30 mL formula',
+      '08:00 · Bottle, 40 mL formula',
+      '07:00 · Bottle, 50 mL formula',
+      '06:00 · Bottle, 60 mL formula',
     ]);
-    expect(recent.getByText('11:00')).toBeOnTheScreen();
     expect(recent.getAllByText('You')).toHaveLength(6);
   });
 
   it('marks entries from yesterday', async () => {
     bottle(Date.parse('2026-06-30T19:30:00Z')); // 22:30 local the day before
     await renderHome();
-    expect(screen.getByText('Yesterday 22:30')).toBeOnTheScreen();
+    expect(screen.getByText(/^Yesterday 22:30 · Bottle/)).toBeOnTheScreen();
   });
 
   // An appointment is the one entry that can be in the future (found on a
@@ -219,7 +223,7 @@ describe('HomeScreen', () => {
       payload: { title: 'Check-up' },
     });
     await renderHome();
-    expect(screen.getByText('Tomorrow 10:30')).toBeOnTheScreen();
+    expect(screen.getByText(/^Tomorrow 10:30 · /)).toBeOnTheScreen();
     expect(screen.queryByText(/ago/)).toBeNull();
   });
 
@@ -308,6 +312,59 @@ describe('HomeScreen', () => {
       expect(screen.getByRole('button', { name: 'Sleep' })).toHaveAccessibilityValue({
         text: 'Sleeping',
       });
+    });
+  });
+
+  describe('cards (direction G)', () => {
+    it('counts a running sleep up every second, while the hero keeps its 30 second tick', async () => {
+      repo.insert({ type: 'sleep', occurredAt: NOW - 20 * MIN, payload: {} });
+      bottle(NOW - 42 * MIN);
+      await renderHome();
+      const sleep = within(screen.getByTestId('home-sleep'));
+      expect(sleep.getByText('Sleeping')).toBeOnTheScreen();
+      expect(sleep.getByText('since 11:40')).toBeOnTheScreen();
+      expect(sleep.getByRole('timer')).toHaveTextContent('0:20:00');
+      await advance(1000);
+      expect(sleep.getByRole('timer')).toHaveTextContent('0:20:01');
+      const hero = within(screen.getByTestId('home-timer'));
+      expect(hero.getByRole('timer')).toHaveTextContent('42 min');
+    });
+
+    it('puts health and medication in one card', async () => {
+      const onLog = jest.fn();
+      await renderHome(onLog);
+      const group = within(screen.getByTestId('home-health'));
+      await fireEvent.press(group.getByRole('button', { name: 'Health note' }));
+      await fireEvent.press(group.getByRole('button', { name: 'Medication' }));
+      expect(onLog.mock.calls).toEqual([['health'], ['medication']]);
+      expect(screen.getByTestId('home-health')).toHaveStyle({
+        backgroundColor: palette.light.card,
+      });
+    });
+
+    it('gives a hint to tap a tile while nothing is logged, and keeps every card', async () => {
+      await renderHome(jest.fn());
+      expect(screen.getByText('Nothing logged yet. Tap a tile to start.')).toBeOnTheScreen();
+      for (const id of ['home-today', 'home-appointment', 'home-stock', 'home-recent']) {
+        expect(screen.getByTestId(id)).toBeOnTheScreen();
+      }
+    });
+
+    it('adjusts the fridge from "Adjust", and each store from its own cell', async () => {
+      const onAdjust = jest.fn();
+      await renderHome(undefined, onAdjust);
+      const stock = within(screen.getByTestId('home-stock'));
+      await fireEvent.press(stock.getByRole('button', { name: 'Adjust' }));
+      await fireEvent.press(stock.getByRole('button', { name: 'Adjust Freezer' }));
+      expect(onAdjust.mock.calls).toEqual([['fridge'], ['freezer']]);
+    });
+
+    it('shows a recent entry with its kind and who logged it', async () => {
+      repo.insert({ type: 'diaper', occurredAt: NOW - HOUR, payload: { kind: 'wet' } });
+      await renderHome();
+      const row = within(screen.getByTestId('home-recent'));
+      expect(row.getByText(/^11:00 · Diaper/)).toBeOnTheScreen();
+      expect(row.getByText('You')).toBeOnTheScreen();
     });
   });
 });

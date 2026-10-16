@@ -277,7 +277,7 @@ describe('editing feeds and sleeps (P1-12 part C2)', () => {
       endedAt: NOW - HOUR + 30 * MIN,
     });
     await press(/Home/);
-    expect(screen.getByLabelText('Breastfeeding: 30m')).toBeOnTheScreen();
+    expect(screen.getByText(/Breastfeeding 30 min/)).toBeOnTheScreen();
   });
 
   it("moves a finished sleep's start and changes how long it lasted", async () => {

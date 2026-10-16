@@ -35,26 +35,26 @@ describe('sleep', () => {
     await startSleepFromHome();
 
     expect(sleeps()).toEqual([expect.objectContaining({ occurredAt: NOW, endedAt: null })]);
-    expect(card().getByText('Sleeping since 12:00')).toBeOnTheScreen();
-    expect(card().getByRole('timer')).toHaveTextContent('0m');
+    expect(card().getByText('since 12:00')).toBeOnTheScreen();
+    expect(card().getByRole('timer')).toHaveTextContent('0:00:00');
   });
 
-  it('counts the running sleep up on the 30 second tick', async () => {
+  it('counts the running sleep up every second', async () => {
     h.repo.insert({ type: 'sleep', occurredAt: NOW - 20 * MIN, payload: {} });
     await renderApp(h.repo);
-    expect(card().getByRole('timer')).toHaveTextContent('20m');
+    expect(card().getByRole('timer')).toHaveTextContent('0:20:00');
     await jestAdvance(10 * MIN);
-    expect(card().getByRole('timer')).toHaveTextContent('30m');
+    expect(card().getByRole('timer')).toHaveTextContent('0:30:00');
   });
 
   it('stops from the home card', async () => {
     const { id } = h.repo.insert({ type: 'sleep', occurredAt: NOW - 50 * MIN, payload: {} });
     await renderApp(h.repo);
-    await fireEvent.press(card().getByRole('button', { name: 'Stop sleep' }));
+    await fireEvent.press(card().getByRole('button', { name: 'Stop the sleep timer' }));
 
     expect(h.repo.get(id)?.endedAt).toBe(NOW);
     expect(screen.queryByTestId('home-sleep')).toBeNull();
-    expect(screen.getByText('Sleep in the last 24h: 50m')).toBeOnTheScreen();
+    expect(screen.getByText('Sleep in the last 24 h: 50 min')).toBeOnTheScreen();
   });
 
   it('stops from the sheet when a sleep is running', async () => {
@@ -112,7 +112,7 @@ describe('sleep', () => {
   it('survives an app kill: the running sleep comes back from the stored events alone', async () => {
     await renderApp(h.repo);
     await startSleepFromHome();
-    expect(card().getByRole('timer')).toHaveTextContent('0m');
+    expect(card().getByRole('timer')).toHaveTextContent('0:00:00');
 
     // Kill: tear down every screen, keep only the database file's bytes, and
     // close the database so nothing held in memory can leak into the restart.
@@ -126,15 +126,15 @@ describe('sleep', () => {
     expect(relaunched.repo).not.toBe(h.repo);
     await renderApp(relaunched.repo);
 
-    expect(card().getByText('Sleeping since 12:00')).toBeOnTheScreen();
-    expect(card().getByRole('timer')).toHaveTextContent('40m');
+    expect(card().getByText('since 12:00')).toBeOnTheScreen();
+    expect(card().getByRole('timer')).toHaveTextContent('0:40:00');
 
     // And it can still be stopped after the restart.
-    await fireEvent.press(card().getByRole('button', { name: 'Stop sleep' }));
+    await fireEvent.press(card().getByRole('button', { name: 'Stop the sleep timer' }));
     expect(sleeps(relaunched)).toEqual([
       expect.objectContaining({ occurredAt: NOW, endedAt: NOW + 40 * MIN }),
     ]);
-    expect(screen.getByText('Sleep in the last 24h: 40m')).toBeOnTheScreen();
+    expect(screen.getByText('Sleep in the last 24 h: 40 min')).toBeOnTheScreen();
   });
 });
 

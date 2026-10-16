@@ -75,7 +75,7 @@ describe('activity registry completeness', () => {
       sleep: ['sleep', 'sleep'],
       pump: ['pump', 'pump'],
       stock_adjust: ['pump', 'pump'],
-      health: ['health', 'pump'],
+      health: ['health', 'sleep'],
       medication: ['health', 'pump'],
       weight: ['weight', 'pump'],
       appointment: ['visit', 'diaper'],

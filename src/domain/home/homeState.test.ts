@@ -46,7 +46,7 @@ describe('selectHomeState', () => {
       nextSide: null,
       reminderAt: null,
       secondReminderAt: null,
-      today: { feeds: 0, ml: 0, wet: 1, dirty: 0, sleepMs24h: 0 },
+      today: { feeds: 0, ml: 0, wet: 1, dirty: 0, diapers: 1, sleepMs24h: 0 },
       activeSleep: null,
     });
   });
@@ -188,7 +188,7 @@ describe('selectHomeState', () => {
       ev('diaper', NOW - 2 * HOUR, { kind: 'dirty' }),
       ev('diaper', NOW - HOUR, { kind: 'both' }),
     ]);
-    expect(state.today).toMatchObject({ wet: 2, dirty: 2 });
+    expect(state.today).toMatchObject({ wet: 2, dirty: 2, diapers: 3 });
   });
 
   it('has no second reminder when the household has none', () => {

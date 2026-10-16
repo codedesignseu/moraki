@@ -39,7 +39,7 @@ export type HomeState = {
   reminderAt: number | null;
   secondReminderAt: number | null;
   /**
-   * feeds, bottle ml, breastfeeding time, wet and dirty since local midnight;
+   * feeds, bottle ml, breastfeeding time, wet, dirty and diaper changes since local midnight;
    * sleep over the last 24 hours. ml and breastMs are separate totals.
    */
   today: {
@@ -48,6 +48,7 @@ export type HomeState = {
     breastMs: number;
     wet: number;
     dirty: number;
+    diapers: number;
     sleepMs24h: number;
   };
   activeSleep: Event<SleepPayload> | null;
@@ -111,6 +112,7 @@ export function selectHomeState(
       breastMs: stats.breastMs,
       wet: stats.wet,
       dirty: stats.dirty,
+      diapers: stats.diapers,
       sleepMs24h,
     },
     activeSleep: latest(

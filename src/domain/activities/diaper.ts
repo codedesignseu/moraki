@@ -27,6 +27,7 @@ export const diaperModule: ActivityModule<DiaperPayload> = {
       ...acc,
       wet: acc.wet + (e.payload.kind === 'dirty' ? 0 : 1),
       dirty: acc.dirty + (e.payload.kind === 'wet' ? 0 : 1),
+      diapers: acc.diapers + 1,
     }),
   },
 };

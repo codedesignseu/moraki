@@ -56,7 +56,7 @@ describe('logging a feed', () => {
     expect(feeds()).toHaveLength(2);
     // Back on home, which shows the new feed straight away.
     expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
-    expect(screen.getByLabelText('Feeds: 2')).toBeOnTheScreen();
+    expect(screen.getByLabelText('2 feeds')).toBeOnTheScreen();
     expect(screen.getByRole('timer')).toHaveTextContent('0 min');
   });
 

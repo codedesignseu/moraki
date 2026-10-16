@@ -341,6 +341,16 @@ export const size = {
   plusBadge: 26,
   plusBadgeOffset: 4,
   plusIcon: 14,
+  /**
+   * G Home running-sleep card (tabs/home-states): the decorative circle (130,
+   * 20 above and 16 right of the corner), the "Stop the sleep timer" pill (54)
+   * and its dark stop badge (42).
+   */
+  sleepCircle: 130,
+  sleepCircleTop: 20,
+  sleepCircleRight: 16,
+  sleepStop: 54,
+  sleepStopBadge: 42,
 } as const;
 
 /**
@@ -354,6 +364,8 @@ export const shadow = {
 /** Opacity of a control while it is pressed. */
 export const opacity = {
   pressed: 0.7,
+  /** G Home sleep card: its decorative card-colour circle (tabs/home-states). */
+  decoration: 0.45,
 } as const;
 
 /**

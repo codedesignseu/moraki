@@ -30,8 +30,8 @@ const pump = (ago: number, ml: number, dest: 'fridge' | 'freezer') =>
 describe('the stock card on home', () => {
   it('shows nothing in either store before anything is pumped', async () => {
     await renderApp();
-    expect(card().getAllByText('0 mL')).toHaveLength(2);
-    expect(card().queryByText(/Oldest/)).toBeNull();
+    expect(card().getAllByText('0 ml')).toHaveLength(2);
+    expect(card().queryByText(/oldest/)).toBeNull();
   });
 
   it('shows what is in each store and how old the oldest is', async () => {
@@ -39,10 +39,10 @@ describe('the stock card on home', () => {
     pump(3 * DAY, 350, 'freezer');
 
     await renderApp();
-    expect(card().getByText('200 mL')).toBeOnTheScreen();
-    expect(card().getByText('350 mL')).toBeOnTheScreen();
-    expect(card().getByText('Oldest 5 h')).toBeOnTheScreen();
-    expect(card().getByText('Oldest 3 days')).toBeOnTheScreen();
+    expect(card().getByText('200 ml')).toBeOnTheScreen();
+    expect(card().getByText('350 ml')).toBeOnTheScreen();
+    expect(card().getByText('Fridge: oldest bag is 5 hours old')).toBeOnTheScreen();
+    expect(card().getByText('Freezer: oldest bag is 3 days old')).toBeOnTheScreen();
   });
 
   it('ages by the oldest milk still there, not by what has been used', async () => {
@@ -55,8 +55,8 @@ describe('the stock card on home', () => {
     });
 
     await renderApp();
-    expect(card().getByText('150 mL')).toBeOnTheScreen();
-    expect(card().getByText('Oldest 2 h')).toBeOnTheScreen();
+    expect(card().getByText('150 ml')).toBeOnTheScreen();
+    expect(card().getByText('Fridge: oldest bag is 2 hours old')).toBeOnTheScreen();
   });
 
   it('asks for the count to be checked once more has gone out than went in', async () => {
@@ -69,18 +69,20 @@ describe('the stock card on home', () => {
 
     await renderApp();
     // Nothing left, and no number anyone should trust.
-    expect(card().getAllByText('0 mL')).toHaveLength(2); // the freezer is empty too
-    expect(card().getByText('More has gone out than went in. Check the count.')).toBeOnTheScreen();
+    expect(card().getAllByText('0 ml')).toHaveLength(2); // the freezer is empty too
+    expect(
+      card().getByText('Fridge: more has gone out than went in. Check the count.'),
+    ).toBeOnTheScreen();
   });
 
   it('updates as soon as something is logged, with no reload', async () => {
     await renderApp();
-    expect(card().getAllByText('0 mL')).toHaveLength(2);
+    expect(card().getAllByText('0 ml')).toHaveLength(2);
 
     await fireEvent.press(screen.getByRole('button', { name: 'Pump' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
-    expect(card().getByText('100 mL')).toBeOnTheScreen();
+    expect(card().getByText('100 ml')).toBeOnTheScreen();
   });
 });
 

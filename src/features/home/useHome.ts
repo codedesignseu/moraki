@@ -3,7 +3,13 @@ import { useTranslation } from 'react-i18next';
 
 import { useCaregiverNames, useDevicePref, useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
-import { nextAppointment, type HomeTile } from '@/domain/activities';
+import {
+  getActivity,
+  nextAppointment,
+  type BadgeTone,
+  type HomeTile,
+  type IconName,
+} from '@/domain/activities';
 import { findDuplicateFeeds } from '@/domain/duplicates/duplicateFeeds';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { selectHomeState } from '@/domain/home/homeState';
@@ -13,7 +19,6 @@ import { selectStock } from '@/domain/stock/stockState';
 import { formatClock } from '@/domain/time/formatClock';
 import { durationParts } from '@/domain/time/durationParts';
 import { formatDateTime } from '@/domain/time/formatDateTime';
-import { formatElapsed } from '@/domain/time/formatElapsed';
 
 import { dateLocale } from '@/i18n';
 import { formatDuration } from '@/i18n/duration';
@@ -24,17 +29,20 @@ import { useNow } from '@/ui/useNow';
 export const TIMER_TICK_MS = 30_000;
 const RECENT_COUNT = 6;
 
-export type RecentRow = EntryRow;
+/** A recent entry with its kind's badge (G recent rows). */
+export type RecentRow = EntryRow & { icon: IconName; tone: BadgeTone };
 
-export type ActiveSleep = { id: string; elapsed: string; startedAt: string };
+/** The running sleep: when it started, as a clock time and in epoch ms for the live timer. */
+export type ActiveSleep = { id: string; startedAt: string; startedAtMs: number };
 
-export type NextAppointment = { id: string; title: string; when: string };
+export type NextAppointment = { id: string; title: string; when: string; doctor: string | null };
 
 /** "Nik also logged a feed at 03:14. Same feed?" (SDD 5.6). */
 export type DuplicateQuestion = { id: string; by: string; time: string };
 
 export type StockPlaceView = {
-  ml: number;
+  /** The amount in the app's number format, e.g. "1,150". */
+  ml: string;
   /** The age of the oldest batch left, or null when the place is empty. */
   age: MilkAge | null;
   /** More has gone out than went in, so the count needs checking (SDD 6.3). */
@@ -53,13 +61,19 @@ export type HomeViewModel = {
   tiles: Record<HomeTile, string>;
   nextSide: 'left' | 'right' | null;
   reminder: { time: string; passed: boolean } | null;
-  /** Bottle mL and breastfeeding time are separate figures, never combined. */
+  /**
+   * Bottle ml and breastfeeding time are separate figures, never combined.
+   * Numbers come formatted for the app's language; `sleepHours` is the
+   * last 24 hours to one decimal ("11.5"), `sleep` the same in words.
+   */
   today: {
-    feeds: number;
-    ml: number;
+    feeds: string;
+    diapers: string;
+    sleepHours: string;
+    ml: string;
     breastfeeding: string;
-    wet: number;
-    dirty: number;
+    wet: string;
+    dirty: string;
     sleep: string;
   };
   /**
@@ -109,6 +123,8 @@ export function useHome(): HomeViewModel {
       secondReminderMin: settings.secondReminderMin,
     });
     const me = repository.currentUserId();
+    const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+    const words = (ms: number) => formatDuration(t, durationParts(ms));
     const tileLine = (tile: HomeTile, status: TileStatus): string => {
       switch (status.kind) {
         case 'none':
@@ -132,7 +148,7 @@ export function useHome(): HomeViewModel {
     const tiles = selectHomeTiles(events, now, tz);
     const stock = selectStock(events);
     const place = (p: (typeof stock)['fridge']): StockPlaceView => ({
-      ml: p.ml,
+      ml: number.format(p.ml),
       age: p.oldestAt === null ? null : milkAge(p.oldestAt, now),
       short: p.short,
     });
@@ -157,20 +173,22 @@ export function useHome(): HomeViewModel {
           ? null
           : { time: formatClock(state.reminderAt, tz), passed: state.reminderAt <= now },
       today: {
-        feeds: state.today.feeds,
-        ml: state.today.ml,
-        breastfeeding: formatElapsed(state.today.breastMs),
-        wet: state.today.wet,
-        dirty: state.today.dirty,
-        sleep: formatElapsed(state.today.sleepMs24h),
+        feeds: number.format(state.today.feeds),
+        diapers: number.format(state.today.diapers),
+        sleepHours: number.format(Math.round(state.today.sleepMs24h / 360_000) / 10),
+        ml: number.format(state.today.ml),
+        breastfeeding: words(state.today.breastMs),
+        wet: number.format(state.today.wet),
+        dirty: number.format(state.today.dirty),
+        sleep: words(state.today.sleepMs24h),
       },
       activeSleep:
         state.activeSleep === null
           ? null
           : {
               id: state.activeSleep.id,
-              elapsed: formatElapsed(now - state.activeSleep.occurredAt),
               startedAt: formatClock(state.activeSleep.occurredAt, tz),
+              startedAtMs: state.activeSleep.occurredAt,
             },
       stopSleep: (id: string) => {
         saves.patch('undo.sleepStopped', [{ id, changes: { endedAt: Date.now() } }]);
@@ -195,10 +213,18 @@ export function useHome(): HomeViewModel {
               id: next.id,
               title: next.payload.title,
               when: formatDateTime(next.occurredAt, tz, locale),
+              doctor: next.payload.doctor || null,
             };
       })(),
       stock: { fridge: place(stock.fridge), freezer: place(stock.freezer) },
-      recent: events.slice(0, RECENT_COUNT).map((e) => describeEntry(e, now, tz, me, names)),
+      recent: events.slice(0, RECENT_COUNT).map((e) => {
+        const module = getActivity(e.type);
+        return {
+          ...describeEntry(e, now, tz, me, names),
+          icon: module?.icon ?? 'feed',
+          tone: module?.tone ?? 'feed',
+        };
+      }),
       lastEntryBy:
         state.lastEntry === null
           ? null

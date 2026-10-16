@@ -56,8 +56,9 @@ describe('logging a diaper', () => {
     ]);
     // Home again, already counting it.
     expect(screen.queryByRole('button', { name: label })).toBeNull();
-    expect(screen.getByLabelText(`Wet: ${today.wet}`)).toBeOnTheScreen();
-    expect(screen.getByLabelText(`Dirty: ${today.dirty}`)).toBeOnTheScreen();
+    expect(
+      screen.getByText(new RegExp(`^Wet ${today.wet} · Dirty ${today.dirty} · `)),
+    ).toBeOnTheScreen();
   });
 
   it('queues the diaper for sync in the same write (rule 2)', async () => {

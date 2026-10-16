@@ -81,24 +81,27 @@
     },
     "today": {
       "title": "Today",
-      "feeds": "Feeds",
-      "ml": "mL",
-      "wet": "Wet",
-      "dirty": "Dirty",
-      "sleep24h": "Sleep in the last 24h: {{duration}}",
-      "breastfeeding": "Breastfeeding"
+      "feeds": "feeds",
+      "diapers": "diapers",
+      "sleepHours": "h sleep",
+      "ml": "ml bottle",
+      "detail": "Wet {{wet}} · Dirty {{dirty}} · Breastfeeding {{breastfeeding}}",
+      "sleep24h": "Sleep in the last 24 h: {{duration}}"
     },
     "stock": {
       "title": "Milk stock",
       "fridge": "Fridge",
       "freezer": "Freezer",
-      "amount": "{{ml}} mL",
+      "amount": "{{ml}} ml",
       "oldest": {
-        "hours": "Oldest {{count}} h",
-        "days": "Oldest {{count}} days"
+        "hours_one": "{{place}}: oldest bag is {{count}} hour old",
+        "hours_other": "{{place}}: oldest bag is {{count}} hours old",
+        "days_one": "{{place}}: oldest bag is {{count}} day old",
+        "days_other": "{{place}}: oldest bag is {{count}} days old"
       },
-      "short": "More has gone out than went in. Check the count.",
-      "adjust": "Adjust {{place}}"
+      "short": "{{place}}: more has gone out than went in. Check the count.",
+      "adjust": "Adjust",
+      "adjustPlace": "Adjust {{place}}"
     },
     "recent": {
       "title": "Recent",
@@ -109,7 +112,9 @@
       "tomorrow": "Tomorrow {{time}}",
       "daysAgo": "{{count}} days ago, {{time}}",
       "inDays": "In {{count}} days, {{time}}",
-      "lastBy": "Last entry by {{name}}"
+      "lastBy": "Last entry by {{name}}",
+      "row": "{{when}} · {{label}}",
+      "rowSummary": "{{when}} · {{label}}, {{summary}}"
     },
     "logFeed": "Log feed",
     "actions": {
@@ -122,19 +127,20 @@
       "feed": "Feed"
     },
     "sleep": {
-      "label": "Sleeping since {{time}}",
-      "stop": "Stop sleep"
+      "title": "Sleeping",
+      "since": "since {{time}}",
+      "stop": "Stop the sleep timer"
     },
     "appointment": {
       "title": "Next appointment",
-      "when": "{{title}} — {{when}}",
+      "whenWith": "{{when}} · {{doctor}}",
       "none": "Nothing booked",
       "add": "Add an appointment"
     },
     "duplicate": {
-      "question": "{{name}} also logged a feed at {{time}}. Same feed?",
-      "keepBoth": "Keep both",
-      "removeMine": "Remove mine"
+      "question": "{{name}} logged a feed too at {{time}}. Same feed?",
+      "same": "Same feed",
+      "keepBoth": "Keep both"
     },
     "greeting": {
       "hello": "Hello",
@@ -155,7 +161,8 @@
       "none": "Not yet",
       "running": "Sleeping",
       "awake": "Awake {{duration}}"
-    }
+    },
+    "emptyHint": "Nothing logged yet. Tap a tile to start."
   },
   "log": {
     "save": "Save",

@@ -43,7 +43,7 @@ describe('health note sheet', () => {
         payload: { note: 'Warm to touch after nap', temp_c: 37.8, tags: ['cough'] },
       }),
     ]);
-    expect(screen.getByText('37.8 °C')).toBeOnTheScreen();
+    expect(screen.getByText(/37\.8 °C/)).toBeOnTheScreen();
   });
 
   it('saves a note with no temperature or tags', async () => {
@@ -98,7 +98,7 @@ describe('health note sheet', () => {
     expect(ofType('health')).toEqual([
       expect.objectContaining({ occurredAt: NOW, payload: { temp_c: 37.4 } }),
     ]);
-    expect(screen.getByText('37.4 °C')).toBeOnTheScreen();
+    expect(screen.getByText(/37\.4 °C/)).toBeOnTheScreen();
   });
 
   it('refuses an entry with neither a note nor a temperature, and writes nothing', async () => {
@@ -144,7 +144,7 @@ describe('medication sheet', () => {
     expect(ofType('medication')).toEqual([
       expect.objectContaining({ occurredAt: NOW, payload: { name: 'Vitamin D', dose: '1 drop' } }),
     ]);
-    expect(screen.getByText('Vitamin D, 1 drop')).toBeOnTheScreen();
+    expect(screen.getByText(/Vitamin D, 1 drop/)).toBeOnTheScreen();
   });
 
   it('opens with the last medication’s name, but never its amount', async () => {

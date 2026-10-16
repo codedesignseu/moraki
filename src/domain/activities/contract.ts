@@ -92,9 +92,18 @@ export type Stats = {
   breastMs: number;
   wet: number;
   dirty: number;
+  /** Diaper changes, each once whatever was in it (Home "Today"). */
+  diapers: number;
 };
 
-export const EMPTY_STATS: Stats = { feedIds: [], ml: 0, breastMs: 0, wet: 0, dirty: 0 };
+export const EMPTY_STATS: Stats = {
+  feedIds: [],
+  ml: 0,
+  breastMs: 0,
+  wet: 0,
+  dirty: 0,
+  diapers: 0,
+};
 /**
  * Milk kept in each place, oldest first (SDD 6.3). Stock is never stored, only
  * folded from the events, so two caregivers taking milk at the same moment
