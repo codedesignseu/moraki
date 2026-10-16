@@ -278,10 +278,10 @@ describe('joining through the link', () => {
     await press('Join household');
 
     await press('Join');
-    expect(screen.getByText('The code is 8 characters.')).toBeOnTheScreen();
+    expect(screen.getByText('Error: The code is 8 characters.')).toBeOnTheScreen();
     await type('Invite code', CODE);
     await press('Join');
-    expect(screen.getByText('Enter your name.')).toBeOnTheScreen();
+    expect(screen.getByText('Error: Enter your name.')).toBeOnTheScreen();
     expect(server.calls.some((c) => c.path === '/rest/v1/rpc/accept_invite')).toBe(false);
   });
 
@@ -304,7 +304,7 @@ describe('joining through the link', () => {
     );
     await type('Your name', 'Nik');
     await press('Join');
-    expect(await screen.findByText(message)).toBeOnTheScreen();
+    expect(await screen.findByText(`Error: ${message}`)).toBeOnTheScreen();
     await waitFor(() => expect(h.prefs.get('accountHousehold')).toBeNull());
   });
 
@@ -322,7 +322,7 @@ describe('joining through the link', () => {
     await type('Your name', 'Nik');
     await press('Join');
     expect(
-      await screen.findByText('Too many attempts. Wait a while, then try again.'),
+      await screen.findByText('Error: Too many attempts. Wait a while, then try again.'),
     ).toBeOnTheScreen();
     // The real code check never ran: nothing to be right or wrong about yet.
     expect(server.calls.some((c) => c.path === '/rest/v1/rpc/accept_invite')).toBe(false);
@@ -360,7 +360,7 @@ describe('joining through the link', () => {
     await press('Join');
 
     expect(
-      await screen.findByText('You’re offline. Joining needs a connection.'),
+      await screen.findByText('Error: You’re offline. Joining needs a connection.'),
     ).toBeOnTheScreen();
   });
 

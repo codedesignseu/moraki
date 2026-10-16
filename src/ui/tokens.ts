@@ -437,6 +437,8 @@ export const type = {
   rowLabel: { ...textSemi, fontSize: 17, lineHeight: 23 },
   /** G: the line in a warning or notice card, and the toast message (16/600). */
   lead: { ...textSemi, fontSize: 16, lineHeight: 22 },
+  /** G account cards' titles (account/setup "You", "Baby"; 18/700). */
+  formTitle: { ...textBold, fontSize: 18, lineHeight: 24 },
   /** G: an empty state's title (tabs/history-empty, 18/700). */
   emptyTitle: { ...textBold, fontSize: 18, lineHeight: 24 },
   /** G: the label of a stat cell (12/700). */

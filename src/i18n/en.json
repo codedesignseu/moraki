@@ -653,8 +653,8 @@
     "codeSent": "We sent a sign-in code to {{email}}.",
     "code": "Code",
     "verify": "Sign in",
-    "resend": "Send a new code",
-    "changeEmail": "Use a different email",
+    "resend": "Resend code",
+    "changeEmail": "Change email",
     "apple": "Continue with Apple",
     "google": "Continue with Google",
     "or": "or",
@@ -666,12 +666,13 @@
       "offline": "You're offline. Signing in needs a connection.",
       "unknown": "Couldn't sign in. Try again.",
       "server": "Moraki couldn’t send the code just now. Try again in a minute."
-    }
+    },
+    "codeTitle": "Enter the code"
   },
   "householdSetup": {
     "title": "Set up your household",
     "you": {
-      "title": "About you",
+      "title": "You",
       "name": "Your name",
       "nameHint": "Other caregivers see this name next to your entries.",
       "relation": "You are the baby’s (optional)"
@@ -684,12 +685,12 @@
       "other": "Other"
     },
     "baby": {
-      "title": "Your baby",
-      "name": "Baby’s name",
+      "title": "Baby",
+      "name": "Name",
       "born": "Born",
       "daysAgo": "days ago",
       "bornOn": "Born on {{date}}",
-      "birthWeight": "Birth weight in grams (optional)",
+      "birthWeight": "Birth weight (optional)",
       "birthWeightHint": "You can add it later."
     },
     "save": "Create household",
@@ -972,7 +973,8 @@
   },
   "common": {
     "error": "Error",
-    "close": "Close"
+    "close": "Close",
+    "back": "Back"
   },
   "duration": {
     "minutes": "{{minutes}} min",

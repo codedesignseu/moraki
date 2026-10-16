@@ -118,7 +118,7 @@ describe('sign in with an emailed code', () => {
 
     await type('Email', 'parent@example');
     await press('Send code');
-    expect(screen.getByText('Check the email address.')).toBeOnTheScreen();
+    expect(screen.getByText('Error: Check the email address.')).toBeOnTheScreen();
     expect(server.calls).toEqual([]);
 
     await type('Email', EMAIL);
@@ -126,13 +126,19 @@ describe('sign in with an emailed code', () => {
     await type('Code', '12a3');
     expect(screen.getByLabelText('Code').props.value).toBe('123');
     await press('Sign in');
-    expect(screen.getByText('Enter the whole code from the email.')).toBeOnTheScreen();
+    expect(screen.getByText('Error: Enter the whole code from the email.')).toBeOnTheScreen();
 
     await type('Code', '000000');
     await press('Sign in');
     expect(
-      await screen.findByText('That code is wrong or has expired. Send a new code to try again.'),
+      await screen.findByText(
+        'Error: That code is wrong or has expired. Send a new code to try again.',
+      ),
     ).toBeOnTheScreen();
+
+    // The header's back button returns to the address, like "Change email".
+    await press('Back');
+    expect(screen.getByLabelText('Email')).toBeOnTheScreen();
   });
 
   it('takes a longer code, for a project that sends more than six digits', async () => {
@@ -161,7 +167,7 @@ describe('sign in with an emailed code', () => {
     await type('Code', '1234');
     await press('Sign in');
 
-    expect(screen.getByText('Enter the whole code from the email.')).toBeOnTheScreen();
+    expect(screen.getByText('Error: Enter the whole code from the email.')).toBeOnTheScreen();
     expect(server.calls.some((c) => c.path === '/auth/v1/verify')).toBe(false);
   });
 
@@ -171,7 +177,7 @@ describe('sign in with an emailed code', () => {
     await type('Email', EMAIL);
     await press('Send code');
     expect(
-      await screen.findByText("You're offline. Signing in needs a connection."),
+      await screen.findByText("Error: You're offline. Signing in needs a connection."),
     ).toBeOnTheScreen();
   });
 
@@ -217,6 +223,19 @@ describe('Sign in with Apple (P5-04)', () => {
         nonce: 'the-raw-nonce',
       }),
     });
+  });
+
+  it('shows the spinner on the pressed button and holds the others while it works', async () => {
+    mockAppleAvailable.mockResolvedValue(true);
+    mockSignInWithApple.mockReturnValue(new Promise(() => undefined));
+
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
+    await press('Sign in');
+    await screen.findByRole('button', { name: 'Continue with Apple' });
+    await press('Continue with Apple');
+
+    expect(screen.getByRole('button', { name: 'Continue with Apple' })).toBeBusy();
+    expect(screen.getByRole('button', { name: 'Send code' })).toBeDisabled();
   });
 
   it('leaves the sign-in screen exactly as it was when the person dismisses the sheet', async () => {

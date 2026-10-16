@@ -1,12 +1,11 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { JoinScreen } from '@/features/household/JoinScreen';
+import { PAGE_OPTIONS } from '@/ui/pageOptions';
 
 /** The invite link's destination: https://moraki.app/join/CODE. */
 export default function Join() {
-  const { t } = useTranslation();
   const router = useRouter();
   const { code } = useLocalSearchParams<{ code: string }>();
   const toHome = useCallback(() => {
@@ -16,10 +15,12 @@ export default function Join() {
   }, [router]);
   return (
     <>
-      <Stack.Screen options={{ title: t('join.title'), presentation: 'modal' }} />
+      <Stack.Screen options={PAGE_OPTIONS} />
       <JoinScreen
         code={code ?? ''}
         onDone={toHome}
+        // Opened from the link, there may be nothing to go back to.
+        onClose={() => (router.canGoBack() ? router.back() : router.navigate('/'))}
         onSignIn={() => router.push('/onboarding/sign-in')}
       />
     </>

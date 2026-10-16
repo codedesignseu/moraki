@@ -56,14 +56,14 @@ async function signedIn(options: Parameters<typeof authServer>[0] = {}, fetchImp
 async function fillIn() {
   await type('Your name', ' Maria ');
   await fireEvent.press(screen.getByRole('togglebutton', { name: 'Mother' }));
-  await type('Baby’s name', ' Ella ');
+  await type('Name', ' Ella ');
   // Two days ago, through the Stepper's accessibility action, as VoiceOver does.
   for (let i = 0; i < 2; i += 1) {
     await fireEvent(screen.getByRole('adjustable', { name: 'Born' }), 'accessibilityAction', {
       nativeEvent: { actionName: 'increment' },
     });
   }
-  await type('Birth weight in grams (optional)', '3400');
+  await type('Birth weight (optional)', '3400');
 }
 
 describe('household setup', () => {
@@ -163,15 +163,15 @@ describe('household setup', () => {
     await press('Set up household');
 
     await press('Create household');
-    expect(screen.getByText('Enter your name.')).toBeOnTheScreen();
+    expect(screen.getByText('Error: Enter your name.')).toBeOnTheScreen();
     await type('Your name', 'Maria');
     await press('Create household');
-    expect(screen.getByText('Enter your baby’s name.')).toBeOnTheScreen();
-    await type('Baby’s name', 'Ella');
-    await type('Birth weight in grams (optional)', '34');
+    expect(screen.getByText('Error: Enter your baby’s name.')).toBeOnTheScreen();
+    await type('Name', 'Ella');
+    await type('Birth weight (optional)', '34');
     await press('Create household');
     expect(
-      screen.getByText('Enter a weight between 500 and 7000 grams, or leave it empty.'),
+      screen.getByText('Error: Enter a weight between 500 and 7000 grams, or leave it empty.'),
     ).toBeOnTheScreen();
 
     expect(server.calls.some((c) => c.path === '/rest/v1/rpc/create_household')).toBe(false);
@@ -190,7 +190,7 @@ describe('household setup', () => {
     await press('Create household');
 
     expect(
-      await screen.findByText('You’re offline. Setting up a household needs a connection.'),
+      await screen.findByText('Error: You’re offline. Setting up a household needs a connection.'),
     ).toBeOnTheScreen();
     await waitFor(() => expect(h.prefs.get('accountHousehold')).toBeNull());
   });
