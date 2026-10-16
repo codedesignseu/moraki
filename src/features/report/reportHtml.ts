@@ -7,10 +7,15 @@ export type ReportSection = {
   rows: { label: string; value: string }[];
 };
 
+/** One figure for a stat tile: what it counts, and the count. */
+export type ReportStat = { label: string; value: string };
+
 export type ReportLabels = {
   /** "Moraki report — Ella", and the window it covers. */
   title: string;
   subtitle: string;
+  /** The window's counts, drawn as tiles (G reports/report, reports/pdf). */
+  stats: ReportStat[];
   /** Section headings and rows, already translated. */
   sections: ReportSection[];
   /** The per-day table: headers, then one row of cells per day. */
@@ -34,6 +39,11 @@ const row = (label: string, value: string) =>
  * split across a page break.
  */
 export function reportHtml(report: Report, labels: ReportLabels, lang: string): string {
+  const stats =
+    `<section data-section="stats"><table>` +
+    labels.stats.map((r) => row(r.label, r.value)).join('') +
+    `</table></section>`;
+
   const sections = labels.sections
     .filter((section) => section.rows.length > 0)
     .map(
@@ -78,7 +88,7 @@ export function reportHtml(report: Report, labels: ReportLabels, lang: string): 
 <body>
 <h1>${escape(labels.title)}</h1>
 <p class="subtitle">${escape(labels.subtitle)}</p>
-${sections}${table}
+${stats}${sections}${table}
 <footer>${escape(labels.footer)}</footer>
 </body>
 </html>`;

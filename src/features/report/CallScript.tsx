@@ -1,9 +1,11 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { durationParts } from '@/domain/time/durationParts';
 import { formatClock } from '@/domain/time/formatClock';
-import { formatElapsed } from '@/domain/time/formatElapsed';
-import { Card, TextField } from '@/ui/primitives';
+import { formatDuration } from '@/i18n/duration';
+import { Card, Page, TextField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useCallScript } from './useCallScript';
@@ -11,204 +13,238 @@ import { useCallScript } from './useCallScript';
 const WORRY_MAX = 500;
 
 /**
- * What to say on the phone to a clinician (SDD 6.5), in the order they ask,
- * in type big enough to read at arm's length while holding a baby. Every line
- * is a figure and its label: nothing here says what any of it means (rule 10).
+ * What to say on the phone to a clinician (SDD 6.5, G reports/call-script):
+ * one card of figures in the order they ask, then the notes, the questions
+ * and a box for the worry. Every line is a figure and its label: nothing
+ * here says what any of it means (rule 10). G's Share button is left out (G3).
  */
-export function CallScript() {
+export function CallScript({ onBack }: { onBack: () => void }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   const { report, tz, knowsBirth, worry, setWorry, dateTime } = useCallScript();
   const feeds = report.last24h.feeds;
+  const duration = (ms: number) => formatDuration(t, durationParts(ms));
+  const none = t('report.call.none');
+  const ml = t('report.call.ml', { ml: feeds.bottleMl });
 
   return (
-    // A text field at the bottom of a scroll is what the keyboard covers.
-    // KeyboardAvoidingView's padding is short by the navigation header's
-    // height, and this project has no useHeaderHeight to feed it, so the
-    // scroll view does the work instead: iOS insets itself for the keyboard,
-    // Android resizes the window, and either way the caret stays in sight.
-    <ScrollView
+    <Page
+      title={t('report.call.title')}
+      onBack={onBack}
+      backLabel={t('common.back')}
       testID="call-script"
-      contentContainerStyle={s.content}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="interactive"
-      automaticallyAdjustKeyboardInsets
     >
-      <Card tone="sleep" testID="call-age">
-        {knowsBirth ? (
-          <Line
-            label={t('report.call.age')}
-            value={t('report.call.days', { count: report.baby.ageDays })}
-          />
-        ) : (
-          <Text style={s.muted}>{t('report.call.noBirth')}</Text>
-        )}
-      </Card>
+      <Text style={s.intro}>{t('report.call.intro')}</Text>
 
-      <Card testID="call-weight">
-        <Text style={s.section}>{t('report.call.weight.title')}</Text>
-        {report.weight.birthGrams !== null && (
-          <Line
-            label={t('report.call.weight.birth')}
-            value={t('report.call.grams', { grams: report.weight.birthGrams })}
-          />
-        )}
-        {report.weight.latest ? (
-          <>
+      <View style={s.figures} testID="call-figures">
+        <Group testID="call-age">
+          {knowsBirth ? (
             <Line
-              label={t('report.call.weight.latest')}
-              value={t('report.call.weight.latestValue', {
-                grams: report.weight.latest.grams,
-                day: report.weight.latest.day,
+              label={t('report.call.age')}
+              value={t('report.call.days', { count: report.baby.ageDays })}
+            />
+          ) : (
+            <Line label={t('report.call.age')} detail={t('report.call.noBirth')} />
+          )}
+        </Group>
+
+        <Group testID="call-weight">
+          {report.weight.birthGrams !== null && (
+            <Line
+              label={t('report.call.weight.birth')}
+              value={t('report.call.grams', { grams: report.weight.birthGrams })}
+            />
+          )}
+          <Line
+            label={t('report.call.weight.latest')}
+            value={
+              report.weight.latest
+                ? t('report.call.weight.latestValue', {
+                    grams: report.weight.latest.grams,
+                    day: report.weight.latest.day,
+                  })
+                : t('report.call.weight.none')
+            }
+          />
+          {report.weight.changeG !== null && report.weight.changePct !== null && (
+            <Line
+              label={t('report.call.weight.change')}
+              value={t('report.call.weight.changeValue', {
+                grams: report.weight.changeG,
+                percent: report.weight.changePct,
               })}
             />
-            {report.weight.changeG !== null && report.weight.changePct !== null && (
-              <Line
-                label={t('report.call.weight.change')}
-                value={t('report.call.weight.changeValue', {
-                  grams: report.weight.changeG,
-                  percent: report.weight.changePct,
-                })}
-              />
-            )}
-          </>
-        ) : (
-          <Text style={s.muted}>{t('report.call.weight.none')}</Text>
-        )}
-      </Card>
+          )}
+        </Group>
 
-      <Card tone="feed" testID="call-feeds">
-        <Text style={s.section}>{t('report.call.feeds.title')}</Text>
-        <Line label={t('report.call.feeds.count')} value={`${feeds.count}`} />
-        <Line
-          label={t('report.call.feeds.ml')}
-          value={t('report.call.ml', { ml: feeds.bottleMl })}
-        />
-        {feeds.breastMs > 0 && (
-          <Line label={t('report.call.feeds.breast')} value={formatElapsed(feeds.breastMs)} />
-        )}
-        <Line
-          label={t('report.call.feeds.longestGap')}
-          value={
-            feeds.longestGapMs === null ? t('report.call.none') : formatElapsed(feeds.longestGapMs)
-          }
-        />
-        <Line
-          label={t('report.call.feeds.last')}
-          value={feeds.lastAt === null ? t('report.call.none') : formatClock(feeds.lastAt, tz)}
-        />
-      </Card>
-
-      <Card tone="diaper" testID="call-diapers">
-        <Text style={s.section}>{t('report.call.diapers.title')}</Text>
-        <Line label={t('report.call.diapers.wet')} value={`${report.last24h.wet}`} />
-        <Line label={t('report.call.diapers.dirty')} value={`${report.last24h.dirty}`} />
-      </Card>
-
-      <Card testID="call-temperature">
-        <Text style={s.section}>{t('report.call.temperature.title')}</Text>
-        {report.lastTemperature ? (
+        <Group testID="call-feeds">
           <Line
-            label={t('report.call.temperature.last')}
-            value={t('report.call.temperature.value', {
-              celsius: report.lastTemperature.celsius.toFixed(1),
-              time: formatClock(report.lastTemperature.at, tz),
+            label={t('report.call.feeds.countDay')}
+            value={`${feeds.count}`}
+            detail={
+              feeds.breastMs > 0
+                ? t('report.call.feeds.detailBreast', { ml, breast: duration(feeds.breastMs) })
+                : t('report.call.feeds.detail', { ml })
+            }
+          />
+          <Line
+            label={t('report.call.feeds.longestGap')}
+            value={feeds.longestGapMs === null ? none : duration(feeds.longestGapMs)}
+          />
+          <Line
+            label={t('report.call.feeds.last')}
+            value={feeds.lastAt === null ? none : formatClock(feeds.lastAt, tz)}
+          />
+        </Group>
+
+        <Group testID="call-diapers">
+          <Line
+            label={t('report.call.diapers.title')}
+            value={t('report.call.diapers.value', {
+              wet: report.last24h.wet,
+              dirty: report.last24h.dirty,
             })}
           />
-        ) : (
-          <Text style={s.muted}>{t('report.call.none')}</Text>
-        )}
-      </Card>
+        </Group>
+
+        <Group testID="call-temperature">
+          <Line
+            label={t('report.call.temperature.last')}
+            value={
+              report.lastTemperature
+                ? t('report.call.temperature.value', {
+                    celsius: report.lastTemperature.celsius.toFixed(1),
+                    time: formatClock(report.lastTemperature.at, tz),
+                  })
+                : none
+            }
+          />
+        </Group>
+      </View>
 
       {(report.notes.length > 0 || report.medications.length > 0) && (
         <Card testID="call-notes">
-          <Text style={s.section}>{t('report.call.notes.title')}</Text>
-          {report.notes.map((note) => (
-            <Text key={`n${note.at}`} style={theme.text.body} testID={`call-note-${note.at}`}>
-              {t('report.call.notes.note', {
-                time: formatClock(note.at, tz),
-                text: note.note ?? t('report.call.temperature.only'),
-              })}
-            </Text>
-          ))}
-          {report.medications.map((med) => (
-            <Text key={`m${med.at}`} style={theme.text.body} testID={`call-med-${med.at}`}>
-              {t(med.dose === null ? 'report.call.notes.med' : 'report.call.notes.medDose', {
-                time: formatClock(med.at, tz),
-                name: med.name,
-                dose: med.dose ?? '',
-              })}
-            </Text>
-          ))}
+          <Heading>{t('report.call.notes.title')}</Heading>
+          <View style={s.list}>
+            {report.notes.map((note) => (
+              <Text key={`n${note.at}`} style={s.item} testID={`call-note-${note.at}`}>
+                {t('report.call.notes.note', {
+                  time: formatClock(note.at, tz),
+                  text: note.note ?? t('report.call.temperature.only'),
+                })}
+              </Text>
+            ))}
+            {report.medications.map((med) => (
+              <Text key={`m${med.at}`} style={s.item} testID={`call-med-${med.at}`}>
+                {t(med.dose === null ? 'report.call.notes.med' : 'report.call.notes.medDose', {
+                  time: formatClock(med.at, tz),
+                  name: med.name,
+                  dose: med.dose ?? '',
+                })}
+              </Text>
+            ))}
+          </View>
         </Card>
       )}
 
       {report.appointment && (
         <Card testID="call-questions">
-          <Text style={s.section}>{t('report.call.questions.title')}</Text>
-          <Text style={s.muted}>
-            {t('report.call.questions.visit', {
-              title: report.appointment.title,
-              date: dateTime(report.appointment.at),
-            })}
-          </Text>
-          {report.appointment.questions.length > 0 ? (
-            report.appointment.questions.map((question, index) => (
-              <Text
-                key={`${index}-${question}`}
-                style={theme.text.title}
-                testID={`call-question-${index}`}
-              >
-                {question}
-              </Text>
-            ))
-          ) : (
-            <Text style={s.muted}>{t('report.call.questions.none')}</Text>
-          )}
+          <Heading>{t('report.call.questions.title')}</Heading>
+          <View style={s.list}>
+            <Text style={s.soft}>
+              {t('report.call.questions.visit', {
+                title: report.appointment.title,
+                date: dateTime(report.appointment.at),
+              })}
+            </Text>
+            {report.appointment.questions.length > 0 ? (
+              report.appointment.questions.map((question, index) => (
+                <Text key={`${index}-${question}`} style={s.item} testID={`call-question-${index}`}>
+                  {question}
+                </Text>
+              ))
+            ) : (
+              <Text style={s.soft}>{t('report.call.questions.none')}</Text>
+            )}
+          </View>
         </Card>
       )}
 
       <Card testID="call-worry">
-        <Text style={s.section}>{t('report.call.worry.title')}</Text>
         <TextField
-          label={t('report.call.worry.label')}
+          label={t('report.call.worry.title')}
+          placeholder={t('report.call.worry.placeholder')}
           value={worry}
           onChangeText={setWorry}
           multiline
           maxLength={WORRY_MAX}
         />
-        <Text style={s.muted}>{t('report.call.worry.hint')}</Text>
+        <Text style={s.soft}>{t('report.call.worry.hint')}</Text>
       </Card>
-    </ScrollView>
+    </Page>
   );
 }
 
-/** One line of the script: what to say, and the figure to say it with. */
-function Line({ label, value }: { label: string; value: string }) {
+/** Rows that belong together, so tests and screen readers can find them. */
+function Group({ children, testID }: { children: ReactNode; testID: string }) {
+  return <View testID={testID}>{children}</View>;
+}
+
+function Heading({ children }: { children: string }) {
+  const theme = useTheme();
+  return (
+    <Text accessibilityRole="header" style={[theme.type.detailBold, styles(theme).ink]}>
+      {children}
+    </Text>
+  );
+}
+
+/**
+ * One line of the script (G value row): what it is on the left, the figure
+ * on the right in bold, and what goes with it under the figure.
+ */
+function Line({ label, value, detail }: { label: string; value?: string; detail?: string }) {
   const theme = useTheme();
   const s = styles(theme);
+  const spoken = [value, detail].filter(Boolean).join(', ');
   return (
-    <View style={s.line} accessible accessibilityLabel={`${label}: ${value}`}>
-      <Text style={s.label}>{label}</Text>
-      <Text style={s.value}>{value}</Text>
+    <View style={s.line} accessible accessibilityLabel={`${label}: ${spoken}`}>
+      <Text style={[theme.type.detail, s.label]}>{label}</Text>
+      <View style={s.figure}>
+        {value ? <Text style={[theme.type.figureRow, s.value]}>{value}</Text> : null}
+        {detail ? <Text style={[theme.type.small, s.detail]}>{detail}</Text> : null}
+      </View>
     </View>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    // Room under the last card so the box clears the keyboard once lifted.
-    content: {
-      padding: theme.spacing.screen,
-      paddingBottom: theme.spacing.xl,
-      gap: theme.spacing.md,
+    intro: { ...theme.type.body, color: theme.palette.textSoft },
+    // G: one white card, rows 52 high with a hairline under each.
+    figures: {
+      backgroundColor: theme.palette.card,
+      borderRadius: theme.radius.card,
+      paddingVertical: theme.spacing.xs,
+      paddingHorizontal: theme.spacing.screenEdge,
     },
-    // Read at arm's length: the figure is the biggest thing on the line.
-    line: { gap: theme.spacing.xs },
-    // onTileSoft, not textSoft: some of these cards sit on tile colours.
-    label: { ...theme.text.body, color: theme.palette.onTileSoft },
-    value: theme.text.title,
-    section: theme.type.tileTitle,
-    muted: { ...theme.text.body, color: theme.palette.onTileSoft },
+    line: {
+      minHeight: theme.size.valueRow,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: theme.spacing.md,
+      paddingVertical: theme.spacing.xs,
+      borderBottomWidth: theme.size.borderThin,
+      borderBottomColor: theme.palette.line,
+    },
+    label: { flexShrink: 1, color: theme.palette.textSoft },
+    figure: { flexShrink: 1, alignItems: 'flex-end' },
+    value: { textAlign: 'right', color: theme.palette.ink },
+    detail: { textAlign: 'right', color: theme.palette.textSoft },
+    list: { gap: theme.spacing.xs },
+    item: { ...theme.type.lead, color: theme.palette.ink },
+    soft: { ...theme.type.detail, color: theme.palette.textSoft },
+    ink: { color: theme.palette.ink },
   });

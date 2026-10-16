@@ -766,10 +766,10 @@
   },
   "report": {
     "call": {
-      "age": "Age",
+      "age": "Baby’s age",
       "days": "{{count}} days old",
       "grams": "{{grams}} g",
-      "ml": "{{ml}} mL",
+      "ml": "{{ml}} ml",
       "weight": {
         "title": "Weight",
         "birth": "Birth weight",
@@ -785,15 +785,19 @@
         "breast": "Breastfeeding time",
         "longestGap": "Longest gap between feeds",
         "title": "Last 24 hours",
-        "last": "Last feed"
+        "last": "Last feed",
+        "countDay": "Feeds, last 24 h",
+        "detail": "{{ml}} bottle",
+        "detailBreast": "{{ml}} bottle, {{breast}} breast"
       },
       "diapers": {
         "wet": "Wet",
         "dirty": "Dirty",
-        "title": "Diapers, last 24 hours"
+        "title": "Diapers, last 24 hours",
+        "value": "Wet {{wet}} · Dirty {{dirty}}"
       },
       "temperature": {
-        "last": "Last reading",
+        "last": "Last temperature",
         "value": "{{celsius}} °C at {{time}}",
         "only": "Temperature only",
         "title": "Temperature"
@@ -809,21 +813,22 @@
       "none": "None logged",
       "worry": {
         "title": "What I'm worried about",
-        "label": "Write it down before you call",
-        "hint": "Stays on this screen. Nothing here is saved."
+        "hint": "Stays on this screen. Nothing here is saved.",
+        "placeholder": "Write what worries you, in your own words."
       },
       "questions": {
-        "title": "What I meant to ask",
+        "title": "Questions from the next appointment",
         "visit": "For {{title}}, {{date}}",
         "none": "Nothing written down yet"
-      }
+      },
+      "intro": "Read these out when you call a doctor or nurse line. Only what you logged."
     },
     "pdf": {
       "title": "Moraki report — {{name}}",
       "subtitle": "{{range}}, made {{generated}}",
       "baby": "Baby",
       "name": "Name",
-      "window": "Totals for this report",
+      "feeds": "Feeds",
       "sleep": "Sleep",
       "averageBottle": "Average bottle",
       "averageInterval": "Average time between feeds",
@@ -838,10 +843,13 @@
       "question": "Question {{number}}"
     },
     "share": {
-      "action": "Share as PDF",
+      "action": "Share PDF",
       "working": "Making the PDF…",
       "unavailable": "This device has nowhere to share a file.",
       "failed": "The PDF couldn't be made. Try again."
+    },
+    "preview": {
+      "title": "Report"
     }
   },
   "about": {

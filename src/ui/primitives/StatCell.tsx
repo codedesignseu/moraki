@@ -2,13 +2,13 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
-import type { TileColour } from './ActivityTile';
+import type { CircleTone } from './IconCircle';
 
 type Props = {
   /** Already formatted by the caller, e.g. "6" or "240 ml". */
   value: string;
   label: string;
-  tone?: TileColour | 'chip';
+  tone?: CircleTone;
   /**
    * `valueFirst` (default): a centred number over its label, as Home's Today
    * row. `labelFirst`: the label over a larger number, left-aligned, as the

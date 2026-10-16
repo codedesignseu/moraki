@@ -116,10 +116,10 @@ describe('the call script', () => {
     await openScript();
 
     const card = within(screen.getByTestId('call-feeds'));
-    expect(card.getByLabelText('Feeds: 3')).toBeOnTheScreen();
-    expect(card.getByText('250 mL')).toBeOnTheScreen();
+    expect(card.getByLabelText('Feeds, last 24 h: 3, 250 ml bottle')).toBeOnTheScreen();
+    expect(card.getByText('250 ml bottle')).toBeOnTheScreen();
     // Feeds 20h, 12h and 1h ago: gaps of 8h and 11h, so 11h is the longest.
-    expect(card.getByLabelText('Longest gap between feeds: 11h 0m')).toBeOnTheScreen();
+    expect(card.getByLabelText('Longest gap between feeds: 11 h 0 min')).toBeOnTheScreen();
     expect(card.getByLabelText('Last feed: 13:00')).toBeOnTheScreen();
   });
 
@@ -129,8 +129,7 @@ describe('the call script', () => {
     await openScript();
 
     const card = within(screen.getByTestId('call-diapers'));
-    expect(card.getByLabelText('Wet: 2')).toBeOnTheScreen();
-    expect(card.getByLabelText('Dirty: 1')).toBeOnTheScreen();
+    expect(card.getByLabelText('Diapers, last 24 hours: Wet 2 · Dirty 1')).toBeOnTheScreen();
   });
 
   it('gives the last temperature with its time, and says nothing about it', async () => {
@@ -182,7 +181,7 @@ describe('the call script', () => {
     await openScript();
 
     await fireEvent.changeText(
-      screen.getByLabelText('Write it down before you call'),
+      screen.getByLabelText("What I'm worried about"),
       'She has been fussier since Sunday',
     );
     expect(screen.getByDisplayValue('She has been fussier since Sunday')).toBeOnTheScreen();

@@ -69,8 +69,9 @@ describe('the printable report', () => {
     const out = html('24h', [], { ...BABY, birthWeightG: null });
     expect(out).not.toContain('data-section="weight"');
     expect(out).not.toContain('data-section="health"');
-    // The window section still stands: zero feeds is a fact worth printing.
-    expect(out).toContain('data-section="feeds"');
+    // The window's counts still stand: zero feeds is a fact worth printing.
+    expect(out).toContain('data-section="stats"');
+    expect(out).toContain('report.call.ml(0)');
   });
 
   it('prints a day table for 3 and 7 days, and none for 24 hours', () => {
