@@ -49,7 +49,7 @@ async function signedIn(options: Parameters<typeof authServer>[0] = {}, fetchImp
   await press('Sign in');
   // Signing in leads to the consent screen (P3-09); agreeing goes back.
   await press('I agree');
-  await screen.findByText(`Signed in as ${EMAIL}`);
+  await screen.findByLabelText(`Signed in as ${EMAIL}`);
   return server;
 }
 
@@ -71,7 +71,7 @@ describe('household setup', () => {
     const server = await signedIn();
     expect(screen.getByText(/Add your baby to create a household/)).toBeOnTheScreen();
 
-    await press('Set up your household');
+    await press('Set up household');
     await fillIn();
     expect(screen.getByText('Born on Monday 26 October')).toBeOnTheScreen();
     await press('Create household');
@@ -106,8 +106,8 @@ describe('household setup', () => {
     });
 
     await press(/Settings/);
-    expect(screen.getByText('Household: Ella')).toBeOnTheScreen();
-    expect(screen.queryByRole('button', { name: 'Set up your household' })).toBeNull();
+    expect(screen.getByLabelText('Household: Ella')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Set up household' })).toBeNull();
   });
 
   it('keeps entries already on this phone, now belonging to the new household', async () => {
@@ -120,7 +120,7 @@ describe('household setup', () => {
     const queued = h.mem.db.select().from(outbox).all();
 
     await signedIn();
-    await press('Set up your household');
+    await press('Set up household');
     await fillIn();
     await press('Create household');
     expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
@@ -147,7 +147,7 @@ describe('household setup', () => {
     });
 
     // Settings asks the server once, in the background, and remembers it.
-    expect(await screen.findByText('Household: Leo')).toBeOnTheScreen();
+    expect(await screen.findByLabelText('Household: Leo')).toBeOnTheScreen();
     expect(h.prefs.get('accountHousehold')).toEqual({
       userId: USER_ID,
       householdId: baby.household_id,
@@ -160,7 +160,7 @@ describe('household setup', () => {
 
   it('asks for the missing details before calling the server', async () => {
     const server = await signedIn();
-    await press('Set up your household');
+    await press('Set up household');
 
     await press('Create household');
     expect(screen.getByText('Enter your name.')).toBeOnTheScreen();
@@ -184,7 +184,7 @@ describe('household setup', () => {
     const flaky = ((input: RequestInfo | URL, init?: RequestInit) =>
       online ? server.fetchImpl(input, init) : offline(input, init)) as typeof fetch;
     await signedIn({}, flaky);
-    await press('Set up your household');
+    await press('Set up household');
     await fillIn();
     online = false;
     await press('Create household');
@@ -204,7 +204,7 @@ describe('household setup', () => {
       role: 'owner',
     });
     await signedIn();
-    expect(screen.queryByText('Household: Someone else')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Set up your household' })).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Household: Someone else')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Set up household' })).toBeOnTheScreen();
   });
 });

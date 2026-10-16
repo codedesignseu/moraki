@@ -47,7 +47,7 @@ describe('signing out (P5-F1, D6)', () => {
     expect(screen.getByText(/2 changes haven't reached the server yet/)).toBeTruthy();
     await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByTestId('settings-sign-out')).toBeNull();
-    expect(screen.getByText(`Signed in as ${EMAIL}`)).toBeTruthy();
+    expect(screen.getByLabelText(`Signed in as ${EMAIL}`)).toBeTruthy();
   });
 
   it('keeps the entries when asked to', async () => {

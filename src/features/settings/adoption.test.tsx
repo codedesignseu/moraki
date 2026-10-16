@@ -64,7 +64,7 @@ describe('a phone that was used before it had an account', () => {
     const before = readIdentity(h.mem.db);
 
     const server = await openSettings(belongsTo('owner'));
-    await screen.findByText('Household: Ella');
+    await screen.findByLabelText('Household: Ella');
 
     // Nothing was asked, and nothing was lost.
     expect(screen.queryByTestId('settings-local-entries')).toBeNull();
@@ -110,7 +110,7 @@ describe('a phone that was used before it had an account', () => {
     await screen.findByTestId('settings-local-entries');
 
     await act(async () => {
-      await press('Add them to the household');
+      await press('Add to the household');
     });
 
     await waitFor(() => expect(readLinkedIdentity(h.mem.db)).not.toBeNull());
@@ -128,7 +128,7 @@ describe('a phone that was used before it had an account', () => {
     await screen.findByTestId('settings-local-entries');
 
     await act(async () => {
-      await press('Not now');
+      await press('Keep on this phone');
     });
 
     // The question is answered and gone; everything else is untouched.
@@ -142,7 +142,7 @@ describe('a phone that was used before it had an account', () => {
 
   it('does not ask a phone that has logged nothing', async () => {
     await openSettings(belongsTo('caregiver'));
-    await screen.findByText('Household: Ella');
+    await screen.findByLabelText('Household: Ella');
     expect(screen.queryByTestId('settings-local-entries')).toBeNull();
     await waitFor(() => expect(readLinkedIdentity(h.mem.db)).not.toBeNull());
   });

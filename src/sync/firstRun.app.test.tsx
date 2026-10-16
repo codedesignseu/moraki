@@ -99,7 +99,7 @@ describe('a phone that gets its household while the app is open', () => {
   it('shows home and history after consent is given on its screen', async () => {
     await openSignedIn(server('caregiver'));
     await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
-    await fireEvent.press(await screen.findByRole('button', { name: 'Health data' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Review consent' }));
     await fireEvent.press(await screen.findByRole('button', { name: 'I agree' }));
     await waitFor(() => expect(h.prefs.get('consent')).not.toBeNull());
 

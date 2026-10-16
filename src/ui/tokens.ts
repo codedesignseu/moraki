@@ -272,6 +272,8 @@ export const size = {
   listRow: 60,
   /** G: a row of the weight log (tabs/trends). */
   weightRow: 52,
+  /** G: a label and its value in a settings card ("Email", "Consent"; tabs/settings). */
+  valueRow: 52,
   /** G: a row of the Trends days table (tabs/trends). */
   tableRow: 44,
   /** G: a History entry row, with its 44 badge (tabs/history). */

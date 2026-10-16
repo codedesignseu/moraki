@@ -70,7 +70,7 @@ describe('sign in with an emailed code', () => {
 
     await signInThroughTheApp();
 
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     // The address is trimmed and lower-cased before it's sent.
     const auth = server.calls.filter((c) => c.path.startsWith('/auth/'));
     expect(auth.map((c) => [c.path, c.body.email])).toEqual([
@@ -83,13 +83,13 @@ describe('sign in with an emailed code', () => {
     const { store } = keychain();
     await openSettings(createAuth(TEST_SUPABASE_ENV, store, authServer().fetchImpl));
     await signInThroughTheApp();
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
 
     // Kill: every screen goes away, and nothing held in memory survives but the
     // keychain. Relaunch: new auth, same keychain, no network.
     await cleanup();
     await openSettings(createAuth(TEST_SUPABASE_ENV, store, offline));
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
   });
 
   it('signs out on this phone, and stays signed out after a restart', async () => {
@@ -146,7 +146,7 @@ describe('sign in with an emailed code', () => {
     await press('Sign in');
     await press('Not now'); // the consent screen, as above
 
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(server.calls.filter((c) => c.path === '/auth/v1/verify')).toEqual([
       { path: '/auth/v1/verify', body: expect.objectContaining({ token: '12345678' }) },
     ]);
@@ -208,7 +208,7 @@ describe('Sign in with Apple (P5-04)', () => {
     await press('Continue with Apple');
     await press('Not now'); // the consent screen (P3-09)
 
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(server.calls.find((c) => c.path === '/auth/v1/token')).toEqual({
       path: '/auth/v1/token',
       body: expect.objectContaining({
@@ -255,7 +255,7 @@ describe('Sign in with Google (P5-04)', () => {
     await press('Continue with Google');
     await press('Not now'); // the consent screen (P3-09)
 
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(mockSignInWithGoogle).toHaveBeenCalledWith(
       'web-client-id.apps.googleusercontent.com',
       'ios-client-id.apps.googleusercontent.com',

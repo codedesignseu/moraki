@@ -54,7 +54,7 @@ async function signedIn(options: Parameters<typeof authServer>[0] = {}) {
 const openSettings = () => fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
 const openConsent = async () => {
   await openSettings();
-  await fireEvent.press(await screen.findByRole('button', { name: 'Health data' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Review consent' }));
   await screen.findByTestId('consent-what');
 };
 
@@ -162,7 +162,7 @@ describe('when it is asked', () => {
     await fireEvent.changeText(screen.getByLabelText('Code'), '123456');
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
 
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(screen.queryByTestId('consent-what')).toBeNull();
   });
 });
@@ -213,10 +213,10 @@ describe('what happens until someone agrees', () => {
     await signedIn({ consent: () => new Response('null', { status: 200 }) });
     await openSettings();
     expect(
-      within(await screen.findByTestId('settings-privacy')).getByText('Not agreed yet'),
+      within(await screen.findByTestId('settings-privacy')).getByText('Not agreed'),
     ).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Health data' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Review consent' }));
     await fireEvent.press(await screen.findByRole('button', { name: 'I agree' }));
 
     await openSettings();

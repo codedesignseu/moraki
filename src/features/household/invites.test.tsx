@@ -59,8 +59,8 @@ describe('inviting a caregiver', () => {
     const share = jest.spyOn(Share, 'share').mockResolvedValue({ action: 'sharedAction' });
     const server = await signedIn(owner);
     await press(/Settings/);
-    await screen.findByText('Household: Ella');
-    await press('Invite a caregiver');
+    await screen.findByLabelText('Household: Ella');
+    await press('Invite someone');
 
     await press('Create invite');
     expect(await screen.findByLabelText('Invite code ABCD-2345')).toBeOnTheScreen();
@@ -82,8 +82,8 @@ describe('inviting a caregiver', () => {
   it('can invite a viewer instead', async () => {
     const server = await signedIn(owner);
     await press(/Settings/);
-    await screen.findByText('Household: Ella');
-    await press('Invite a caregiver');
+    await screen.findByLabelText('Household: Ella');
+    await press('Invite someone');
     await fireEvent.press(screen.getByRole('radio', { name: 'View only' }));
     expect(screen.getByText('They can see everything but log nothing.')).toBeOnTheScreen();
     await press('Create invite');
@@ -115,8 +115,8 @@ describe('inviting a caregiver', () => {
       memberships: [{ household_id: HOUSEHOLD_ID, role: 'caregiver' }],
     });
     await press(/Settings/);
-    await screen.findByText('Household: Ella');
-    expect(screen.queryByRole('button', { name: 'Invite a caregiver' })).toBeNull();
+    await screen.findByLabelText('Household: Ella');
+    expect(screen.queryByRole('button', { name: 'Invite someone' })).toBeNull();
   });
 });
 
@@ -133,7 +133,7 @@ describe('codes that are still waiting', () => {
       ],
     });
     await press(/Settings/);
-    await press('Invite a caregiver');
+    await press('Invite someone');
 
     const card = within(await screen.findByTestId('invite-open'));
     expect(card.getByText(/ABCD-EFGH · Log entries · until/)).toBeOnTheScreen();
@@ -150,7 +150,7 @@ describe('codes that are still waiting', () => {
       revokeInvite: (code) => withdrawn.push(code),
     });
     await press(/Settings/);
-    await press('Invite a caregiver');
+    await press('Invite someone');
     await screen.findByTestId('invite-open-ABCDEFGH');
 
     await fireEvent.press(
@@ -179,7 +179,7 @@ describe('codes that are still waiting', () => {
       ],
     });
     await press(/Settings/);
-    await press('Invite a caregiver');
+    await press('Invite someone');
 
     const card = within(await screen.findByTestId('invite-open'));
     expect(card.getByTestId('invite-open-ABCDEFGH')).toBeOnTheScreen();
@@ -195,14 +195,14 @@ describe('codes that are still waiting', () => {
     });
     await press(/Settings/);
     // A caregiver isn't offered the screen at all, and asks the server nothing.
-    expect(screen.queryByRole('button', { name: 'Invite a caregiver' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Invite someone' })).toBeNull();
     expect(server.calls.some((c) => c.path === '/rest/v1/invites')).toBe(false);
   });
 
   it('shows nothing when every code has been used', async () => {
     await signedIn({ ...owner, openInvites: [] });
     await press(/Settings/);
-    await press('Invite a caregiver');
+    await press('Invite someone');
 
     await screen.findByTestId('invite-role');
     expect(screen.queryByTestId('invite-open')).toBeNull();
@@ -248,8 +248,8 @@ describe('joining through the link', () => {
     });
 
     await press(/Settings/);
-    expect(screen.getByText('Household: Ella')).toBeOnTheScreen();
-    expect(screen.queryByRole('button', { name: 'Invite a caregiver' })).toBeNull();
+    expect(screen.getByLabelText('Household: Ella')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Invite someone' })).toBeNull();
   });
 
   it('asks a signed-out phone to sign in first', async () => {
@@ -261,7 +261,7 @@ describe('joining through the link', () => {
   it('joins with a code typed in, however it is written', async () => {
     const server = await signedIn();
     await press(/Settings/);
-    await press('Join with a code');
+    await press('Join household');
     await type('Invite code', ' abcd-2345 ');
     await type('Your name', 'Nik');
     await press('Join');
@@ -275,7 +275,7 @@ describe('joining through the link', () => {
   it('asks for the code and a name before calling the server', async () => {
     const server = await signedIn();
     await press(/Settings/);
-    await press('Join with a code');
+    await press('Join household');
 
     await press('Join');
     expect(screen.getByText('The code is 8 characters.')).toBeOnTheScreen();

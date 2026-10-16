@@ -80,8 +80,8 @@ describe('the sharing status', () => {
     await act(async () => {
       jest.advanceTimersByTime(2_000);
     });
-    expect(await screen.findByText('Everything is sent')).toBeOnTheScreen();
-    expect(screen.getByText('Last sent at 14:00')).toBeOnTheScreen();
+    expect(await screen.findByText('All sent')).toBeOnTheScreen();
+    expect(screen.getByText('Last sent 14:00')).toBeOnTheScreen();
     await waitFor(() => expect(h.outbox.pending()).toBe(0));
   });
 
@@ -108,7 +108,7 @@ describe('the sharing status', () => {
     expect(screen.getByText('An entry — this phone wasn’t allowed to send it')).toBeOnTheScreen();
     // Refused ops leave the queue, so they can never hold up what follows.
     await waitFor(() => expect(h.outbox.pending()).toBe(0));
-    expect(screen.getByText('Everything is sent')).toBeOnTheScreen();
+    expect(screen.getByText('All sent')).toBeOnTheScreen();
   });
 
   it('says nothing is shared yet before the phone joins a household', async () => {

@@ -84,7 +84,7 @@ describe('managing who can do what', () => {
       updateMembership: (userId, columns) => changed.push([userId, columns]),
     });
 
-    await fireEvent.press(row(NIK).getByRole('radio', { name: 'Views only' }));
+    await fireEvent.press(row(NIK).getByRole('radio', { name: 'Viewer' }));
 
     await waitFor(() => expect(changed).toEqual([[NIK, { role: 'viewer' }]]));
   });
@@ -100,11 +100,11 @@ describe('managing who can do what', () => {
         if (person) person.role = String(columns.role);
       },
     });
-    expect(row(NIK).getByText(/Nik — Logs entries/)).toBeOnTheScreen();
+    expect(row(NIK).getByLabelText('Nik, Caregiver')).toBeOnTheScreen();
 
-    await fireEvent.press(row(NIK).getByRole('radio', { name: 'Views only' }));
+    await fireEvent.press(row(NIK).getByRole('radio', { name: 'Viewer' }));
 
-    await waitFor(() => expect(row(NIK).getByText(/Nik — Views only/)).toBeOnTheScreen());
+    await waitFor(() => expect(row(NIK).getByLabelText('Nik, Viewer')).toBeOnTheScreen());
   });
 
   it('lets the owner remove someone', async () => {
@@ -121,7 +121,7 @@ describe('managing who can do what', () => {
 
     // Leaving is its own question (P4-06), with different consequences.
     expect(row(USER_ID).queryByRole('button', { name: /Remove/ })).toBeNull();
-    expect(row(USER_ID).queryByRole('radio', { name: 'Views only' })).toBeNull();
+    expect(row(USER_ID).queryByRole('radio', { name: 'Viewer' })).toBeNull();
   });
 
   it('offers a caregiver nothing to change', async () => {
@@ -143,13 +143,13 @@ describe('managing who can do what', () => {
         }),
     });
 
-    await fireEvent.press(row(NIK).getByRole('radio', { name: 'Views only' }));
+    await fireEvent.press(row(NIK).getByRole('radio', { name: 'Viewer' }));
 
     expect(await screen.findByTestId('roles-problem')).toHaveTextContent(
-      'Only the household owner can change this.',
+      /Only the household owner can change this./,
     );
     // Nothing was guessed locally: Nik still reads as he does on the server.
-    expect(row(NIK).getByText(/Nik — Logs entries/)).toBeOnTheScreen();
+    expect(row(NIK).getByLabelText('Nik, Caregiver')).toBeOnTheScreen();
   });
 
   it('says what removing does to their entries', async () => {
