@@ -64,6 +64,7 @@
     }
   },
   "startup": {
+    "failedTitle": "Your log could not open",
     "databaseFailed": "Moraki couldn’t open its data on this phone. Close the app and open it again. Your entries are kept."
   },
   "home": {

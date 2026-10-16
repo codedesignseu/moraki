@@ -75,7 +75,11 @@ describe('DatabaseGate', () => {
 
   it('shows a message instead of the app if opening fails', async () => {
     await renderGate(() => Promise.reject(new Error('migration failed')));
-    expect(await screen.findByRole('alert')).toHaveTextContent(/couldn.t open its data/);
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(/Your log could not open/);
+    expect(alert).toHaveTextContent(/couldn.t open its data/);
+    // No retry: opening again is new behaviour (G3).
+    expect(screen.queryByRole('button')).toBeNull();
     expect(screen.queryByText('app')).toBeNull();
   });
 });

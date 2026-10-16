@@ -336,6 +336,11 @@ export const size = {
   dot: 8,
   /** Height of the Moraki mark in the Home header. */
   logoHeader: 28,
+  /**
+   * G reports/startup-fail: the mark in a 64 box. The mark fills 62 of the
+   * box's 100 units, so the mark itself is 40 high.
+   */
+  logoStartup: 40,
   /** G Home greeting: the butter circle round the mark, its white edge, and the mark in it. */
   greetingBadge: 52,
   greetingBadgeBorder: 3,

@@ -8,7 +8,8 @@ import {
   SyncRepositoriesProvider,
   type AppRepositories,
 } from '@/db/react';
-import { useTheme } from '@/ui/theme';
+import { Logo } from '@/ui/primitives';
+import { useTheme, type Theme } from '@/ui/theme';
 
 type State =
   { status: 'opening' } | { status: 'ready'; repositories: AppRepositories } | { status: 'failed' };
@@ -34,6 +35,7 @@ export function DatabaseGate({
   const [state, setState] = useState<State>({ status: 'opening' });
   const { t } = useTranslation();
   const theme = useTheme();
+  const s = styles(theme);
 
   useEffect(() => {
     let active = true;
@@ -57,18 +59,29 @@ export function DatabaseGate({
       </EventsRepositoryProvider>
     );
   }
+  // G reports/startup-fail: the mark, a 22 title and the app's body line,
+  // centred. G's "Try again" is left out (G3): opening again is new behaviour.
   return (
-    <View
-      style={[
-        StyleSheet.absoluteFill,
-        { backgroundColor: theme.palette.background, padding: theme.spacing.xl },
-      ]}
-    >
+    <View style={[StyleSheet.absoluteFill, s.screen]}>
       {state.status === 'failed' && !hold && (
-        <Text accessibilityRole="alert" style={theme.text.body}>
-          {t('startup.databaseFailed')}
-        </Text>
+        <View style={s.failed} accessible accessibilityRole="alert">
+          <Logo accessibilityLabel={t('app.name')} height={theme.size.logoStartup} />
+          <Text style={[theme.type.heading, s.title]}>{t('startup.failedTitle')}</Text>
+          <Text style={[theme.type.lead, s.body]}>{t('startup.databaseFailed')}</Text>
+        </View>
       )}
     </View>
   );
 }
+
+const styles = (theme: Theme) =>
+  StyleSheet.create({
+    screen: {
+      backgroundColor: theme.palette.background,
+      justifyContent: 'center',
+      padding: theme.spacing.xl,
+    },
+    failed: { alignItems: 'center', gap: theme.spacing.lg },
+    title: { color: theme.palette.ink, textAlign: 'center' },
+    body: { color: theme.palette.textSoft, textAlign: 'center' },
+  });

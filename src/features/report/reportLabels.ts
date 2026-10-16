@@ -172,6 +172,7 @@ export function reportLabels(
       report.days.length < 2
         ? null
         : {
+            heading: t('insights.days.title'),
             headers: [
               t('insights.days.day'),
               t('insights.days.feeds'),
