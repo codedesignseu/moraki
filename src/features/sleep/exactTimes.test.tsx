@@ -77,7 +77,7 @@ describe('writing other entries up afterwards', () => {
 
     const at = Date.parse('2026-10-28T09:20:00Z');
     await pick('feed-when', at);
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
 
     const feeds = repo.list().filter((e) => e.type === 'feed_bottle');
     expect(feeds[0]?.occurredAt).toBe(at);

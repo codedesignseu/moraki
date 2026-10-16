@@ -60,6 +60,12 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
 - **Step 8b, empty Home** keeps every card (G3) and adds G's "Nothing logged yet. Tap a tile to start." under the tiles while nothing is logged. G's "↑" arrow is left out.
 - **Step 8b, Greek:** "Τελευταία καταχώριση από" (G5 καταχωρίσεις); "Αλλαγή" for Adjust (G); "ml μπιμπερό" for G's "ml μπιμπ.".
 - **Step 8b, new tokens:** size `sleepCircle` 130, `sleepCircleTop` 20, `sleepCircleRight` 16, `sleepStop` 54, `sleepStopBadge` 42; opacity `decoration` 0.45.
+- **Step 9, feed sheet order follows G:** kind first, then Time (with the app's "At 22:40" / "22:25 to 22:40" pill under it), then Side and Minutes, then Amount, Milk and From stock, then Save at the foot. The kind is `ChoiceButtons` (bottle butter, breast pink, mixed green), every control has a small `FieldLabel` above it (new primitive, 13/600 soft, hidden from screen readers because the control carries the same name), and the steppers sit in their own grey box on the white sheet; the feed-colour panel is gone.
+- **Step 9, Milk keeps the app's three options** (Breast milk, Formula, Mixed) and From stock keeps the three-way Not from a store / Fridge / Freezer with the "Fridge 200 ml · Freezer 0 ml" line, as segmented controls, hidden for formula as before. The kind is now "Mixed" / "Μικτό" (was "Both"), so the kind and the milk both have a "Mixed" option; they sit in separately named groups ("Feed type", "Milk"). If the owner wants them told apart: rename the milk option, e.g. "Both milks".
+- **Step 9, copy:** title "Log a feed" / "Καταγραφή ταΐσματος"; "Time" / "Ώρα" (was "Feed time", also the field's accessible name); "Minutes" / "Λεπτά" (was "Fed for" / "Θήλασε για", also the stepper's name); "From stock" / "Από το απόθεμα" (was "Poured from"); "ml" in the stock line; Greek kind "Θηλασμός", milk "Μητρικό". Save is "Save feed" / "Αποθήκευση ταΐσματος" while logging; G's Greek file says only "Αποθήκευση", which I made match the English. Editing a feed still says "Save" (step 15 restyles the editor).
+- **Step 9, the time field reads "Today, 22:40 · now".** `fieldTime` (domain, pure, now/tz/locale passed in) says whether the moment is today and this minute; `formatFieldTime` (i18n) words it ("Σήμερα, 22:40 · τώρα"). Another day keeps the full date ("Tue 30 Jun, 22:40"). "Now" means within a minute of the sheet opening.
+- **Step 9, the subtitle "Now · 22:40 · Makis"** comes from `useNowSubtitle` (`src/features/sheet`): the time the sheet opened and this account's caregiver name, the source Home's greeting uses. Without a name it is "Now · 22:40". The other log sheets get it in their own steps.
+- **Step 9, `StatusPill` takes the chip fill** (was card), because every sheet is now the card colour and the pill vanished into it. This also shows on the health and medication sheets.
 
 ## Problems found
 
@@ -83,5 +89,6 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
   - 200% text: the header title wraps beside the badge and close button, and the body still scrolls;
   - the 32 top corners and the card colour by day and night; the dimmed screen behind;
   - Android: the sheet opens full height and the body's flex layout fills it.
+- Step 9: the mixed feed sheet is longer than the screen (kind, time, side, minutes, amount, milk, from stock); check it scrolls inside the form sheet and Save is reachable at 200% text.
 
 ## Found while working

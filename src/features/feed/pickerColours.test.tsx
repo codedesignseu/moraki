@@ -25,7 +25,7 @@ async function openPicker(nightMode: 'on' | 'off') {
   prefs.set('nightMode', nightMode);
   await renderApp(repo);
   await fireEvent.press(await screen.findByRole('button', { name: 'Log feed' }));
-  await fireEvent.press(await screen.findByRole('button', { name: 'Feed time' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Time' }));
   return screen.getByTestId('feed-when-picker');
 }
 

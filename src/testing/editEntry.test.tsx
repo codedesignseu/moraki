@@ -213,11 +213,11 @@ describe('editing feeds and sleeps (P1-12 part C2)', () => {
     });
     await openFromHistory(id);
     const kinds = within(screen.getByLabelText('Feed type'));
-    for (const name of ['Bottle', 'Breast', 'Both']) {
+    for (const name of ['Bottle', 'Breast', 'Mixed']) {
       expect(kinds.getByRole('radio', { name })).toBeDisabled();
     }
     await fireEvent.press(kinds.getByRole('radio', { name: 'Breast' }));
-    expect(screen.queryByLabelText('Fed for')).toBeNull();
+    expect(screen.queryByLabelText('Minutes')).toBeNull();
   });
 
   it('edits both parts of a mixed feed in one save, and one Undo restores both exactly', async () => {
@@ -232,12 +232,12 @@ describe('editing feeds and sleeps (P1-12 part C2)', () => {
     ]);
     const before = [row(bottle!.id), row(breast!.id)];
     await openFromHistory(breast!.id);
-    expect(screen.getByLabelText('Fed for')).toHaveAccessibilityValue({ now: 15 });
+    expect(screen.getByLabelText('Minutes')).toHaveAccessibilityValue({ now: 15 });
     await step('Amount', 'increment', 2);
     await fireEvent.press(
       within(screen.getByLabelText('Side')).getByRole('radio', { name: 'Right' }),
     );
-    await step('Fed for', 'increment');
+    await step('Minutes', 'increment');
     await step('Move time', 'decrement', 2);
     await press('Save');
 
@@ -270,7 +270,7 @@ describe('editing feeds and sleeps (P1-12 part C2)', () => {
       payload: { side: 'left' },
     });
     await openFromHistory(id);
-    await step('Fed for', 'increment', 3);
+    await step('Minutes', 'increment', 3);
     await press('Save');
     expect(h.repo.get(id)).toMatchObject({
       occurredAt: NOW - HOUR,

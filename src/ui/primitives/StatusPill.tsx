@@ -10,7 +10,10 @@ type Props = {
   testID?: string;
 };
 
-/** Sage status pill, e.g. "Now · 05:14" at the top of a log sheet. */
+/**
+ * Status pill, e.g. "At 05:14" under a log sheet's time field. G sheets are on
+ * the card colour, so the pill takes the chip fill to show against it.
+ */
 export function StatusPill({ label, live = false, testID }: Props) {
   const theme = useTheme();
   const s = styles(theme);
@@ -32,7 +35,7 @@ const styles = (t: Theme) =>
       gap: t.spacing.sm,
       paddingHorizontal: t.spacing.lg,
       borderRadius: t.radius.pill,
-      backgroundColor: t.palette.card,
+      backgroundColor: t.palette.chip,
     },
     dot: {
       width: t.size.dot,

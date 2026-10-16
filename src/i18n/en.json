@@ -168,14 +168,14 @@
     "save": "Save",
     "time": "At {{time}}",
     "feed": {
-      "title": "Feed",
+      "title": "Log a feed",
       "amount": "Amount",
-      "unit": "mL",
+      "unit": "ml",
       "kind": {
         "label": "Feed type",
         "bottle": "Bottle",
         "breast": "Breast",
-        "mixed": "Both"
+        "mixed": "Mixed"
       },
       "milk": {
         "label": "Milk",
@@ -189,17 +189,18 @@
         "right": "Right",
         "both": "Both"
       },
-      "fedFor": "Fed for",
+      "fedFor": "Minutes",
       "minutes": "min",
       "range": "{{from}} to {{to}}",
       "from": {
-        "label": "Poured from",
+        "label": "From stock",
         "none": "Not from a store",
         "fridge": "Fridge",
         "freezer": "Freezer",
-        "have": "Fridge {{fridge}} mL · Freezer {{freezer}} mL"
+        "have": "Fridge {{fridge}} ml · Freezer {{freezer}} ml"
       },
-      "when": "Feed time"
+      "when": "Time",
+      "save": "Save feed"
     },
     "pump": {
       "title": "Pump",
@@ -320,7 +321,15 @@
       "removeQuestion": "Remove",
       "exact": "Appointment time"
     },
-    "exactTime": "Set exact time"
+    "exactTime": "Set exact time",
+    "when": {
+      "today": "Today, {{time}}",
+      "todayNow": "Today, {{time}} · now"
+    },
+    "subtitle": {
+      "now": "Now · {{time}}",
+      "named": "Now · {{time}} · {{name}}"
+    }
   },
   "dev": {
     "webStandIn": "Web preview: test data only. Entries live in this browser tab and vanish on reload. This is not the phone’s database."

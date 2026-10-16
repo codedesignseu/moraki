@@ -10,6 +10,7 @@ export { ChoiceButtons } from './ChoiceButtons';
 export { Chip } from './Chip';
 export { DateTimeField } from './DateTimeField';
 export { EmptyState } from './EmptyState';
+export { FieldLabel } from './FieldLabel';
 export { EntryRow } from './EntryRow';
 export { Icon } from './Icon';
 export type { IconButtonTone } from './IconButton';

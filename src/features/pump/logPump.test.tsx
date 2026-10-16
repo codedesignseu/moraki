@@ -89,9 +89,9 @@ describe('pouring a bottle from the fridge', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Log feed' }));
     // The store only comes up for expressed milk, so the totals appear with it.
     await fireEvent.press(screen.getByRole('radio', { name: 'Breast milk' }));
-    expect(screen.getByText('Fridge 200 mL · Freezer 0 mL')).toBeOnTheScreen();
+    expect(screen.getByText('Fridge 200 ml · Freezer 0 ml')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('radio', { name: 'Fridge' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
 
     const bottle = repo.list().find((e) => e.type === 'feed_bottle');
     expect(bottle?.payload).toMatchObject({ from_stock: 'fridge' });
@@ -99,7 +99,7 @@ describe('pouring a bottle from the fridge', () => {
 
     // The next feed opens on the same store, with the new total.
     await fireEvent.press(screen.getByRole('button', { name: 'Log feed' }));
-    expect(screen.getByText('Fridge 110 mL · Freezer 0 mL')).toBeOnTheScreen();
+    expect(screen.getByText('Fridge 110 ml · Freezer 0 ml')).toBeOnTheScreen();
   });
 
   it('is not from a store unless someone says so', async () => {
@@ -107,7 +107,7 @@ describe('pouring a bottle from the fridge', () => {
 
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Log feed' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
 
     const bottle = repo.list().find((e) => e.type === 'feed_bottle');
     expect(bottle?.payload).not.toHaveProperty('from_stock');
@@ -168,7 +168,7 @@ describe('pouring a bottle from the fridge', () => {
     await fireEvent.press(screen.getByRole('radio', { name: 'Formula' }));
     expect(screen.queryByRole('radio', { name: 'Fridge' })).toBeNull();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
     expect(repo.list().find((e) => e.type === 'feed_bottle')?.payload).not.toHaveProperty(
       'from_stock',
     );

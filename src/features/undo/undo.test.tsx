@@ -28,7 +28,7 @@ const wait = (ms: number) =>
 
 describe('undo toast on every save (P1-12)', () => {
   it.each([
-    ['a bottle feed', ['Log feed', 'Save'], 'Feed saved'],
+    ['a bottle feed', ['Log feed', 'Save feed'], 'Feed saved'],
     ['a diaper', ['Diaper', 'Wet'], 'Diaper saved'],
     ['a sleep start', ['Sleep', 'Start sleep now'], 'Sleep started'],
     ['a past sleep', ['Sleep', 'Save past sleep'], 'Sleep saved'],
@@ -67,9 +67,9 @@ describe('undo toast on every save (P1-12)', () => {
     await renderApp(h.repo);
     await press('Log feed');
     await fireEvent.press(
-      within(screen.getByLabelText('Feed type')).getByRole('radio', { name: 'Both' }),
+      within(screen.getByLabelText('Feed type')).getByRole('radio', { name: 'Mixed' }),
     );
-    await press('Save');
+    await press('Save feed');
     expect(h.repo.list()).toHaveLength(2);
     await undo();
     expect(h.repo.list()).toEqual([]);
