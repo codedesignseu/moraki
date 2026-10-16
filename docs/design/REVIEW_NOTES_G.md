@@ -2,6 +2,30 @@
 
 Open questions, judgment calls and deviations from the G build (docs/design/MAPPING_G.md section 8). Each entry says what was done and what changes if the owner disagrees.
 
+## Status (2026-10-16)
+
+- **What is open.** Steps 1 to 18 of MAPPING_G section 8 are stacked PRs #151 to #176. This note is #177. Each PR is based on the one before, and the first is based on `design/direction-g`. CI is green on all of them, and none is merged.
+- **Size.** 216 files changed. Hand-written code is a fraction of that. Tests, i18n JSON and icon files make up much of the diff.
+- **Merge order.** Merge from #151 up. Don't delete a branch while a later PR still targets it. Retarget the child first, or merge without `--delete-branch`.
+- **Not done.** There is no EAS preview build yet. It waits for the owner, who decides when to spend a build.
+
+### For the owner first
+
+1. **Health and medication can now be back-dated (step 15b).** G draws a Time field, and the old read-only "At 22:40" pill is gone. This is a small behaviour change. If you don't want it, the pill can come back.
+2. **"Your entries are kept" on the startup failure screen may not always be true.** A phone restored without its keychain key deletes the unreadable file on open. This is an existing line, and this redesign doesn't change it (step 17b).
+3. **Greek glossary terms inside legal text are unchanged** (step 18 list below). Changing them is a wording change to consent, erasure and About text.
+4. **The dose placeholder "e.g. 1 drop or 2.5 ml" could read as dosing guidance.** Check it against P3-F12 (step 15b).
+5. **Left out under G3.** The full list is in MAPPING_G section 3. The main items are:
+   - the Welcome screen
+   - the six code boxes at sign-in, and a separate "code expired" state
+   - the consent rewrite
+   - a viewer mode on Home, and a read-only Baby details view for caregivers
+   - "Try again" on startup failure
+   - a Share button on the call script
+   - new figures in the report
+   - the From stock switch
+   - clock steppers for past sleep
+
 ## Decisions made without asking
 
 - **Step 1, night `textSoft` is `#BBB0A2`, not `#B8AD9F`.** G draws soft text on the night feed tile (the Home hero's "Feed reminder at" line, the greeting badge). `#B8AD9F` on `#51432A` is 4.35:1, under AA 4.5:1. `#BBB0A2` is the nearest lighter step that passes (4.50:1), and it reads the same. `disabledText` keeps G's `#B8AD9F`, because on `disabledFill` it passes (6.6:1). If the owner disagrees: set `textSoft` back to `#B8AD9F` in `src/ui/tokens.ts`, and draw soft text on tiles in `onTileSoft` instead.
