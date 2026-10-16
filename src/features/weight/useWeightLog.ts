@@ -2,16 +2,13 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDevicePref, useEvents } from '@/db/react';
-import { formatDateTime } from '@/domain/time/formatDateTime';
 import { selectWeightView, type WeightPoint } from '@/domain/weight/weightSeries';
 import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 export type WeightLogRow = {
   key: string;
-  /** Null when this phone has no birth date to count days from. */
-  day: number | null;
-  /** When it was weighed, for a row that has no day to show. */
+  /** The local date it was weighed, e.g. "5 Oct" (G tabs/trends). */
   on: string;
   grams: number;
   source: 'home' | 'clinic';
@@ -53,12 +50,12 @@ export function useWeightLog(): WeightLogView {
 
   return useMemo(() => {
     const view = selectWeightView(events, { bornAt: bornAt ?? 0, birthGrams }, tz);
+    const date = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', timeZone: tz });
     const lastDay = view.points.length > 0 ? (view.points[view.points.length - 1]?.day ?? 0) : 0;
     return {
       rows: [...view.points].reverse().map((p) => ({
         key: `${p.at}`,
-        day: bornAt === null ? null : p.day,
-        on: formatDateTime(p.at, tz, locale),
+        on: date.format(p.at),
         grams: p.grams,
         source: p.source,
       })),

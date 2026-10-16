@@ -588,11 +588,10 @@
     },
     "weight": {
       "title": "Weight",
-      "empty": "Nothing weighed yet",
-      "add": "Add a weight",
+      "empty": "No weights yet",
+      "add": "Add weight",
       "note": "Your pediatrician tracks this at check-ups.",
-      "birth": "Birth weight {{grams}} g",
-      "latest": "Latest {{grams}} g on day {{day}}",
+      "birth": "Birth",
       "change": {
         "up": "{{grams}} g above birth weight",
         "down": "{{grams}} g below birth weight",
@@ -601,14 +600,19 @@
       "point": "Day {{day}}: {{grams}} g",
       "line": "{{percent}}%",
       "mark": "Day {{day}}",
-      "row": {
-        "home": "Day {{day}} · {{grams}} g · at home",
-        "clinic": "Day {{day}} · {{grams}} g · at the clinic"
+      "latest": "Latest",
+      "since": "Since birth",
+      "grams": "{{grams}} g",
+      "delta": {
+        "up": "+{{grams}} g",
+        "down": "−{{grams}} g",
+        "same": "0 g"
       },
-      "dated": {
-        "home": "{{on}} · {{grams}} g · at home",
-        "clinic": "{{on}} · {{grams}} g · at the clinic"
-      }
+      "source": {
+        "clinic": "Clinic",
+        "home": "Home"
+      },
+      "entry": "{{on}} · {{source}}"
     },
     "subtitle": "Last 7 days",
     "empty": {

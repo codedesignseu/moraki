@@ -3,6 +3,7 @@ import { fireEvent, screen, within } from 'expo-router/testing-library';
 import type { EventsRepository } from '@/db/repositories/events';
 import type { DevicePrefsRepository } from '@/db/repositories/devicePrefs';
 import { createHarness, renderApp as renderRoutes } from '@/testing/appHarness';
+import { palette } from '@/ui/tokens';
 
 jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
 
@@ -55,7 +56,7 @@ describe('the weight card', () => {
     knowsTheBaby();
     const card = await openInsights();
 
-    expect(card.getByText('Nothing weighed yet')).toBeOnTheScreen();
+    expect(card.getByText('No weights yet')).toBeOnTheScreen();
     expect(card.getByText('Your pediatrician tracks this at check-ups.')).toBeOnTheScreen();
     expect(card.queryByTestId('weight-chart')).toBeNull();
   });
@@ -96,27 +97,50 @@ describe('the weight card', () => {
     weighed(6, 3160, 'home');
 
     const card = await openInsights();
-    expect(card.getByText('Day 6 · 3160 g · at home')).toBeOnTheScreen();
-    expect(card.getByText('Day 0 · 3400 g · at the clinic')).toBeOnTheScreen();
-    expect(card.getByText('Latest 3160 g on day 6')).toBeOnTheScreen();
+    expect(card.getByText('7 Jun · Home')).toBeOnTheScreen();
+    expect(card.getByText('1 Jun · Clinic')).toBeOnTheScreen();
+    expect(card.getByLabelText('Birth, 3,400 g')).toBeOnTheScreen();
+    expect(card.getByLabelText('Latest, 3,160 g')).toBeOnTheScreen();
     // Newest at the top: the last weighing is the one being looked for.
-    expect(card.getAllByTestId(/^weight-row-/).map((row) => row.props.children)).toEqual([
-      'Day 6 · 3160 g · at home',
-      'Day 0 · 3400 g · at the clinic',
+    expect(card.getAllByTestId(/^weight-row-/).map((row) => row.props.accessibilityLabel)).toEqual([
+      '7 Jun · Home, 3,160 g',
+      '1 Jun · Clinic, 3,400 g',
     ]);
+  });
+
+  it('draws clinic weighings filled and home ones hollow, with a legend', async () => {
+    knowsTheBaby();
+    const clinic = weighed(0, 3400, 'clinic');
+    const home = weighed(6, 3160, 'home');
+
+    const card = await openInsights();
+    const chart = within(card.getByTestId('weight-chart'));
+    expect(chart.getByTestId(`point-${home.occurredAt}`)).toHaveStyle({
+      backgroundColor: palette.light.card,
+    });
+    expect(chart.getByTestId(`point-${clinic.occurredAt}`)).toHaveStyle({
+      backgroundColor: palette.light.ink,
+    });
+    expect(chart.getAllByTestId('gridline')).toHaveLength(3);
+    expect(card.getByText('Clinic')).toBeOnTheScreen();
+    expect(card.getByText('Home')).toBeOnTheScreen();
   });
 
   it('says a loss from birth weight plainly', async () => {
     knowsTheBaby();
     weighed(4, 3105);
-    expect((await openInsights()).getByText('295 g below birth weight')).toBeOnTheScreen();
+    const card = await openInsights();
+    expect(card.getByLabelText('295 g below birth weight')).toBeOnTheScreen();
+    expect(card.getByText('−295 g')).toBeOnTheScreen();
   });
 
   it('says a gain the same way', async () => {
     knowsTheBaby();
     weighed(4, 3105);
     weighed(21, 3900, 'clinic');
-    expect((await openInsights()).getByText('500 g above birth weight')).toBeOnTheScreen();
+    const card = await openInsights();
+    expect(card.getByLabelText('500 g above birth weight')).toBeOnTheScreen();
+    expect(card.getByText('+500 g')).toBeOnTheScreen();
   });
 
   it('never says whether a number is good', async () => {
@@ -146,7 +170,7 @@ describe('the weight card', () => {
     const card = await openInsights();
     expect(card.queryByTestId('weight-chart')).toBeNull();
     // No birth date means no day to count from, so the row carries the date.
-    expect(card.getByText(/3400 g · at the clinic/)).toBeOnTheScreen();
+    expect(card.getByLabelText('1 Jun · Clinic, 3,400 g')).toBeOnTheScreen();
     expect(card.queryByText(/Day \d/)).toBeNull();
   });
 
@@ -166,7 +190,7 @@ describe('adding a weight', () => {
     knowsTheBaby();
     await openInsights();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Add a weight' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Add weight' }));
     await fireEvent.press(await screen.findByRole('radio', { name: 'At the clinic' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
@@ -175,8 +199,8 @@ describe('adding a weight', () => {
     // Opens at the birth weight when nothing has been weighed yet.
     expect(weights[0]?.payload).toEqual({ grams: 3400, source: 'clinic' });
     expect(
-      within(await screen.findByTestId('insights-weight')).getByText(
-        'Day 21 · 3400 g · at the clinic',
+      within(await screen.findByTestId('insights-weight')).getByLabelText(
+        '22 Jun · Clinic, 3,400 g',
       ),
     ).toBeOnTheScreen();
   });
@@ -186,7 +210,7 @@ describe('adding a weight', () => {
     weighed(10, 3300, 'clinic');
     await openInsights();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Add a weight' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Add weight' }));
     await fireEvent.press(await screen.findByRole('button', { name: 'Save' }));
 
     const weights = repo.list().filter((e) => e.type === 'weight');
@@ -197,7 +221,7 @@ describe('adding a weight', () => {
   it('can be undone straight after saving', async () => {
     knowsTheBaby();
     await openInsights();
-    await fireEvent.press(screen.getByRole('button', { name: 'Add a weight' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Add weight' }));
     await fireEvent.press(await screen.findByRole('button', { name: 'Save' }));
     expect(repo.list().filter((e) => e.type === 'weight')).toHaveLength(1);
 

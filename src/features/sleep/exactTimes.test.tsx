@@ -88,7 +88,7 @@ describe('writing other entries up afterwards', () => {
   it('dates a weight from the clinic visit, not from when it was typed', async () => {
     await renderApp(repo);
     await fireEvent.press(screen.getByRole('button', { name: /Trends/ }));
-    await fireEvent.press(await screen.findByRole('button', { name: 'Add a weight' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Add weight' }));
     await screen.findByTestId('weight-when');
 
     const at = Date.parse('2026-10-26T08:00:00Z');

@@ -255,8 +255,8 @@ export const size = {
   borderThick: 2,
   /** Plot height of a bar chart; the tallest bar fills it. */
   chartHeight: 160,
-  /** Diameter of one plotted measurement on a point chart. */
-  point: 10,
+  /** Diameter of one plotted measurement on a point chart (G tabs/trends: r 7). */
+  point: 14,
   /** G: the one main button, and outlined buttons. */
   button: 60,
   buttonSmall: 50,
@@ -270,6 +270,8 @@ export const size = {
   stepperButton: 52,
   /** G: a list row (tabs/settings, tabs/home grouped card). */
   listRow: 60,
+  /** G: a row of the weight log (tabs/trends). */
+  weightRow: 52,
   /** G: a row of the Trends days table (tabs/trends). */
   tableRow: 44,
   /** G: a History entry row, with its 44 badge (tabs/history). */
@@ -449,6 +451,9 @@ export const type = {
   greeting: { ...heading, fontSize: 19, lineHeight: 22 },
   /** G Home: the greeting's second line and the hero's reminder line (14/600). */
   note: { ...textSemi, fontSize: 14, lineHeight: 19 },
+  /** G Trends weight card: the Birth / Latest figures (20/700) and a log row's grams (17/700). */
+  figure: { ...textBold, fontSize: 20, lineHeight: 26 },
+  figureRow: { ...textBold, fontSize: 17, lineHeight: 23 },
   /** G Trends: a chart card's title (18/700, tabs/trends). */
   chartTitle: { ...textBold, fontSize: 18, lineHeight: 24 },
   /** G History: the day label over each day's card (Comfortaa 15). */

@@ -85,6 +85,10 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
 - **Step 13a, averages** are two grey `StatCell`s (`labelFirst`, chip fill) titled "Averages"; labels are G's "Bottle amount" and "Gap between feeds" (Greek "Ποσότητα μπιμπερό", "Χρόνος ανάμεσα στα ταΐσματα"). The figure is Comfortaa 22 from `StatCell`, G draws Manrope 22.
 - **Step 13a, empty Trends** (G tabs/trends-empty) shows when `selectWeekInsights(...).empty`: no live event of any type in the 7 days and no sleep running into them. The charts, averages and days table give way to G's 64 circle, "Trends start after the first full day" and "Keep logging. The charts fill in on their own."; the subtitle hides, as in G, and the weight card stays. G's title promises a full day, but the charts come back with the first entry; if the owner wants the copy exact, change `insights.empty.title`. Greek lines are mine.
 - **Step 13a, copy:** "Bottle milk" → "Bottle", "Breastfeeding" → "Breast" (Greek keeps "Θηλασμός"), "Averages, last 7 days" → "Averages", "Day by day" → "Days", "mL" → "ml".
+- **Step 13b, weight card.** The 40 weight badge and "Weight" in Comfortaa 17, then figures in columns: Birth, Latest and, in place of G's "Since last" (G3), the app's change against birth as "Since birth" with a signed figure ("+500 g", "−295 g", "0 g") in ink. Screen readers hear the app's existing sentence ("295 g below birth weight"), so the rule 10 wording is unchanged. Latest no longer names its day in text; the chart's points and the rows carry the timing. Grams use the language's number format ("3,400 g").
+- **Step 13b, PointChart** draws G's three gridlines (top, middle, bottom, `line`), no axis borders, 14 points in ink, filled for the clinic and hollow (card fill, 2.5 ink ring) for home (`ChartPoint.hollow`), with a `Legend` under the chart. The app's 90% / 100% reference lines (now `outline`, darker than the gridlines) and day marks stay. G's connecting line between points is not drawn: the app has no SVG library, and adding one is out of scope.
+- **Step 13b, log rows** are G's "5 Oct · Home" in soft 15 on the left and "3,240 g" (17/700) on the right, 52 high with a `line` rule. They replace "Day 6 · 3160 g · at home", so the day of life is no longer in the rows (it stays on the chart's marks and point labels). Without a birth date the rows were already dated, so both cases now read the same.
+- **Step 13b, copy:** "No weights yet" (was "Nothing weighed yet"), "Add weight" (was "Add a weight"). The paediatrician note stays, 13/600 soft. Greek: "Γέννηση", "Τελευταίο", "Από τη γέννηση", "Σπίτι", "Ιατρείο", "Δεν υπάρχουν ζυγίσεις ακόμα".
 
 ## Problems found
 
@@ -110,6 +114,7 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
   - Android: the sheet opens full height and the body's flex layout fills it.
 - Step 9: the mixed feed sheet is longer than the screen (kind, time, side, minutes, amount, milk, from stock); check it scrolls inside the form sheet and Save is reachable at 200% text.
 - Step 12: History's sticky day label over the rows while scrolling, and a row at 200% text (the title wraps beside the 44 badge).
+- Step 13: the Trends bars at 200% text (the value and day labels over seven narrow columns), and the weight figures in three columns in Greek.
 - Step 11: the sleep sheet's running timer at 200% text (it shrinks to fit one line), and the Start / End fields side by side at 200% ("Today, 22:30 · now" wraps inside the field).
 
 ## Found while working

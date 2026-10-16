@@ -25,7 +25,7 @@ const save = () => screen.getByRole('button', { name: 'Save' });
 async function openSheet() {
   await renderApp(repo);
   await fireEvent.press(screen.getByRole('button', { name: /Trends/ }));
-  await fireEvent.press(await screen.findByRole('button', { name: 'Add a weight' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Add weight' }));
   await screen.findByTestId('weight-when');
 }
 
