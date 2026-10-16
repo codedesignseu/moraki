@@ -30,7 +30,7 @@ describe('undo toast on every save (P1-12)', () => {
   it.each([
     ['a bottle feed', ['Log feed', 'Save feed'], 'Feed saved'],
     ['a diaper', ['Diaper', 'Wet'], 'Diaper saved'],
-    ['a sleep start', ['Sleep', 'Start sleep now'], 'Sleep started'],
+    ['a sleep start', ['Sleep', 'Start now'], 'Sleep started'],
     ['a past sleep', ['Sleep', 'Save past sleep'], 'Sleep saved'],
   ])('offers Undo after %s, and Undo takes it back', async (_what, taps, message) => {
     await renderApp(h.repo);

@@ -51,7 +51,9 @@ describe('writing a sleep up afterwards', () => {
     await pick('sleep-start', NOW - HOUR);
     await pick('sleep-end', NOW - 2 * HOUR);
 
-    expect(screen.getByTestId('sleep-backwards')).toBeOnTheScreen();
+    expect(screen.getByTestId('sleep-backwards')).toHaveTextContent(
+      'Error: A sleep has to end after it starts.',
+    );
     expect(screen.getByRole('button', { name: 'Save past sleep' })).toBeDisabled();
     expect(sleeps()).toHaveLength(0);
   });

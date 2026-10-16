@@ -248,22 +248,25 @@
       "thenTap": "Now tap what it was."
     },
     "sleep": {
-      "title": "Sleep",
-      "startNow": "Start sleep now",
-      "stop": "Stop sleep",
+      "title": "Log sleep",
+      "startNow": "Start now",
+      "stop": "Stop",
       "runningSince": "Sleeping since {{time}}",
       "past": {
-        "title": "Add a past sleep",
+        "title": "Or add a past sleep",
         "startedAgo": "Started this long ago",
         "duration": "Slept for",
         "minutes": "min",
         "range": "{{from}} to {{to}}",
         "save": "Save past sleep"
       },
-      "startedAt": "Sleep started",
-      "endedAt": "Sleep ended",
+      "startedAt": "Start",
+      "endedAt": "End",
       "exactHint": "Or set both ends, if you are writing it up later.",
-      "backwards": "A sleep has to end after it starts."
+      "backwards": "A sleep has to end after it starts.",
+      "titleRunning": "Sleep running",
+      "startTitle": "Start a sleep now",
+      "startBody": "The timer runs until you stop it."
     },
     "characters": "{{count}} of {{max}} characters",
     "health": {

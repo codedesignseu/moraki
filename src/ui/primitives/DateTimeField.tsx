@@ -22,6 +22,8 @@ type Props = {
   /** Nothing later than this can be chosen, e.g. now for something logged. */
   maximumDate?: Date | undefined;
   minimumDate?: Date | undefined;
+  /** Draws the edge in the error colour (G sheets/sleep-idle "End"). The message is the caller's. */
+  invalid?: boolean;
   testID?: string;
 };
 
@@ -45,6 +47,7 @@ export function DateTimeField({
   openLabel,
   maximumDate,
   minimumDate,
+  invalid = false,
   testID,
 }: Props) {
   const theme = useTheme();
@@ -87,7 +90,7 @@ export function DateTimeField({
         accessibilityValue={{ text: display }}
         accessibilityState={{ expanded: Platform.OS === 'android' ? undefined : showing }}
         onPress={() => (Platform.OS === 'android' ? openOnAndroid() : setShowing((was) => !was))}
-        style={({ pressed }) => [s.box, (pressed || showing) && s.active]}
+        style={({ pressed }) => [s.box, (pressed || showing) && s.active, invalid && s.invalid]}
       >
         <Icon name="time" size={theme.size.iconField} color={theme.palette.textSoft} />
         <Text style={[theme.type.body, s.value]} testID={testID ? `${testID}-value` : undefined}>
@@ -133,5 +136,6 @@ const styles = (t: Theme) =>
     },
     // Pressed, or open on iOS: the edge turns ink, like a focused text field.
     active: { borderColor: t.palette.ink },
+    invalid: { borderColor: t.palette.error },
     value: { flex: 1 },
   });

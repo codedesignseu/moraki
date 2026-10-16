@@ -24,7 +24,7 @@ const card = () => within(screen.getByTestId('home-sleep'));
 
 async function startSleepFromHome() {
   await fireEvent.press(screen.getByRole('button', { name: 'Sleep' }));
-  await fireEvent.press(screen.getByRole('button', { name: 'Start sleep now' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Start now' }));
 }
 
 describe('sleep', () => {
@@ -57,13 +57,34 @@ describe('sleep', () => {
     expect(screen.getByText('Sleep in the last 24 h: 50 min')).toBeOnTheScreen();
   });
 
+  it('opens on the start card when nothing is running', async () => {
+    await renderApp(h.repo);
+    await fireEvent.press(screen.getByRole('button', { name: 'Sleep' }));
+    expect(screen.getByRole('header', { name: 'Log sleep' })).toBeOnTheScreen();
+    expect(screen.getByText('Now · 12:00')).toBeOnTheScreen();
+    expect(screen.getByText('Start a sleep now')).toBeOnTheScreen();
+    expect(screen.getByText('The timer runs until you stop it.')).toBeOnTheScreen();
+    expect(screen.queryByTestId('sleep-running')).toBeNull();
+  });
+
+  it('counts the running sleep up every second in the sheet too', async () => {
+    h.repo.insert({ type: 'sleep', occurredAt: NOW - 65 * MIN, payload: {} });
+    await renderApp(h.repo);
+    await fireEvent.press(screen.getByRole('button', { name: 'Sleep' }));
+    const timer = () => within(screen.getByTestId('sleep-running')).getByRole('timer');
+    expect(timer()).toHaveTextContent('1:05:00');
+    await jestAdvance(12_000);
+    expect(timer()).toHaveTextContent('1:05:12');
+  });
+
   it('stops from the sheet when a sleep is running', async () => {
     const { id } = h.repo.insert({ type: 'sleep', occurredAt: NOW - 30 * MIN, payload: {} });
     await renderApp(h.repo);
     await fireEvent.press(screen.getByRole('button', { name: 'Sleep' }));
+    expect(screen.getByRole('header', { name: 'Sleep running' })).toBeOnTheScreen();
     expect(screen.getByText('Sleeping since 11:30')).toBeOnTheScreen();
-    expect(screen.queryByRole('button', { name: 'Start sleep now' })).toBeNull();
-    await fireEvent.press(screen.getAllByRole('button', { name: 'Stop sleep' }).at(-1)!);
+    expect(screen.queryByRole('button', { name: 'Start now' })).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Stop' }));
     expect(h.repo.get(id)?.endedAt).toBe(NOW);
   });
 
