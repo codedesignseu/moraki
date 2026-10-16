@@ -408,7 +408,7 @@
       "auto": "Auto",
       "on": "On",
       "off": "Off",
-      "autoHint": "Dark screens from 21:00 to 06:00.",
+      "autoHint": "Auto: 21:00 to 06:00",
       "onHint": "Dark screens all day.",
       "offHint": "Light screens all day."
     },
@@ -469,7 +469,7 @@
       "noConsent": "Sharing is off until you agree to health data being processed."
     },
     "report": {
-      "title": "Reports",
+      "title": "Report",
       "range24h": "Last 24 hours",
       "range3d": "Last 3 days",
       "range7d": "Last 7 days",
@@ -519,8 +519,9 @@
       "on": "On",
       "off": "Off",
       "interval": "Remind me this long after a feed",
+      "every": "Feed reminder every",
       "minutes": "min",
-      "second": "A second reminder if nothing is logged",
+      "second": "Second reminder",
       "secondOff": "No",
       "secondOn": "Yes",
       "secondAfter": "Second reminder, this long after the first",
@@ -530,9 +531,8 @@
       "ownerSets": "The household owner sets these. Your reminders follow them."
     },
     "data": {
-      "title": "Your data",
-      "export": "Export everything",
-      "exporting": "Preparing the files…",
+      "title": "Data export",
+      "export": "Export my data",
       "exportHint": "Two files: one for a spreadsheet, one that keeps every detail. Both are made on this phone, whether or not you have an account.",
       "exportProblem": {
         "unavailable": "This device has nowhere to share a file.",

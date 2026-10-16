@@ -4,37 +4,41 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useDevicePref } from '@/db/react';
 import { NIGHT_MODES } from '@/domain/time/night';
+import { useExport } from '@/privacy/useExport';
 import { useAuth } from '@/sync/AuthProvider';
 import { useAccountHousehold } from '@/sync/useAccountHousehold';
-
-import { useExport } from '@/privacy/useExport';
-import { useRemindersState } from '@/notifications/RemindersProvider';
-import { INTERVAL_MIN, SECOND_MIN, useReminderSettings } from '@/sync/useReminderSettings';
-
-import { LANGUAGE_CHOICES, useLanguage } from './useLanguage';
-import { AccountCard } from './AccountCard';
-import { AdoptionCards } from './AdoptionCards';
-import { PrivacyCard } from './PrivacyCard';
-import { SyncCard } from './SyncCard';
-import { useSentryTest } from './useSentryTest';
-import type { IconName } from '@/ui/icons';
 import {
   Button,
   Card,
-  Icon,
+  InlineError,
   ListGroup,
   ListRow,
   ScreenTitle,
   Segmented,
-  Stepper,
+  TextButton,
   Toast,
 } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
+import { AccountCard } from './AccountCard';
+import { AdoptionCards } from './AdoptionCards';
+import { PrivacyCard } from './PrivacyCard';
+import { RemindersCard } from './RemindersCard';
+import { SettingsCard } from './SettingsCard';
+import { SyncCard } from './SyncCard';
+import { LANGUAGE_CHOICES, useLanguage } from './useLanguage';
+import { useSentryTest } from './useSentryTest';
+
+const REPORT_RANGES = [
+  { range: '24h', copy: 'settings.report.range24h' },
+  { range: '3d', copy: 'settings.report.range3d' },
+  { range: '7d', copy: 'settings.report.range7d' },
+] as const;
+
 /**
  * Settings (SDD 7), in G's order (tabs/settings): warnings, Account, Sync,
  * Privacy, Reminders, Night mode, Language, Report, Data export, then rows
- * that open their own screens.
+ * that open their own screens, and the version line.
  */
 export function SettingsScreen({
   onSignIn,
@@ -76,9 +80,8 @@ export function SettingsScreen({
   const { state } = useAuth();
   const { household } = useAccountHousehold();
   const exporting = useExport();
-  const reminders = useRemindersState();
-  const reminderSettings = useReminderSettings();
   const sentryTest = useSentryTest();
+  const signedIn = state.status === 'signedIn';
 
   return (
     <View style={s.fill}>
@@ -93,91 +96,13 @@ export function SettingsScreen({
         />
         <SyncCard />
         <PrivacyCard onConsent={onConsent} />
-        <Card testID="settings-reminders">
-          <CardTitle icon="reminder" badge="feed" title={t('settings.reminders.title')} />
-          <Text style={theme.text.body}>{t('settings.reminders.toggle')}</Text>
-          <Segmented
-            options={[
-              { value: 'on', label: t('settings.reminders.on') },
-              { value: 'off', label: t('settings.reminders.off') },
-            ]}
-            value={reminders.enabled ? 'on' : 'off'}
-            onChange={(choice) => void reminders.setEnabled(choice === 'on')}
-            accessibilityLabel={t('settings.reminders.toggle')}
-          />
-          <Text style={s.muted}>
-            {reminders.permission === 'denied'
-              ? t('settings.reminders.denied')
-              : t('settings.reminders.hint')}
-          </Text>
+        <RemindersCard />
 
-          <Text style={theme.text.body}>{t('settings.reminders.interval')}</Text>
-          {reminderSettings.canChange ? (
-            <Stepper
-              value={reminderSettings.settings.intervalMin}
-              onChange={reminderSettings.setIntervalMin}
-              step={INTERVAL_MIN.step}
-              min={INTERVAL_MIN.min}
-              max={INTERVAL_MIN.max}
-              unit={t('settings.reminders.minutes')}
-              accessibilityLabel={t('settings.reminders.interval')}
-            />
-          ) : (
-            <Text style={theme.text.title}>
-              {t('settings.reminders.everyMinutes', {
-                count: reminderSettings.settings.intervalMin,
-              })}
-            </Text>
-          )}
-
-          <Text style={theme.text.body}>{t('settings.reminders.second')}</Text>
-          {reminderSettings.canChange ? (
-            <>
-              <Segmented
-                options={[
-                  { value: 'off', label: t('settings.reminders.secondOff') },
-                  { value: 'on', label: t('settings.reminders.secondOn') },
-                ]}
-                value={reminderSettings.settings.secondReminderMin === null ? 'off' : 'on'}
-                onChange={(choice) =>
-                  reminderSettings.setSecondReminderMin(choice === 'off' ? null : SECOND_MIN.min)
-                }
-                accessibilityLabel={t('settings.reminders.second')}
-              />
-              {reminderSettings.settings.secondReminderMin !== null && (
-                <Stepper
-                  value={reminderSettings.settings.secondReminderMin}
-                  onChange={reminderSettings.setSecondReminderMin}
-                  step={SECOND_MIN.step}
-                  min={SECOND_MIN.min}
-                  max={SECOND_MIN.max}
-                  unit={t('settings.reminders.minutes')}
-                  accessibilityLabel={t('settings.reminders.secondAfter')}
-                />
-              )}
-            </>
-          ) : (
-            <Text style={theme.text.title}>
-              {reminderSettings.settings.secondReminderMin === null
-                ? t('settings.reminders.secondOff')
-                : t('settings.reminders.everyMinutes', {
-                    count: reminderSettings.settings.secondReminderMin,
-                  })}
-            </Text>
-          )}
-          <Text style={s.muted}>
-            {t(
-              reminderSettings.sharedWithHousehold
-                ? 'settings.reminders.forEveryone'
-                : reminderSettings.canChange
-                  ? 'settings.reminders.forThisPhone'
-                  : 'settings.reminders.ownerSets',
-            )}
-          </Text>
-        </Card>
-
-        <Card testID="settings-night-mode">
-          <CardTitle icon="sleep" badge="sleep" title={t('settings.nightMode.title')} />
+        <SettingsCard
+          icon="sleep"
+          title={t('settings.nightMode.title')}
+          testID="settings-night-mode"
+        >
           <Segmented
             options={NIGHT_MODES.map((mode) => ({
               value: mode,
@@ -187,11 +112,14 @@ export function SettingsScreen({
             onChange={setNightMode}
             accessibilityLabel={t('settings.nightMode.title')}
           />
-          <Text style={s.muted}>{t(`settings.nightMode.${nightMode}Hint`)}</Text>
-        </Card>
+          <Text style={[theme.type.small, s.soft]}>{t(`settings.nightMode.${nightMode}Hint`)}</Text>
+        </SettingsCard>
 
-        <Card testID="settings-language">
-          <CardTitle icon="tab-settings" badge="pump" title={t('settings.language.title')} />
+        <SettingsCard
+          icon="tab-settings"
+          title={t('settings.language.title')}
+          testID="settings-language"
+        >
           <Segmented
             options={LANGUAGE_CHOICES.map((choice) => ({
               value: choice,
@@ -201,72 +129,75 @@ export function SettingsScreen({
             onChange={language.choose}
             accessibilityLabel={t('settings.language.title')}
           />
-          <Text style={s.muted}>
+          <Text style={[theme.type.small, s.soft]}>
             {language.choice === 'device'
               ? t('settings.language.deviceHint', {
                   name: t(`settings.language.${language.language === 'el' ? 'el' : 'en'}`),
                 })
               : t('settings.language.chosenHint')}
           </Text>
-        </Card>
+        </SettingsCard>
 
-        <Card testID="settings-report">
-          <CardTitle icon="share" badge="sleep" title={t('settings.report.title')} />
-          <Button label={t('settings.report.call')} variant="secondary" onPress={onCallScript} />
-          <Button
-            label={t('settings.report.range24h')}
-            variant="secondary"
-            onPress={() => onReport('24h')}
-          />
-          <Button
-            label={t('settings.report.range3d')}
-            variant="secondary"
-            onPress={() => onReport('3d')}
-          />
-          <Button
-            label={t('settings.report.range7d')}
-            variant="secondary"
-            onPress={() => onReport('7d')}
-          />
-        </Card>
+        <SettingsCard icon="share" title={t('settings.report.title')} testID="settings-report">
+          <View>
+            {REPORT_RANGES.map(({ range, copy }) => (
+              <View key={range} style={s.ruled}>
+                <ListRow grouped title={t(copy)} onPress={() => onReport(range)} />
+              </View>
+            ))}
+            <ListRow grouped title={t('settings.report.call')} onPress={onCallScript} />
+          </View>
+        </SettingsCard>
 
-        <Card testID="settings-data">
-          <CardTitle icon="export" badge="sleep" title={t('settings.data.title')} />
+        <SettingsCard icon="export" title={t('settings.data.title')} testID="settings-data">
           <Button
-            label={t(exporting.busy ? 'settings.data.exporting' : 'settings.data.export')}
+            label={t('settings.data.export')}
             variant="secondary"
-            disabled={exporting.busy}
+            busy={exporting.busy}
             onPress={() => void exporting.exportAll()}
           />
-          <Text style={s.muted}>{t('settings.data.exportHint')}</Text>
+          <Text style={[theme.type.small, s.soft]}>{t('settings.data.exportHint')}</Text>
           {exporting.problem && (
-            <Text style={s.alert} accessibilityRole="alert" testID="export-problem">
-              {t(`settings.data.exportProblem.${exporting.problem}`)}
-            </Text>
+            <InlineError
+              prefix={t('common.error')}
+              message={t(`settings.data.exportProblem.${exporting.problem}`)}
+              testID="export-problem"
+            />
           )}
-        </Card>
+        </SettingsCard>
 
-        <Card testID="settings-feedback">
-          <CardTitle icon="link" badge="pump" title={t('settings.feedback.title')} />
-          <Text style={s.muted}>
-            {t(
-              state.status === 'signedIn'
-                ? 'settings.feedback.body'
-                : 'settings.feedback.needsAccount',
-            )}
-          </Text>
-          {state.status === 'signedIn' && (
-            <Button label={t('settings.feedback.open')} variant="secondary" onPress={onFeedback} />
+        <ListGroup testID="settings-help-rows">
+          {signedIn ? (
+            <ListRow
+              grouped
+              icon="link"
+              title={t('settings.feedback.title')}
+              detail={t('settings.feedback.body')}
+              accessibilityLabel={t('settings.feedback.open')}
+              onPress={onFeedback}
+              testID="settings-feedback"
+            />
+          ) : (
+            <ListRow
+              grouped
+              icon="link"
+              title={t('settings.feedback.title')}
+              detail={t('settings.feedback.needsAccount')}
+              testID="settings-feedback"
+            />
           )}
-        </Card>
+          <ListRow
+            grouped
+            icon="eu-shield"
+            title={t('settings.about.title')}
+            detail={t('about.disclaimer.title')}
+            accessibilityLabel={t('settings.about.open')}
+            onPress={onAbout}
+            testID="settings-about"
+          />
+        </ListGroup>
 
-        <Card testID="settings-about">
-          <CardTitle icon="eu-shield" badge="pump" title={t('settings.about.title')} />
-          <Text style={s.muted}>{t('about.disclaimer.title')}</Text>
-          <Button label={t('settings.about.open')} variant="secondary" onPress={onAbout} />
-        </Card>
-
-        {state.status === 'signedIn' && (
+        {signedIn && (
           <ListGroup testID="settings-account-rows">
             {household && (
               <ListRow grouped icon="health" title={t('settings.account.baby')} onPress={onBaby} />
@@ -282,11 +213,11 @@ export function SettingsScreen({
 
         {sentryTest.confirming && (
           <Card testID="settings-sentry-test">
-            <Text style={theme.text.body}>{t('settings.sentryTest.confirm')}</Text>
+            <Text style={[theme.type.body, s.ink]}>{t('settings.sentryTest.confirm')}</Text>
             <Button label={t('settings.sentryTest.send')} onPress={sentryTest.confirm} />
-            <Button
+            <TextButton
               label={t('settings.sentryTest.cancel')}
-              variant="secondary"
+              align="center"
               onPress={sentryTest.cancel}
             />
           </Card>
@@ -307,28 +238,6 @@ export function SettingsScreen({
   );
 }
 
-/** Sage 19 group heading: a round tile-coloured badge with the icon, then the title. */
-function CardTitle({
-  icon,
-  badge,
-  title,
-}: {
-  icon: IconName;
-  badge: 'feed' | 'sleep' | 'diaper' | 'pump';
-  title: string;
-}) {
-  const theme = useTheme();
-  const s = styles(theme);
-  return (
-    <View style={s.titleRow}>
-      <View style={[s.badge, { backgroundColor: theme.palette[badge] }]}>
-        <Icon name={icon} color={theme.palette.onTile} />
-      </View>
-      <Text style={[theme.type.tileTitle, s.title]}>{title}</Text>
-    </View>
-  );
-}
-
 const styles = (theme: Theme) =>
   StyleSheet.create({
     fill: { flex: 1 },
@@ -337,16 +246,13 @@ const styles = (theme: Theme) =>
       paddingBottom: theme.size.tabBarClearance,
       gap: theme.spacing.lg,
     },
-    version: { ...theme.type.detail, color: theme.palette.textSoft, textAlign: 'center' },
-    muted: { ...theme.type.detail, color: theme.palette.textSoft },
-    alert: { ...theme.type.body, color: theme.palette.invalid },
-    titleRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-    badge: {
-      width: theme.size.rowBadge,
-      height: theme.size.rowBadge,
-      borderRadius: theme.radius.pill,
-      alignItems: 'center',
-      justifyContent: 'center',
+    ink: { color: theme.palette.ink },
+    soft: { color: theme.palette.textSoft },
+    ruled: { borderBottomWidth: theme.size.borderThin, borderBottomColor: theme.palette.line },
+    version: {
+      ...theme.type.small,
+      color: theme.palette.textSoft,
+      textAlign: 'center',
+      paddingVertical: theme.spacing.sm,
     },
-    title: { flex: 1 },
   });

@@ -85,7 +85,7 @@ describe('the language switch', () => {
     await openSettings();
     expect(screen.getByText('Γλώσσα')).toBeOnTheScreen();
     expect(
-      within(screen.getByTestId('settings-language')).getByText(/Μόνο σε αυτό το τηλέφωνο/),
+      within(screen.getByTestId('settings-language')).getByText(/Μόνο σε αυτό το κινητό/),
     ).toBeOnTheScreen();
   });
 

@@ -52,7 +52,7 @@ afterEach(() => {
 async function exportFromSettings() {
   await renderApp(repo);
   await fireEvent.press(await screen.findByRole('button', { name: /Settings/ }));
-  await fireEvent.press(await screen.findByRole('button', { name: 'Export everything' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Export my data' }));
 }
 
 describe('exporting everything', () => {
@@ -92,7 +92,7 @@ describe('exporting everything', () => {
     await exportFromSettings();
 
     expect(await screen.findByTestId('export-problem')).toHaveTextContent(
-      'This device has nowhere to share a file.',
+      /This device has nowhere to share a file./,
     );
     expect(written.size).toBe(0);
   });
@@ -114,7 +114,7 @@ describe('exporting everything', () => {
     await exportFromSettings();
 
     const problem = await screen.findByTestId('export-problem');
-    expect(problem).toHaveTextContent("The export couldn't be made. Try again.");
+    expect(problem).toHaveTextContent(/The export couldn't be made. Try again./);
     // The reason can name a file holding health data, so it is never shown.
     expect(problem).not.toHaveTextContent(/ENOSPC|ella|health/i);
     expect(mockShare).not.toHaveBeenCalled();
@@ -128,7 +128,7 @@ describe('exporting everything', () => {
     await fireEvent.press(await screen.findByRole('button', { name: /Settings/ }));
 
     const card = within(await screen.findByTestId('settings-data'));
-    expect(card.getByRole('button', { name: 'Export everything' })).toBeOnTheScreen();
+    expect(card.getByRole('button', { name: 'Export my data' })).toBeOnTheScreen();
     expect(screen.queryByTestId('settings-privacy')).toBeNull();
   });
 });
