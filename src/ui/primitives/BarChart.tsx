@@ -8,9 +8,9 @@ export type Bar = {
   /** Under the bar, e.g. "Mon" or "Today". */
   label: string;
   value: number;
-  /** Above the bar, already formatted, e.g. "600" or "1h 30m". */
+  /** Above the bar, already formatted, e.g. "600" or "95". */
   valueLabel: string;
-  /** Read by screen readers for the whole bar, e.g. "Monday: 600 mL". */
+  /** Read by screen readers for the whole bar, e.g. "Monday: 600 ml". */
   accessibilityLabel: string;
   /** Marks one bar, such as today, with a bold label. */
   current?: boolean;
@@ -18,15 +18,18 @@ export type Bar = {
 
 type Props = {
   bars: readonly Bar[];
+  /** The series colour (G tabs/trends: bottle in `chartFeed`, breast in `chartSleep`). */
+  colour?: 'chartFeed' | 'chartSleep';
   testID?: string;
 };
 
 /**
- * Vertical bars scaled to the largest value, in the accent colour only: a
- * chart shows amounts, never a judgement of them (rule 10). Each bar is one
- * accessible element with its own label.
+ * G bars (tabs/trends): full width, round corners, the value above and the
+ * day below, scaled to the largest value. One colour per series and never a
+ * colour per value: a chart shows amounts, not a judgement of them (rule 10).
+ * Each bar is one accessible element with its own label.
  */
-export function BarChart({ bars, testID }: Props) {
+export function BarChart({ bars, colour = 'chartFeed', testID }: Props) {
   const theme = useTheme();
   const s = styles(theme);
   const max = Math.max(0, ...bars.map((bar) => bar.value));
@@ -46,7 +49,10 @@ export function BarChart({ bars, testID }: Props) {
               testID={`bar-${bar.key}-fill`}
               style={[
                 s.fill,
-                { height: max === 0 ? 0 : (bar.value / max) * theme.size.chartHeight },
+                {
+                  height: max === 0 ? 0 : (bar.value / max) * theme.size.chartHeight,
+                  backgroundColor: theme.palette[colour],
+                },
               ]}
             />
           </View>
@@ -59,27 +65,12 @@ export function BarChart({ bars, testID }: Props) {
 
 const styles = (t: Theme) =>
   StyleSheet.create({
-    chart: { flexDirection: 'row', gap: t.spacing.xs },
+    chart: { flexDirection: 'row', gap: t.spacing.sm },
     column: { flex: 1, alignItems: 'center', gap: t.spacing.xs },
-    value: { ...t.text.caption, color: t.colors.textMuted },
-    plot: {
-      height: t.size.chartHeight,
-      alignSelf: 'stretch',
-      justifyContent: 'flex-end',
-      borderBottomWidth: t.size.borderThin,
-      borderBottomColor: t.colors.borderStrong,
-    },
-    fill: {
-      backgroundColor: t.colors.accent,
-      borderTopLeftRadius: t.radius.sm,
-      borderTopRightRadius: t.radius.sm,
-    },
-    label: { ...t.text.caption, color: t.colors.textMuted },
-    // Today's label in the heavy face, at the caption size.
-    current: {
-      ...t.type.tileLabel,
-      fontSize: t.text.caption.fontSize,
-      lineHeight: t.text.caption.lineHeight,
-      color: t.colors.text,
-    },
+    value: { ...t.type.tileDetail, color: t.palette.textSoft },
+    plot: { height: t.size.chartHeight, alignSelf: 'stretch', justifyContent: 'flex-end' },
+    fill: { borderRadius: t.radius.bar },
+    label: { ...t.type.tileDetail, color: t.palette.ink },
+    // Today's label in bold, so it reads by weight as well as by word.
+    current: t.type.statLabel,
   });

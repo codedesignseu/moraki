@@ -561,22 +561,24 @@
   "insights": {
     "today": "Today",
     "barLabel": "{{day}}: {{value}}",
-    "ml": "{{value}} mL",
+    "ml": "{{value}} ml",
     "total": "7 days: {{value}}",
     "none": "Nothing to average yet",
     "bottle": {
-      "title": "Bottle milk"
+      "title": "Bottle",
+      "unit": "ml per day"
     },
     "breast": {
-      "title": "Breastfeeding"
+      "title": "Breast",
+      "unit": "minutes per day"
     },
     "averages": {
-      "title": "Averages, last 7 days",
-      "bottle": "Average bottle",
-      "interval": "Average time between feeds"
+      "title": "Averages",
+      "bottle": "Bottle amount",
+      "interval": "Gap between feeds"
     },
     "days": {
-      "title": "Day by day",
+      "title": "Days",
       "day": "Day",
       "feeds": "Feeds",
       "wet": "Wet",
@@ -607,6 +609,11 @@
         "home": "{{on}} · {{grams}} g · at home",
         "clinic": "{{on}} · {{grams}} g · at the clinic"
       }
+    },
+    "subtitle": "Last 7 days",
+    "empty": {
+      "title": "Trends start after the first full day",
+      "body": "Keep logging. The charts fill in on their own."
     }
   },
   "signIn": {

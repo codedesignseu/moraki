@@ -234,6 +234,8 @@ export const radius = {
   stepper: 24,
   /** G: a tinted stat cell (tabs/home "Today" and milk stock). */
   stat: 18,
+  /** G: a chart bar's corners (tabs/trends). */
+  bar: 10,
   /** G `button` and `chip`: fully round. */
   pill: 999,
   button: 999,
@@ -268,6 +270,8 @@ export const size = {
   stepperButton: 52,
   /** G: a list row (tabs/settings, tabs/home grouped card). */
   listRow: 60,
+  /** G: a row of the Trends days table (tabs/trends). */
+  tableRow: 44,
   /** G: a History entry row, with its 44 badge (tabs/history). */
   entryRow: 66,
   /** G: the width of an empty state's one button ("Clear filters", tabs/history-filtered). */
@@ -445,6 +449,8 @@ export const type = {
   greeting: { ...heading, fontSize: 19, lineHeight: 22 },
   /** G Home: the greeting's second line and the hero's reminder line (14/600). */
   note: { ...textSemi, fontSize: 14, lineHeight: 19 },
+  /** G Trends: a chart card's title (18/700, tabs/trends). */
+  chartTitle: { ...textBold, fontSize: 18, lineHeight: 24 },
   /** G History: the day label over each day's card (Comfortaa 15). */
   dayLabel: { ...heading, fontSize: 15, lineHeight: 18 },
   /** G History: the time that starts an entry row's title (16/700; the rest is `lead`). */
