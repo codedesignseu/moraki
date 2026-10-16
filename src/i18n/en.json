@@ -893,9 +893,9 @@
     "intro": "Tell us what happened, or what you wish the app did. It goes to Moraki's own servers in the EU and nowhere else.",
     "kindLabel": "What this is about",
     "kind": {
-      "problem": "Something's wrong",
-      "idea": "An idea",
-      "other": "Something else"
+      "problem": "Problem",
+      "idea": "Idea",
+      "other": "Other"
     },
     "message": "Your message",
     "messageHint": "Please leave out health details about your baby. We don't need them to fix the app.",

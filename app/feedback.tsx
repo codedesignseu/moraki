@@ -1,14 +1,13 @@
 import { Stack, useRouter } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 
 import { FeedbackScreen } from '@/features/feedback/FeedbackScreen';
+import { PAGE_OPTIONS } from '@/ui/pageOptions';
 
 export default function Feedback() {
-  const { t } = useTranslation();
   const router = useRouter();
   return (
     <>
-      <Stack.Screen options={{ title: t('feedback.title') }} />
+      <Stack.Screen options={PAGE_OPTIONS} />
       <FeedbackScreen onDone={() => router.back()} />
     </>
   );

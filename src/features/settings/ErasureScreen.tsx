@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Button, Card, Segmented } from '@/ui/primitives';
+import { Button, Card, Chip, InlineError, Page } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useErasure, type ErasureAction } from './useErasure';
@@ -10,9 +10,10 @@ import { useErasure, type ErasureAction } from './useErasure';
 /**
  * Leave the household, delete it, or delete the account (P4-06, App Store
  * guideline 5.1.1(v)). Each action says what it removes and asks once more
- * before anything is sent.
+ * before anything is sent. G account/leave: successor as chips, the confirm
+ * inline in a pink panel. The text is the app's, unchanged.
  */
-export function ErasureScreen({ onDone }: { onDone: () => void }) {
+export function ErasureScreen({ onDone, onBack }: { onDone: () => void; onBack: () => void }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
@@ -24,46 +25,67 @@ export function ErasureScreen({ onDone }: { onDone: () => void }) {
       ? t('erasure.deleteAccount.whatAlone', { name: erasure.babyName })
       : t(`erasure.${action}.what`, { name: erasure.babyName });
 
+  const page = {
+    title: t('erasure.screenTitle'),
+    onBack,
+    backLabel: t('common.back'),
+  };
+
   const section = (action: ErasureAction) => (
     <Card testID={`erasure-${action}`}>
-      <Text style={theme.text.title}>{t(`erasure.${action}.title`)}</Text>
-      <Text style={theme.text.body}>{what(action)}</Text>
+      <Text style={s.title} accessibilityRole="header">
+        {t(`erasure.${action}.title`)}
+      </Text>
+      <Text style={s.what}>{what(action)}</Text>
       {confirming === action ? (
         <>
           {action !== 'deleteHousehold' && erasure.candidates.length > 0 && (
             <>
-              <Text style={theme.text.body}>{t('erasure.successor.question')}</Text>
-              <Segmented
-                options={erasure.candidates.map((person) => ({
-                  value: person.userId,
-                  label: person.name,
-                }))}
-                value={erasure.successor}
-                onChange={erasure.setSuccessor}
-                accessibilityLabel={t('erasure.successor.question')}
-                disabled={erasure.busy}
-              />
+              {/* Read out: the chips below carry no group name of their own. */}
+              <Text style={s.label}>{t('erasure.successor.question')}</Text>
+              <View style={s.chips}>
+                {erasure.candidates.map((person) => (
+                  <Chip
+                    key={person.userId}
+                    label={person.name}
+                    selected={erasure.successor === person.userId}
+                    onPress={() => erasure.setSuccessor(person.userId)}
+                    disabled={erasure.busy}
+                  />
+                ))}
+              </View>
             </>
           )}
-          <Text style={theme.text.bodyStrong} accessibilityRole="alert">
-            {t('erasure.cannotUndo')}
-          </Text>
-          <Button
-            label={t(erasure.busy ? 'erasure.working' : `erasure.${action}.confirm`)}
-            disabled={erasure.busy || !erasure.ready(action)}
-            onPress={() => void erasure.run(action)}
-          />
-          <Button
-            label={t('erasure.cancel')}
-            variant="secondary"
-            disabled={erasure.busy}
-            onPress={() => setConfirming(null)}
-          />
+          {/* G account/leave: the confirm panel inside the card. */}
+          <View style={s.confirm}>
+            <Text style={s.cannotUndo} accessibilityRole="alert">
+              {t('erasure.cannotUndo')}
+            </Text>
+            <View style={s.buttons}>
+              <View style={s.button}>
+                <Button
+                  label={t(erasure.busy ? 'erasure.working' : `erasure.${action}.confirm`)}
+                  variant="destructive"
+                  busy={erasure.busy}
+                  disabled={!erasure.ready(action)}
+                  onPress={() => void erasure.run(action)}
+                />
+              </View>
+              <View style={s.button}>
+                <Button
+                  label={t('erasure.cancel')}
+                  variant="secondary"
+                  disabled={erasure.busy}
+                  onPress={() => setConfirming(null)}
+                />
+              </View>
+            </View>
+          </View>
         </>
       ) : (
         <Button
           label={t(`erasure.${action}.button`)}
-          variant="secondary"
+          variant={action === 'leave' ? 'secondary' : 'destructive'}
           disabled={erasure.busy}
           onPress={() => setConfirming(action)}
         />
@@ -73,33 +95,43 @@ export function ErasureScreen({ onDone }: { onDone: () => void }) {
 
   if (!erasure.signedIn) {
     return (
-      <ScrollView contentContainerStyle={s.content}>
-        <Text style={theme.text.body}>{t('erasure.signedOut')}</Text>
-      </ScrollView>
+      <Page {...page}>
+        <Card>
+          <Text style={s.what}>{t('erasure.signedOut')}</Text>
+        </Card>
+      </Page>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={s.content}>
+    <Page {...page}>
       {erasure.canLeave && section('leave')}
       {erasure.canDeleteHousehold && section('deleteHousehold')}
       {section('deleteAccount')}
       {erasure.problem && (
-        <Text style={s.alert} accessibilityRole="alert" testID="erasure-problem">
-          {t(`erasure.problem.${erasure.problem}`)}
-        </Text>
+        <InlineError
+          message={t(`erasure.problem.${erasure.problem}`)}
+          prefix={t('common.error')}
+          testID="erasure-problem"
+        />
       )}
-    </ScrollView>
+    </Page>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    // By analogy with the 20 member cards and the 19 lists.
-    content: {
-      padding: theme.spacing.screen,
-      paddingBottom: theme.spacing.xl,
+    title: { ...theme.type.formTitle, color: theme.palette.ink },
+    what: { ...theme.type.body, color: theme.palette.textSoft },
+    label: { ...theme.type.small, color: theme.palette.textSoft },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+    confirm: {
+      backgroundColor: theme.palette.errorSurface,
+      borderRadius: theme.radius.card,
+      padding: theme.spacing.field,
       gap: theme.spacing.md,
     },
-    alert: { ...theme.type.body, color: theme.palette.invalid },
+    cannotUndo: { ...theme.type.buttonSecondary, color: theme.palette.ink },
+    buttons: { flexDirection: 'row', gap: theme.spacing.grid },
+    button: { flex: 1 },
   });

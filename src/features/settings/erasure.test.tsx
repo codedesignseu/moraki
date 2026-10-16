@@ -138,7 +138,7 @@ describe('leaving and deleting (P4-06)', () => {
       erasure: (rpc, body) => void calls.push([rpc, body]),
     });
     await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
-    await fireEvent.press(screen.getByRole('radio', { name: 'Nik' }));
+    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Nik' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Yes, delete my account' }));
 
     await waitFor(() => expect(calls).toEqual([['delete_account', { successor: NIK }]]));
@@ -198,7 +198,7 @@ describe('leaving and deleting (P4-06)', () => {
         }),
     });
     await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
-    await fireEvent.press(screen.getByRole('radio', { name: 'Nik' }));
+    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Nik' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Yes, delete my account' }));
 
     expect(await screen.findByTestId('erasure-problem')).toHaveTextContent(
