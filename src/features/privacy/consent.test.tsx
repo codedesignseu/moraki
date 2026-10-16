@@ -73,7 +73,7 @@ describe('asking for consent', () => {
     // The app cannot delete from the servers yet (P4-06), so the screen does
     // not say it can.
     expect(card.queryByText(/delete it at any time/)).toBeNull();
-    expect(card.getByText('Policy version 2026-09-23')).toBeOnTheScreen();
+    expect(screen.getByText('Policy version 2026-09-23')).toBeOnTheScreen();
     // Nothing is agreed by opening the screen.
     expect(screen.getByRole('button', { name: 'I agree' })).toBeOnTheScreen();
     expect(screen.queryByTestId('consent-granted')).toBeNull();
@@ -125,7 +125,7 @@ describe('asking for consent', () => {
     // The screen stays open with the reason on it: a failure that closed the
     // screen would look like it worked.
     expect(await screen.findByTestId('consent-problem')).toHaveTextContent(
-      'No connection. Try again when you have one.',
+      'Error: No connection. Try again when you have one.',
     );
     expect(screen.getByRole('button', { name: 'I agree' })).toBeOnTheScreen();
     expect(h.prefs.get('consent')).toBe(null);

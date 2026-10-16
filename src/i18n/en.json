@@ -704,12 +704,12 @@
     }
   },
   "invite": {
-    "title": "Invite a caregiver",
+    "title": "Invite someone",
     "ownerOnly": "Only the household owner can invite someone.",
-    "roleTitle": "What they can do",
+    "roleTitle": "They join as",
     "role": {
-      "caregiver": "Log entries",
-      "viewer": "View only"
+      "caregiver": "Caregiver",
+      "viewer": "Viewer"
     },
     "roleHint": {
       "caregiver": "They can log entries and edit them, like you.",
@@ -717,11 +717,11 @@
     },
     "create": "Create invite",
     "createAnother": "Create another invite",
-    "codeTitle": "Their code",
+    "codeTitle": "Invite code",
     "codeLabel": "Invite code {{code}}",
     "expires": "Works until {{date}}",
     "singleUse": "One person can use this code, once.",
-    "share": "Share link",
+    "share": "Share",
     "shareMessage": "Join me on Moraki to help track our baby: {{link}}\nOr open Moraki and enter the code {{code}}.",
     "problem": {
       "offline": "You’re offline. Creating an invite needs a connection.",
@@ -733,11 +733,12 @@
       "already_in_household": "Couldn’t create an invite. Try again.",
       "unknown": "Couldn’t create an invite. Try again."
     },
-    "openTitle": "Codes waiting to be used",
-    "openRow": "{{code}} · {{role}} · until {{date}}",
-    "openRowExpired": "{{code}} · {{role}} · expired {{date}}",
-    "revoke": "Withdraw this code",
-    "revokeHint": "Withdrawing stops the code working straight away, for anyone who has the link."
+    "openTitle": "Open invites",
+    "revoke": "Revoke",
+    "revokeHint": "Revoking stops the code working straight away, for anyone who has the link.",
+    "openDetail": "{{role}} · until {{date}}",
+    "openDetailExpired": "{{role}} · expired {{date}}",
+    "revokeLabel": "Revoke {{code}}"
   },
   "join": {
     "title": "Join a household",
@@ -918,11 +919,11 @@
   "baby": {
     "title": "Baby details",
     "name": "Name",
-    "born": "Born this many days ago",
-    "daysAgo": "days",
+    "born": "Born",
+    "daysAgo": "days ago",
     "birthWeight": "Birth weight",
-    "weightKnown": "I know it",
-    "weightUnknown": "I don't know it",
+    "weightKnown": "Known",
+    "weightUnknown": "Unknown",
     "grams": "g",
     "weightHint": "The weight chart measures day 0 and its lines from these, so a correction here fixes the whole chart.",
     "save": "Save",

@@ -63,10 +63,10 @@ describe('inviting a caregiver', () => {
     await press('Invite someone');
 
     await press('Create invite');
-    expect(await screen.findByLabelText('Invite code ABCD-2345')).toBeOnTheScreen();
+    expect(await screen.findByLabelText('Invite code ABCD-2345')).toHaveTextContent('ABCD 2345');
     expect(screen.getByText(/Works until/)).toBeOnTheScreen();
 
-    await press('Share link');
+    await press('Share');
     expect(share).toHaveBeenCalledWith({
       message: expect.stringContaining('https://moraki.app/join/ABCD2345'),
     });
@@ -84,7 +84,7 @@ describe('inviting a caregiver', () => {
     await press(/Settings/);
     await screen.findByLabelText('Household: Ella');
     await press('Invite someone');
-    await fireEvent.press(screen.getByRole('radio', { name: 'View only' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Viewer' }));
     expect(screen.getByText('They can see everything but log nothing.')).toBeOnTheScreen();
     await press('Create invite');
 
@@ -136,10 +136,14 @@ describe('codes that are still waiting', () => {
     await press('Invite someone');
 
     const card = within(await screen.findByTestId('invite-open'));
-    expect(card.getByText(/ABCD-EFGH · Log entries · until/)).toBeOnTheScreen();
+    const fresh = within(screen.getByTestId('invite-open-ABCDEFGH'));
+    expect(fresh.getByText('ABCD EFGH')).toBeOnTheScreen();
+    expect(fresh.getByText(/^Caregiver · until/)).toBeOnTheScreen();
     // An expired code still shows: "it expired" is the answer to "why hasn't
     // the link worked", and it can be cleared away.
-    expect(card.getByText(/JKMN-PQRS · View only · expired/)).toBeOnTheScreen();
+    const old = within(card.getByTestId('invite-open-JKMNPQRS'));
+    expect(old.getByText('JKMN PQRS')).toBeOnTheScreen();
+    expect(old.getByText(/^Viewer · expired/)).toBeOnTheScreen();
   });
 
   it('withdraws one, so a link shared by mistake stops working', async () => {
@@ -155,7 +159,7 @@ describe('codes that are still waiting', () => {
 
     await fireEvent.press(
       within(screen.getByTestId('invite-open-ABCDEFGH')).getByRole('button', {
-        name: 'Withdraw this code',
+        name: 'Revoke ABCD EFGH',
       }),
     );
 

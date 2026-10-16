@@ -437,6 +437,10 @@ export const type = {
   rowLabel: { ...textSemi, fontSize: 17, lineHeight: 23 },
   /** G: the line in a warning or notice card, and the toast message (16/600). */
   lead: { ...textSemi, fontSize: 16, lineHeight: 22 },
+  /** G: an invite code, large (account/invite, 36/700, spaced 0.06em). */
+  code: { ...textBold, fontSize: 36, lineHeight: 44, letterSpacing: 2 },
+  /** G: an invite code in a row of open invites (17/700, spaced 0.04em). */
+  codeRow: { ...textBold, fontSize: 17, lineHeight: 23, letterSpacing: 0.7 },
   /** G account cards' titles (account/setup "You", "Baby"; 18/700). */
   formTitle: { ...textBold, fontSize: 18, lineHeight: 24 },
   /** G: an empty state's title (tabs/history-empty, 18/700). */

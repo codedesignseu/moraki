@@ -65,6 +65,16 @@ export function formatCode(code: string): string {
   return clean.length > 4 ? `${clean.slice(0, 4)}-${clean.slice(4)}` : clean;
 }
 
+/**
+ * `ABCD EFGH`: the code in two groups of four, for reading it off the screen
+ * (G account/invite). Display only: the link, the shared message and the
+ * screen reader name use the code itself.
+ */
+export function groupCode(code: string): string {
+  const clean = normaliseCode(code);
+  return clean.length > 4 ? `${clean.slice(0, 4)} ${clean.slice(4)}` : clean;
+}
+
 export function inviteLink(code: string): string {
   return JOIN_URL + normaliseCode(code);
 }
