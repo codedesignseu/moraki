@@ -171,7 +171,7 @@ export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?:
         errorPrefix={t('common.error')}
       />
       <View style={s.footer}>
-        <Button label={t('log.save')} onPress={save} />
+        <Button label={entry ? t('entry.saveChanges') : t('log.save')} onPress={save} />
       </View>
     </ScrollView>
   );

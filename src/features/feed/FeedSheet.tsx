@@ -169,7 +169,7 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
       )}
       <View style={s.footer}>
         <Button
-          label={editing ? t('log.save') : t('log.feed.save')}
+          label={editing ? t('entry.saveChanges') : t('log.feed.save')}
           onPress={() => {
             save();
             onDone();

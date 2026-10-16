@@ -138,7 +138,7 @@ describe('pouring a bottle from the fridge', () => {
     await renderApp();
     await fireEvent.press(screen.getByTestId(`recent-${bottle.id}`));
     await fireEvent.press(await screen.findByRole('radio', { name: 'Not from a store' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save changes' }));
 
     // The place is gone from the entry, not just blank, so the fold stops
     // taking from a store that never gave the milk.
@@ -162,7 +162,7 @@ describe('pouring a bottle from the fridge', () => {
     await renderApp();
     await fireEvent.press(screen.getByTestId(`recent-${bottle.id}`));
     await fireEvent.press(await screen.findByRole('radio', { name: 'Freezer' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save changes' }));
 
     expect(repo.get(bottle.id)?.payload).toMatchObject({ from_stock: 'freezer' });
     expect(fridge().ml).toBe(200);

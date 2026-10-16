@@ -136,7 +136,7 @@ export function MedicationSheet({ onDone, entryId }: { onDone: () => void; entry
         hint={t('log.characters', { count: dose.length, max: MEDICATION_DOSE_MAX })}
       />
       <View style={s.footer}>
-        <Button label={t('log.save')} onPress={save} />
+        <Button label={entry ? t('entry.saveChanges') : t('log.save')} onPress={save} />
       </View>
     </ScrollView>
   );

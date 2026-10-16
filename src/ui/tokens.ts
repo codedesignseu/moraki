@@ -232,6 +232,8 @@ export const radius = {
   input: 16,
   /** G: the stepper's grey box (sheets/feed-bottle). */
   stepper: 24,
+  /** G: a grey panel inside a sheet (sheets/not-editable). */
+  panel: 24,
   /** G: a tinted stat cell (tabs/home "Today" and milk stock). */
   stat: 18,
   /** G: a chart bar's corners (tabs/trends). */

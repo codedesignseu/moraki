@@ -81,7 +81,7 @@ export function SleepEditForm({ entryId, onDone }: { entryId: string; onDone: ()
         </View>
       )}
       <View style={s.footer}>
-        <Button label={t('log.save')} onPress={save} />
+        <Button label={t('entry.saveChanges')} onPress={save} />
       </View>
     </ScrollView>
   );

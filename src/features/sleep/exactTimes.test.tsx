@@ -104,7 +104,7 @@ describe('writing other entries up afterwards', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Add an appointment' }));
     await screen.findByTestId('appointment-when');
 
-    await fireEvent.changeText(screen.getByLabelText('What is it'), 'Two month check');
+    await fireEvent.changeText(screen.getByLabelText('Title'), 'Two month check');
     const at = Date.parse('2026-11-28T08:30:00Z');
     await pick('appointment-when', at);
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
