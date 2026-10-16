@@ -275,6 +275,9 @@ export const size = {
   legendDot: 12,
   legendRing: 2.5,
   iconButton: 46,
+  /** G: a sheet's grab handle, drawn in the outline colour (every sheet). */
+  sheetHandleWidth: 40,
+  sheetHandleHeight: 5,
   /** G: a kind choice in a sheet (Bottle, Breast, Mixed). */
   choiceButton: 64,
   /** G: an activity tile on Home and in the diaper sheet. */

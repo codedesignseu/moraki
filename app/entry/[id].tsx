@@ -11,8 +11,9 @@ import { DiaperSheet } from '@/features/diaper/DiaperSheet';
 import { FeedSheet } from '@/features/feed/FeedSheet';
 import { HealthSheet } from '@/features/health/HealthSheet';
 import { MedicationSheet } from '@/features/health/MedicationSheet';
+import { ActivitySheetHeader } from '@/features/sheet/ActivitySheetHeader';
 import { SleepSheet } from '@/features/sleep/SleepSheet';
-import { Button } from '@/ui/primitives';
+import { Button, SheetHeader } from '@/ui/primitives';
 import { useSheetOptions, useTheme, type Theme } from '@/ui/theme';
 
 type Editor = ComponentType<{ entryId: string; onDone: () => void }>;
@@ -53,12 +54,19 @@ export default function EditEntry() {
     return (
       <View style={s.screen}>
         <Stack.Screen options={{ ...sheet }} />
-        <Text style={theme.text.body}>{t('entry.gone')}</Text>
+        <SheetHeader
+          icon="tab-history"
+          tone="chip"
+          title={t('entry.gone')}
+          onClose={() => router.back()}
+          closeLabel={t('common.close')}
+        />
       </View>
     );
   }
 
   const Editor = EDITORS[entry.type];
+  const title = t(getActivity(entry.type)?.i18nKey ?? '');
   // A combined feed is one thing: deleting either part deletes both (SDD 4.1).
   const ids =
     entry.groupId === null
@@ -70,7 +78,8 @@ export default function EditEntry() {
 
   return (
     <View style={s.screen}>
-      <Stack.Screen options={{ title: t(getActivity(entry.type)?.i18nKey ?? ''), ...sheet }} />
+      <Stack.Screen options={{ title, ...sheet }} />
+      <ActivitySheetHeader type={entry.type} title={title} onClose={() => router.back()} />
       <View style={s.editor}>
         {Editor ? (
           <Editor entryId={entry.id} onDone={() => router.back()} />

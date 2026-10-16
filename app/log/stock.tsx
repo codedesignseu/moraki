@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { StockPlace } from '@/domain/activities';
 import { StockSheet } from '@/features/stock/StockSheet';
+import { ActivitySheetHeader } from '@/features/sheet/ActivitySheetHeader';
 import { useSheetOptions } from '@/ui/theme';
 
 export default function LogStock() {
@@ -13,6 +14,11 @@ export default function LogStock() {
   return (
     <>
       <Stack.Screen options={{ title: t('log.stock.title'), ...sheet }} />
+      <ActivitySheetHeader
+        type="stock_adjust"
+        title={t('log.stock.title')}
+        onClose={() => router.back()}
+      />
       <StockSheet
         place={place === 'freezer' ? 'freezer' : ('fridge' as StockPlace)}
         onDone={() => router.back()}

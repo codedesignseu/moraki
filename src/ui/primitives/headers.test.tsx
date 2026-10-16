@@ -5,9 +5,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ThemeProvider } from '../theme';
 import { palette, size, type } from '../tokens';
-import { ScreenHeader, ScreenTitle } from '.';
+import { ScreenHeader, ScreenTitle, SheetHandle, SheetHeader } from '.';
 
 const schemes = ['light', 'night'] as const;
+const HIDDEN = { includeHiddenElements: true };
 // A phone with a notch: 47 at the top.
 const metrics = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
@@ -68,5 +69,72 @@ describe('ScreenHeader', () => {
     expect(screen.getByRole('button', { name: 'Close' })).toBeOnTheScreen();
     // Clear of the status bar: the inset and 8.
     expect(screen.getByTestId('header')).toHaveStyle({ paddingTop: 47 + 8 });
+  });
+});
+
+describe('SheetHeader', () => {
+  it.each(schemes)(
+    'draws the handle, a 46 badge, the title and a 48 close in %s',
+    async (scheme) => {
+      const onClose = jest.fn();
+      await render(
+        <ThemeProvider scheme={scheme}>
+          <SheetHeader
+            icon="feed"
+            tone="feed"
+            title="Log a feed"
+            subtitle="Now · 22:40 · Parent 1"
+            onClose={onClose}
+            closeLabel="Close"
+          />
+        </ThemeProvider>,
+      );
+      expect(screen.getByRole('header', { name: 'Log a feed' })).toHaveStyle({
+        fontFamily: type.sheetTitle.fontFamily,
+        fontSize: 20,
+      });
+      expect(screen.getByText('Now · 22:40 · Parent 1')).toHaveStyle({
+        color: palette[scheme].textSoft,
+      });
+      const close = screen.getByRole('button', { name: 'Close' });
+      expect(close).toHaveStyle({
+        width: size.circleControl,
+        height: size.circleControl,
+        backgroundColor: palette[scheme].chip,
+      });
+      await fireEvent.press(close);
+      expect(onClose).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('can leave out the handle and the subtitle', async () => {
+    await render(
+      <SheetHeader
+        icon="feed"
+        tone="feed"
+        title="Log a feed"
+        onClose={jest.fn()}
+        closeLabel="Close"
+        handle={false}
+        testID="header"
+      />,
+    );
+    // Only the header line: no handle above it.
+    expect(screen.getByTestId('header').children).toHaveLength(1);
+  });
+});
+
+describe('SheetHandle', () => {
+  it.each(schemes)('is a hidden 40 × 5 bar in the %s outline colour', async (scheme) => {
+    await render(
+      <ThemeProvider scheme={scheme}>
+        <SheetHandle testID="handle" />
+      </ThemeProvider>,
+    );
+    expect(screen.getByTestId('handle', HIDDEN)).toHaveStyle({
+      width: size.sheetHandleWidth,
+      height: size.sheetHandleHeight,
+      backgroundColor: palette[scheme].outline,
+    });
   });
 });

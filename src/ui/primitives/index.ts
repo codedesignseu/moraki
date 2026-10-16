@@ -31,6 +31,7 @@ export { ScreenTitle } from './ScreenTitle';
 export type { SegmentedOption } from './Segmented';
 export { Segmented } from './Segmented';
 export { Sheet, SheetPanel } from './Sheet';
+export { SheetHandle, SheetHeader } from './SheetHeader';
 export { StatCell } from './StatCell';
 export { StatusPill } from './StatusPill';
 export { Stepper } from './Stepper';

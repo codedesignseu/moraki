@@ -40,6 +40,11 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
 - **Step 6, Home keeps the logo** centred at the top of its content until the step 8 greeting replaces it. Its native header is gone with the others.
 - **Step 6, tab titles use the tab names** (`tabs.history`, `tabs.insights`, `tabs.settings`). The app's Insights tab is already "Trends" / "Τάσεις", so it matches G. G's "Last 7 days" subtitle is left for step 13, which adds the string; `ScreenTitle` takes a `subtitle`.
 - **Step 6, `ScreenHeader` keeps clear of the status bar itself** (inset + 8, about 55; G: 56), because the pushed and modal pages that will use it have no tab scene to pad them. `IconButton` gets `size="large"` (48) for its round back or close button; the default stays 46.
+- **Step 7, every sheet has one full-height detent (`[1]`).** G draws the diaper and sleep sheets shorter, so `fitToContents` was the plan for them. Both bodies are a `ScrollView` today, and a scrolling body has no height for the sheet to fit to (react-native-screens measures the content), so `fitToContents` risks a zero-height or clipped sheet. All sheets use `[1]` for now. When steps 10 and 11 restyle those bodies without a scroll view, `useSheetOptions` can take a `fit` option for them.
+- **Step 7, the native grabber is off and the handle is drawn in JS** (`SheetHandle`, 40 × 5, `outline`), because the native one is iOS only and can't take the theme colour. It is hidden from screen readers; the close button and swipe close the sheet.
+- **Step 7, the sheet badge comes from the activity module** (`ActivitySheetHeader` in `src/features/sheet`, which reads `getActivity(type).icon`/`.tone`). G colours the health-note sheet pink and the not-editable sheet pink, while the module (and G's history rows) make health green; the module wins so a type has one colour everywhere. If the owner prefers G's sheet colours, pass `tone` per route instead.
+- **Step 7, titles are the current ones** (`log.*.title`, the entry editor's activity name). G's "Log a feed" titles and the "Now · 22:40 · Parent 1" subtitles come with the sheet steps; `SheetHeader` already takes `subtitle`. The deleted-entry view uses its "This entry no longer exists." line as the header title, so it has a close button.
+- **Step 7, `common.close`** is "Close" / "Κλείσιμο" (the noun, as a button name). The feedback screen's own "Κλείσε" is unchanged.
 
 ## Problems found
 
@@ -54,5 +59,12 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
 - Step 4: the Stepper and ChoiceButtons at 200% text. The 48 number may wrap to two lines on a narrow phone.
 - Step 6: the floating tab bar on Android with three-button and with gesture navigation (it sits above the system bar), and its shadow by day (Android draws elevation, iOS the shadow). Night has none.
 - Step 6: the area under the status bar on each tab is the page colour, and scrolling stops at it.
+- Step 7, native form sheets (decision G1, SAGE-F1) on iOS and Android:
+  - swipe down to close, and the close button, on every log sheet and the entry editor;
+  - scrolling inside a long sheet (feed, health, appointment) without the swipe closing the sheet;
+  - the keyboard over the health note, the appointment questions and the weight field: the focused field stays visible;
+  - 200% text: the header title wraps beside the badge and close button, and the body still scrolls;
+  - the 32 top corners and the card colour by day and night; the dimmed screen behind;
+  - Android: the sheet opens full height and the body's flex layout fills it.
 
 ## Found while working

@@ -889,6 +889,7 @@
     }
   },
   "common": {
-    "error": "Error"
+    "error": "Error",
+    "close": "Close"
   }
 }

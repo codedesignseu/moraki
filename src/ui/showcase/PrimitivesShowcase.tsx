@@ -23,6 +23,7 @@ import {
   SheetPanel,
   ScreenHeader,
   ScreenTitle,
+  SheetHeader,
   StatCell,
   StatusPill,
   Stepper,
@@ -457,6 +458,19 @@ function SchemeSection() {
         <ScreenHeader title="About Moraki" onBack={() => {}} backLabel="Back" />
       </Group>
 
+      <Group title="Sheet header">
+        <View style={s.sheetFrame}>
+          <SheetHeader
+            icon="feed"
+            tone="feed"
+            title="Log a feed"
+            subtitle="Now · 22:40 · Parent 1"
+            onClose={() => {}}
+            closeLabel="Close"
+          />
+        </View>
+      </Group>
+
       <Group title="Tab bar">
         <View style={s.tabBarFrame}>
           <TabBar
@@ -524,6 +538,12 @@ const styles = (t: Theme) =>
     row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.spacing.md },
     cells: { flexDirection: 'row', gap: t.spacing.sm },
     toastFrame: { height: t.size.toast + t.size.navBar + t.size.navBottom + t.spacing.xl },
+    sheetFrame: {
+      backgroundColor: t.palette.card,
+      borderTopLeftRadius: t.radius.sheet,
+      borderTopRightRadius: t.radius.sheet,
+      paddingBottom: t.spacing.lg,
+    },
     tabBarFrame: { height: t.size.navBar + t.size.navBottom },
     muted: { color: t.colors.textMuted },
     input: {
