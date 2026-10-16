@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
 import { pumpPrefill, type PumpPrefill } from '@/domain/activities';
-import { formatDateTime } from '@/domain/time/formatDateTime';
+import { fieldTime } from '@/domain/time/fieldTime';
 import { dateLocale } from '@/i18n';
+import { formatFieldTime } from '@/i18n/fieldTime';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 export type PumpForm = PumpPrefill;
@@ -20,7 +21,7 @@ export function usePumpSheet() {
   const repository = useEventsRepository();
   const saves = useUndoableSaves(repository);
   const events = useEvents();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const tz = deviceTimeZone();
   const [openedAt] = useState(Date.now);
   const [at, setAt] = useState(openedAt);
@@ -28,9 +29,9 @@ export function usePumpSheet() {
 
   return {
     form,
-    /** The moment the session is recorded at, and the words for it. */
+    /** The moment the session is recorded at, and the words for it ("Today, 22:40 · now"). */
     at,
-    atLabel: formatDateTime(at, tz, dateLocale(i18n.language)),
+    atLabel: formatFieldTime(t, fieldTime(at, openedAt, tz, dateLocale(i18n.language))),
     setAt,
     update: (changes: Partial<PumpForm>) => setForm((current) => ({ ...current, ...changes })),
     save: () =>

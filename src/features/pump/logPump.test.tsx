@@ -28,6 +28,18 @@ async function openPumpSheet() {
 }
 
 describe('logging a pump session', () => {
+  it('opens as G draws it: title, now subtitle, the time field and the three places', async () => {
+    await openPumpSheet();
+
+    expect(screen.getByRole('header', { name: 'Log pumping' })).toBeOnTheScreen();
+    expect(screen.getByText('Now · 12:00')).toBeOnTheScreen();
+    expect(screen.getByTestId('pump-when-value')).toHaveTextContent('Today, 12:00 · now');
+    expect(screen.getByLabelText('Amount')).toHaveAccessibilityValue({ text: '100 ml' });
+    for (const name of ['Fridge', 'Freezer', 'Fed']) {
+      expect(screen.getByRole('radio', { name })).toBeOnTheScreen();
+    }
+  });
+
   it('saves the amount and where it went, from home', async () => {
     await openPumpSheet();
     await fireEvent.press(screen.getByRole('radio', { name: 'Freezer' }));
@@ -43,7 +55,7 @@ describe('logging a pump session', () => {
     const at = NOW - HOUR;
     await fireEvent(screen.getByTestId('pump-when'), 'change', at);
 
-    expect(screen.getByTestId('pump-when-value')).toHaveTextContent('Wed 1 Jul, 11:00');
+    expect(screen.getByTestId('pump-when-value')).toHaveTextContent('Today, 11:00');
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(pumps()).toHaveLength(1);
@@ -63,7 +75,7 @@ describe('logging a pump session', () => {
 
   it('adds nothing to a store when the milk was fed straight away', async () => {
     await openPumpSheet();
-    await fireEvent.press(screen.getByRole('radio', { name: 'Fed straight away' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Fed' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(pumps()[0]?.payload).toMatchObject({ dest: 'fed' });

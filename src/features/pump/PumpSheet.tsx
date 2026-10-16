@@ -2,7 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { PUMP_ML, type PumpPrefill } from '@/domain/activities';
-import { Button, DateTimeField, Segmented, Stepper } from '@/ui/primitives';
+import { Button, ChoiceButtons, DateTimeField, FieldLabel, Stepper } from '@/ui/primitives';
+import type { ChoiceOption } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { usePumpSheet } from './usePumpSheet';
@@ -14,10 +15,12 @@ export function PumpSheet({ onDone }: { onDone: () => void }) {
   const s = styles(theme);
   const { form, at, atLabel, setAt, update, save } = usePumpSheet();
 
-  const dests: { value: PumpPrefill['dest']; label: string }[] = [
-    { value: 'fridge', label: t('log.pump.dest.fridge') },
-    { value: 'freezer', label: t('log.pump.dest.freezer') },
-    { value: 'fed', label: t('log.pump.dest.fed') },
+  // G sheets/pump: the fridge in the pump colour, the freezer in diaper blue,
+  // fed in the feed colour.
+  const dests: ChoiceOption<PumpPrefill['dest']>[] = [
+    { value: 'fridge', label: t('log.pump.dest.fridge'), tone: 'pump' },
+    { value: 'freezer', label: t('log.pump.dest.freezer'), tone: 'diaper' },
+    { value: 'fed', label: t('log.pump.dest.fed'), tone: 'feed' },
   ];
 
   return (
@@ -31,8 +34,8 @@ export function PumpSheet({ onDone }: { onDone: () => void }) {
         maximumDate={new Date()}
         testID="pump-when"
       />
-      {/* By analogy with the 16 stock card: amount and destination together. */}
-      <View style={s.panel}>
+      <View style={s.field}>
+        <FieldLabel label={t('log.pump.amount')} />
         <Stepper
           value={form.ml}
           onChange={(ml) => update({ ml })}
@@ -42,31 +45,39 @@ export function PumpSheet({ onDone }: { onDone: () => void }) {
           unit={t('log.pump.unit')}
           accessibilityLabel={t('log.pump.amount')}
         />
-        <Segmented
+      </View>
+      <View style={s.field}>
+        <FieldLabel label={t('log.pump.dest.label')} />
+        <ChoiceButtons
           options={dests}
           value={form.dest}
           onChange={(dest) => update({ dest })}
           accessibilityLabel={t('log.pump.dest.label')}
         />
       </View>
-      <Button
-        label={t('log.save')}
-        onPress={() => {
-          save();
-          onDone();
-        }}
-      />
+      <View style={s.footer}>
+        <Button
+          label={t('log.save')}
+          onPress={() => {
+            save();
+            onDone();
+          }}
+        />
+      </View>
     </ScrollView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
-    panel: {
-      backgroundColor: theme.palette.pump,
-      borderRadius: theme.radius.tile,
-      padding: theme.spacing.screen,
-      gap: theme.spacing.md,
+    // G sheets/pump: the feed sheet's spacing.
+    content: {
+      flexGrow: 1,
+      paddingHorizontal: theme.spacing.screen,
+      paddingTop: theme.spacing.section,
+      paddingBottom: theme.spacing.xl,
+      gap: theme.spacing.section,
     },
+    field: { gap: theme.spacing.sm },
+    footer: { marginTop: 'auto' },
   });

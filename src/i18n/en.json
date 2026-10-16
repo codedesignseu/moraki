@@ -204,38 +204,43 @@
       "save": "Save feed"
     },
     "pump": {
-      "title": "Pump",
+      "title": "Log pumping",
       "amount": "Amount",
-      "unit": "mL",
+      "unit": "ml",
       "dest": {
-        "label": "Put it",
+        "label": "Where it goes",
         "fridge": "Fridge",
         "freezer": "Freezer",
-        "fed": "Fed straight away"
+        "fed": "Fed"
       },
-      "when": "Pumped at"
+      "when": "Time"
     },
     "stock": {
-      "title": "Adjust stock",
+      "title": "Milk stock",
       "place": {
-        "label": "Store",
+        "label": "Place",
         "fridge": "Fridge",
         "freezer": "Freezer"
       },
       "direction": {
-        "label": "Change",
+        "label": "Add or remove",
         "add": "Add",
         "remove": "Remove"
       },
       "amount": "Amount",
-      "unit": "mL",
+      "unit": "ml",
       "reason": {
         "label": "Reason",
-        "discard": "Thrown away",
-        "move": "Moved",
-        "correction": "Correcting the count"
+        "discard": "Discard",
+        "move": "Move",
+        "correction": "Correction"
       },
-      "have": "{{place}} now holds {{ml}} mL"
+      "have": "{{place}}: {{ml}}",
+      "nowIn": {
+        "fridge": "Now in the fridge",
+        "freezer": "Now in the freezer"
+      },
+      "ml": "{{ml}} ml"
     },
     "diaper": {
       "title": "Log a diaper",

@@ -87,14 +87,31 @@ describe('the stock card on home', () => {
 });
 
 describe('adjusting a store', () => {
+  it('opens as Milk stock, with one reason chosen at a time', async () => {
+    await renderApp();
+    await fireEvent.press(screen.getByRole('button', { name: 'Adjust Fridge' }));
+
+    expect(await screen.findByRole('header', { name: 'Milk stock' })).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: 'Fridge' })).toBeChecked();
+    const reason = (name: string) => screen.getByRole('togglebutton', { name });
+    expect(reason('Correction').props.accessibilityState).toMatchObject({ checked: true });
+
+    await fireEvent.press(reason('Move'));
+    expect(reason('Move').props.accessibilityState).toMatchObject({ checked: true });
+    expect(reason('Correction').props.accessibilityState).toMatchObject({ checked: false });
+    // Tapping the chosen reason keeps it: an adjustment always has one.
+    await fireEvent.press(reason('Move'));
+    expect(reason('Move').props.accessibilityState).toMatchObject({ checked: true });
+  });
+
   it('saves the reason with the change, and takes the milk off the count', async () => {
     pump(2 * HOUR, 300, 'fridge');
 
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Adjust Fridge' }));
-    expect(await screen.findByText('Fridge now holds 300 mL')).toBeOnTheScreen();
+    expect(await screen.findByLabelText('Now in the fridge: 300 ml')).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('radio', { name: 'Thrown away' }));
+    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Discard' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(adjustments()).toHaveLength(1);
@@ -110,7 +127,7 @@ describe('adjusting a store', () => {
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Adjust Freezer' }));
     await fireEvent.press(await screen.findByRole('radio', { name: 'Add' }));
-    await fireEvent.press(screen.getByRole('radio', { name: 'Correcting the count' }));
+    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Correction' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(adjustments()[0]?.payload).toEqual({
@@ -127,10 +144,10 @@ describe('adjusting a store', () => {
 
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Adjust Freezer' }));
-    expect(await screen.findByText('Freezer now holds 80 mL')).toBeOnTheScreen();
+    expect(await screen.findByLabelText('Now in the freezer: 80 ml')).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('radio', { name: 'Fridge' }));
-    expect(screen.getByText('Fridge now holds 300 mL')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Now in the fridge: 300 ml')).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
     expect(adjustments()[0]?.payload).toMatchObject({ loc: 'fridge' });
