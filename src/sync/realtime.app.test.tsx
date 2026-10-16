@@ -108,7 +108,7 @@ describe('hearing about the other phone', () => {
     let theirs: unknown[] = [];
     await openApp({ events: () => theirs }, realtime.watch);
     await waitFor(() => expect(realtime.watched.households).toEqual([HOUSEHOLD]));
-    expect(screen.queryByText(/150 mL formula/)).toBeNull();
+    expect(screen.queryByText(/150 ml formula/)).toBeNull();
 
     theirs = [theirBottle(30, mine.babyId)];
     await act(async () => {
@@ -116,7 +116,7 @@ describe('hearing about the other phone', () => {
     });
 
     // No timer was wound on: the ping alone brought it in.
-    expect(await screen.findByText(/150 mL formula/)).toBeOnTheScreen();
+    expect(await screen.findByText(/150 ml formula/)).toBeOnTheScreen();
     await waitFor(() => expect(h.outbox.cursor()).toBe(30));
     expect(realtime.watched.households).toEqual([HOUSEHOLD]); // still the one subscription
   });

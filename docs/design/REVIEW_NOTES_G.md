@@ -74,6 +74,11 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
 - **Step 11, `TimeShiftField`'s label is now 13/600 soft** (G's small label) and its result line body ink. This shows in every entry editor that moves a time; step 15 restyles the rest of the editor. The sleep editor (`SleepEditForm`) gets the same small labels, grey stepper boxes and Save at the foot.
 - **Step 11, Greek sleep copy is mine** (no Greek sleep file): "Καταγραφή ύπνου", "Ύπνος σε εξέλιξη", "Ξεκίνα ύπνο τώρα", "Το χρονόμετρο τρέχει μέχρι να το σταματήσεις.", "Ξεκίνα τώρα", "Σταμάτα", "Έναρξη" / "Λήξη", "Ή πρόσθεσε ύπνο που έγινε".
 - **Step 11, the sleep sheet keeps the full-height detent `[1]`.** The body is long (the past-sleep section is always there), so it scrolls and `fitToContents` doesn't apply.
+- **Step 12, History rows.** `EntryRow` is now G's row: a 44 badge from the activity module (`describeEntry` carries `icon` and `tone`, so Home's Recent and History read one source), "21:40 · Bottle, 90 ml formula" with the time in bold (new `lead` prop), the person underneath in 13/600 soft, and a chevron when it opens. The title reuses Home's `home.recent.rowSummary` wording, so the two lists read the same; G writes "Bottle 90 ml, formula", the app keeps "Bottle, 90 ml formula". The day card is corner 28, padding 4 by 16, with `line` hairlines between rows.
+- **Step 12, the day label stays sticky**, now 15 Comfortaa soft (`type.dayLabel`) on the page colour, so rows scroll under it. G's 12 gap between label and card is the label's own vertical padding.
+- **Step 12, empty and filtered states.** The empty circle is the card colour (was sleep pink, as step 5 noted) with G's body line "Everything you and your household log shows up here, newest first." The filtered state has G's outlined "Clear filters" (200 wide, `size.emptyAction`), which calls the new `useHistory().clear()` (decision G2).
+- **Step 12, sleep durations are localised in History and Home's Recent rows.** The sleep module's summary is now `activity.sleep.summary.minutes` ("42 min" / "42 λ") or `.hours` ("1 h 20" / "1 ώ 20", G's short form), from `durationParts`, in place of `formatElapsed`'s "1h 20m". The bottle summaries say "ml" (was "mL"). The pump and stock sheets' "mL" units change with step 15.
+- **Step 12, Greek:** "Φίλτρα καταχωρίσεων" and "Καμία καταχώριση με αυτά τα φίλτρα" (G5 καταχωρίσεις); "Καθαρισμός φίλτρων"; the empty line is mine: "Ό,τι καταγράφεις εσύ και οι άλλοι στο νοικοκυριό εμφανίζεται εδώ, με τα πιο πρόσφατα πρώτα."
 
 ## Problems found
 
@@ -98,6 +103,7 @@ Open questions, judgment calls and deviations from the G build (docs/design/MAPP
   - the 32 top corners and the card colour by day and night; the dimmed screen behind;
   - Android: the sheet opens full height and the body's flex layout fills it.
 - Step 9: the mixed feed sheet is longer than the screen (kind, time, side, minutes, amount, milk, from stock); check it scrolls inside the form sheet and Save is reachable at 200% text.
+- Step 12: History's sticky day label over the rows while scrolling, and a row at 200% text (the title wraps beside the 44 badge).
 - Step 11: the sleep sheet's running timer at 200% text (it shrinks to fit one line), and the Start / End fields side by side at 200% ("Today, 22:30 · now" wraps inside the field).
 
 ## Found while working

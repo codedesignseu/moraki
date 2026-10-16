@@ -3,7 +3,7 @@ import { SectionList, StyleSheet, Text, View } from 'react-native';
 
 import { HISTORY_GROUPS } from '@/domain/activities';
 import type { EntryRow as Row } from '@/domain/entries/describeEntry';
-import { Chip, EmptyState, EntryRow, ScreenTitle } from '@/ui/primitives';
+import { Button, Chip, EmptyState, EntryRow, ScreenTitle } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useHistory } from './useHistory';
@@ -25,7 +25,7 @@ export function HistoryScreen({
   const t = typedT as unknown as Translate;
   const theme = useTheme();
   const s = styles(theme);
-  const { days, groups, toggle, hasAnyEvents } = useHistory();
+  const { days, groups, toggle, clear, hasAnyEvents } = useHistory();
 
   return (
     <SectionList
@@ -48,6 +48,7 @@ export function HistoryScreen({
                 key={group}
                 label={t(`history.group.${group}`)}
                 selected={groups.has(group)}
+                fill="card"
                 onPress={() => toggle(group)}
               />
             ))}
@@ -55,11 +56,11 @@ export function HistoryScreen({
         </>
       }
       renderSectionHeader={({ section }) => (
-        <Text accessibilityRole="header" style={[theme.type.heading, s.dayHeader]}>
+        <Text accessibilityRole="header" style={[theme.type.dayLabel, s.dayHeader]}>
           {section.title}
         </Text>
       )}
-      // Sage 12: each day's entries in one white card.
+      // G: each day's entries in one white card, a hairline between rows.
       renderItem={({
         item,
         index,
@@ -76,14 +77,22 @@ export function HistoryScreen({
             index === section.data.length - 1 && s.cardBottom,
           ]}
         >
+          {index > 0 && <View style={s.divider} />}
           <EntryRow
             testID={`history-${item.id}`}
-            title={t(item.labelKey)}
-            detail={item.summary ? t(item.summary.key, item.summary.values) : undefined}
-            meta={[
-              item.time,
-              item.byYou ? t('home.recent.you') : (item.by ?? t('home.recent.other')),
-            ]}
+            icon={item.icon}
+            tone={item.tone}
+            lead={item.time}
+            title={
+              item.summary
+                ? t('home.recent.rowSummary', {
+                    when: item.time,
+                    label: t(item.labelKey),
+                    summary: t(item.summary.key, item.summary.values),
+                  })
+                : t('home.recent.row', { when: item.time, label: t(item.labelKey) })
+            }
+            detail={item.byYou ? t('home.recent.you') : (item.by ?? t('home.recent.other'))}
             {...(onOpenEntry && {
               onPress: () => onOpenEntry(item.id),
               accessibilityHint: t('entry.openHint'),
@@ -92,11 +101,19 @@ export function HistoryScreen({
         </View>
       )}
       ListEmptyComponent={
-        <EmptyState
-          icon="tab-history"
-          colour="sleep"
-          title={t(hasAnyEvents ? 'history.emptyFiltered' : 'history.empty')}
-        />
+        hasAnyEvents ? (
+          <EmptyState
+            icon="tab-history"
+            title={t('history.emptyFiltered')}
+            action={
+              <View style={s.emptyAction}>
+                <Button variant="secondary" label={t('history.clear')} onPress={clear} />
+              </View>
+            }
+          />
+        ) : (
+          <EmptyState icon="tab-history" title={t('history.empty')} body={t('history.emptyBody')} />
+        )
       }
     />
   );
@@ -114,20 +131,25 @@ const styles = (theme: Theme) =>
       gap: theme.spacing.sm,
       paddingVertical: theme.spacing.md,
     },
+    // Sticky, so it keeps the page colour behind it while rows scroll under.
     dayHeader: {
+      color: theme.palette.textSoft,
       backgroundColor: theme.palette.background,
-      paddingTop: theme.spacing.lg,
-      paddingBottom: theme.spacing.sm,
+      paddingTop: theme.spacing.md,
+      paddingBottom: theme.spacing.md,
+      paddingHorizontal: theme.spacing.xs,
     },
     cardRow: { backgroundColor: theme.palette.card, paddingHorizontal: theme.spacing.lg },
     cardTop: {
-      borderTopLeftRadius: theme.radius.card,
-      borderTopRightRadius: theme.radius.card,
-      paddingTop: theme.spacing.sm,
+      borderTopLeftRadius: theme.radius.hero,
+      borderTopRightRadius: theme.radius.hero,
+      paddingTop: theme.spacing.xs,
     },
     cardBottom: {
-      borderBottomLeftRadius: theme.radius.card,
-      borderBottomRightRadius: theme.radius.card,
-      paddingBottom: theme.spacing.sm,
+      borderBottomLeftRadius: theme.radius.hero,
+      borderBottomRightRadius: theme.radius.hero,
+      paddingBottom: theme.spacing.xs,
     },
+    divider: { height: theme.size.borderThin, backgroundColor: theme.palette.line },
+    emptyAction: { width: theme.size.emptyAction, paddingTop: theme.spacing.xs },
   });

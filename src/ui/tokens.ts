@@ -268,6 +268,10 @@ export const size = {
   stepperButton: 52,
   /** G: a list row (tabs/settings, tabs/home grouped card). */
   listRow: 60,
+  /** G: a History entry row, with its 44 badge (tabs/history). */
+  entryRow: 66,
+  /** G: the width of an empty state's one button ("Clear filters", tabs/history-filtered). */
+  emptyAction: 200,
   /** G: the toast pill; its Undo pill is the 48 touch target (G draws 44). */
   toast: 56,
   /** G: a round icon badge, by where it sits (every screen; the icon is half its size). */
@@ -441,6 +445,10 @@ export const type = {
   greeting: { ...heading, fontSize: 19, lineHeight: 22 },
   /** G Home: the greeting's second line and the hero's reminder line (14/600). */
   note: { ...textSemi, fontSize: 14, lineHeight: 19 },
+  /** G History: the day label over each day's card (Comfortaa 15). */
+  dayLabel: { ...heading, fontSize: 15, lineHeight: 18 },
+  /** G History: the time that starts an entry row's title (16/700; the rest is `lead`). */
+  entryTime: { ...textBold, fontSize: 16, lineHeight: 22 },
   /** G Home: a tile's "Last 21:40" line (12/600). */
   tileDetail: { ...textSemi, fontSize: 12, lineHeight: 16 },
 } as const;

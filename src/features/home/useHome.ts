@@ -3,13 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useCaregiverNames, useDevicePref, useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
-import {
-  getActivity,
-  nextAppointment,
-  type BadgeTone,
-  type HomeTile,
-  type IconName,
-} from '@/domain/activities';
+import { nextAppointment, type HomeTile } from '@/domain/activities';
 import { findDuplicateFeeds } from '@/domain/duplicates/duplicateFeeds';
 import { describeEntry, type EntryRow } from '@/domain/entries/describeEntry';
 import { selectHomeState } from '@/domain/home/homeState';
@@ -30,7 +24,7 @@ export const TIMER_TICK_MS = 30_000;
 const RECENT_COUNT = 6;
 
 /** A recent entry with its kind's badge (G recent rows). */
-export type RecentRow = EntryRow & { icon: IconName; tone: BadgeTone };
+export type RecentRow = EntryRow;
 
 /** The running sleep: when it started, as a clock time and in epoch ms for the live timer. */
 export type ActiveSleep = { id: string; startedAt: string; startedAtMs: number };
@@ -217,14 +211,7 @@ export function useHome(): HomeViewModel {
             };
       })(),
       stock: { fridge: place(stock.fridge), freezer: place(stock.freezer) },
-      recent: events.slice(0, RECENT_COUNT).map((e) => {
-        const module = getActivity(e.type);
-        return {
-          ...describeEntry(e, now, tz, me, names),
-          icon: module?.icon ?? 'feed',
-          tone: module?.tone ?? 'feed',
-        };
-      }),
+      recent: events.slice(0, RECENT_COUNT).map((e) => describeEntry(e, now, tz, me, names)),
       lastEntryBy:
         state.lastEntry === null
           ? null

@@ -31,10 +31,11 @@ async function openHistory() {
 }
 const list = () => within(screen.getByTestId('history-list'));
 const chip = (name: string) => screen.getByRole('togglebutton', { name });
+// The kind from each row's "12:00 · Bottle, 90 ml formula" title.
 const rowTitles = () =>
   list()
     .queryAllByTestId(/^history-/)
-    .map((row) => within(row).getAllByText(/.+/)[0]?.props.children);
+    .map((row) => /· ([^,]+)/.exec(row.props.accessibilityLabel as string)?.[1]);
 
 describe('history timeline', () => {
   it('is a tab next to Home and groups entries by local day, newest first', async () => {
@@ -50,8 +51,8 @@ describe('history timeline', () => {
         .map((hdr) => hdr.props.children),
     ).toEqual(['History', 'Today', 'Yesterday', 'Friday 23 October']);
     expect(rowTitles()).toEqual(['Bottle', 'Diaper', 'Bottle', 'Medication']);
-    expect(list().getByText('120 mL formula')).toBeOnTheScreen();
-    expect(list().getByText('21:00')).toBeOnTheScreen();
+    expect(list().getByText('11:00 · Bottle, 120 ml formula')).toBeOnTheScreen();
+    expect(list().getByText('21:00 · Bottle, 60 ml formula')).toBeOnTheScreen();
     expect(list().getAllByText('You')).toHaveLength(4);
   });
 
@@ -79,6 +80,21 @@ describe('history timeline', () => {
     });
     await fireEvent.press(chip('Sleep'));
     expect(screen.getByText('Nothing matches these filters')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(chip('Sleep')).not.toBeSelected();
+    expect(rowTitles()).toEqual(['Bottle']);
+  });
+
+  it('words a finished sleep in hours and minutes', async () => {
+    h.repo.insert({
+      type: 'sleep',
+      occurredAt: NOW - 2 * HOUR,
+      endedAt: NOW - 40 * MIN,
+      payload: {},
+    });
+    await openHistory();
+    expect(list().getByText('10:00 · Sleep, 1 h 20')).toBeOnTheScreen();
   });
 
   it('updates the moment something is logged', async () => {

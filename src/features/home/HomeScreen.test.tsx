@@ -142,7 +142,7 @@ describe('HomeScreen', () => {
     expect(screen.getByLabelText('180 ml bottle')).toBeOnTheScreen();
     const recent = within(screen.getByTestId('home-recent'));
     expect(recent.getAllByText(/Bottle/)).toHaveLength(2);
-    expect(recent.getByText('12:00 · Bottle, 120 mL formula')).toBeOnTheScreen();
+    expect(recent.getByText('12:00 · Bottle, 120 ml formula')).toBeOnTheScreen();
   });
 
   it('shows the next side and the reminder time in local time', async () => {
@@ -196,13 +196,13 @@ describe('HomeScreen', () => {
     for (let i = 1; i <= 8; i += 1) bottle(NOW - i * HOUR, 10 * i);
     await renderHome();
     const recent = within(screen.getByTestId('home-recent'));
-    expect(recent.getAllByText(/mL formula/).map((n) => n.props.children)).toEqual([
-      '11:00 · Bottle, 10 mL formula',
-      '10:00 · Bottle, 20 mL formula',
-      '09:00 · Bottle, 30 mL formula',
-      '08:00 · Bottle, 40 mL formula',
-      '07:00 · Bottle, 50 mL formula',
-      '06:00 · Bottle, 60 mL formula',
+    expect(recent.getAllByText(/ml formula/).map((n) => n.props.children)).toEqual([
+      '11:00 · Bottle, 10 ml formula',
+      '10:00 · Bottle, 20 ml formula',
+      '09:00 · Bottle, 30 ml formula',
+      '08:00 · Bottle, 40 ml formula',
+      '07:00 · Bottle, 50 ml formula',
+      '06:00 · Bottle, 60 ml formula',
     ]);
     expect(recent.getAllByText('You')).toHaveLength(6);
   });

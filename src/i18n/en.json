@@ -6,9 +6,9 @@
     "feed_bottle": {
       "label": "Bottle",
       "summary": {
-        "breast": "{{ml}} mL breast milk",
-        "formula": "{{ml}} mL formula",
-        "mixed": "{{ml}} mL mixed"
+        "breast": "{{ml}} ml breast milk",
+        "formula": "{{ml}} ml formula",
+        "mixed": "{{ml}} ml mixed"
       }
     },
     "feed_breast": {
@@ -31,7 +31,8 @@
       "label": "Sleep",
       "summary": {
         "running": "Sleeping now",
-        "ended": "{{duration}}"
+        "minutes": "{{minutes}} min",
+        "hours": "{{hours}} h {{minutes}}"
       }
     },
     "pump": {
@@ -358,7 +359,9 @@
       "sleep": "Sleep",
       "health": "Health",
       "other": "Other"
-    }
+    },
+    "emptyBody": "Everything you and your household log shows up here, newest first.",
+    "clear": "Clear filters"
   },
   "undo": {
     "action": "Undo",

@@ -130,6 +130,7 @@ describe('activity registry completeness', () => {
     sleep: [
       [{}, null],
       [{}, 3_600_000],
+      [{}, 1_200_000],
     ],
   };
   const summaries = modules.flatMap((m) =>
