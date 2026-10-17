@@ -62,9 +62,33 @@
   --max: 1100px;
   color-scheme: light dark;
 }
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
 
+:root[data-theme='dark'] {
+  --bg: #171411;
+  --card: #23201c;
+  --ink: #f1eae0;
+  --soft: #b8ad9f;
+  --line: #34302b;
+  --chip: #2c2823;
+  --feed: #51432a;
+  --sleep: #47343a;
+  --diaper: #33374d;
+  --pump: #2f4238;
+  --deco: #5e4f31;
+  --btn: #f1eae0;
+  --btn-text: #171411;
+  --logo: #e8a55a;
+  --focus: #f1eae0;
+  --shadow: none;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --bg: #171411;
     --card: #23201c;
     --ink: #f1eae0;
@@ -258,11 +282,17 @@ p {
 .badge-night {
   display: none;
 }
+:root[data-theme='dark'] .badge-day {
+  display: none;
+}
+:root[data-theme='dark'] .badge-night {
+  display: inline;
+}
 @media (prefers-color-scheme: dark) {
-  .badge-day {
+  :root:not([data-theme]) .badge-day {
     display: none;
   }
-  .badge-night {
+  :root:not([data-theme]) .badge-night {
     display: inline;
   }
 }
@@ -363,8 +393,12 @@ section {
   transform: scale(var(--s));
   transform-origin: 0 0;
 }
+:root[data-theme='dark'] .phone {
+  background: #000000;
+  box-shadow: 0 0 0 1px #34302b;
+}
 @media (prefers-color-scheme: dark) {
-  .phone {
+  :root:not([data-theme]) .phone {
     background: #000000;
     box-shadow: 0 0 0 1px #34302b;
   }
@@ -859,11 +893,17 @@ ul.privacy-grid {
 .phone-night {
   display: none;
 }
+:root[data-theme='dark'] .phone-day {
+  display: none;
+}
+:root[data-theme='dark'] .phone-night {
+  display: block;
+}
 @media (prefers-color-scheme: dark) {
-  .phone-day {
+  :root:not([data-theme]) .phone-day {
     display: none;
   }
-  .phone-night {
+  :root:not([data-theme]) .phone-night {
     display: block;
   }
 }
@@ -1156,6 +1196,11 @@ ul.privacy-grid {
   border-radius: 18px;
   padding: 14px 16px;
 }
+.doc .doc-note {
+  border-radius: 22px;
+  padding: 16px;
+  font-weight: 600;
+}
 .doc div.note {
   display: flex;
   flex-direction: column;
@@ -1199,5 +1244,74 @@ ul.privacy-grid {
   .illo-hero {
     width: 300px;
     margin-right: -100px;
+  }
+}
+
+/* theme switch: a pill on wider screens, one round button that cycles on phones */
+.theme-pill {
+  display: none;
+  gap: 4px;
+  padding: 4px;
+  background: var(--card);
+  border-radius: 999px;
+}
+.theme-pill button {
+  min-width: 48px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.theme-pill button[aria-pressed='true'] {
+  background: var(--btn);
+  color: var(--btn-text);
+}
+.theme-cycle {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+}
+.ti {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ti .ti-fill {
+  fill: currentColor;
+  stroke: none;
+}
+.theme-cycle .ti {
+  display: none;
+}
+.theme-cycle[data-state='auto'] .i-auto,
+.theme-cycle[data-state='light'] .i-light,
+.theme-cycle[data-state='dark'] .i-dark {
+  display: block;
+}
+@media (min-width: 720px) {
+  .theme-pill {
+    display: inline-flex;
+  }
+  .theme-cycle {
+    display: none;
   }
 }

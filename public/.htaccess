@@ -30,7 +30,7 @@ DirectoryIndex index.html
 ErrorDocument 404 /404.html
 
 <IfModule mod_headers.c>
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-i5QyTIeYRtd2INriPH6Xl+UF1iK2xCEBDVbdUxF6LwE='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
   Header always set Referrer-Policy "no-referrer"
   Header always set X-Content-Type-Options "nosniff"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"

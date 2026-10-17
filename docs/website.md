@@ -16,7 +16,8 @@ is the design it was built from and is never served.
 | any unknown URL                  | `404.html`, with a 404 status                               |
 
 Shared files: `styles.css` (every colour is a CSS variable), `phone.css` (the
-phone mock-ups on the home pages), `join.js` (the invite page), `404.js` (sends `/join/CODE` on to the invite page
+phone mock-ups on the home pages), `theme.js` (the light and dark switch),
+`join.js` (the invite page), `404.js` (sends `/join/CODE` on to the invite page
 on hosts with no rewrite), `fonts/` (Comfortaa and Manrope, Latin and Greek, OFL
 licence in `fonts/OFL.txt`), `images/`, `robots.txt`, `sitemap.xml`.
 
@@ -74,9 +75,18 @@ so repeat the security headers in the `/fonts/` and `/images/` blocks, or use an
 
 ## Content-Security-Policy
 
-`default-src 'self'` with no third-party origin and no `'unsafe-inline'`. The
-site has no inline scripts or styles: the phone mock-ups use classes from
-`phone.css`.
+`default-src 'self'` with no third-party origin, no `'unsafe-inline'`. The one
+inline script is the few lines in each page's `<head>` that apply the saved
+theme before the page paints. The CSP allows it by its SHA-256 hash. If that
+script changes, the hash in `_headers` and `.htaccess` (and nginx) must change
+with it, or the theme stops loading before paint:
+
+```sh
+python3 -c "import re,hashlib,base64;s=open('public/index.html').read();b=re.search(r'<script>(.*?)</script>',s).group(1);print('sha256-'+base64.b64encode(hashlib.sha256(b.encode()).digest()).decode())"
+```
+
+The HTML files are kept out of Prettier (`.prettierignore`) because reformatting
+that script would change its hash.
 
 ## Before going live
 
