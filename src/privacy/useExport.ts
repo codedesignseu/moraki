@@ -23,7 +23,8 @@ export type ExportState = {
  *
  * Both files are written on the device and shared from there: nothing is
  * uploaded to make an export, and where the copy goes is the share sheet's
- * business, not ours.
+ * business, not ours. Each file is deleted once its share sheet closes, or
+ * once anything fails, so no copy is left behind in the cache.
  */
 export function useExport(): ExportState {
   const events = useEvents();
@@ -63,9 +64,15 @@ export function useExport(): ExportState {
         ['csv', exportCsv(events), 'text/csv'],
       ] as const) {
         const file = new File(Paths.cache, exportFileName(name, at, kind));
-        file.create({ overwrite: true });
-        file.write(text);
-        await Sharing.shareAsync(file.uri, { mimeType: mime, UTI: `public.${kind}` });
+        try {
+          file.create({ overwrite: true });
+          file.write(text);
+          await Sharing.shareAsync(file.uri, { mimeType: mime, UTI: `public.${kind}` });
+        } finally {
+          // The share sheet has handed the copy on, or it failed: either way
+          // a whole household's history must not sit in the cache after.
+          removeQuietly(file);
+        }
       }
     } catch {
       // The reason is never shown: it can name a file holding health data
@@ -77,4 +84,13 @@ export function useExport(): ExportState {
   }, [events, caregivers, household]);
 
   return { problem, busy, exportAll };
+}
+
+/** Deleting is cleanup: a failure here must not hide the export's outcome. */
+function removeQuietly(file: File): void {
+  try {
+    if (file.exists) file.delete();
+  } catch {
+    // Nothing to report: the OS clears the cache directory in time anyway.
+  }
 }

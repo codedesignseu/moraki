@@ -46,9 +46,39 @@ describe('everything the phone should be holding', () => {
     expect(out.every((r) => r.category === 'appointment')).toBe(true);
   });
 
-  it('carries the appointment’s own title, and nothing about the baby', () => {
-    const out = computeAllReminders([appointment(NOW + 2 * DAY, 'Dr Andreou, 10:30')], ON, NOW, TZ);
-    expect(out[0]?.values).toEqual({ title: 'Dr Andreou, 10:30' });
+  it('never carries the appointment’s title or notes, only the time of day (rule 8)', () => {
+    // 10:30 in Nicosia, two days ahead.
+    const at = Date.UTC(2026, 9, 30, 8, 30);
+    const visit = ev('appointment', at, {
+      title: 'Dr Andreou, reflux',
+      doctor: 'Andreou',
+      clinic: 'Paeds clinic',
+      notes: 'Ask about the rash',
+      questions: ['How much formula?'],
+    });
+    const out = computeAllReminders([visit], ON, NOW, TZ);
+
+    expect(out.map((r) => r.values)).toEqual([{ time: '10:30' }, undefined]);
+    const shown = JSON.stringify(out);
+    for (const secret of ['Andreou', 'reflux', 'Paeds', 'rash', 'formula']) {
+      expect(shown).not.toContain(secret);
+    }
+  });
+
+  it('hands the lock screen nothing but a clock time, from any activity', () => {
+    const out = computeAllReminders(
+      [feed(NOW - HOUR), appointment(NOW + 2 * DAY, 'Weigh-in 4.2 kg')],
+      { ...ON, secondReminderMin: 60 },
+      NOW,
+      TZ,
+    );
+    expect(out.length).toBeGreaterThan(2);
+    for (const reminder of out) {
+      for (const [key, value] of Object.entries(reminder.values ?? {})) {
+        expect(key).toBe('time');
+        expect(value).toMatch(/^\d{2}:\d{2}$/);
+      }
+    }
   });
 
   it('leaves out a reminder whose moment has already passed', () => {
@@ -98,22 +128,23 @@ describe('everything the phone should be holding', () => {
 
   it("never hands one activity another's entries", () => {
     // A diaper dated in the future (another phone's clock ran fast) must not
-    // reach the appointment module, which would read a title off a payload
-    // that has none and remind about nothing.
+    // reach the appointment module, which would remind about an appointment
+    // that doesn't exist.
     const skewed = ev('diaper', NOW + 3 * DAY, { kind: 'wet' });
     const out = computeAllReminders([skewed, appointment(NOW + 2 * DAY)], ON, NOW, TZ);
 
     expect(out.every((r) => r.id.startsWith('appointment:e'))).toBe(true);
-    expect(out.every((r) => typeof r.values?.title === 'string')).toBe(true);
     expect(out).toHaveLength(2);
   });
 
   it('asks each activity only about its own entries', () => {
-    // A feed must never reach the appointment module, which would read a
-    // title off a payload that has none.
+    // A feed must never reach the appointment module, which would remind
+    // about an appointment that doesn't exist.
     const out = computeAllReminders([feed(NOW - HOUR), appointment(NOW + 2 * DAY)], ON, NOW, TZ);
-    expect(out.filter((r) => r.category === 'appointment').every((r) => r.values?.title)).toBe(
-      true,
-    );
+    expect(out.filter((r) => r.category === 'appointment')).toHaveLength(2);
+    expect(out.filter((r) => r.id.startsWith('appointment:')).map((r) => r.category)).toEqual([
+      'appointment',
+      'appointment',
+    ]);
   });
 });
