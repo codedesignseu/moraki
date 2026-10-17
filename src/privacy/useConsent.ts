@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { useDevicePref } from '@/db/react';
+import { agreedToCurrent, CONSENT_VERSION } from '@/domain/consent/consent';
 import { useAuth } from '@/sync/AuthProvider';
 
 /** A request that never reached the server, however it was reported. */
@@ -9,8 +10,7 @@ function offline(error: unknown): boolean {
   return !code && /fetch|network/i.test(message ?? '');
 }
 
-/** The policy this build asks about. It must match the server's version. */
-export const CONSENT_VERSION = '2026-09-23';
+export { CONSENT_VERSION };
 
 export type ConsentState = {
   /** Whether the signed-in account has agreed, as far as this phone knows. */
@@ -76,8 +76,9 @@ export function useConsent(): ConsentState {
   );
 
   return {
-    granted: consent !== null && consent.userId === userId,
-    grantedBy: (who: string) => consent !== null && consent.userId === who,
+    // An agreement to an older version is no agreement: the text changed.
+    granted: agreedToCurrent(consent, userId),
+    grantedBy: (who: string) => agreedToCurrent(consent, who),
     problem,
     busy,
     agree: useCallback(() => call('grant_consent'), [call]),

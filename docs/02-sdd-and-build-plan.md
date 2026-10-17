@@ -662,13 +662,13 @@ Dogfood gate: run 14 days. Log every friction point as a GitHub issue labelled `
 
 ### 12.1 GDPR
 
-- Lawful basis: Article 6(1)(b) for running the service, and Article 9(2)(a) explicit consent for health data about the baby. Consent is asked of every caregiver, on its own screen, not bundled with terms, stored with a policy version. Withdrawing consent stops sync for that user and offers export and deletion.
+- Lawful basis: Article 6(1)(b) for running the service, and Article 9(2)(a) explicit consent for health data about the baby. Consent is asked of every caregiver, on its own screen, not bundled with terms, stored with a policy version (2026-10-18 since the text was rewritten to match the app; an older version counts as not agreed, on the server and on the phone). Withdrawing consent stops sync for that user and offers export and deletion.
 - The parents consent for the baby as holders of parental responsibility. The viewer role doesn't write data but still consents, because they read it.
 - Data minimisation: no location, no contacts, no photos at POC. Display names, not legal names.
 - Hosting: Supabase `eu-central-1` (Frankfurt), confirmed 2026-09-27. No DPA to sign: Supabase incorporates its Data Processing Addendum into its Terms of Service, so it applies automatically — keep a dated copy of that statement as the Article 28 evidence (`docs/compliance/processors.md`).
 - Processors list: `docs/compliance/processors.md` is the list, kept current with the code (P4-11). As at 2026-09-26: Supabase (database, auth), Google Workspace SMTP (sign-in code delivery — the built-in sender only mails project members, P2-F5), Sentry EU (crash reports, scrubbed), Expo (build service; and update delivery if EAS Update is switched on), Apple and Google (distribution today, push delivery from P4-02 with content-free messages). Nothing else, and no analytics at all.
 - Rights: export (P4-05), deletion (P4-06), correction (edit on every entry already).
-- Retention: households with no activity for 24 months are warned by email and deleted after 30 more days. The sweep is not built yet (P4-F5), and `docs/compliance/retention.md` says so rather than implying otherwise.
+- Retention: households with no activity for 24 months are deleted by a daily `pg_cron` sweep (`sweep_inactive_households`, 2026-10-18). The warning email 30 days before is not built, because nothing in the project sends email yet; `docs/compliance/retention.md` says so rather than implying otherwise.
 - DPIA: `docs/compliance/dpia.md` (P4-11). Health data about children at any scale is a strong trigger, so it is treated as required. It names three things to finish before any public release — P2-F7 (rate limit invite acceptance), P4-06 (erasure) and P5-03 (local database encryption) — and one before the beta: sign the Supabase DPA.
 - Records of processing (Article 30) in `docs/compliance/records-of-processing.md`, retention in `docs/compliance/retention.md`.
 
