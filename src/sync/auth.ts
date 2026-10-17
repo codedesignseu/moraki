@@ -139,6 +139,35 @@ export function createAuth(env: SupabaseEnv, store: SecureKeyValueStore, fetchIm
       }
     },
 
+    /**
+     * Which sign-in providers this account is linked to ("email", "apple",
+     * "google"), read from the stored session like `currentUser`. Deleting an
+     * Apple-linked account revokes its Apple tokens first (App Store 5.1.1(v)).
+     */
+    async providers(): Promise<string[]> {
+      try {
+        const raw = await storage.getItem(AUTH_STORAGE_KEY);
+        if (raw === null) return [];
+        const user = (
+          JSON.parse(raw) as {
+            user?: {
+              app_metadata?: { providers?: unknown };
+              identities?: { provider?: unknown }[] | null;
+            } | null;
+          }
+        ).user;
+        const listed = Array.isArray(user?.app_metadata?.providers)
+          ? user.app_metadata.providers
+          : [];
+        const linked = (user?.identities ?? []).map((identity) => identity.provider);
+        return [...new Set([...listed, ...linked])].filter(
+          (provider): provider is string => typeof provider === 'string',
+        );
+      } catch {
+        return [];
+      }
+    },
+
     /** Called on sign in, sign out and token refresh. Returns an unsubscribe function. */
     onChange(listener: (user: AuthUser | null) => void): () => void {
       const { data } = client.auth.onAuthStateChange((_event, session) =>

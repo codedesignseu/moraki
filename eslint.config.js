@@ -81,7 +81,14 @@ module.exports = defineConfig([
   expoConfig,
   {
     // design/ is the Sage export: reference only, never imported by the app.
-    ignores: ['dist/*', '.expo/*', 'expo-env.d.ts', 'design/**'],
+    ignores: [
+      'dist/*',
+      '.expo/*',
+      'expo-env.d.ts',
+      'design/**',
+      // Deno entry points (Edge Functions): jsr: imports Node can't resolve.
+      'supabase/functions/*/index.ts',
+    ],
   },
   {
     // Root config files run in Node.

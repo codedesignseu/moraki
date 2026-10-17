@@ -417,8 +417,8 @@
       "second": "No feed logged since {{time}}"
     },
     "appointment": {
-      "dayBefore": "Tomorrow: {{title}}",
-      "hourBefore": "In an hour: {{title}}"
+      "dayBefore": "Appointment tomorrow at {{time}}",
+      "hourBefore": "Appointment in an hour"
     }
   },
   "settings": {
@@ -572,7 +572,7 @@
     "feedback": {
       "title": "Feedback",
       "body": "Something not working, or an idea for it? Tell us.",
-      "needsAccount": "Sending feedback needs an account, so we can reply through the app later. Sign in above first.",
+      "needsAccount": "Sending feedback needs an account, so we know which messages come from the same person. Sign in above first.",
       "open": "Send feedback"
     },
     "signOut": {
@@ -879,18 +879,19 @@
   },
   "consent": {
     "title": "Health data",
-    "what": "Moraki records what you log about your baby: feeds, diapers, sleep, weight, temperatures, notes and medication. That is health data, so we ask before processing it.",
-    "where": "It is stored on your phone and, once you sign in, on servers in the EU so your caregivers see it too.",
-    "who": "Only people in your household see it. It is never sold, never used for advertising, and never used to train anything.",
-    "rights": "You can export everything at any time. You can delete your account, or the whole household, in Settings → Leave or delete. Withdrawing this agreement stops it being processed, and you can delete any entry on this phone.",
+    "what": "Moraki records what you log about your baby: feeds, diapers, sleep, pumping, weight, temperatures, notes, medication and appointments. That is health data, so we ask before your entries leave this phone.",
+    "where": "Your entries are stored on this phone, encrypted. Once you sign in and agree, they also sync to servers in the EU, so the people in your household see them. Until you agree, your entries stay on this phone and are not shared. You still see what others in the household share.",
+    "who": "Only people in your household see it. The baby’s details you enter when you set up a household, like name, birth time and weight, are shared with the household as soon as you set it up, even before you agree. Nothing is ever sold, used for advertising or used to train anything.",
+    "rights": "You can export your data at any time in Settings → Data export → Export my data. You can leave the household or delete your account in Settings → Leave or delete. The household’s owner can delete the whole household there too.",
+    "withdrawal": "If you withdraw, your new entries stay on this phone and stop syncing. What you already shared stays with the household, as part of the baby’s record, until the household is deleted. Deleting your account takes it with it only if nobody else is in the household.",
     "version": "Policy version {{version}}",
-    "versionName": "2026-09-23",
+    "versionName": "2026-10-18",
     "agree": "I agree",
     "working": "Saving…",
     "notNow": "Not now",
     "granted": "You agreed to this on this account.",
     "withdraw": "Withdraw my agreement",
-    "withdrawHint": "Your entries stay on this phone and stop syncing. Nothing already saved is deleted.",
+    "withdrawHint": "New entries stay on this phone and stop syncing. What you already shared stays with the household.",
     "problem": {
       "offline": "No connection. Try again when you have one.",
       "signed_out": "Sign in first, then agree.",
@@ -975,7 +976,9 @@
       "only_member": "You are the only member, so you can't leave. Delete the household instead.",
       "offline": "No connection. Nothing was deleted. Try again when you're online.",
       "unknown": "Something went wrong. Nothing was deleted. Try again.",
-      "successor": "That person is no longer in the household. Go back to Settings and choose again."
+      "successor": "That person is no longer in the household. Go back to Settings and choose again.",
+      "apple_cancelled": "You signed in with Apple, so Apple needs to confirm before your account is deleted. Nothing was deleted. Tap the button again and confirm with Apple.",
+      "apple_revoke": "Couldn't disconnect your account from Sign in with Apple. Nothing was deleted. Try again."
     },
     "successor": {
       "question": "Who becomes owner?"

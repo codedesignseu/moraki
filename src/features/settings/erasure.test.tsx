@@ -1,4 +1,6 @@
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { fireEvent, screen, waitFor } from 'expo-router/testing-library';
+import { Platform } from 'react-native';
 
 import { readLinkedIdentity } from '@/db/identity';
 import { META_KEYS } from '@/db/meta';
@@ -16,6 +18,8 @@ import {
 } from '@/testing/fakeSupabaseAuth';
 
 jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
+jest.mock('expo-apple-authentication', () => ({ signInAsync: jest.fn() }));
+const appleSignIn = AppleAuthentication.signInAsync as jest.Mock;
 
 const NOW = Date.parse('2026-10-28T12:00:00Z');
 const HOUSEHOLD = '0190a0b0-0000-7000-8000-0000000000a1';
@@ -206,5 +210,87 @@ describe('leaving and deleting (P4-06)', () => {
     );
     expect(h.repo.list()).toHaveLength(1);
     expect(readLinkedIdentity(h.mem.db)).not.toBeNull();
+  });
+});
+
+describe('deleting an account signed in with Apple (App Store 5.1.1(v))', () => {
+  const paths = (server: { calls: { path: string }[] }) =>
+    server.calls
+      .map((call) => call.path)
+      .filter((path) =>
+        ['/functions/v1/apple-revoke', '/rest/v1/rpc/delete_account'].includes(path),
+      );
+
+  beforeEach(() => appleSignIn.mockReset());
+  afterEach(() => jest.restoreAllMocks());
+
+  async function deleteAppleAccount(options: Parameters<typeof authServer>[0] = {}) {
+    const server = await openLeaveOrDelete({
+      ...household('owner', false),
+      providers: ['apple'],
+      ...options,
+    });
+    await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Yes, delete my account' }));
+    return server;
+  }
+
+  it('confirms with Apple, revokes the tokens, then deletes the account', async () => {
+    appleSignIn.mockResolvedValue({ authorizationCode: 'fresh-code' });
+    const revoked: Record<string, unknown>[] = [];
+    const server = await deleteAppleAccount({ appleRevoke: (body) => void revoked.push(body) });
+
+    await waitFor(() => expect(h.repo.list()).toEqual([]));
+    expect(appleSignIn).toHaveBeenCalledWith({ requestedScopes: [] });
+    expect(revoked).toEqual([{ authorizationCode: 'fresh-code' }]);
+    expect(paths(server)).toEqual(['/functions/v1/apple-revoke', '/rest/v1/rpc/delete_account']);
+  });
+
+  it("deletes nothing when the person closes Apple's sheet, and says why", async () => {
+    appleSignIn.mockRejectedValue(
+      Object.assign(new Error('canceled'), { code: 'ERR_REQUEST_CANCELED' }),
+    );
+    const server = await deleteAppleAccount();
+
+    expect(await screen.findByTestId('erasure-problem')).toHaveTextContent(
+      /Apple needs to confirm before your account is deleted/,
+    );
+    expect(paths(server)).toEqual([]);
+    expect(h.repo.list()).toHaveLength(1);
+    expect(readLinkedIdentity(h.mem.db)).not.toBeNull();
+  });
+
+  it("deletes nothing when Apple's tokens cannot be revoked, so the person can retry", async () => {
+    appleSignIn.mockResolvedValue({ authorizationCode: 'fresh-code' });
+    const server = await deleteAppleAccount({
+      appleRevoke: () =>
+        new Response(JSON.stringify({ error: 'invalid_code' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    });
+
+    expect(await screen.findByTestId('erasure-problem')).toHaveTextContent(
+      /Couldn't disconnect your account from Sign in with Apple/,
+    );
+    expect(paths(server)).toEqual(['/functions/v1/apple-revoke']);
+    expect(h.repo.list()).toHaveLength(1);
+  });
+
+  it('asks nothing of an account that never used Apple', async () => {
+    const server = await deleteAppleAccount({ providers: ['email'] });
+
+    await waitFor(() => expect(h.repo.list()).toEqual([]));
+    expect(appleSignIn).not.toHaveBeenCalled();
+    expect(paths(server)).toEqual(['/rest/v1/rpc/delete_account']);
+  });
+
+  it('deletes without Apple off iOS, where Apple has no native sheet', async () => {
+    jest.replaceProperty(Platform, 'OS', 'android');
+    const server = await deleteAppleAccount();
+
+    await waitFor(() => expect(h.repo.list()).toEqual([]));
+    expect(appleSignIn).not.toHaveBeenCalled();
+    expect(paths(server)).toEqual(['/rest/v1/rpc/delete_account']);
   });
 });

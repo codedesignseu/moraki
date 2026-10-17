@@ -195,9 +195,10 @@ describe('reminders for an appointment', () => {
 
     await waitFor(() => expect(os.held()).toHaveLength(2));
     expect(os.held().map((r) => r.at - at)).toEqual([-DAY, -HOUR]);
+    // The time of day, never the title: it shows on a lock screen (rule 8).
     expect(os.held().map((r) => r.body)).toEqual([
-      'Tomorrow: Six week check',
-      'In an hour: Six week check',
+      'Appointment tomorrow at 14:00',
+      'Appointment in an hour',
     ]);
   });
 

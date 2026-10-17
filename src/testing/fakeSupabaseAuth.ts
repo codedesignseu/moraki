@@ -33,7 +33,7 @@ export function keychain() {
 }
 
 const b64 = (value: object) => Buffer.from(JSON.stringify(value)).toString('base64url');
-export function session(expiresAt: number) {
+export function session(expiresAt: number, providers: string[] = ['email']) {
   return {
     access_token: `${b64({ alg: 'HS256' })}.${b64({ sub: USER_ID, exp: expiresAt, role: 'authenticated' })}.sig`,
     token_type: 'bearer',
@@ -46,7 +46,7 @@ export function session(expiresAt: number) {
       aud: 'authenticated',
       role: 'authenticated',
       email: EMAIL,
-      app_metadata: { provider: 'email', providers: ['email'] },
+      app_metadata: { provider: providers[0] ?? 'email', providers },
       user_metadata: { note: 'x'.repeat(2500) },
       created_at: new Date().toISOString(),
     },
@@ -112,6 +112,10 @@ export function authServer(
     createHousehold?: () => Response;
     /** Apple/Google sign in (P5-04), grant_type=id_token. */
     idToken?: () => Response;
+    /** Providers the signed-in account is linked to. Defaults to email only. */
+    providers?: string[];
+    /** The apple-revoke Edge Function: called with the body; a Response answers instead of `{ revoked: true }`. */
+    appleRevoke?: (body: Record<string, unknown>) => Response | undefined;
   } = {},
 ) {
   const calls: Call[] = [];
@@ -132,7 +136,10 @@ export function authServer(
       case '/auth/v1/otp':
         return json(200, {});
       case '/auth/v1/verify':
-        return options.verify?.() ?? json(200, session(Math.floor(Date.now() / 1000) + HOUR_S));
+        return (
+          options.verify?.() ??
+          json(200, session(Math.floor(Date.now() / 1000) + HOUR_S, options.providers))
+        );
       case '/auth/v1/token':
         // Apple/Google sign in (P5-04) only ever calls this with
         // grant_type=id_token; email OTP's own refresh calls never reach a
@@ -284,6 +291,8 @@ export function authServer(
             body as Record<string, unknown>,
           ) ?? new Response(null, { status: 204 })
         );
+      case '/functions/v1/apple-revoke':
+        return options.appleRevoke?.(body) ?? json(200, { revoked: true });
       default:
         return json(404, { code: 'not_found' });
     }

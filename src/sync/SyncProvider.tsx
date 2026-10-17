@@ -19,6 +19,7 @@ import {
   useLinkedIdentity,
   useOutboxRepository,
 } from '@/db/react';
+import { agreedToCurrent } from '@/domain/consent/consent';
 
 import { useAuth } from './AuthProvider';
 import { createPullEngine, type PullEngine } from './pullEngine';
@@ -65,11 +66,12 @@ export function SyncProvider({
   const linked = useLinkedIdentity();
   const { auth, state } = useAuth();
   // P3-09: nothing syncs for an account that hasn't agreed to health data
-  // being processed. The server refuses it too; this stops the phone asking.
+  // being processed, to the version in force. The server refuses it too; this
+  // stops the phone asking.
   const [consent] = useDevicePref('consent');
   const userId = state.status === 'signedIn' ? state.user.id : null;
   const consented = useCallback(
-    () => consent !== null && consent.userId === userId,
+    () => agreedToCurrent(consent, userId),
     [consent, userId],
   );
   // Re-pushes after every committed write (the events repository's signal).

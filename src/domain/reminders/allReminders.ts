@@ -34,7 +34,7 @@ export function computeAllReminders(
 
   const contributed = [...byType.entries()].flatMap(([type, ofType]) => {
     const module = getActivity(type);
-    return module?.reminders?.(ofType, settings, now) ?? [];
+    return module?.reminders?.(ofType, settings, now, tz) ?? [];
   });
 
   return [...computeFeedReminders(events, settings, now, tz), ...contributed].sort(

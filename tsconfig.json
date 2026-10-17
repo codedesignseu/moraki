@@ -10,5 +10,11 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "exclude": ["node_modules", "design"]
+  "exclude": [
+    "node_modules",
+    "design",
+    // Deno entry points (Edge Functions): Deno globals and jsr: imports. Their
+    // pure modules, e.g. apple-revoke/apple.ts, stay checked.
+    "supabase/functions/*/index.ts"
+  ]
 }
