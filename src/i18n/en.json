@@ -417,8 +417,8 @@
       "second": "No feed logged since {{time}}"
     },
     "appointment": {
-      "dayBefore": "Tomorrow: {{title}}",
-      "hourBefore": "In an hour: {{title}}"
+      "dayBefore": "Appointment tomorrow at {{time}}",
+      "hourBefore": "Appointment in an hour"
     }
   },
   "settings": {
@@ -572,7 +572,7 @@
     "feedback": {
       "title": "Feedback",
       "body": "Something not working, or an idea for it? Tell us.",
-      "needsAccount": "Sending feedback needs an account, so we can reply through the app later. Sign in above first.",
+      "needsAccount": "Sending feedback needs an account, so we know which messages come from the same person. Sign in above first.",
       "open": "Send feedback"
     },
     "signOut": {
