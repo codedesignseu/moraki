@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { Platform } from 'react-native';
 
 import { useResetPhone } from '@/db/react';
 import { useAuth } from '@/sync/AuthProvider';
@@ -7,10 +8,12 @@ import {
   deleteHousehold,
   ErasureError,
   leaveHousehold,
+  revokeAppleTokens,
   type ErasureFailure,
 } from '@/sync/erasure';
 import { useAccountHousehold } from '@/sync/useAccountHousehold';
 
+import { confirmWithApple } from './appleConfirm';
 import { useCaregivers } from './useCaregivers';
 
 export type ErasureAction = 'leave' | 'deleteHousehold' | 'deleteAccount';
@@ -46,8 +49,17 @@ export function useErasure(onDone: () => void) {
       setProblem(null);
       try {
         const next = needsSuccessor ? successor : null;
-        if (action === 'deleteAccount') await deleteAccount(auth, next);
-        else if (!household) return;
+        if (action === 'deleteAccount') {
+          // App Store 5.1.1(v): an Apple-linked account's Apple tokens are
+          // revoked first. Only iOS has Apple's native sheet; elsewhere the
+          // account is deleted without it (see docs/10-release-runbook.md).
+          if (Platform.OS === 'ios' && (await auth.providers()).includes('apple')) {
+            const code = await confirmWithApple();
+            if (code === null) throw new ErasureError('apple_cancelled');
+            await revokeAppleTokens(auth, code);
+          }
+          await deleteAccount(auth, next);
+        } else if (!household) return;
         else if (action === 'leave') await leaveHousehold(auth, household.householdId, next);
         else await deleteHousehold(auth, household.householdId);
         resetPhone({ forgetAccount: action === 'deleteAccount' });
