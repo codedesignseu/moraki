@@ -28,6 +28,18 @@ async function openPumpSheet() {
 }
 
 describe('logging a pump session', () => {
+  it('opens as G draws it: title, now subtitle, the time field and the three places', async () => {
+    await openPumpSheet();
+
+    expect(screen.getByRole('header', { name: 'Log pumping' })).toBeOnTheScreen();
+    expect(screen.getByText('Now · 12:00')).toBeOnTheScreen();
+    expect(screen.getByTestId('pump-when-value')).toHaveTextContent('Today, 12:00 · now');
+    expect(screen.getByLabelText('Amount')).toHaveAccessibilityValue({ text: '100 ml' });
+    for (const name of ['Fridge', 'Freezer', 'Fed']) {
+      expect(screen.getByRole('radio', { name })).toBeOnTheScreen();
+    }
+  });
+
   it('saves the amount and where it went, from home', async () => {
     await openPumpSheet();
     await fireEvent.press(screen.getByRole('radio', { name: 'Freezer' }));
@@ -43,7 +55,7 @@ describe('logging a pump session', () => {
     const at = NOW - HOUR;
     await fireEvent(screen.getByTestId('pump-when'), 'change', at);
 
-    expect(screen.getByTestId('pump-when-value')).toHaveTextContent('Wed 1 Jul, 11:00');
+    expect(screen.getByTestId('pump-when-value')).toHaveTextContent('Today, 11:00');
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(pumps()).toHaveLength(1);
@@ -63,7 +75,7 @@ describe('logging a pump session', () => {
 
   it('adds nothing to a store when the milk was fed straight away', async () => {
     await openPumpSheet();
-    await fireEvent.press(screen.getByRole('radio', { name: 'Fed straight away' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Fed' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(pumps()[0]?.payload).toMatchObject({ dest: 'fed' });
@@ -89,9 +101,9 @@ describe('pouring a bottle from the fridge', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Log feed' }));
     // The store only comes up for expressed milk, so the totals appear with it.
     await fireEvent.press(screen.getByRole('radio', { name: 'Breast milk' }));
-    expect(screen.getByText('Fridge 200 mL · Freezer 0 mL')).toBeOnTheScreen();
+    expect(screen.getByText('Fridge 200 ml · Freezer 0 ml')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('radio', { name: 'Fridge' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
 
     const bottle = repo.list().find((e) => e.type === 'feed_bottle');
     expect(bottle?.payload).toMatchObject({ from_stock: 'fridge' });
@@ -99,7 +111,7 @@ describe('pouring a bottle from the fridge', () => {
 
     // The next feed opens on the same store, with the new total.
     await fireEvent.press(screen.getByRole('button', { name: 'Log feed' }));
-    expect(screen.getByText('Fridge 110 mL · Freezer 0 mL')).toBeOnTheScreen();
+    expect(screen.getByText('Fridge 110 ml · Freezer 0 ml')).toBeOnTheScreen();
   });
 
   it('is not from a store unless someone says so', async () => {
@@ -107,7 +119,7 @@ describe('pouring a bottle from the fridge', () => {
 
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Log feed' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
 
     const bottle = repo.list().find((e) => e.type === 'feed_bottle');
     expect(bottle?.payload).not.toHaveProperty('from_stock');
@@ -126,7 +138,7 @@ describe('pouring a bottle from the fridge', () => {
     await renderApp();
     await fireEvent.press(screen.getByTestId(`recent-${bottle.id}`));
     await fireEvent.press(await screen.findByRole('radio', { name: 'Not from a store' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save changes' }));
 
     // The place is gone from the entry, not just blank, so the fold stops
     // taking from a store that never gave the milk.
@@ -150,7 +162,7 @@ describe('pouring a bottle from the fridge', () => {
     await renderApp();
     await fireEvent.press(screen.getByTestId(`recent-${bottle.id}`));
     await fireEvent.press(await screen.findByRole('radio', { name: 'Freezer' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save changes' }));
 
     expect(repo.get(bottle.id)?.payload).toMatchObject({ from_stock: 'freezer' });
     expect(fridge().ml).toBe(200);
@@ -168,7 +180,7 @@ describe('pouring a bottle from the fridge', () => {
     await fireEvent.press(screen.getByRole('radio', { name: 'Formula' }));
     expect(screen.queryByRole('radio', { name: 'Fridge' })).toBeNull();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
     expect(repo.list().find((e) => e.type === 'feed_bottle')?.payload).not.toHaveProperty(
       'from_stock',
     );

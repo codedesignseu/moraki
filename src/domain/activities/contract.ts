@@ -46,8 +46,35 @@ export type Event<P> = {
 // Placeholders for types owned by later tasks. Branded so nothing can satisfy
 // them by accident; each is replaced by the real shape when its task lands.
 type Placeholder<Name extends string> = { readonly __placeholder: Name };
-/** Replaced when the home grid gets icons (P1-06). */
-export type IconName = Placeholder<'IconName'>;
+/**
+ * The badge icon of each activity, as a key of the UI icon set
+ * (src/ui/icons.ts, one PNG in assets/icons each). Plain strings, because the
+ * domain imports nothing from the UI; a UI test checks each one exists.
+ */
+export const ACTIVITY_ICONS = [
+  'feed',
+  'sleep',
+  'diaper',
+  'pump',
+  'health',
+  'weight',
+  'visit',
+] as const;
+
+export type IconName = (typeof ACTIVITY_ICONS)[number];
+
+/**
+ * The colour behind an activity's badge (direction G history and recent
+ * rows), as a palette name the UI resolves per scheme, never a colour value.
+ */
+export const BADGE_TONES = ['feed', 'sleep', 'diaper', 'pump'] as const;
+
+export type BadgeTone = (typeof BADGE_TONES)[number];
+
+/** The four activity tiles on Home, in the order the grid shows them (direction G). */
+export const HOME_TILES = ['feed', 'sleep', 'diaper', 'pump'] as const;
+
+export type HomeTile = (typeof HOME_TILES)[number];
 /** Replaced by the log sheets (P1-07 onwards). */
 export type LogSheetProps<P> = Placeholder<'LogSheetProps'> & { readonly __payload?: P };
 /**
@@ -65,9 +92,18 @@ export type Stats = {
   breastMs: number;
   wet: number;
   dirty: number;
+  /** Diaper changes, each once whatever was in it (Home "Today"). */
+  diapers: number;
 };
 
-export const EMPTY_STATS: Stats = { feedIds: [], ml: 0, breastMs: 0, wet: 0, dirty: 0 };
+export const EMPTY_STATS: Stats = {
+  feedIds: [],
+  ml: 0,
+  breastMs: 0,
+  wet: 0,
+  dirty: 0,
+  diapers: 0,
+};
 /**
  * Milk kept in each place, oldest first (SDD 6.3). Stock is never stored, only
  * folded from the events, so two caregivers taking milk at the same moment
@@ -167,9 +203,9 @@ export type LogSheetComponent<P> = {
  * everything about itself; nothing outside `domain/activities/` branches on
  * event type.
  *
- * `icon`, `LogSheet` and `summarize` are required by 15.2 but optional here
- * until the tasks that build them (P1-06, P1-07 onwards) fill every module in.
- * The registry completeness test tightens as they land.
+ * `LogSheet` and `summarize` are required by 15.2 but optional here until
+ * the tasks that build them fill every module in. The registry completeness
+ * test tightens as they land.
  */
 export type ActivityModule<P> = {
   type: EventType;
@@ -177,11 +213,16 @@ export type ActivityModule<P> = {
   schema: ZodType<P>;
   /** Label key in src/i18n, never a literal string. */
   i18nKey: string;
-  icon?: IconName;
+  /** The badge on history and recent rows: an icon and the tone behind it. */
+  icon: IconName;
+  tone: BadgeTone;
   /** Which history filter chip shows it (P1-11). Checked by the completeness test. */
   historyGroup?: HistoryGroup;
-  /** Present when the module appears on the home grid. */
-  quickAction?: { order: number };
+  /**
+   * Present when the module appears on the home grid: the tile that logs it,
+   * and whose "Last 21:40" line it sets. Bottle and breast share the feed tile.
+   */
+  quickAction?: { tile: HomeTile };
   LogSheet?: LogSheetComponent<P>;
   /**
    * The detail line for history and home rows, as an i18n key plus values.

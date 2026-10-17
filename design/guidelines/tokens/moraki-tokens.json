@@ -1,0 +1,90 @@
+{
+  "name": "Moraki Stone",
+  "version": "1.0",
+  "logo": {
+    "note": "The logo keeps its own colours in every theme.",
+    "ink": "#2A211C",
+    "honey": "#E8A55A",
+    "honeyDeep": "#C9802F",
+    "wordmarkFont": "Commissioner SemiBold 600"
+  },
+  "color": {
+    "day": {
+      "background": "#EEEDE7",
+      "card": "#FFFFFF",
+      "ink": "#161412",
+      "textSoft": "#5C5852",
+      "line": "#E4E2DA",
+      "outline": "#CFCCC3",
+      "chip": "#EEEDE7",
+      "selected": "#161412",
+      "onSelected": "#FFFFFF",
+      "buttonPrimary": "#161412",
+      "onButtonPrimary": "#FFFFFF",
+      "tabBar": "#161412",
+      "onTabBar": "#FFFFFF",
+      "tabActive": "#FFFFFF",
+      "onTabActive": "#161412",
+      "scrim": "rgba(22, 20, 18, 0.35)",
+      "feed": "#F3DF8C",
+      "sleep": "#ECD3CA",
+      "diaper": "#CDD1F2",
+      "pump": "#CDE5DA",
+      "onTile": "#161412",
+      "onTileSoft": "#3E3A35"
+    },
+    "night": {
+      "background": "#171411",
+      "card": "#23201C",
+      "ink": "#F1EAE0",
+      "textSoft": "#B8AD9F",
+      "line": "#34302B",
+      "outline": "#4A443D",
+      "chip": "#2C2823",
+      "selected": "#3A352F",
+      "onSelected": "#F1EAE0",
+      "buttonPrimary": "#F1EAE0",
+      "onButtonPrimary": "#171411",
+      "tabBar": "#F1EAE0",
+      "onTabBar": "#171411",
+      "tabActive": "#171411",
+      "onTabActive": "#F1EAE0",
+      "scrim": "rgba(0, 0, 0, 0.6)",
+      "feed": "#51432A",
+      "sleep": "#47343A",
+      "diaper": "#33374D",
+      "pump": "#2F4238",
+      "onTile": "#F1EAE0",
+      "onTileSoft": "#D3C8BA"
+    }
+  },
+  "nightMode": { "auto": { "from": "21:00", "to": "06:00" }, "options": ["auto", "on", "off"] },
+  "font": {
+    "ui": "Ysabeau Infant",
+    "wordmark": "Commissioner",
+    "licence": "SIL Open Font License 1.1 (both)"
+  },
+  "type": {
+    "display":  { "size": 54, "weight": 800, "lineHeight": 1.0 },
+    "title":    { "size": 36, "weight": 800, "lineHeight": 1.1 },
+    "heading":  { "size": 22, "weight": 800, "lineHeight": 1.2 },
+    "tileTitle":{ "size": 20, "weight": 800, "lineHeight": 1.2 },
+    "rowTitle": { "size": 18, "weight": 800, "lineHeight": 1.3 },
+    "body":     { "size": 17, "weight": 500, "lineHeight": 1.45 },
+    "detail":   { "size": 15, "weight": 600, "lineHeight": 1.4 },
+    "small":    { "size": 13, "weight": 600, "lineHeight": 1.35 }
+  },
+  "radius": { "tile": 32, "card": 26, "sheet": 32, "button": 999, "chip": 999, "iconButton": 999 },
+  "space": { "screen": 18, "xs": 4, "s": 8, "m": 12, "l": 16, "xl": 24 },
+  "size": {
+    "button": 60,
+    "buttonSmall": 50,
+    "iconButton": 46,
+    "tabBar": 66,
+    "tabBarBottomOffset": 30,
+    "activityTile": 168,
+    "minTouch": 44,
+    "icon": 24,
+    "iconStroke": 1.6
+  }
+}

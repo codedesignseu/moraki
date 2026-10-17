@@ -30,8 +30,8 @@ const pump = (ago: number, ml: number, dest: 'fridge' | 'freezer') =>
 describe('the stock card on home', () => {
   it('shows nothing in either store before anything is pumped', async () => {
     await renderApp();
-    expect(card().getAllByText('0 mL')).toHaveLength(2);
-    expect(card().queryByText(/Oldest/)).toBeNull();
+    expect(card().getAllByText('0 ml')).toHaveLength(2);
+    expect(card().queryByText(/oldest/)).toBeNull();
   });
 
   it('shows what is in each store and how old the oldest is', async () => {
@@ -39,10 +39,10 @@ describe('the stock card on home', () => {
     pump(3 * DAY, 350, 'freezer');
 
     await renderApp();
-    expect(card().getByText('200 mL')).toBeOnTheScreen();
-    expect(card().getByText('350 mL')).toBeOnTheScreen();
-    expect(card().getByText('Oldest 5 h')).toBeOnTheScreen();
-    expect(card().getByText('Oldest 3 days')).toBeOnTheScreen();
+    expect(card().getByText('200 ml')).toBeOnTheScreen();
+    expect(card().getByText('350 ml')).toBeOnTheScreen();
+    expect(card().getByText('Fridge: oldest bag is 5 hours old')).toBeOnTheScreen();
+    expect(card().getByText('Freezer: oldest bag is 3 days old')).toBeOnTheScreen();
   });
 
   it('ages by the oldest milk still there, not by what has been used', async () => {
@@ -55,8 +55,8 @@ describe('the stock card on home', () => {
     });
 
     await renderApp();
-    expect(card().getByText('150 mL')).toBeOnTheScreen();
-    expect(card().getByText('Oldest 2 h')).toBeOnTheScreen();
+    expect(card().getByText('150 ml')).toBeOnTheScreen();
+    expect(card().getByText('Fridge: oldest bag is 2 hours old')).toBeOnTheScreen();
   });
 
   it('asks for the count to be checked once more has gone out than went in', async () => {
@@ -69,30 +69,49 @@ describe('the stock card on home', () => {
 
     await renderApp();
     // Nothing left, and no number anyone should trust.
-    expect(card().getAllByText('0 mL')).toHaveLength(2); // the freezer is empty too
-    expect(card().getByText('More has gone out than went in. Check the count.')).toBeOnTheScreen();
+    expect(card().getAllByText('0 ml')).toHaveLength(2); // the freezer is empty too
+    expect(
+      card().getByText('Fridge: more has gone out than went in. Check the count.'),
+    ).toBeOnTheScreen();
   });
 
   it('updates as soon as something is logged, with no reload', async () => {
     await renderApp();
-    expect(card().getAllByText('0 mL')).toHaveLength(2);
+    expect(card().getAllByText('0 ml')).toHaveLength(2);
 
     await fireEvent.press(screen.getByRole('button', { name: 'Pump' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
-    expect(card().getByText('100 mL')).toBeOnTheScreen();
+    expect(card().getByText('100 ml')).toBeOnTheScreen();
   });
 });
 
 describe('adjusting a store', () => {
+  it('opens as Milk stock, with one reason chosen at a time', async () => {
+    await renderApp();
+    await fireEvent.press(screen.getByRole('button', { name: 'Adjust Fridge' }));
+
+    expect(await screen.findByRole('header', { name: 'Milk stock' })).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: 'Fridge' })).toBeChecked();
+    const reason = (name: string) => screen.getByRole('togglebutton', { name });
+    expect(reason('Correction').props.accessibilityState).toMatchObject({ checked: true });
+
+    await fireEvent.press(reason('Move'));
+    expect(reason('Move').props.accessibilityState).toMatchObject({ checked: true });
+    expect(reason('Correction').props.accessibilityState).toMatchObject({ checked: false });
+    // Tapping the chosen reason keeps it: an adjustment always has one.
+    await fireEvent.press(reason('Move'));
+    expect(reason('Move').props.accessibilityState).toMatchObject({ checked: true });
+  });
+
   it('saves the reason with the change, and takes the milk off the count', async () => {
     pump(2 * HOUR, 300, 'fridge');
 
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Adjust Fridge' }));
-    expect(await screen.findByText('Fridge now holds 300 mL')).toBeOnTheScreen();
+    expect(await screen.findByLabelText('Now in the fridge: 300 ml')).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('radio', { name: 'Thrown away' }));
+    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Discard' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(adjustments()).toHaveLength(1);
@@ -108,7 +127,7 @@ describe('adjusting a store', () => {
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Adjust Freezer' }));
     await fireEvent.press(await screen.findByRole('radio', { name: 'Add' }));
-    await fireEvent.press(screen.getByRole('radio', { name: 'Correcting the count' }));
+    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Correction' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(adjustments()[0]?.payload).toEqual({
@@ -125,10 +144,10 @@ describe('adjusting a store', () => {
 
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Adjust Freezer' }));
-    expect(await screen.findByText('Freezer now holds 80 mL')).toBeOnTheScreen();
+    expect(await screen.findByLabelText('Now in the freezer: 80 ml')).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('radio', { name: 'Fridge' }));
-    expect(screen.getByText('Fridge now holds 300 mL')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Now in the fridge: 300 ml')).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
     expect(adjustments()[0]?.payload).toMatchObject({ loc: 'fridge' });

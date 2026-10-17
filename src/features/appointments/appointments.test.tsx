@@ -39,7 +39,7 @@ async function openSheet() {
 describe('booking an appointment', () => {
   it('saves what it is and when, with the moment shown in words', async () => {
     await openSheet();
-    await type('What is it', 'Six week check');
+    await type('Title', 'Six week check');
 
     // The picker is the only way to set a visit's time now: a stepper had no
     // fast case here, and a month out was thirty taps.
@@ -58,16 +58,16 @@ describe('booking an appointment', () => {
     await openSheet();
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
 
-    await type('What is it', 'Six week check');
+    await type('Title', 'Six week check');
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 
   it('keeps the doctor, clinic and notes when they are filled in', async () => {
     await openSheet();
-    await type('What is it', 'Six week check');
-    await type('Doctor (optional)', 'Dr Andreou');
-    await type('Clinic (optional)', 'Nicosia General');
-    await type('Notes (optional)', 'bring the red book');
+    await type('Title', 'Six week check');
+    await type('Doctor', 'Dr Andreou');
+    await type('Clinic', 'Nicosia General');
+    await type('Notes', 'bring the red book');
     await press('Save');
 
     expect(appointments()[0]?.payload).toEqual({
@@ -78,9 +78,26 @@ describe('booking an appointment', () => {
     });
   });
 
+  it('changes a question in its own field, and drops one left blank', async () => {
+    await openSheet();
+    await type('Title', 'Six week check');
+    await type('A question to ask', 'Is the rash worth showing you?');
+    await press('Add question');
+    await type('A question to ask', 'Vitamin D?');
+    await press('Add question');
+
+    await type('Question 1', 'Is the rash on her cheek worth showing you?');
+    await type('Question 2', '   ');
+    await press('Save');
+
+    expect(appointments()[0]?.payload).toMatchObject({
+      questions: ['Is the rash on her cheek worth showing you?'],
+    });
+  });
+
   it('takes the questions to ask, and lets one be removed again', async () => {
     await openSheet();
-    await type('What is it', 'Six week check');
+    await type('Title', 'Six week check');
 
     await type('A question to ask', 'Is the rash worth showing you?');
     await press('Add question');
@@ -89,7 +106,7 @@ describe('booking an appointment', () => {
     expect(screen.getByTestId('question-0')).toBeOnTheScreen();
 
     await fireEvent.press(
-      within(screen.getByTestId('question-0')).getByRole('button', { name: 'Remove' }),
+      within(screen.getByTestId('question-0')).getByRole('button', { name: 'Remove question 1' }),
     );
     await press('Save');
 
@@ -109,11 +126,22 @@ describe('the next appointment on home', () => {
 
     await renderApp(repo);
 
-    expect(
-      within(await screen.findByTestId('home-appointment')).getByText(
-        /Six week check — Fri 30 Oct, 14:00/,
-      ),
-    ).toBeOnTheScreen();
+    const card = within(await screen.findByTestId('home-appointment'));
+    expect(card.getByText('Six week check')).toBeOnTheScreen();
+    expect(card.getByText('Fri 30 Oct, 14:00')).toBeOnTheScreen();
+  });
+
+  it('names the doctor beside the time (direction G)', async () => {
+    repo.insert({
+      type: 'appointment',
+      occurredAt: NOW + 2 * DAY,
+      payload: { title: 'Six week check', doctor: 'Dr Andreou' },
+    });
+
+    await renderApp(repo);
+
+    const card = within(await screen.findByTestId('home-appointment'));
+    expect(card.getByText('Fri 30 Oct, 14:00 · Dr Andreou')).toBeOnTheScreen();
   });
 
   it('says nothing is booked when nothing is', async () => {
@@ -131,7 +159,7 @@ describe('the next appointment on home', () => {
     await renderApp(repo);
 
     const card = within(await screen.findByTestId('home-appointment'));
-    expect(card.getByText(/Tomorrow —/)).toBeOnTheScreen();
+    expect(card.getByText('Tomorrow')).toBeOnTheScreen();
     expect(card.queryByText(/Last week/)).toBeNull();
   });
 
@@ -147,8 +175,11 @@ describe('the next appointment on home', () => {
 
     // The sheet opens on it, with what was saved.
     expect(await screen.findByDisplayValue('Six week check')).toBeOnTheScreen();
-    // The row holds the question and its Remove button.
-    expect(within(screen.getByTestId('question-0')).getByText('Why?')).toBeOnTheScreen();
+    // The row holds the question, in its own field, and its remove button.
+    const row = within(screen.getByTestId('question-0'));
+    expect(row.getByDisplayValue('Why?')).toBeOnTheScreen();
+    expect(row.getByRole('button', { name: 'Remove question 1' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Save changes' })).toBeOnTheScreen();
     expect(screen.getByTestId('appointment-when-value')).toHaveTextContent('Fri 30 Oct, 14:00');
   });
 });

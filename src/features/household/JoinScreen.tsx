@@ -1,54 +1,82 @@
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { RELATIONS } from '@/sync/household';
 import { CODE_LENGTH } from '@/sync/invites';
-import { Button, Card, Chip, TextField } from '@/ui/primitives';
+import { Button, Card, Chip, Page, TextField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useJoin } from './useJoin';
 
-/** `join/[code]` and manual entry (SDD 7): joins a household with an invite code. */
+/**
+ * `join/[code]` and manual entry (SDD 7; G account/join, -signed-out,
+ * -already, -invalid): joins a household with an invite code. The app's
+ * problem messages are kept; G's "Leave first" is not (decision G3).
+ */
 export function JoinScreen({
   code,
   onDone,
+  onClose,
   onSignIn,
 }: {
   code: string;
   onDone: () => void;
+  onClose: () => void;
   onSignIn: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   const join = useJoin(code, onDone);
+  const page = {
+    title: t('join.title'),
+    kind: 'close',
+    onBack: onClose,
+    backLabel: t('common.close'),
+  } as const;
+  // The code from the link, shown greyed while it can't be used.
+  const heldCode =
+    join.code === '' ? null : (
+      <Card>
+        <TextField
+          label={t('join.code')}
+          value={join.formattedCode}
+          onChangeText={join.setCode}
+          disabled
+        />
+      </Card>
+    );
 
   if (!join.signedIn) {
     return (
-      <ScrollView contentContainerStyle={s.content}>
-        <Text style={theme.text.body}>{t('join.signInFirst')}</Text>
-        <Button label={t('join.signIn')} onPress={onSignIn} />
-      </ScrollView>
+      <Page {...page}>
+        <Card tone="warning" icon="alert" message={t('join.signInFirst')}>
+          <Button label={t('join.signIn')} onPress={onSignIn} />
+        </Card>
+        {heldCode}
+      </Page>
     );
   }
 
   if (join.household) {
     return (
-      <ScrollView contentContainerStyle={s.content}>
-        <Text style={theme.text.body}>
-          {t('join.alreadyIn', { name: join.household.babyName })}
-        </Text>
-        <Button label={t('join.done')} onPress={onDone} />
-      </ScrollView>
+      <Page {...page} footer={<Button label={t('join.done')} onPress={onDone} />}>
+        <Card
+          tone="warning"
+          icon="alert"
+          message={t('join.alreadyIn', { name: join.household.babyName })}
+        />
+        {heldCode}
+      </Page>
     );
   }
 
   const problem = join.problem ? t(`join.problem.${join.problem}`) : undefined;
 
   return (
-    <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+    <Page {...page} footer={<Button label={t('join.join')} onPress={join.join} busy={join.busy} />}>
+      <Text style={s.intro}>{t('join.intro')}</Text>
       <Card testID="join-form">
-        <Text style={theme.text.body}>{t('join.intro')}</Text>
         <TextField
           label={t('join.code')}
           value={join.formattedCode}
@@ -58,6 +86,7 @@ export function JoinScreen({
           autoCapitalize="characters"
           invalid={join.problem !== null && join.problem !== 'display_name'}
           message={join.problem === 'display_name' ? undefined : problem}
+          errorPrefix={t('common.error')}
         />
         <TextField
           label={t('join.yourName')}
@@ -68,8 +97,10 @@ export function JoinScreen({
           hint={t('join.yourNameHint')}
           invalid={join.problem === 'display_name'}
           message={join.problem === 'display_name' ? problem : undefined}
+          errorPrefix={t('common.error')}
         />
-        <Text style={s.muted}>{t('householdSetup.you.relation')}</Text>
+        {/* Read out: the chips below carry no group name of their own. */}
+        <Text style={s.label}>{t('householdSetup.you.relation')}</Text>
         <View style={s.chips}>
           {RELATIONS.map((relation) => (
             <Chip
@@ -80,15 +111,14 @@ export function JoinScreen({
             />
           ))}
         </View>
-        <Button label={t('join.join')} onPress={join.join} disabled={join.busy} />
       </Card>
-    </ScrollView>
+    </Page>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    intro: { ...theme.type.detail, color: theme.palette.textSoft },
+    label: { ...theme.type.small, color: theme.palette.textSoft },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   });

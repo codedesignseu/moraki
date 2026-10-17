@@ -61,6 +61,14 @@ export function useAppointmentSheet(entryId?: string) {
       setForm((current) => ({ ...current, questions: [...current.questions, question] }));
       setDraft('');
     },
+    /** A question already on the list, changed in its own field. Blank ones are dropped on save. */
+    editQuestion: (index: number, text: string) =>
+      setForm((current) => ({
+        ...current,
+        questions: current.questions.map((q, i) =>
+          i === index ? text.slice(0, APPOINTMENT_LIMITS.question) : q,
+        ),
+      })),
     removeQuestion: (index: number) =>
       setForm((current) => ({
         ...current,

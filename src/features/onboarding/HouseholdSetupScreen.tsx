@@ -1,14 +1,33 @@
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { RELATIONS } from '@/sync/household';
-import { Button, Card, Chip, Stepper, TextField } from '@/ui/primitives';
+import {
+  Button,
+  Card,
+  Chip,
+  FieldLabel,
+  InlineError,
+  Page,
+  Stepper,
+  TextField,
+} from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { LIMITS, useHouseholdSetup } from './useHouseholdSetup';
 
-/** First run after sign in (SDD 7, `onboarding/*`): about you, then the baby. */
-export function HouseholdSetupScreen({ onDone }: { onDone: () => void }) {
+/**
+ * First run after sign in (SDD 7, `onboarding/*`; G account/setup): the
+ * "You" and "Baby" cards, then the button at the foot. The app's relation
+ * list is kept (Caregiver, not G's Nanny).
+ */
+export function HouseholdSetupScreen({
+  onDone,
+  onClose,
+}: {
+  onDone: () => void;
+  onClose: () => void;
+}) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
@@ -21,9 +40,22 @@ export function HouseholdSetupScreen({ onDone }: { onDone: () => void }) {
       : null;
 
   return (
-    <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+    <Page
+      title={t('householdSetup.title')}
+      kind="close"
+      onBack={onClose}
+      backLabel={t('common.close')}
+      footer={
+        <>
+          {general ? <InlineError message={general} prefix={t('common.error')} /> : null}
+          <Button label={t('householdSetup.save')} onPress={setup.save} busy={setup.busy} />
+        </>
+      }
+    >
       <Card testID="setup-you">
-        <Text style={theme.text.heading}>{t('householdSetup.you.title')}</Text>
+        <Text style={s.title} accessibilityRole="header">
+          {t('householdSetup.you.title')}
+        </Text>
         <TextField
           label={t('householdSetup.you.name')}
           value={setup.displayName}
@@ -34,8 +66,10 @@ export function HouseholdSetupScreen({ onDone }: { onDone: () => void }) {
           hint={t('householdSetup.you.nameHint')}
           invalid={problem('display_name') !== undefined}
           message={problem('display_name')}
+          errorPrefix={t('common.error')}
         />
-        <Text style={s.muted}>{t('householdSetup.you.relation')}</Text>
+        {/* Read out: the chips below carry no group name of their own. */}
+        <Text style={s.label}>{t('householdSetup.you.relation')}</Text>
         <View style={s.chips}>
           {RELATIONS.map((relation) => (
             <Chip
@@ -49,7 +83,9 @@ export function HouseholdSetupScreen({ onDone }: { onDone: () => void }) {
       </Card>
 
       <Card testID="setup-baby">
-        <Text style={theme.text.heading}>{t('householdSetup.baby.title')}</Text>
+        <Text style={s.title} accessibilityRole="header">
+          {t('householdSetup.baby.title')}
+        </Text>
         <TextField
           label={t('householdSetup.baby.name')}
           value={setup.babyName}
@@ -57,8 +93,9 @@ export function HouseholdSetupScreen({ onDone }: { onDone: () => void }) {
           maxLength={LIMITS.babyName}
           invalid={problem('baby_name') !== undefined}
           message={problem('baby_name')}
+          errorPrefix={t('common.error')}
         />
-        <Text style={s.muted}>{t('householdSetup.baby.born')}</Text>
+        <FieldLabel label={t('householdSetup.baby.born')} />
         <Stepper
           value={setup.bornDaysAgo}
           onChange={setup.setBornDaysAgo}
@@ -66,36 +103,30 @@ export function HouseholdSetupScreen({ onDone }: { onDone: () => void }) {
           max={LIMITS.bornDaysAgo.max}
           unit={t('householdSetup.baby.daysAgo')}
           accessibilityLabel={t('householdSetup.baby.born')}
+          size="compact"
         />
-        <Text style={theme.text.body}>
-          {t('householdSetup.baby.bornOn', { date: setup.bornOn })}
-        </Text>
+        <Text style={s.bornOn}>{t('householdSetup.baby.bornOn', { date: setup.bornOn })}</Text>
         <TextField
           label={t('householdSetup.baby.birthWeight')}
           value={setup.birthWeight}
           onChangeText={setup.setBirthWeight}
           keyboardType="number-pad"
           maxLength={4}
+          suffix={t('baby.grams')}
           hint={t('householdSetup.baby.birthWeightHint')}
           invalid={problem('birth_weight') !== undefined}
           message={problem('birth_weight')}
+          errorPrefix={t('common.error')}
         />
       </Card>
-
-      {general && (
-        <Text accessibilityRole="alert" style={s.alert}>
-          {general}
-        </Text>
-      )}
-      <Button label={t('householdSetup.save')} onPress={setup.save} disabled={setup.busy} />
-    </ScrollView>
+    </Page>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    title: { ...theme.type.formTitle, color: theme.palette.ink },
+    label: { ...theme.type.small, color: theme.palette.textSoft },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-    alert: { ...theme.text.body, color: theme.colors.invalid },
+    bornOn: { ...theme.type.detail, color: theme.palette.textSoft, textAlign: 'center' },
   });

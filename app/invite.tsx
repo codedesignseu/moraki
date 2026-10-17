@@ -1,14 +1,14 @@
-import { Stack } from 'expo-router';
-import { useTranslation } from 'react-i18next';
+import { Stack, useRouter } from 'expo-router';
 
 import { InviteScreen } from '@/features/household/InviteScreen';
+import { PAGE_OPTIONS } from '@/ui/pageOptions';
 
 export default function Invite() {
-  const { t } = useTranslation();
+  const router = useRouter();
   return (
     <>
-      <Stack.Screen options={{ title: t('invite.title'), presentation: 'modal' }} />
-      <InviteScreen />
+      <Stack.Screen options={PAGE_OPTIONS} />
+      <InviteScreen onClose={() => router.back()} />
     </>
   );
 }

@@ -26,6 +26,8 @@ export const appointmentModule: ActivityModule<AppointmentPayload> = {
   type: 'appointment',
   schema: appointmentSchema,
   i18nKey: 'activity.appointment.label',
+  icon: 'visit',
+  tone: 'diaper',
   historyGroup: 'other',
   summarize: (e) => ({ key: 'activity.appointment.summary', values: { title: e.payload.title } }),
   /**

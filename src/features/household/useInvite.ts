@@ -5,6 +5,7 @@ import { useAuth } from '@/sync/AuthProvider';
 import {
   createInvite,
   formatCode,
+  groupCode,
   inviteLink,
   InviteError,
   listInvites,
@@ -89,7 +90,7 @@ export function useInvite() {
     /** Unused codes, newest first, each with whether it has expired. */
     open: open.map((row) => ({
       code: row.code,
-      shown: formatCode(row.code),
+      shown: groupCode(row.code),
       role: row.role,
       expiresAt: row.expiresAt,
       expired: row.expiresAt <= now,
@@ -99,6 +100,8 @@ export function useInvite() {
     setRole,
     invite: invite && {
       code: formatCode(invite.code),
+      /** Display only (G 4+4); the shared message keeps `code`. */
+      shown: groupCode(invite.code),
       link: inviteLink(invite.code),
       expiresAt: invite.expiresAt,
     },

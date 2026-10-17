@@ -356,3 +356,36 @@ URL) and P2-F5 (hosted auth email).
 - [x] P5-F5 the app does not link to the privacy policy, terms or a contact address — found 2026-10-05 writing P5-06 — RoP §1 says the contact address is in the About screen, and it is not; App Store guideline 5.1.1(i) wants the privacy policy reachable inside the app too — done when: About (or Settings → Privacy) links to https://moraki.app/privacy, /terms and info@codedesigns.eu, in both languages — done 2026-10-05: About has a Privacy and help card linking to the privacy policy, terms and support pages (in Greek when the app is read in Greek) and showing the contact address with an email button; 2 tests
 - [x] P5-F6 Greek invite label is misspelt — found 2026-10-05 writing P5-06 — `settings.account.invite` in `el.json` reads "Πρόσκαλεσε κάποιον να βοηθήσει"; the imperative is "Προσκάλεσε". The Greek support page quotes the label as the app shows it, so fix both together — done when: both read "Προσκάλεσε" — done 2026-10-05: spelt correctly in the app and on the Greek support page
 - [ ] P5-F7 `public/404.html` fails `prettier --check` on main — found 2026-10-05 writing P5-06 — pre-existing, not touched by P5-06 — done when: formatted, or `public/` is deliberately excluded in `.prettierignore`
+
+## Design refresh — Sage (integration branch `design/sage-refresh`)
+
+Restyle only; no feature added or removed. Mapping, gaps and review notes are in `docs/design/` (MAPPING.md, DESIGN_GAPS.md, REVIEW_NOTES.md).
+
+- [x] SAGE-01 `docs(design): map the app to the Sage design` — done 2026-10-09 (#132)
+- [x] SAGE-02 `feat(ui): Sage tokens, icons, components, app icon and splash` — done 2026-10-09 (#133, #134, #135, #136)
+- [x] SAGE-03 `feat(ui): restyle every screen` — done 2026-10-09 (#137 to #144)
+- [ ] SAGE-04 `release: merge design/sage-refresh into main` — depends: owner review and the EAS preview build — status: pending (owner) — 2026-10-17: goes to main together with direction G (G-04), since `design/direction-g` contains it
+
+### Found while working (Sage)
+
+- [x] SAGE-F1 switch log sheets to formSheet with 32 corners — done in direction G step 7 (#157, decision G1); device checks in REVIEW_NOTES_G
+- [ ] SAGE-F2 move screens from the pre-Sage token names (`colors`, `typography`) to `palette` and `type` and delete the aliases — mechanical; tests that read `colors.*` move too — status: pending
+- [ ] SAGE-F3 `src/sync/householdSettings.test.tsx` test 5 depends on test order with a custom tab bar ("overlapping act()") — status: pending
+- [x] SAGE-F4 Home tiles without detail lines and a "Moraki" header — done in direction G step 8 (#158): tile last-times and the greeting
+- [x] SAGE-F6 EAS preview builds fail at the Sentry source-map upload: no `SENTRY_AUTH_TOKEN` in the preview environment and no `SENTRY_ALLOW_FAILURE` in the preview profile (build a648f007) — owner — status: done 2026-10-10 (preview build ef58fc17 succeeded)
+- [ ] SAGE-F5 expo-doctor: drop `newArchEnabled` from app.json, review the `expo-live-activity`/`expo-home-widget` flags, `npx expo install --check` for 10 patch updates — status: pending
+
+## Design — direction G (integration branch `design/direction-g`)
+
+Final app design (`design/moraki-final-app/`). Restyle plus the small derived wiring the owner approved (G2). Map, decisions and review notes in `docs/design/MAPPING_G.md` and `REVIEW_NOTES_G.md`.
+
+- [x] G-01 `docs(design): map the app to direction G` — done 2026-10-16
+- [x] G-02 `feat(ui): tokens, fonts, icons, components, tab bar, form sheets` — done 2026-10-16 (#151 to #157)
+- [x] G-03 `feat(ui): restyle every screen` — done 2026-10-16 (#158 to #177); preview build 8e37597f (2026-10-16) succeeded
+- [ ] G-04 `release: merge design/direction-g into main` — depends: owner's phone check — status: pending (owner)
+
+### Found while working (G)
+
+- [x] G-F1 the startup failure line promised "Your entries are kept", which a phone restored without its keychain key can't keep — done 2026-10-17: it now says to reopen the app and write to support
+- [x] G-F2 owner approved 2026-10-17: health notes and medication take a time (back-dating), and the dose hint "e.g. 1 drop or 2.5 ml" stays — recorded, no change needed
+- [ ] G-F3 Greek glossary terms (κινητό, καταχωρίσεις) inside legal text are unchanged — waits for the lawyer review of the policy texts — status: pending (owner)

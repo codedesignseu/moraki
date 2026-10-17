@@ -38,6 +38,11 @@ export type WeekInsights = {
    * Null with fewer than two feeds.
    */
   averageIntervalMs: number | null;
+  /**
+   * Nothing at all in the window: no event on any of the 7 days and no sleep
+   * running into them. Trends shows its empty state (G tabs/trends-empty).
+   */
+  empty: boolean;
 };
 
 /** Local midnight `daysAgo` calendar days before the day containing `now`. */
@@ -134,5 +139,6 @@ export function selectWeekInsights(
     averageBottleMl: bottles.length === 0 ? null : totals.ml / bottles.length,
     averageIntervalMs:
       times.length < 2 ? null : (Math.max(...times) - Math.min(...times)) / (times.length - 1),
+    empty: inWindow.length === 0 && totals.sleepMs === 0,
   };
 }

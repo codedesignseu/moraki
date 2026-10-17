@@ -63,7 +63,7 @@ describe('the same feed logged twice', () => {
     await renderApp(repo);
 
     expect(
-      (await banner()).getByText(/also logged a feed at 14:03\. Same feed\?/),
+      (await banner()).getByText(/logged a feed too at 14:03\. Same feed\?/),
     ).toBeOnTheScreen();
     expect(repo.get(mine.id)?.deletedAt).toBe(null);
   });
@@ -77,7 +77,7 @@ describe('the same feed logged twice', () => {
     const theirs = theirFeed(NOW + 3 * MIN);
     await renderApp(repo);
 
-    await fireEvent.press((await banner()).getByRole('button', { name: 'Remove mine' }));
+    await fireEvent.press((await banner()).getByRole('button', { name: 'Same feed' }));
 
     // Mine goes; theirs is untouched — deleting their record isn't mine to do.
     await waitFor(() => expect(repo.get(mine.id)?.deletedAt).not.toBe(null));

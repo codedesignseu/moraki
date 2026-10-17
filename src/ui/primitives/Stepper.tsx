@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
+import { Icon } from './Icon';
 
 type Props = {
   value: number;
@@ -17,17 +18,20 @@ type Props = {
   disabled?: boolean;
   /** Value out of range for the form. The message itself is the caller's. */
   invalid?: boolean;
+  /** `compact` sets the number at 32 instead of 48, for long values (the weight sheet's grams). */
+  size?: 'regular' | 'compact';
   /** Renders one button pressed without a touch. Demo and tests only. */
   testOnly_pressed?: 'decrement' | 'increment';
 };
 
-const DECREMENT = '−';
-const INCREMENT = '+';
-
 /**
- * Amount entry for one-handed use: large +/- targets at opposite ends so a
- * thumb can hit them without aiming. Screen readers get one adjustable
- * control (swipe up/down) instead of two separate buttons.
+ * Amount entry for one-handed use: +/- at opposite ends so a thumb can hit
+ * them without aiming. Screen readers get one adjustable control (swipe
+ * up/down) instead of two separate buttons.
+ *
+ * G (sheets/feed-bottle, sheets/weight): a chip-coloured box, borderless round
+ * card-coloured 52 buttons, the number in Comfortaa with the unit beside it in
+ * soft text. Each button's hit slop takes its target to the 64 one-handed size.
  */
 export function Stepper({
   value,
@@ -39,6 +43,7 @@ export function Stepper({
   accessibilityLabel,
   disabled = false,
   invalid = false,
+  size = 'regular',
   testOnly_pressed,
 }: Props) {
   const theme = useTheme();
@@ -59,6 +64,7 @@ export function Stepper({
     if (event.nativeEvent.actionName === 'decrement') decrement();
   };
 
+  const slop = (theme.size.touchTargetLarge - theme.size.stepperButton) / 2;
   const stepButton = (kind: 'decrement' | 'increment', enabled: boolean, onPress: () => void) => (
     <Pressable
       onPress={onPress}
@@ -67,11 +73,15 @@ export function Stepper({
       accessibilityElementsHidden
       testID={`stepper-${kind}`}
       testOnly_pressed={testOnly_pressed === kind}
-      style={({ pressed }) => [s.button, pressed && s.pressed, !enabled && s.buttonDisabled]}
+      hitSlop={slop}
+      // A button at its bound keeps its card fill (night disabledFill is the
+      // box colour) and shows the soft icon.
+      style={({ pressed }) => [s.button, pressed && enabled && s.pressed]}
     >
-      <Text style={[theme.text.title, enabled ? s.symbol : s.symbolDisabled]}>
-        {kind === 'decrement' ? DECREMENT : INCREMENT}
-      </Text>
+      <Icon
+        name={kind === 'decrement' ? 'minus' : 'plus'}
+        color={enabled ? theme.palette.ink : theme.palette.disabledText}
+      />
     </Pressable>
   );
 
@@ -87,7 +97,16 @@ export function Stepper({
       style={[s.row, invalid && s.invalid]}
     >
       {stepButton('decrement', canDecrement, decrement)}
-      <Text style={[theme.text.title, s.value, disabled && s.symbolDisabled]}>{valueText}</Text>
+      <Text
+        style={[
+          size === 'compact' ? theme.type.stepperValueCompact : theme.type.stepperValue,
+          s.value,
+          disabled && s.valueDisabled,
+        ]}
+      >
+        {value}
+        {unit ? <Text style={[theme.type.stepperUnit, s.unit]}>{` ${unit}`}</Text> : null}
+      </Text>
       {stepButton('increment', canIncrement, increment)}
     </View>
   );
@@ -99,34 +118,28 @@ const styles = (t: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: t.spacing.md,
-      padding: t.spacing.xs,
-      borderRadius: t.radius.lg,
+      padding: t.spacing.field,
+      borderRadius: t.radius.stepper,
+      backgroundColor: t.palette.chip,
       // Always drawn so switching to invalid never shifts layout.
-      borderWidth: t.size.borderThick,
-      borderColor: 'transparent',
+      borderWidth: t.size.borderControl,
+      borderColor: t.palette.chip,
     },
-    invalid: { borderColor: t.colors.invalid },
+    invalid: { borderColor: t.palette.error },
     button: {
-      minWidth: t.size.touchTargetLarge,
-      minHeight: t.size.touchTargetLarge,
-      borderRadius: t.radius.lg,
-      borderWidth: t.size.borderThin,
-      borderColor: t.colors.borderStrong,
-      backgroundColor: t.colors.surface,
+      width: t.size.stepperButton,
+      height: t.size.stepperButton,
+      borderRadius: t.radius.pill,
+      backgroundColor: t.palette.card,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    pressed: { backgroundColor: t.colors.surfacePressed },
-    buttonDisabled: {
-      backgroundColor: t.colors.surfaceSunken,
-      borderColor: t.colors.surfaceSunken,
-    },
-    symbol: { color: t.colors.text },
-    symbolDisabled: { color: t.colors.textMuted },
+    pressed: { backgroundColor: t.palette.line },
     value: {
       flex: 1,
       textAlign: 'center',
       fontVariant: ['tabular-nums'],
-      color: t.colors.text,
     },
+    valueDisabled: { color: t.palette.disabledText },
+    unit: { color: t.palette.textSoft },
   });

@@ -36,7 +36,7 @@ export function SheetPanel({ title, children }: PanelProps) {
         bounces={false}
       >
         {title ? (
-          <Text accessibilityRole="header" style={theme.text.heading}>
+          <Text accessibilityRole="header" style={theme.type.title}>
             {title}
           </Text>
         ) : null}
@@ -54,7 +54,7 @@ type Props = PanelProps & {
 };
 
 /**
- * Bottom sheet every log form opens in. The keyboard pushes the panel up
+ * Sage bottom sheet (32 top corners, grabber, card colour). The keyboard pushes the panel up
  * (padding on both platforms: with edge-to-edge the window never resizes),
  * and the content scrolls, so a focused input is never left under the keyboard.
  */
@@ -89,22 +89,22 @@ export function Sheet({ visible, onClose, closeLabel, title, children }: Props) 
 const styles = (t: Theme) =>
   StyleSheet.create({
     fill: { flex: 1 },
-    scrim: { backgroundColor: t.colors.scrim },
+    scrim: { backgroundColor: t.palette.scrim },
     panelWrap: { maxHeight: '90%' },
     panel: {
       flexShrink: 1,
-      backgroundColor: t.colors.surface,
-      borderTopLeftRadius: t.radius.lg,
-      borderTopRightRadius: t.radius.lg,
-      paddingTop: t.spacing.sm,
-      paddingHorizontal: t.spacing.xl,
+      backgroundColor: t.palette.card,
+      borderTopLeftRadius: t.radius.sheet,
+      borderTopRightRadius: t.radius.sheet,
+      paddingTop: t.spacing.md,
+      paddingHorizontal: t.spacing.screen,
     },
     grabber: {
       alignSelf: 'center',
       width: t.size.touchTarget,
       height: t.spacing.xs,
       borderRadius: t.radius.pill,
-      backgroundColor: t.colors.divider,
+      backgroundColor: t.palette.line,
       marginBottom: t.spacing.md,
     },
     scroll: { flexGrow: 0, flexShrink: 1 },

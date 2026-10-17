@@ -28,7 +28,7 @@ describe('adding a dose from home', () => {
   it('opens a sheet that saves a new entry, not a record of the last one', async () => {
     await openFromHome();
 
-    await fireEvent.changeText(screen.getByLabelText('Medication name'), 'Calpol');
+    await fireEvent.changeText(screen.getByLabelText('Name'), 'Calpol');
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(doses()).toHaveLength(1);
@@ -70,9 +70,9 @@ describe('adding a dose from home', () => {
     // even though the name is not (P3-F12).
     expect(screen.getByDisplayValue('Calpol')).toBeOnTheScreen();
     expect(screen.queryByDisplayValue('2.5 ml')).toBeNull();
-    expect(screen.getByLabelText('Dose (optional)').props.value).toBe('');
+    expect(screen.getByLabelText('Dose').props.value).toBe('');
 
-    await fireEvent.changeText(screen.getByLabelText('Dose (optional)'), '5 ml');
+    await fireEvent.changeText(screen.getByLabelText('Dose'), '5 ml');
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(doses()).toHaveLength(2);

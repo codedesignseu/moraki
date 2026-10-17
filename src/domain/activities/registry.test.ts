@@ -7,6 +7,8 @@ const sleepLike: ActivityModule<{ place?: string | undefined }> = {
   type: 'sleep',
   schema: z.object({ place: z.string().optional() }),
   i18nKey: 'activity.sleep.label',
+  icon: 'sleep',
+  tone: 'sleep',
 };
 
 describe('activity registry', () => {

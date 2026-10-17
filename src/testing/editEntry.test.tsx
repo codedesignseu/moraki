@@ -37,6 +37,41 @@ async function openFromHistory(id: string) {
 }
 
 describe('editing an entry (P1-12)', () => {
+  it('names the entry and when it was logged (direction G)', async () => {
+    const { id } = h.repo.insert({
+      type: 'feed_bottle',
+      occurredAt: NOW - HOUR,
+      payload: { ml: 90, milk: 'formula' },
+    });
+    await openFromHistory(id);
+
+    expect(screen.getByRole('header', { name: 'Edit bottle' })).toBeOnTheScreen();
+    expect(screen.getByText('Logged 11:00')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Save changes' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Delete entry' })).toHaveTextContent('Delete');
+  });
+
+  it('shows a kind it can’t edit as not editable, and still deletes it', async () => {
+    const { id } = h.repo.insert({
+      type: 'pump',
+      occurredAt: NOW - 2 * HOUR,
+      payload: { ml: 120, dest: 'fridge' },
+    });
+    await openFromHistory(id);
+
+    expect(screen.getByRole('header', { name: 'Edit pump' })).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: 'Not editable' })).toBeOnTheScreen();
+    expect(
+      screen.getByText(
+        'This kind of entry can’t be changed here. You can still see it in History.',
+      ),
+    ).toBeOnTheScreen();
+    expect(screen.getAllByRole('button', { name: 'Close' })).toHaveLength(2);
+
+    await press('Delete entry');
+    expect(h.repo.list()).toEqual([]);
+  });
+
   it('changes a diaper from a history row, and Undo restores it exactly', async () => {
     const { id } = h.repo.insert({
       type: 'diaper',
@@ -94,10 +129,10 @@ describe('editing an entry (P1-12)', () => {
     const before = row(id);
     await renderApp(h.repo);
     await fireEvent.press(screen.getByTestId(`recent-${id}`));
-    expect(screen.getByLabelText('Temperature in °C (optional)').props.value).toBe('37.9');
+    expect(screen.getByLabelText('Temperature').props.value).toBe('37.9');
     await fireEvent.changeText(screen.getByLabelText('Note'), 'Warm, settled after feed');
-    await fireEvent.changeText(screen.getByLabelText('Temperature in °C (optional)'), '');
-    await press('Save');
+    await fireEvent.changeText(screen.getByLabelText('Temperature'), '');
+    await press('Save changes');
 
     expect(h.repo.get(id)?.payload).toEqual({ note: 'Warm, settled after feed', tags: ['cough'] });
     const patch = JSON.parse(allOutbox().at(-1)!.body) as Record<string, unknown>;
@@ -113,9 +148,9 @@ describe('editing an entry (P1-12)', () => {
       payload: { name: 'Vitamin D', dose: '1 drop' },
     });
     await openFromHistory(id);
-    expect(screen.getByLabelText('Medication name').props.value).toBe('Vitamin D');
-    await fireEvent.changeText(screen.getByLabelText('Dose (optional)'), '');
-    await press('Save');
+    expect(screen.getByLabelText('Name').props.value).toBe('Vitamin D');
+    await fireEvent.changeText(screen.getByLabelText('Dose'), '');
+    await press('Save changes');
     expect(h.repo.get(id)?.payload).toEqual({ name: 'Vitamin D' });
   });
 });
@@ -198,7 +233,7 @@ describe('editing feeds and sleeps (P1-12 part C2)', () => {
     await fireEvent.press(
       within(screen.getByLabelText('Milk')).getByRole('radio', { name: 'Breast milk' }),
     );
-    await press('Save');
+    await press('Save changes');
 
     expect(h.repo.get(id)?.payload).toEqual({ ml: 100, milk: 'breast' });
     await press('Undo');
@@ -213,11 +248,11 @@ describe('editing feeds and sleeps (P1-12 part C2)', () => {
     });
     await openFromHistory(id);
     const kinds = within(screen.getByLabelText('Feed type'));
-    for (const name of ['Bottle', 'Breast', 'Both']) {
+    for (const name of ['Bottle', 'Breast', 'Mixed']) {
       expect(kinds.getByRole('radio', { name })).toBeDisabled();
     }
     await fireEvent.press(kinds.getByRole('radio', { name: 'Breast' }));
-    expect(screen.queryByLabelText('Fed for')).toBeNull();
+    expect(screen.queryByLabelText('Minutes')).toBeNull();
   });
 
   it('edits both parts of a mixed feed in one save, and one Undo restores both exactly', async () => {
@@ -232,14 +267,14 @@ describe('editing feeds and sleeps (P1-12 part C2)', () => {
     ]);
     const before = [row(bottle!.id), row(breast!.id)];
     await openFromHistory(breast!.id);
-    expect(screen.getByLabelText('Fed for')).toHaveAccessibilityValue({ now: 15 });
+    expect(screen.getByLabelText('Minutes')).toHaveAccessibilityValue({ now: 15 });
     await step('Amount', 'increment', 2);
     await fireEvent.press(
       within(screen.getByLabelText('Side')).getByRole('radio', { name: 'Right' }),
     );
-    await step('Fed for', 'increment');
+    await step('Minutes', 'increment');
     await step('Move time', 'decrement', 2);
-    await press('Save');
+    await press('Save changes');
 
     const start = NOW - HOUR - 10 * MIN;
     expect(h.repo.get(bottle!.id)).toMatchObject({
@@ -270,14 +305,14 @@ describe('editing feeds and sleeps (P1-12 part C2)', () => {
       payload: { side: 'left' },
     });
     await openFromHistory(id);
-    await step('Fed for', 'increment', 3);
-    await press('Save');
+    await step('Minutes', 'increment', 3);
+    await press('Save changes');
     expect(h.repo.get(id)).toMatchObject({
       occurredAt: NOW - HOUR,
       endedAt: NOW - HOUR + 30 * MIN,
     });
     await press(/Home/);
-    expect(screen.getByLabelText('Breastfeeding: 30m')).toBeOnTheScreen();
+    expect(screen.getByText(/Breastfeeding 30 min/)).toBeOnTheScreen();
   });
 
   it("moves a finished sleep's start and changes how long it lasted", async () => {
@@ -294,7 +329,7 @@ describe('editing feeds and sleeps (P1-12 part C2)', () => {
     await step('Slept for', 'increment', 2);
     expect(screen.getByText('Started: Wed 1 Jul, 08:30')).toBeOnTheScreen();
     expect(screen.getByText('Ended: 09:40')).toBeOnTheScreen();
-    await press('Save');
+    await press('Save changes');
     expect(h.repo.get(id)).toMatchObject({
       occurredAt: NOW - 3 * HOUR - 30 * MIN,
       endedAt: NOW - 3 * HOUR + 40 * MIN,
@@ -308,7 +343,7 @@ describe('editing feeds and sleeps (P1-12 part C2)', () => {
     await openFromHistory(id);
     await step('Move start', 'increment', 10);
     expect(screen.getByText('Started: Wed 1 Jul, 12:00')).toBeOnTheScreen();
-    await press('Save');
+    await press('Save changes');
     expect(h.repo.get(id)).toMatchObject({ occurredAt: NOW, endedAt: null });
   });
 });

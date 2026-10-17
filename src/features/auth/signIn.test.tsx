@@ -70,7 +70,7 @@ describe('sign in with an emailed code', () => {
 
     await signInThroughTheApp();
 
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     // The address is trimmed and lower-cased before it's sent.
     const auth = server.calls.filter((c) => c.path.startsWith('/auth/'));
     expect(auth.map((c) => [c.path, c.body.email])).toEqual([
@@ -83,13 +83,13 @@ describe('sign in with an emailed code', () => {
     const { store } = keychain();
     await openSettings(createAuth(TEST_SUPABASE_ENV, store, authServer().fetchImpl));
     await signInThroughTheApp();
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
 
     // Kill: every screen goes away, and nothing held in memory survives but the
     // keychain. Relaunch: new auth, same keychain, no network.
     await cleanup();
     await openSettings(createAuth(TEST_SUPABASE_ENV, store, offline));
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
   });
 
   it('signs out on this phone, and stays signed out after a restart', async () => {
@@ -118,7 +118,7 @@ describe('sign in with an emailed code', () => {
 
     await type('Email', 'parent@example');
     await press('Send code');
-    expect(screen.getByText('Check the email address.')).toBeOnTheScreen();
+    expect(screen.getByText('Error: Check the email address.')).toBeOnTheScreen();
     expect(server.calls).toEqual([]);
 
     await type('Email', EMAIL);
@@ -126,13 +126,19 @@ describe('sign in with an emailed code', () => {
     await type('Code', '12a3');
     expect(screen.getByLabelText('Code').props.value).toBe('123');
     await press('Sign in');
-    expect(screen.getByText('Enter the whole code from the email.')).toBeOnTheScreen();
+    expect(screen.getByText('Error: Enter the whole code from the email.')).toBeOnTheScreen();
 
     await type('Code', '000000');
     await press('Sign in');
     expect(
-      await screen.findByText('That code is wrong or has expired. Send a new code to try again.'),
+      await screen.findByText(
+        'Error: That code is wrong or has expired. Send a new code to try again.',
+      ),
     ).toBeOnTheScreen();
+
+    // The header's back button returns to the address, like "Change email".
+    await press('Back');
+    expect(screen.getByLabelText('Email')).toBeOnTheScreen();
   });
 
   it('takes a longer code, for a project that sends more than six digits', async () => {
@@ -146,7 +152,7 @@ describe('sign in with an emailed code', () => {
     await press('Sign in');
     await press('Not now'); // the consent screen, as above
 
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(server.calls.filter((c) => c.path === '/auth/v1/verify')).toEqual([
       { path: '/auth/v1/verify', body: expect.objectContaining({ token: '12345678' }) },
     ]);
@@ -161,7 +167,7 @@ describe('sign in with an emailed code', () => {
     await type('Code', '1234');
     await press('Sign in');
 
-    expect(screen.getByText('Enter the whole code from the email.')).toBeOnTheScreen();
+    expect(screen.getByText('Error: Enter the whole code from the email.')).toBeOnTheScreen();
     expect(server.calls.some((c) => c.path === '/auth/v1/verify')).toBe(false);
   });
 
@@ -171,7 +177,7 @@ describe('sign in with an emailed code', () => {
     await type('Email', EMAIL);
     await press('Send code');
     expect(
-      await screen.findByText("You're offline. Signing in needs a connection."),
+      await screen.findByText("Error: You're offline. Signing in needs a connection."),
     ).toBeOnTheScreen();
   });
 
@@ -208,7 +214,7 @@ describe('Sign in with Apple (P5-04)', () => {
     await press('Continue with Apple');
     await press('Not now'); // the consent screen (P3-09)
 
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(server.calls.find((c) => c.path === '/auth/v1/token')).toEqual({
       path: '/auth/v1/token',
       body: expect.objectContaining({
@@ -217,6 +223,19 @@ describe('Sign in with Apple (P5-04)', () => {
         nonce: 'the-raw-nonce',
       }),
     });
+  });
+
+  it('shows the spinner on the pressed button and holds the others while it works', async () => {
+    mockAppleAvailable.mockResolvedValue(true);
+    mockSignInWithApple.mockReturnValue(new Promise(() => undefined));
+
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
+    await press('Sign in');
+    await screen.findByRole('button', { name: 'Continue with Apple' });
+    await press('Continue with Apple');
+
+    expect(screen.getByRole('button', { name: 'Continue with Apple' })).toBeBusy();
+    expect(screen.getByRole('button', { name: 'Send code' })).toBeDisabled();
   });
 
   it('leaves the sign-in screen exactly as it was when the person dismisses the sheet', async () => {
@@ -255,7 +274,7 @@ describe('Sign in with Google (P5-04)', () => {
     await press('Continue with Google');
     await press('Not now'); // the consent screen (P3-09)
 
-    expect(await screen.findByText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(mockSignInWithGoogle).toHaveBeenCalledWith(
       'web-client-id.apps.googleusercontent.com',
       'ios-client-id.apps.googleusercontent.com',

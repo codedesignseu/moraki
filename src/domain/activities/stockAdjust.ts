@@ -15,6 +15,8 @@ export const stockAdjustModule: ActivityModule<StockAdjustPayload> = {
   type: 'stock_adjust',
   schema: stockAdjustSchema,
   i18nKey: 'activity.stock_adjust.label',
+  icon: 'pump',
+  tone: 'pump',
   historyGroup: 'other',
   contributes: {
     stock: (acc, e) =>

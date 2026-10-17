@@ -198,6 +198,23 @@ describe(`[process TZ ${PROCESS_TZ}] selectWeekInsights, edges`, () => {
     expect(empty.totals).toEqual({ feeds: 0, ml: 0, breastMs: 0, wet: 0, dirty: 0, sleepMs: 0 });
     expect(empty.averageBottleMl).toBeNull();
     expect(empty.averageIntervalMs).toBeNull();
+    expect(empty.empty).toBe(true);
+  });
+
+  it('is empty when everything is older than the window or deleted', () => {
+    const old = [
+      bottle('2026-10-21T23:30:00+03:00', 120), // Wednesday 21, the day before
+      bottle('2026-10-28T09:00:00+02:00', 90, { deletedAt: NOW }),
+    ];
+    expect(selectWeekInsights(old, NOW, TZ).empty).toBe(true);
+  });
+
+  it('is not empty with one entry of any kind, or a sleep running into the window', () => {
+    expect(selectWeekInsights([diaper('2026-10-22T06:00:00+03:00', 'wet')], NOW, TZ).empty).toBe(
+      false,
+    );
+    const intoWindow = sleep('2026-10-21T23:00:00+03:00', '2026-10-22T02:00:00+03:00');
+    expect(selectWeekInsights([intoWindow], NOW, TZ).empty).toBe(false);
   });
 
   it('needs two feeds for an interval and a bottle for an average bottle', () => {

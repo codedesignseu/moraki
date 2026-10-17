@@ -1,0 +1,1116 @@
+{
+ "app": "Moraki",
+ "look": "Final, direction G",
+ "screens": [
+  {
+   "file": "screens/tabs/home-day.html",
+   "png": "screens/tabs/home-day.png",
+   "title": "Home · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    1740
+   ]
+  },
+  {
+   "file": "screens/tabs/home-states-day.html",
+   "png": "screens/tabs/home-states-day.png",
+   "title": "Home · duplicate feed and running sleep · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    1250
+   ]
+  },
+  {
+   "file": "screens/tabs/home-empty-day.html",
+   "png": "screens/tabs/home-empty-day.png",
+   "title": "Home · empty · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    1060
+   ]
+  },
+  {
+   "file": "screens/tabs/home-viewer-day.html",
+   "png": "screens/tabs/home-viewer-day.png",
+   "title": "Home · viewer, logging disabled · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    1100
+   ]
+  },
+  {
+   "file": "screens/tabs/history-day.html",
+   "png": "screens/tabs/history-day.png",
+   "title": "History · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    1200
+   ]
+  },
+  {
+   "file": "screens/tabs/history-empty-day.html",
+   "png": "screens/tabs/history-empty-day.png",
+   "title": "History · empty · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/tabs/history-filtered-day.html",
+   "png": "screens/tabs/history-filtered-day.png",
+   "title": "History · nothing matches · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/tabs/trends-day.html",
+   "png": "screens/tabs/trends-day.png",
+   "title": "Trends · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    2120
+   ]
+  },
+  {
+   "file": "screens/tabs/trends-empty-day.html",
+   "png": "screens/tabs/trends-empty-day.png",
+   "title": "Trends · empty · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/tabs/settings-day.html",
+   "png": "screens/tabs/settings-day.png",
+   "title": "Settings · signed in · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    3500
+   ]
+  },
+  {
+   "file": "screens/tabs/settings-out-day.html",
+   "png": "screens/tabs/settings-out-day.png",
+   "title": "Settings · signed out, not agreed · day",
+   "section": "Tabs",
+   "size": [
+    390,
+    2000
+   ]
+  },
+  {
+   "file": "screens/tabs/home-night.html",
+   "png": "screens/tabs/home-night.png",
+   "title": "Home · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    1740
+   ]
+  },
+  {
+   "file": "screens/tabs/home-states-night.html",
+   "png": "screens/tabs/home-states-night.png",
+   "title": "Home · duplicate feed and running sleep · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    1250
+   ]
+  },
+  {
+   "file": "screens/tabs/home-empty-night.html",
+   "png": "screens/tabs/home-empty-night.png",
+   "title": "Home · empty · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    1060
+   ]
+  },
+  {
+   "file": "screens/tabs/home-viewer-night.html",
+   "png": "screens/tabs/home-viewer-night.png",
+   "title": "Home · viewer, logging disabled · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    1100
+   ]
+  },
+  {
+   "file": "screens/tabs/history-night.html",
+   "png": "screens/tabs/history-night.png",
+   "title": "History · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    1200
+   ]
+  },
+  {
+   "file": "screens/tabs/history-empty-night.html",
+   "png": "screens/tabs/history-empty-night.png",
+   "title": "History · empty · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/tabs/history-filtered-night.html",
+   "png": "screens/tabs/history-filtered-night.png",
+   "title": "History · nothing matches · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/tabs/trends-night.html",
+   "png": "screens/tabs/trends-night.png",
+   "title": "Trends · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    2120
+   ]
+  },
+  {
+   "file": "screens/tabs/trends-empty-night.html",
+   "png": "screens/tabs/trends-empty-night.png",
+   "title": "Trends · empty · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/tabs/settings-night.html",
+   "png": "screens/tabs/settings-night.png",
+   "title": "Settings · signed in · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    3500
+   ]
+  },
+  {
+   "file": "screens/tabs/settings-out-night.html",
+   "png": "screens/tabs/settings-out-night.png",
+   "title": "Settings · signed out, not agreed · night",
+   "section": "Tabs",
+   "size": [
+    390,
+    2000
+   ]
+  },
+  {
+   "file": "screens/sheets/feed-bottle-day.html",
+   "png": "screens/sheets/feed-bottle-day.png",
+   "title": "Feed · bottle · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/feed-breast-day.html",
+   "png": "screens/sheets/feed-breast-day.png",
+   "title": "Feed · breast · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/feed-mixed-day.html",
+   "png": "screens/sheets/feed-mixed-day.png",
+   "title": "Feed · mixed · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    1200
+   ]
+  },
+  {
+   "file": "screens/sheets/feed-error-day.html",
+   "png": "screens/sheets/feed-error-day.png",
+   "title": "Feed · error, Save disabled · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/diaper-day.html",
+   "png": "screens/sheets/diaper-day.png",
+   "title": "Diaper · saved, undo toast · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/diaper-time-day.html",
+   "png": "screens/sheets/diaper-time-day.png",
+   "title": "Diaper · pick time · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/sleep-idle-day.html",
+   "png": "screens/sheets/sleep-idle-day.png",
+   "title": "Sleep · idle, end before start · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/sleep-running-day.html",
+   "png": "screens/sheets/sleep-running-day.png",
+   "title": "Sleep · running · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/pump-day.html",
+   "png": "screens/sheets/pump-day.png",
+   "title": "Pump · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/health-note-day.html",
+   "png": "screens/sheets/health-note-day.png",
+   "title": "Health note · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/medication-day.html",
+   "png": "screens/sheets/medication-day.png",
+   "title": "Medication · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/weight-day.html",
+   "png": "screens/sheets/weight-day.png",
+   "title": "Weight · out of range · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/sheets/milk-stock-day.html",
+   "png": "screens/sheets/milk-stock-day.png",
+   "title": "Milk stock · remove · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/sheets/appointment-day.html",
+   "png": "screens/sheets/appointment-day.png",
+   "title": "Appointment · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    1260
+   ]
+  },
+  {
+   "file": "screens/sheets/edit-entry-day.html",
+   "png": "screens/sheets/edit-entry-day.png",
+   "title": "Edit entry · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/sheets/not-editable-day.html",
+   "png": "screens/sheets/not-editable-day.png",
+   "title": "Edit entry · not editable · day",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/feed-bottle-night.html",
+   "png": "screens/sheets/feed-bottle-night.png",
+   "title": "Feed · bottle · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/feed-breast-night.html",
+   "png": "screens/sheets/feed-breast-night.png",
+   "title": "Feed · breast · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/feed-mixed-night.html",
+   "png": "screens/sheets/feed-mixed-night.png",
+   "title": "Feed · mixed · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    1200
+   ]
+  },
+  {
+   "file": "screens/sheets/feed-error-night.html",
+   "png": "screens/sheets/feed-error-night.png",
+   "title": "Feed · error, Save disabled · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/diaper-night.html",
+   "png": "screens/sheets/diaper-night.png",
+   "title": "Diaper · saved, undo toast · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/diaper-time-night.html",
+   "png": "screens/sheets/diaper-time-night.png",
+   "title": "Diaper · pick time · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/sleep-idle-night.html",
+   "png": "screens/sheets/sleep-idle-night.png",
+   "title": "Sleep · idle, end before start · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/sleep-running-night.html",
+   "png": "screens/sheets/sleep-running-night.png",
+   "title": "Sleep · running · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/pump-night.html",
+   "png": "screens/sheets/pump-night.png",
+   "title": "Pump · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/health-note-night.html",
+   "png": "screens/sheets/health-note-night.png",
+   "title": "Health note · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/medication-night.html",
+   "png": "screens/sheets/medication-night.png",
+   "title": "Medication · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/sheets/weight-night.html",
+   "png": "screens/sheets/weight-night.png",
+   "title": "Weight · out of range · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/sheets/milk-stock-night.html",
+   "png": "screens/sheets/milk-stock-night.png",
+   "title": "Milk stock · remove · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/sheets/appointment-night.html",
+   "png": "screens/sheets/appointment-night.png",
+   "title": "Appointment · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    1260
+   ]
+  },
+  {
+   "file": "screens/sheets/edit-entry-night.html",
+   "png": "screens/sheets/edit-entry-night.png",
+   "title": "Edit entry · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/sheets/not-editable-night.html",
+   "png": "screens/sheets/not-editable-night.png",
+   "title": "Edit entry · not editable · night",
+   "section": "Log sheets",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/welcome-day.html",
+   "png": "screens/account/welcome-day.png",
+   "title": "Welcome · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/sign-in-day.html",
+   "png": "screens/account/sign-in-day.png",
+   "title": "Sign in · email · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/sign-in-loading-day.html",
+   "png": "screens/account/sign-in-loading-day.png",
+   "title": "Sign in · sending · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/sign-in-code-day.html",
+   "png": "screens/account/sign-in-code-day.png",
+   "title": "Sign in · wrong code · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/code-expired-day.html",
+   "png": "screens/account/code-expired-day.png",
+   "title": "Sign in · code expired · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/setup-day.html",
+   "png": "screens/account/setup-day.png",
+   "title": "Household setup · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    1160
+   ]
+  },
+  {
+   "file": "screens/account/join-day.html",
+   "png": "screens/account/join-day.png",
+   "title": "Join · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/account/join-signed-out-day.html",
+   "png": "screens/account/join-signed-out-day.png",
+   "title": "Join · signed out · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/join-already-day.html",
+   "png": "screens/account/join-already-day.png",
+   "title": "Join · already in a household · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/join-invalid-day.html",
+   "png": "screens/account/join-invalid-day.png",
+   "title": "Join · invalid code · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/account/consent-day.html",
+   "png": "screens/account/consent-day.png",
+   "title": "Consent · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    1000
+   ]
+  },
+  {
+   "file": "screens/account/consent-agreed-day.html",
+   "png": "screens/account/consent-agreed-day.png",
+   "title": "Consent · agreed · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    1000
+   ]
+  },
+  {
+   "file": "screens/account/invite-day.html",
+   "png": "screens/account/invite-day.png",
+   "title": "Invite · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    1080
+   ]
+  },
+  {
+   "file": "screens/account/baby-day.html",
+   "png": "screens/account/baby-day.png",
+   "title": "Baby details · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/account/baby-caregiver-day.html",
+   "png": "screens/account/baby-caregiver-day.png",
+   "title": "Baby details · caregiver, disabled · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/account/leave-day.html",
+   "png": "screens/account/leave-day.png",
+   "title": "Leave or delete · confirm open · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    1220
+   ]
+  },
+  {
+   "file": "screens/account/about-day.html",
+   "png": "screens/account/about-day.png",
+   "title": "About · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/feedback-day.html",
+   "png": "screens/account/feedback-day.png",
+   "title": "Feedback · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/feedback-thanks-day.html",
+   "png": "screens/account/feedback-thanks-day.png",
+   "title": "Feedback · sent · day",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/welcome-night.html",
+   "png": "screens/account/welcome-night.png",
+   "title": "Welcome · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/sign-in-night.html",
+   "png": "screens/account/sign-in-night.png",
+   "title": "Sign in · email · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/sign-in-loading-night.html",
+   "png": "screens/account/sign-in-loading-night.png",
+   "title": "Sign in · sending · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/sign-in-code-night.html",
+   "png": "screens/account/sign-in-code-night.png",
+   "title": "Sign in · wrong code · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/code-expired-night.html",
+   "png": "screens/account/code-expired-night.png",
+   "title": "Sign in · code expired · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/setup-night.html",
+   "png": "screens/account/setup-night.png",
+   "title": "Household setup · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    1160
+   ]
+  },
+  {
+   "file": "screens/account/join-night.html",
+   "png": "screens/account/join-night.png",
+   "title": "Join · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/account/join-signed-out-night.html",
+   "png": "screens/account/join-signed-out-night.png",
+   "title": "Join · signed out · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/join-already-night.html",
+   "png": "screens/account/join-already-night.png",
+   "title": "Join · already in a household · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/join-invalid-night.html",
+   "png": "screens/account/join-invalid-night.png",
+   "title": "Join · invalid code · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/account/consent-night.html",
+   "png": "screens/account/consent-night.png",
+   "title": "Consent · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    1000
+   ]
+  },
+  {
+   "file": "screens/account/consent-agreed-night.html",
+   "png": "screens/account/consent-agreed-night.png",
+   "title": "Consent · agreed · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    1000
+   ]
+  },
+  {
+   "file": "screens/account/invite-night.html",
+   "png": "screens/account/invite-night.png",
+   "title": "Invite · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    1080
+   ]
+  },
+  {
+   "file": "screens/account/baby-night.html",
+   "png": "screens/account/baby-night.png",
+   "title": "Baby details · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/account/baby-caregiver-night.html",
+   "png": "screens/account/baby-caregiver-night.png",
+   "title": "Baby details · caregiver, disabled · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    900
+   ]
+  },
+  {
+   "file": "screens/account/leave-night.html",
+   "png": "screens/account/leave-night.png",
+   "title": "Leave or delete · confirm open · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    1220
+   ]
+  },
+  {
+   "file": "screens/account/about-night.html",
+   "png": "screens/account/about-night.png",
+   "title": "About · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/feedback-night.html",
+   "png": "screens/account/feedback-night.png",
+   "title": "Feedback · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/account/feedback-thanks-night.html",
+   "png": "screens/account/feedback-thanks-night.png",
+   "title": "Feedback · sent · night",
+   "section": "Onboarding and account",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/reports/call-script-day.html",
+   "png": "screens/reports/call-script-day.png",
+   "title": "Call script · day",
+   "section": "Reports and system",
+   "size": [
+    390,
+    1300
+   ]
+  },
+  {
+   "file": "screens/reports/report-day.html",
+   "png": "screens/reports/report-day.png",
+   "title": "Report preview · day",
+   "section": "Reports and system",
+   "size": [
+    390,
+    1180
+   ]
+  },
+  {
+   "file": "screens/reports/startup-day.html",
+   "png": "screens/reports/startup-day.png",
+   "title": "Startup · opening · day",
+   "section": "Reports and system",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/reports/startup-fail-day.html",
+   "png": "screens/reports/startup-fail-day.png",
+   "title": "Startup · failed · day",
+   "section": "Reports and system",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/reports/splash-day.html",
+   "png": "screens/reports/splash-day.png",
+   "title": "Splash · day",
+   "section": "Reports and system",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/reports/loading-day.html",
+   "png": "screens/reports/loading-day.png",
+   "title": "Loading · skeleton · day",
+   "section": "Reports and system",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/reports/call-script-night.html",
+   "png": "screens/reports/call-script-night.png",
+   "title": "Call script · night",
+   "section": "Reports and system",
+   "size": [
+    390,
+    1300
+   ]
+  },
+  {
+   "file": "screens/reports/report-night.html",
+   "png": "screens/reports/report-night.png",
+   "title": "Report preview · night",
+   "section": "Reports and system",
+   "size": [
+    390,
+    1180
+   ]
+  },
+  {
+   "file": "screens/reports/startup-night.html",
+   "png": "screens/reports/startup-night.png",
+   "title": "Startup · opening · night",
+   "section": "Reports and system",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/reports/startup-fail-night.html",
+   "png": "screens/reports/startup-fail-night.png",
+   "title": "Startup · failed · night",
+   "section": "Reports and system",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/reports/splash-night.html",
+   "png": "screens/reports/splash-night.png",
+   "title": "Splash · night",
+   "section": "Reports and system",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/reports/loading-night.html",
+   "png": "screens/reports/loading-night.png",
+   "title": "Loading · skeleton · night",
+   "section": "Reports and system",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/reports/pdf.html",
+   "png": "screens/reports/pdf.png",
+   "title": "Report PDF · page 1 (day only)",
+   "section": "Reports and system",
+   "size": [
+    794,
+    1123
+   ]
+  },
+  {
+   "file": "screens/greek/el-home-day.html",
+   "png": "screens/greek/el-home-day.png",
+   "title": "Home · Greek",
+   "section": "Greek",
+   "size": [
+    390,
+    1740
+   ]
+  },
+  {
+   "file": "screens/greek/el-feed-day.html",
+   "png": "screens/greek/el-feed-day.png",
+   "title": "Feed · Greek",
+   "section": "Greek",
+   "size": [
+    390,
+    844
+   ]
+  },
+  {
+   "file": "screens/greek/el-settings-day.html",
+   "png": "screens/greek/el-settings-day.png",
+   "title": "Settings · Greek",
+   "section": "Greek",
+   "size": [
+    390,
+    3500
+   ]
+  },
+  {
+   "file": "screens/greek/el-consent-day.html",
+   "png": "screens/greek/el-consent-day.png",
+   "title": "Consent · Greek",
+   "section": "Greek",
+   "size": [
+    390,
+    1000
+   ]
+  },
+  {
+   "file": "screens/foundations/foundations.html",
+   "png": "screens/foundations/foundations.png",
+   "title": "Foundations",
+   "section": "Foundations and notes",
+   "size": [
+    1520,
+    1460
+   ]
+  },
+  {
+   "file": "screens/foundations/notes.html",
+   "png": "screens/foundations/notes.png",
+   "title": "Notes for the build",
+   "section": "Foundations and notes",
+   "size": [
+    900,
+    1500
+   ]
+  }
+ ]
+}

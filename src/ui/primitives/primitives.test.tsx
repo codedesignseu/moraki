@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { size, typography } from '../tokens';
-import { Button, Chip, Segmented, Sheet, Stepper, TimerText } from '.';
+import { ThemeProvider } from '../theme';
+import { palette, radius, size, type, typography } from '../tokens';
+import { Button, ChoiceButtons, Chip, InlineError, Segmented, Sheet, Stepper, TimerText } from '.';
 
 const noop = () => {};
 
@@ -36,7 +37,46 @@ describe('Button', () => {
 
   it('meets the touch target', async () => {
     await render(<Button label="Save" onPress={noop} />);
-    expect(screen.getByRole('button')).toHaveStyle({ minHeight: size.touchTarget });
+    // G main button is 60 high, above the 48 touch target.
+    expect(screen.getByRole('button')).toHaveStyle({ minHeight: size.button });
+    expect(size.button).toBeGreaterThanOrEqual(size.touchTarget);
+  });
+
+  it('draws the outlined button 52 high with a 1.5 outline', async () => {
+    await render(<Button label="Cancel" variant="secondary" icon="invite" onPress={noop} />);
+    expect(screen.getByRole('button')).toHaveStyle({
+      minHeight: size.buttonSecondary,
+      borderWidth: size.borderControl,
+      borderColor: palette.light.outline,
+    });
+    expect(size.buttonSecondary).toBeGreaterThanOrEqual(size.touchTarget);
+  });
+
+  it.each(['light', 'night'] as const)('uses the disabled tokens in %s', async (scheme) => {
+    await render(
+      <ThemeProvider scheme={scheme}>
+        <Button label="Save" onPress={noop} disabled />
+        <Button label="Cancel" variant="secondary" onPress={noop} disabled />
+      </ThemeProvider>,
+    );
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveStyle({
+      backgroundColor: palette[scheme].disabledFill,
+    });
+    expect(screen.getByText('Save')).toHaveStyle({ color: palette[scheme].disabledText });
+    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveStyle({
+      backgroundColor: 'transparent',
+      borderColor: palette[scheme].line,
+    });
+  });
+
+  it('ignores presses and says so while busy', async () => {
+    const onPress = jest.fn();
+    await render(<Button label="Save" onPress={onPress} busy />);
+    const button = screen.getByRole('button', { name: 'Save' });
+    await fireEvent.press(button);
+    expect(onPress).not.toHaveBeenCalled();
+    expect(button).toBeBusy();
+    expect(screen.getByTestId('button-busy')).toBeOnTheScreen();
   });
 });
 
@@ -88,12 +128,19 @@ describe('Stepper', () => {
     expect(control).toHaveAccessibilityValue({ now: 50 });
   });
 
-  it('uses the large touch target for +/-', async () => {
+  it('reaches the large touch target for +/- through its hit slop', async () => {
     await render(<ControlledStepper initial={0} />);
-    expect(screen.getByTestId('stepper-increment', HIDDEN)).toHaveStyle({
-      minWidth: size.touchTargetLarge,
-      minHeight: size.touchTargetLarge,
-    });
+    const button = screen.getByTestId('stepper-increment', HIDDEN);
+    expect(button).toHaveStyle({ width: size.stepperButton, height: size.stepperButton });
+    expect(size.stepperButton + 2 * button.props.hitSlop).toBe(size.touchTargetLarge);
+  });
+
+  it('sets the unit apart from the number and has a compact size', async () => {
+    await render(
+      <Stepper value={3240} onChange={noop} unit="g" accessibilityLabel="Grams" size="compact" />,
+    );
+    expect(screen.getByText('3240 g')).toHaveStyle({ fontSize: type.stepperValueCompact.fontSize });
+    expect(screen.getByText(' g')).toHaveStyle({ fontSize: type.stepperUnit.fontSize });
   });
 
   it('does nothing when disabled', async () => {
@@ -146,7 +193,7 @@ describe('Segmented', () => {
       <Segmented options={diaper} value={null} onChange={noop} accessibilityLabel="Diaper" />,
     );
     for (const radio of screen.getAllByRole('radio')) {
-      expect(radio).toHaveStyle({ minHeight: size.touchTarget });
+      expect(radio).toHaveStyle({ minHeight: size.minTouch });
     }
   });
 });
@@ -162,6 +209,105 @@ describe('Chip', () => {
     await fireEvent.press(chip);
     expect(onPress).toHaveBeenCalledTimes(1);
   });
+
+  it.each(['light', 'night'] as const)(
+    'is filled, and selected shows a check on the selected fill in %s',
+    async (scheme) => {
+      await render(
+        <ThemeProvider scheme={scheme}>
+          <Chip label="Rash" selected={false} onPress={noop} />
+          <Chip label="Cough" selected onPress={noop} />
+        </ThemeProvider>,
+      );
+      expect(screen.getByRole('togglebutton', { name: 'Rash' })).toHaveStyle({
+        backgroundColor: palette[scheme].chip,
+      });
+      expect(screen.getByRole('togglebutton', { name: 'Cough' })).toHaveStyle({
+        backgroundColor: palette[scheme].selected,
+      });
+      expect(screen.getByText('Cough')).toHaveStyle({ color: palette[scheme].onSelected });
+      expect(screen.getAllByTestId('chip-check', HIDDEN)).toHaveLength(1);
+    },
+  );
+});
+
+describe('ChoiceButtons', () => {
+  const kinds = [
+    { value: 'bottle', label: 'Bottle', tone: 'feed' },
+    { value: 'breast', label: 'Breast', tone: 'sleep' },
+    { value: 'mixed', label: 'Mixed', tone: 'pump' },
+  ] as const;
+
+  it('is a set of radios that selects the pressed option', async () => {
+    function Controlled() {
+      const [value, setValue] = useState<'bottle' | 'breast' | 'mixed' | null>('bottle');
+      return (
+        <ChoiceButtons
+          options={kinds}
+          value={value}
+          onChange={setValue}
+          accessibilityLabel="Kind"
+        />
+      );
+    }
+    await render(<Controlled />);
+    expect(screen.getAllByRole('radio')).toHaveLength(3);
+    await fireEvent.press(screen.getByRole('radio', { name: 'Mixed' }));
+    expect(screen.getByRole('radio', { name: 'Mixed' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Bottle' })).not.toBeChecked();
+  });
+
+  it.each(['light', 'night'] as const)(
+    'fills each option with its tone and the chosen one with selected in %s',
+    async (scheme) => {
+      await render(
+        <ThemeProvider scheme={scheme}>
+          <ChoiceButtons options={kinds} value="bottle" onChange={noop} accessibilityLabel="Kind" />
+        </ThemeProvider>,
+      );
+      expect(screen.getByRole('radio', { name: 'Bottle' })).toHaveStyle({
+        backgroundColor: palette[scheme].selected,
+        minHeight: size.choiceButton,
+        borderRadius: radius.choice,
+      });
+      expect(screen.getByRole('radio', { name: 'Breast' })).toHaveStyle({
+        backgroundColor: palette[scheme].sleep,
+      });
+    },
+  );
+
+  it('does not change when disabled', async () => {
+    const onChange = jest.fn();
+    await render(
+      <ChoiceButtons
+        options={kinds}
+        value="bottle"
+        onChange={onChange}
+        accessibilityLabel="Kind"
+        disabled
+      />,
+    );
+    await fireEvent.press(screen.getByRole('radio', { name: 'Breast' }));
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('radio', { name: 'Breast' })).toBeDisabled();
+  });
+});
+
+describe('InlineError', () => {
+  it.each(['light', 'night'] as const)(
+    'is an alert with the prefix, in the error colour in %s',
+    async (scheme) => {
+      await render(
+        <ThemeProvider scheme={scheme}>
+          <InlineError prefix="Error" message="enter an amount above 0 ml." />
+        </ThemeProvider>,
+      );
+      expect(screen.getByRole('alert')).toHaveTextContent('Error: enter an amount above 0 ml.');
+      expect(screen.getByText('Error: enter an amount above 0 ml.')).toHaveStyle({
+        color: palette[scheme].error,
+      });
+    },
+  );
 });
 
 describe('TimerText', () => {

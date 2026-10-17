@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Button, Card } from '@/ui/primitives';
+import type { IconName } from '@/ui/icons';
+import { Card, ListGroup, ListRow, Page } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 /**
@@ -19,48 +20,79 @@ export function legalLink(page: (typeof PAGES)[number], language: string): strin
   return `${SITE}${language.startsWith('el') ? '/el' : ''}/${page}/`;
 }
 
-export function AboutScreen({ onOpenLink }: { onOpenLink: (url: string) => void }) {
+const ROW_ICONS = {
+  privacy: 'private',
+  terms: 'link',
+  support: 'link',
+} as const satisfies Record<(typeof PAGES)[number], IconName>;
+
+/**
+ * G account/about: the disclaimer card with its alert badge, "What it does",
+ * then the pages and the email as › rows. Every paragraph is the app's; G's
+ * version line is left out (G3).
+ */
+export function AboutScreen({
+  onOpenLink,
+  onBack,
+}: {
+  onOpenLink: (url: string) => void;
+  onBack: () => void;
+}) {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   return (
-    <ScrollView contentContainerStyle={s.content}>
-      <Card testID="about-disclaimer">
-        <Text style={theme.text.heading}>{t('about.disclaimer.title')}</Text>
-        <Text style={theme.text.body}>{t('about.disclaimer.notMedical')}</Text>
-        <Text style={theme.text.body}>{t('about.disclaimer.noInterpretation')}</Text>
-        <Text style={theme.text.body}>{t('about.disclaimer.askSomeone')}</Text>
-        <Text style={theme.text.body}>{t('about.disclaimer.urgent')}</Text>
+    <Page title={t('about.title')} onBack={onBack} backLabel={t('common.back')}>
+      <Card
+        tone="warning"
+        icon="alert"
+        message={t('about.disclaimer.title')}
+        testID="about-disclaimer"
+      >
+        <Text style={s.body}>{t('about.disclaimer.notMedical')}</Text>
+        <Text style={s.body}>{t('about.disclaimer.noInterpretation')}</Text>
+        <Text style={s.body}>{t('about.disclaimer.askSomeone')}</Text>
+        <Text style={s.body}>{t('about.disclaimer.urgent')}</Text>
       </Card>
       <Card testID="about-what">
-        <Text style={theme.text.heading}>{t('about.what.title')}</Text>
-        <Text style={theme.text.body}>{t('about.what.records')}</Text>
-        <Text style={theme.text.body}>{t('about.what.shares')}</Text>
-        <Text style={s.muted}>{t('about.what.offline')}</Text>
+        <Text style={s.title} accessibilityRole="header">
+          {t('about.what.title')}
+        </Text>
+        <Text style={s.soft}>{t('about.what.records')}</Text>
+        <Text style={s.soft}>{t('about.what.shares')}</Text>
+        <Text style={s.soft}>{t('about.what.offline')}</Text>
       </Card>
-      <Card testID="about-legal">
-        <Text style={theme.text.heading}>{t('about.legal.title')}</Text>
-        {PAGES.map((page) => (
-          <Button
-            key={page}
-            label={t(`about.legal.${page}`)}
-            variant="secondary"
-            onPress={() => onOpenLink(legalLink(page, i18n.language))}
+      <View style={s.legal} testID="about-legal">
+        <Text style={s.title} accessibilityRole="header">
+          {t('about.legal.title')}
+        </Text>
+        <ListGroup>
+          {PAGES.map((page) => (
+            <ListRow
+              key={page}
+              grouped
+              icon={ROW_ICONS[page]}
+              title={t(`about.legal.${page}`)}
+              onPress={() => onOpenLink(legalLink(page, i18n.language))}
+            />
+          ))}
+          <ListRow
+            grouped
+            icon="mail"
+            title={t('about.legal.email')}
+            onPress={() => onOpenLink(`mailto:${CONTACT}`)}
           />
-        ))}
-        <Text style={theme.text.body}>{t('about.legal.contact', { email: CONTACT })}</Text>
-        <Button
-          label={t('about.legal.email')}
-          variant="secondary"
-          onPress={() => onOpenLink(`mailto:${CONTACT}`)}
-        />
-      </Card>
-    </ScrollView>
+        </ListGroup>
+        <Text style={s.soft}>{t('about.legal.contact', { email: CONTACT })}</Text>
+      </View>
+    </Page>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    title: { ...theme.type.formTitle, color: theme.palette.ink },
+    body: { ...theme.type.body, color: theme.palette.ink },
+    soft: { ...theme.type.body, color: theme.palette.textSoft },
+    legal: { gap: theme.spacing.md },
   });

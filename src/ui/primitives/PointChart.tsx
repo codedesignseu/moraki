@@ -9,6 +9,8 @@ export type ChartPoint = {
   y: number;
   /** Read by screen readers for this point, e.g. "Day 10: 3300 g". */
   accessibilityLabel: string;
+  /** An outlined point (G: weighed at home); filled by default (at the clinic). Pair with a Legend. */
+  hollow?: boolean;
 };
 
 export type ChartLine = {
@@ -38,10 +40,15 @@ type Props = {
 
 const span = (min: number, max: number) => (max - min === 0 ? 1 : max - min);
 
+/** G draws three even gridlines: top, middle and bottom of the plot. */
+const GRIDLINES = [0, 0.5, 1] as const;
+
 /**
- * Points against reference lines, in one colour: a chart shows what was
- * measured, never a verdict on it (rule 10). No axis is coloured, no region
- * is shaded, and nothing here knows what the numbers mean.
+ * G point chart (tabs/trends weight): points on three soft gridlines, filled
+ * or hollow by where they were measured, against reference lines, all in
+ * ink: a chart shows what was measured, never a verdict on it (rule 10). No
+ * axis is coloured, no region is shaded, and nothing here knows what the
+ * numbers mean.
  */
 export function PointChart({ points, lines = [], marks = [], xRange, testID }: Props) {
   const theme = useTheme();
@@ -62,6 +69,9 @@ export function PointChart({ points, lines = [], marks = [], xRange, testID }: P
   return (
     <View style={s.chart} testID={testID}>
       <View style={s.plot}>
+        {GRIDLINES.map((at) => (
+          <View key={at} style={[s.grid, { top: percent(at) }]} testID="gridline" />
+        ))}
         {lines.map((line) => (
           <View key={line.key} style={[s.line, { top: atY(line.y) }]} testID={`line-${line.key}`}>
             <View style={s.rule} />
@@ -81,7 +91,7 @@ export function PointChart({ points, lines = [], marks = [], xRange, testID }: P
             accessible
             accessibilityLabel={point.accessibilityLabel}
             testID={`point-${point.key}`}
-            style={[s.point, { left: atX(point.x), top: atY(point.y) }]}
+            style={[s.point, point.hollow && s.hollow, { left: atX(point.x), top: atY(point.y) }]}
           />
         ))}
       </View>
@@ -99,26 +109,24 @@ export function PointChart({ points, lines = [], marks = [], xRange, testID }: P
 const styles = (t: Theme) =>
   StyleSheet.create({
     chart: { gap: t.spacing.xs },
-    plot: {
-      height: t.size.chartHeight,
-      borderBottomWidth: t.size.borderThin,
-      borderBottomColor: t.colors.borderStrong,
-      borderLeftWidth: t.size.borderThin,
-      borderLeftColor: t.colors.borderStrong,
+    plot: { height: t.size.chartHeight },
+    grid: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      height: t.size.borderThin,
+      backgroundColor: t.palette.line,
     },
     line: { position: 'absolute', left: 0, right: 0, flexDirection: 'row', alignItems: 'center' },
-    rule: {
-      flex: 1,
-      height: t.size.borderThin,
-      backgroundColor: t.colors.divider,
-    },
-    lineLabel: { ...t.text.caption, color: t.colors.textMuted, paddingLeft: t.spacing.xs },
+    // Reference lines are darker than the gridlines, so they read as lines to compare against.
+    rule: { flex: 1, height: t.size.borderThin, backgroundColor: t.palette.outline },
+    lineLabel: { ...t.type.tileDetail, color: t.palette.textSoft, paddingLeft: t.spacing.xs },
     mark: {
       position: 'absolute',
       top: 0,
       bottom: 0,
       width: t.size.borderThin,
-      backgroundColor: t.colors.divider,
+      backgroundColor: t.palette.line,
     },
     point: {
       position: 'absolute',
@@ -126,9 +134,14 @@ const styles = (t: Theme) =>
       height: t.size.point,
       marginLeft: -t.size.point / 2,
       marginTop: -t.size.point / 2,
-      borderRadius: t.size.point / 2,
-      backgroundColor: t.colors.accent,
+      borderRadius: t.radius.pill,
+      backgroundColor: t.palette.ink,
     },
-    axis: { height: t.text.caption.lineHeight },
-    markLabel: { ...t.text.caption, color: t.colors.textMuted, position: 'absolute' },
+    hollow: {
+      backgroundColor: t.palette.card,
+      borderWidth: t.size.legendRing,
+      borderColor: t.palette.ink,
+    },
+    axis: { height: t.type.tileDetail.lineHeight },
+    markLabel: { ...t.type.tileDetail, color: t.palette.textSoft, position: 'absolute' },
   });

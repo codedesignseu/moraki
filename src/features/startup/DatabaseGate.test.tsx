@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { act, render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
 import { useDevicePref, useEventsRepository, type AppRepositories } from '@/db/react';
@@ -20,32 +20,50 @@ function Child() {
   return <Text>app</Text>;
 }
 
-const renderGate = (open: () => Promise<AppRepositories>) =>
+const renderGate = (open: () => Promise<AppRepositories>, hold = false) =>
   render(
     <ThemeProvider scheme="light">
-      <DatabaseGate open={open}>
+      <DatabaseGate open={open} hold={hold}>
         <Child />
       </DatabaseGate>
     </ThemeProvider>,
   );
 
+async function openRepositories(): Promise<AppRepositories> {
+  const { db } = await createMemoryDb();
+  return {
+    events: createEventsRepository(db, testDeps()),
+    devicePrefs: createDevicePrefsRepository(db),
+    outbox: createOutboxRepository(db),
+    caregivers: createCaregiversRepository(db),
+    linked: () => readLinkedIdentity(db),
+    localOnly: () => localOnlyCount(db),
+    adopt: (target, now) => adoptHousehold(db, target, now),
+    resetPhone: () => {},
+  };
+}
+
 describe('DatabaseGate', () => {
+  it('stays blank while held (fonts loading), even once the database is open', async () => {
+    const repositories = await openRepositories();
+    const opened = Promise.resolve(repositories);
+    await renderGate(() => opened, true);
+    await act(async () => {
+      await opened;
+    });
+    expect(screen.queryByText('app')).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('holds back the failure message too until released', async () => {
+    const failed = Promise.reject(new Error('migration failed'));
+    failed.catch(() => {});
+    await renderGate(() => failed, true);
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
   it('renders the app with its repositories once the database is open and migrated', async () => {
-    const { db } = await createMemoryDb();
-    const events = createEventsRepository(db, testDeps());
-    const devicePrefs = createDevicePrefsRepository(db);
-    await renderGate(() =>
-      Promise.resolve({
-        events,
-        devicePrefs,
-        outbox: createOutboxRepository(db),
-        caregivers: createCaregiversRepository(db),
-        linked: () => readLinkedIdentity(db),
-        localOnly: () => localOnlyCount(db),
-        adopt: (target, now) => adoptHousehold(db, target, now),
-        resetPhone: () => {},
-      }),
-    );
+    await renderGate(openRepositories);
     expect(await screen.findByText('app')).toBeOnTheScreen();
   });
 
@@ -57,7 +75,11 @@ describe('DatabaseGate', () => {
 
   it('shows a message instead of the app if opening fails', async () => {
     await renderGate(() => Promise.reject(new Error('migration failed')));
-    expect(await screen.findByRole('alert')).toHaveTextContent(/couldn.t open its data/);
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(/Your log could not open/);
+    expect(alert).toHaveTextContent(/couldn.t open its data/);
+    // No retry: opening again is new behaviour (G3).
+    expect(screen.queryByRole('button')).toBeNull();
     expect(screen.queryByText('app')).toBeNull();
   });
 });

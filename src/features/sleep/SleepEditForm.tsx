@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
@@ -8,7 +8,7 @@ import { formatClock } from '@/domain/time/formatClock';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
-import { Button, Stepper, TimeShiftField } from '@/ui/primitives';
+import { Button, FieldLabel, Stepper, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { PAST_SLEEP } from './useSleepSheet';
@@ -66,8 +66,8 @@ export function SleepEditForm({ entryId, onDone }: { entryId: string; onDone: ()
         result={t('entry.started', { time: formatDateTime(start, tz, dateLocale(i18n.language)) })}
       />
       {ended && (
-        <>
-          <Text style={s.muted}>{t('log.sleep.past.duration')}</Text>
+        <View style={s.field}>
+          <FieldLabel label={t('log.sleep.past.duration')} />
           <Stepper
             value={minutes}
             onChange={setMinutes}
@@ -77,16 +77,27 @@ export function SleepEditForm({ entryId, onDone }: { entryId: string; onDone: ()
             unit={t('log.sleep.past.minutes')}
             accessibilityLabel={t('log.sleep.past.duration')}
           />
-          <Text style={theme.text.body}>{t('entry.ended', { time: formatClock(end, tz) })}</Text>
-        </>
+          <Text style={s.body}>{t('entry.ended', { time: formatClock(end, tz) })}</Text>
+        </View>
       )}
-      <Button label={t('log.save')} onPress={save} />
+      <View style={s.footer}>
+        <Button label={t('entry.saveChanges')} onPress={save} />
+      </View>
     </ScrollView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    // As the G sleep sheet: small labels over the grey stepper boxes, Save at the foot.
+    content: {
+      flexGrow: 1,
+      paddingHorizontal: theme.spacing.screen,
+      paddingTop: theme.spacing.section,
+      paddingBottom: theme.spacing.xl,
+      gap: theme.spacing.section,
+    },
+    field: { gap: theme.spacing.sm },
+    body: { ...theme.type.body, color: theme.palette.ink },
+    footer: { marginTop: 'auto' },
   });

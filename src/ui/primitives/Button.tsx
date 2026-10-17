@@ -1,13 +1,26 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
+import type { IconName } from '../icons';
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
+import { Icon } from './Icon';
 
 type Props = {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  /**
+   * `primary` is the one dark main button; `secondary` is outlined;
+   * `destructive` is outlined in the error colour (account/leave "Delete account").
+   */
+  variant?: 'primary' | 'secondary' | 'destructive';
   disabled?: boolean;
+  /**
+   * Work is under way: a spinner shows before the label, presses are ignored
+   * and screen readers hear "busy". The label stays, so the button keeps its size.
+   */
+  busy?: boolean;
+  /** A line icon before the label ("Invite someone", "Share", "Delete"). */
+  icon?: IconName;
   /** Defaults to `label`. Set it when the visible label needs more context. */
   accessibilityLabel?: string;
   accessibilityHint?: string;
@@ -15,30 +28,66 @@ type Props = {
   testOnly_pressed?: boolean;
 };
 
+/**
+ * G buttons (screens/foundations and every sheet): the main button is 60
+ * high, fully round and dark; the outlined one is 52 high with a 1.5 outline.
+ * Disabled uses the disabled tokens; an outlined button stays transparent and
+ * keeps a line-coloured edge.
+ */
 export function Button({
   label,
   onPress,
   variant = 'primary',
   disabled = false,
+  busy = false,
+  icon,
   accessibilityLabel,
   accessibilityHint,
   testOnly_pressed,
 }: Props) {
   const theme = useTheme();
   const s = styles(theme);
-  const tone = disabled ? 'disabled' : variant;
+  const primary = variant === 'primary';
+  const inactive = disabled || busy;
+  const destructive = variant === 'destructive';
+  const labelColour = disabled
+    ? theme.palette.disabledText
+    : primary
+      ? theme.palette.onButtonPrimary
+      : destructive
+        ? theme.palette.error
+        : theme.palette.ink;
   return (
     <Pressable
       onPress={onPress}
-      disabled={disabled}
+      disabled={inactive}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled }}
+      accessibilityState={{ disabled, busy }}
       testOnly_pressed={testOnly_pressed}
-      style={({ pressed }) => [s.base, s[tone], pressed && s[`${variant}Pressed`]]}
+      style={({ pressed }) => [
+        s.base,
+        primary ? s.primary : s.secondary,
+        destructive && s.destructive,
+        disabled && (primary ? s.primaryDisabled : s.secondaryDisabled),
+        pressed && !inactive && (primary ? s.primaryPressed : s.secondaryPressed),
+      ]}
     >
-      <Text style={[theme.text.bodyStrong, s[`${tone}Label`]]}>{label}</Text>
+      {busy ? (
+        <ActivityIndicator color={labelColour} testID="button-busy" />
+      ) : icon ? (
+        <Icon name={icon} size={theme.size.iconField} color={labelColour} />
+      ) : null}
+      <Text
+        style={[
+          primary ? theme.type.button : theme.type.buttonSecondary,
+          s.label,
+          { color: labelColour },
+        ]}
+      >
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -46,23 +95,26 @@ export function Button({
 const styles = (t: Theme) =>
   StyleSheet.create({
     base: {
-      minHeight: t.size.touchTarget,
+      flexDirection: 'row',
+      gap: t.spacing.sm,
       paddingHorizontal: t.spacing.xl,
-      paddingVertical: t.spacing.md,
-      borderRadius: t.radius.md,
-      borderWidth: t.size.borderThin,
+      paddingVertical: t.spacing.sm,
+      borderRadius: t.radius.button,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    primary: { backgroundColor: t.colors.accent, borderColor: t.colors.accent },
-    primaryPressed: {
-      backgroundColor: t.colors.accentPressed,
-      borderColor: t.colors.accentPressed,
+    primary: { minHeight: t.size.button, backgroundColor: t.palette.buttonPrimary },
+    primaryPressed: { opacity: t.opacity.pressed },
+    primaryDisabled: { backgroundColor: t.palette.disabledFill },
+    // Outlined: the label carries the meaning, the outline only groups it.
+    secondary: {
+      minHeight: t.size.buttonSecondary,
+      backgroundColor: 'transparent',
+      borderWidth: t.size.borderControl,
+      borderColor: t.palette.outline,
     },
-    primaryLabel: { color: t.colors.onAccent, textAlign: 'center' },
-    secondary: { backgroundColor: t.colors.surface, borderColor: t.colors.borderStrong },
-    secondaryPressed: { backgroundColor: t.colors.surfacePressed },
-    secondaryLabel: { color: t.colors.text, textAlign: 'center' },
-    disabled: { backgroundColor: t.colors.surfaceSunken, borderColor: t.colors.surfaceSunken },
-    disabledLabel: { color: t.colors.textMuted, textAlign: 'center' },
+    secondaryPressed: { backgroundColor: t.palette.line },
+    secondaryDisabled: { borderColor: t.palette.line },
+    destructive: { borderColor: t.palette.error },
+    label: { textAlign: 'center', flexShrink: 1 },
   });

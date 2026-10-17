@@ -8,8 +8,10 @@ import { feedEditTarget, feedPrefill, type FeedPrefill } from '@/domain/activiti
 import { DEFAULT_HOME_SETTINGS, selectHomeState } from '@/domain/home/homeState';
 import { selectStock } from '@/domain/stock/stockState';
 import { formatClock } from '@/domain/time/formatClock';
+import { fieldTime } from '@/domain/time/fieldTime';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
+import { formatFieldTime } from '@/i18n/fieldTime';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 export type FeedForm = FeedPrefill;
@@ -27,7 +29,7 @@ export function useFeedSheet(entryId?: string) {
   const saves = useUndoableSaves(repository);
   const events = useEvents();
   const tz = deviceTimeZone();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [openedAt] = useState(Date.now);
   const [target] = useState(() => {
     const entry = entryId ? repository.get(entryId) : null;
@@ -128,9 +130,9 @@ export function useFeedSheet(entryId?: string) {
             from: formatClock(startedAt - form.breastMinutes * MINUTE_MS, tz),
             to: formatClock(startedAt, tz),
           },
-    /** The moment the feed is being recorded at, and the words for it. */
+    /** The moment the feed is being recorded at, and the words for it ("Today, 22:40 · now"). */
     at: startedAt,
-    atLabel: formatDateTime(startedAt, tz, dateLocale(i18n.language)),
+    atLabel: formatFieldTime(t, fieldTime(startedAt, openedAt, tz, dateLocale(i18n.language))),
     setAt: setExactAt,
     /** Editing only: the time stepper and the feed's new start. */
     shift,

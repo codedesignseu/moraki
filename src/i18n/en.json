@@ -6,9 +6,9 @@
     "feed_bottle": {
       "label": "Bottle",
       "summary": {
-        "breast": "{{ml}} mL breast milk",
-        "formula": "{{ml}} mL formula",
-        "mixed": "{{ml}} mL mixed"
+        "breast": "{{ml}} ml breast milk",
+        "formula": "{{ml}} ml formula",
+        "mixed": "{{ml}} ml mixed"
       }
     },
     "feed_breast": {
@@ -31,7 +31,8 @@
       "label": "Sleep",
       "summary": {
         "running": "Sleeping now",
-        "ended": "{{duration}}"
+        "minutes": "{{minutes}} min",
+        "hours": "{{hours}} h {{minutes}}"
       }
     },
     "pump": {
@@ -63,12 +64,14 @@
     }
   },
   "startup": {
-    "databaseFailed": "Moraki couldn’t open its data on this phone. Close the app and open it again. Your entries are kept."
+    "failedTitle": "Your log could not open",
+    "databaseFailed": "Moraki couldn’t open its data on this phone. Close the app and open it again. If it still won’t open, write to us from moraki.app/support."
   },
   "home": {
     "timer": {
       "label": "Since last feed",
-      "none": "No feed logged yet"
+      "none": "No feed yet",
+      "noneHint": "Log the first one when it happens"
     },
     "nextSide": {
       "left": "Next side: left",
@@ -80,24 +83,27 @@
     },
     "today": {
       "title": "Today",
-      "feeds": "Feeds",
-      "ml": "mL",
-      "wet": "Wet",
-      "dirty": "Dirty",
-      "sleep24h": "Sleep in the last 24h: {{duration}}",
-      "breastfeeding": "Breastfeeding"
+      "feeds": "feeds",
+      "diapers": "diapers",
+      "sleepHours": "h sleep",
+      "ml": "ml bottle",
+      "detail": "Wet {{wet}} · Dirty {{dirty}} · Breastfeeding {{breastfeeding}}",
+      "sleep24h": "Sleep in the last 24 h: {{duration}}"
     },
     "stock": {
       "title": "Milk stock",
       "fridge": "Fridge",
       "freezer": "Freezer",
-      "amount": "{{ml}} mL",
+      "amount": "{{ml}} ml",
       "oldest": {
-        "hours": "Oldest {{count}} h",
-        "days": "Oldest {{count}} days"
+        "hours_one": "{{place}}: oldest bag is {{count}} hour old",
+        "hours_other": "{{place}}: oldest bag is {{count}} hours old",
+        "days_one": "{{place}}: oldest bag is {{count}} day old",
+        "days_other": "{{place}}: oldest bag is {{count}} days old"
       },
-      "short": "More has gone out than went in. Check the count.",
-      "adjust": "Adjust {{place}}"
+      "short": "{{place}}: more has gone out than went in. Check the count.",
+      "adjust": "Adjust",
+      "adjustPlace": "Adjust {{place}}"
     },
     "recent": {
       "title": "Recent",
@@ -108,7 +114,9 @@
       "tomorrow": "Tomorrow {{time}}",
       "daysAgo": "{{count}} days ago, {{time}}",
       "inDays": "In {{count}} days, {{time}}",
-      "lastBy": "Last entry by {{name}}"
+      "lastBy": "Last entry by {{name}}",
+      "row": "{{when}} · {{label}}",
+      "rowSummary": "{{when}} · {{label}}, {{summary}}"
     },
     "logFeed": "Log feed",
     "actions": {
@@ -117,36 +125,59 @@
       "health": "Health note",
       "medication": "Medication",
       "pump": "Pump",
-      "weight": "Weight"
+      "weight": "Weight",
+      "feed": "Feed"
     },
     "sleep": {
-      "label": "Sleeping since {{time}}",
-      "stop": "Stop sleep"
+      "title": "Sleeping",
+      "since": "since {{time}}",
+      "stop": "Stop the sleep timer"
     },
     "appointment": {
       "title": "Next appointment",
-      "when": "{{title}} — {{when}}",
+      "whenWith": "{{when}} · {{doctor}}",
       "none": "Nothing booked",
       "add": "Add an appointment"
     },
     "duplicate": {
-      "question": "{{name}} also logged a feed at {{time}}. Same feed?",
-      "keepBoth": "Keep both",
-      "removeMine": "Remove mine"
-    }
+      "question": "{{name}} logged a feed too at {{time}}. Same feed?",
+      "same": "Same feed",
+      "keepBoth": "Keep both"
+    },
+    "greeting": {
+      "hello": "Hello",
+      "named": "Hello, {{name}}",
+      "day": "Here’s the day so far",
+      "babyDay": "Here’s {{baby}}’s day so far"
+    },
+    "logAFeed": "Log a feed",
+    "tiles": {
+      "last": {
+        "feed": "Last {{time}}",
+        "sleep": "Last {{time}}",
+        "diaper": "Last {{time}}",
+        "pump": "Last {{time}}"
+      },
+      "yesterday": "Last yesterday",
+      "daysAgo": "{{count}} days ago",
+      "none": "Not yet",
+      "running": "Sleeping",
+      "awake": "Awake {{duration}}"
+    },
+    "emptyHint": "Nothing logged yet. Tap a tile to start."
   },
   "log": {
     "save": "Save",
     "time": "At {{time}}",
     "feed": {
-      "title": "Feed",
+      "title": "Log a feed",
       "amount": "Amount",
-      "unit": "mL",
+      "unit": "ml",
       "kind": {
         "label": "Feed type",
         "bottle": "Bottle",
         "breast": "Breast",
-        "mixed": "Both"
+        "mixed": "Mixed"
       },
       "milk": {
         "label": "Milk",
@@ -160,138 +191,165 @@
         "right": "Right",
         "both": "Both"
       },
-      "fedFor": "Fed for",
+      "fedFor": "Minutes",
       "minutes": "min",
       "range": "{{from}} to {{to}}",
       "from": {
-        "label": "Poured from",
+        "label": "From stock",
         "none": "Not from a store",
         "fridge": "Fridge",
         "freezer": "Freezer",
-        "have": "Fridge {{fridge}} mL · Freezer {{freezer}} mL"
+        "have": "Fridge {{fridge}} ml · Freezer {{freezer}} ml"
       },
-      "when": "Feed time"
+      "when": "Time",
+      "save": "Save feed"
     },
     "pump": {
-      "title": "Pump",
+      "title": "Log pumping",
       "amount": "Amount",
-      "unit": "mL",
+      "unit": "ml",
       "dest": {
-        "label": "Put it",
+        "label": "Where it goes",
         "fridge": "Fridge",
         "freezer": "Freezer",
-        "fed": "Fed straight away"
+        "fed": "Fed"
       },
-      "when": "Pumped at"
+      "when": "Time"
     },
     "stock": {
-      "title": "Adjust stock",
+      "title": "Milk stock",
       "place": {
-        "label": "Store",
+        "label": "Place",
         "fridge": "Fridge",
         "freezer": "Freezer"
       },
       "direction": {
-        "label": "Change",
+        "label": "Add or remove",
         "add": "Add",
         "remove": "Remove"
       },
       "amount": "Amount",
-      "unit": "mL",
+      "unit": "ml",
       "reason": {
         "label": "Reason",
-        "discard": "Thrown away",
-        "move": "Moved",
-        "correction": "Correcting the count"
+        "discard": "Discard",
+        "move": "Move",
+        "correction": "Correction"
       },
-      "have": "{{place}} now holds {{ml}} mL"
+      "have": "{{place}}: {{ml}}",
+      "nowIn": {
+        "fridge": "Now in the fridge",
+        "freezer": "Now in the freezer"
+      },
+      "ml": "{{ml}} ml"
     },
     "diaper": {
-      "title": "Diaper",
+      "title": "Log a diaper",
       "wet": "Wet",
       "dirty": "Dirty",
-      "both": "Wet and dirty",
+      "both": "Both",
       "hint": "Saves straight away",
-      "when": "Changed at"
+      "when": "When",
+      "tapOne": "Tap one. It saves right away.",
+      "pickTime": "Changed earlier? Pick time",
+      "thenTap": "Now tap what it was."
     },
     "sleep": {
-      "title": "Sleep",
-      "startNow": "Start sleep now",
-      "stop": "Stop sleep",
+      "title": "Log sleep",
+      "startNow": "Start now",
+      "stop": "Stop",
       "runningSince": "Sleeping since {{time}}",
       "past": {
-        "title": "Add a past sleep",
+        "title": "Or add a past sleep",
         "startedAgo": "Started this long ago",
         "duration": "Slept for",
         "minutes": "min",
         "range": "{{from}} to {{to}}",
         "save": "Save past sleep"
       },
-      "startedAt": "Sleep started",
-      "endedAt": "Sleep ended",
+      "startedAt": "Start",
+      "endedAt": "End",
       "exactHint": "Or set both ends, if you are writing it up later.",
-      "backwards": "A sleep has to end after it starts."
+      "backwards": "A sleep has to end after it starts.",
+      "titleRunning": "Sleep running",
+      "startTitle": "Start a sleep now",
+      "startBody": "The timer runs until you stop it."
     },
     "characters": "{{count}} of {{max}} characters",
     "health": {
       "title": "Health note",
       "note": "Note",
-      "temperature": "Temperature in °C (optional)",
+      "temperature": "Temperature",
       "tempFormat": "Enter the temperature as a number, like 37.5.",
       "tempRange": "Enter a temperature from {{min}} to {{max}} °C.",
-      "tags": "Tags (optional)",
+      "tags": "Symptoms",
       "tag": {
         "rash": "Rash",
         "vomiting": "Vomiting",
         "cough": "Cough",
-        "congestion": "Congestion",
+        "congestion": "Runny nose",
         "fussy": "Fussy",
         "jaundice": "Jaundice",
         "other": "Other"
       },
-      "noteOrTemp": "Add a note or a temperature to save this entry."
+      "noteOrTemp": "Add a note or a temperature to save this entry.",
+      "when": "Time",
+      "tempUnit": "°C"
     },
     "medication": {
       "title": "Medication",
-      "name": "Medication name",
+      "name": "Name",
       "nameMissing": "Add the medication name to save this entry.",
-      "dose": "Dose (optional)",
+      "dose": "Dose",
       "adding": "Add a dose",
-      "prefilled": "Name filled in from the last dose. Enter the amount you are giving now."
+      "prefilled": "Name filled in from the last dose. Enter the amount you are giving now.",
+      "when": "Time",
+      "namePlaceholder": "Name of the medicine",
+      "dosePlaceholder": "e.g. 1 drop or 2.5 ml"
     },
     "weight": {
-      "title": "Weight",
+      "title": "Add weight",
       "amount": "Weight",
       "unit": "g",
       "source": {
-        "label": "Scale",
-        "home": "At home",
-        "clinic": "At the clinic"
+        "label": "Where it was weighed",
+        "home": "Home",
+        "clinic": "Clinic"
       },
-      "when": "Weighed at",
-      "fine": "Adjust by tens",
-      "outOfRange": "A weight in grams, between {{min}} and {{max}}"
+      "when": "Date",
+      "fine": "Fine adjust",
+      "outOfRange": "Enter a weight between {{min}} and {{max}} g."
     },
     "appointment": {
       "screen": "Appointment",
-      "title": "What is it",
+      "title": "Title",
       "inDays": "How many days from today",
       "days": "days",
       "hour": "h",
       "minute": "min",
       "atHour": "Hour",
       "atMinute": "Minutes",
-      "doctor": "Doctor (optional)",
-      "clinic": "Clinic (optional)",
-      "notes": "Notes (optional)",
+      "doctor": "Doctor",
+      "clinic": "Clinic",
+      "notes": "Notes",
       "questions": "Questions to ask",
       "questionsHint": "These come up at the end of the call script, so you have them when you speak to someone.",
       "addQuestion": "A question to ask",
       "add": "Add question",
-      "removeQuestion": "Remove",
-      "exact": "Appointment time"
+      "removeQuestion": "Remove question {{n}}",
+      "exact": "When",
+      "question": "Question {{n}}"
     },
-    "exactTime": "Set exact time"
+    "exactTime": "Set exact time",
+    "when": {
+      "today": "Today, {{time}}",
+      "todayNow": "Today, {{time}} · now",
+      "todayDate": "Today, {{date}}"
+    },
+    "subtitle": {
+      "now": "Now · {{time}}",
+      "named": "Now · {{time}} · {{name}}"
+    }
   },
   "dev": {
     "webStandIn": "Web preview: test data only. Entries live in this browser tab and vanish on reload. This is not the phone’s database."
@@ -314,7 +372,9 @@
       "sleep": "Sleep",
       "health": "Health",
       "other": "Other"
-    }
+    },
+    "emptyBody": "Everything you and your household log shows up here, newest first.",
+    "clear": "Clear filters"
   },
   "undo": {
     "action": "Undo",
@@ -336,13 +396,19 @@
     "moveTime": "Move time",
     "minutes": "min",
     "newTime": "Time: {{time}}",
-    "delete": "Delete entry",
-    "notEditable": "Editing this kind of entry comes later. You can delete it.",
+    "delete": "Delete",
+    "notEditable": "This kind of entry can’t be changed here. You can still see it in History.",
     "gone": "This entry no longer exists.",
     "openHint": "Opens this entry to edit or delete it",
     "moveStart": "Move start",
     "started": "Started: {{time}}",
-    "ended": "Ended: {{time}}"
+    "ended": "Ended: {{time}}",
+    "title": "Edit {{type}}",
+    "logged": "Logged {{time}}",
+    "loggedBy": "Logged {{time}} · {{name}}",
+    "saveChanges": "Save changes",
+    "deleteEntry": "Delete entry",
+    "notEditableTitle": "Not editable"
   },
   "reminders": {
     "title": "Moraki",
@@ -361,7 +427,7 @@
       "auto": "Auto",
       "on": "On",
       "off": "Off",
-      "autoHint": "Dark screens from 21:00 to 06:00.",
+      "autoHint": "Auto: 21:00 to 06:00",
       "onHint": "Dark screens all day.",
       "offHint": "Light screens all day."
     },
@@ -378,29 +444,33 @@
       "signedOutHint": "Sign in to get ready for sharing with other caregivers. Your entries stay on this phone.",
       "signIn": "Sign in",
       "signedInAs": "Signed in as {{email}}",
+      "email": "Email",
       "signOut": "Sign out",
       "household": "Household: {{name}}",
-      "setUpHousehold": "Set up your household",
+      "householdLabel": "Household",
+      "setUpHousehold": "Set up household",
       "setUpHint": "Add your baby to create a household. Entries already on this phone stay here for now.",
-      "invite": "Invite a caregiver",
-      "joinHousehold": "Join with a code",
-      "caregivers": "In this household",
-      "caregiver": "{{name}} — {{role}}",
+      "invite": "Invite someone",
+      "joinHousehold": "Join household",
+      "caregivers": "Caregivers",
+      "caregiver": "{{name}}, {{role}}",
+      "caregiverYou": "{{name}} (you), {{role}}",
+      "you": "· you",
       "role": {
         "owner": "Owner",
-        "caregiver": "Logs entries",
-        "viewer": "Views only"
+        "caregiver": "Caregiver",
+        "viewer": "Viewer"
       },
       "baby": "Baby details",
       "leaveOrDelete": "Leave or delete"
     },
     "sync": {
-      "title": "Sharing",
+      "title": "Sync",
       "notShared": "Nothing from this phone is shared yet.",
-      "allSent": "Everything is sent",
+      "allSent": "All sent",
       "waiting": "{{count}} entries waiting to send",
       "waiting_one": "One entry waiting to send",
-      "lastSent": "Last sent at {{time}}",
+      "lastSent": "Last sent {{time}}",
       "neverSent": "Nothing sent from this phone yet",
       "refused": "Not sent",
       "refusedRow": "{{what}} — {{reason}}",
@@ -418,7 +488,7 @@
       "noConsent": "Sharing is off until you agree to health data being processed."
     },
     "report": {
-      "title": "Reports",
+      "title": "Report",
       "range24h": "Last 24 hours",
       "range3d": "Last 3 days",
       "range7d": "Last 7 days",
@@ -446,15 +516,17 @@
       "title": "Entries already on this phone",
       "body": "You logged {{count}} entries before joining {{name}}’s household. Add them, and everyone sees them; some may already be there from the other phone.",
       "body_one": "You logged one entry before joining {{name}}’s household. Add it, and everyone sees it; it may already be there from the other phone.",
-      "move": "Add them to the household",
-      "keep": "Not now",
+      "move": "Add to the household",
+      "keep": "Keep on this phone",
       "hint": "Until you choose, this phone keeps its entries to itself and shares nothing."
     },
     "privacy": {
       "title": "Privacy",
-      "consent": "Health data",
+      "consent": "Consent",
+      "consentValue": "Consent: {{value}}",
       "agreed": "Agreed",
-      "notAgreed": "Not agreed yet"
+      "notAgreed": "Not agreed",
+      "review": "Review consent"
     },
     "reminders": {
       "title": "Reminders",
@@ -466,8 +538,9 @@
       "on": "On",
       "off": "Off",
       "interval": "Remind me this long after a feed",
+      "every": "Feed reminder every",
       "minutes": "min",
-      "second": "A second reminder if nothing is logged",
+      "second": "Second reminder",
       "secondOff": "No",
       "secondOn": "Yes",
       "secondAfter": "Second reminder, this long after the first",
@@ -477,9 +550,8 @@
       "ownerSets": "The household owner sets these. Your reminders follow them."
     },
     "data": {
-      "title": "Your data",
-      "export": "Export everything",
-      "exporting": "Preparing the files…",
+      "title": "Data export",
+      "export": "Export my data",
       "exportHint": "Two files: one for a spreadsheet, one that keeps every detail. Both are made on this phone, whether or not you have an account.",
       "exportProblem": {
         "unavailable": "This device has nowhere to share a file.",
@@ -489,6 +561,7 @@
     "roles": {
       "whatTheyCanDo": "What {{name}} can do",
       "remove": "Remove {{name}}",
+      "removeShort": "Remove",
       "hint": "Removing someone stops their access. Their entries stay: they are the household’s record of what happened.",
       "problem": {
         "forbidden": "Only the household owner can change this.",
@@ -514,22 +587,24 @@
   "insights": {
     "today": "Today",
     "barLabel": "{{day}}: {{value}}",
-    "ml": "{{value}} mL",
+    "ml": "{{value}} ml",
     "total": "7 days: {{value}}",
     "none": "Nothing to average yet",
     "bottle": {
-      "title": "Bottle milk"
+      "title": "Bottle",
+      "unit": "ml per day"
     },
     "breast": {
-      "title": "Breastfeeding"
+      "title": "Breast",
+      "unit": "minutes per day"
     },
     "averages": {
-      "title": "Averages, last 7 days",
-      "bottle": "Average bottle",
-      "interval": "Average time between feeds"
+      "title": "Averages",
+      "bottle": "Bottle amount",
+      "interval": "Gap between feeds"
     },
     "days": {
-      "title": "Day by day",
+      "title": "Days",
       "day": "Day",
       "feeds": "Feeds",
       "wet": "Wet",
@@ -539,11 +614,10 @@
     },
     "weight": {
       "title": "Weight",
-      "empty": "Nothing weighed yet",
-      "add": "Add a weight",
+      "empty": "No weights yet",
+      "add": "Add weight",
       "note": "Your pediatrician tracks this at check-ups.",
-      "birth": "Birth weight {{grams}} g",
-      "latest": "Latest {{grams}} g on day {{day}}",
+      "birth": "Birth",
       "change": {
         "up": "{{grams}} g above birth weight",
         "down": "{{grams}} g below birth weight",
@@ -552,14 +626,24 @@
       "point": "Day {{day}}: {{grams}} g",
       "line": "{{percent}}%",
       "mark": "Day {{day}}",
-      "row": {
-        "home": "Day {{day}} · {{grams}} g · at home",
-        "clinic": "Day {{day}} · {{grams}} g · at the clinic"
+      "latest": "Latest",
+      "since": "Since birth",
+      "grams": "{{grams}} g",
+      "delta": {
+        "up": "+{{grams}} g",
+        "down": "−{{grams}} g",
+        "same": "0 g"
       },
-      "dated": {
-        "home": "{{on}} · {{grams}} g · at home",
-        "clinic": "{{on}} · {{grams}} g · at the clinic"
-      }
+      "source": {
+        "clinic": "Clinic",
+        "home": "Home"
+      },
+      "entry": "{{on}} · {{source}}"
+    },
+    "subtitle": "Last 7 days",
+    "empty": {
+      "title": "Trends start after the first full day",
+      "body": "Keep logging. The charts fill in on their own."
     }
   },
   "signIn": {
@@ -570,8 +654,8 @@
     "codeSent": "We sent a sign-in code to {{email}}.",
     "code": "Code",
     "verify": "Sign in",
-    "resend": "Send a new code",
-    "changeEmail": "Use a different email",
+    "resend": "Resend code",
+    "changeEmail": "Change email",
     "apple": "Continue with Apple",
     "google": "Continue with Google",
     "or": "or",
@@ -583,12 +667,13 @@
       "offline": "You're offline. Signing in needs a connection.",
       "unknown": "Couldn't sign in. Try again.",
       "server": "Moraki couldn’t send the code just now. Try again in a minute."
-    }
+    },
+    "codeTitle": "Enter the code"
   },
   "householdSetup": {
     "title": "Set up your household",
     "you": {
-      "title": "About you",
+      "title": "You",
       "name": "Your name",
       "nameHint": "Other caregivers see this name next to your entries.",
       "relation": "You are the baby’s (optional)"
@@ -601,12 +686,12 @@
       "other": "Other"
     },
     "baby": {
-      "title": "Your baby",
-      "name": "Baby’s name",
+      "title": "Baby",
+      "name": "Name",
       "born": "Born",
       "daysAgo": "days ago",
       "bornOn": "Born on {{date}}",
-      "birthWeight": "Birth weight in grams (optional)",
+      "birthWeight": "Birth weight (optional)",
       "birthWeightHint": "You can add it later."
     },
     "save": "Create household",
@@ -620,12 +705,12 @@
     }
   },
   "invite": {
-    "title": "Invite a caregiver",
+    "title": "Invite someone",
     "ownerOnly": "Only the household owner can invite someone.",
-    "roleTitle": "What they can do",
+    "roleTitle": "They join as",
     "role": {
-      "caregiver": "Log entries",
-      "viewer": "View only"
+      "caregiver": "Caregiver",
+      "viewer": "Viewer"
     },
     "roleHint": {
       "caregiver": "They can log entries and edit them, like you.",
@@ -633,11 +718,11 @@
     },
     "create": "Create invite",
     "createAnother": "Create another invite",
-    "codeTitle": "Their code",
+    "codeTitle": "Invite code",
     "codeLabel": "Invite code {{code}}",
     "expires": "Works until {{date}}",
     "singleUse": "One person can use this code, once.",
-    "share": "Share link",
+    "share": "Share",
     "shareMessage": "Join me on Moraki to help track our baby: {{link}}\nOr open Moraki and enter the code {{code}}.",
     "problem": {
       "offline": "You’re offline. Creating an invite needs a connection.",
@@ -649,11 +734,12 @@
       "already_in_household": "Couldn’t create an invite. Try again.",
       "unknown": "Couldn’t create an invite. Try again."
     },
-    "openTitle": "Codes waiting to be used",
-    "openRow": "{{code}} · {{role}} · until {{date}}",
-    "openRowExpired": "{{code}} · {{role}} · expired {{date}}",
-    "revoke": "Withdraw this code",
-    "revokeHint": "Withdrawing stops the code working straight away, for anyone who has the link."
+    "openTitle": "Open invites",
+    "revoke": "Revoke",
+    "revokeHint": "Revoking stops the code working straight away, for anyone who has the link.",
+    "openDetail": "{{role}} · until {{date}}",
+    "openDetailExpired": "{{role}} · expired {{date}}",
+    "revokeLabel": "Revoke {{code}}"
   },
   "join": {
     "title": "Join a household",
@@ -681,10 +767,10 @@
   },
   "report": {
     "call": {
-      "age": "Age",
+      "age": "Baby’s age",
       "days": "{{count}} days old",
       "grams": "{{grams}} g",
-      "ml": "{{ml}} mL",
+      "ml": "{{ml}} ml",
       "weight": {
         "title": "Weight",
         "birth": "Birth weight",
@@ -700,15 +786,19 @@
         "breast": "Breastfeeding time",
         "longestGap": "Longest gap between feeds",
         "title": "Last 24 hours",
-        "last": "Last feed"
+        "last": "Last feed",
+        "countDay": "Feeds, last 24 h",
+        "detail": "{{ml}} bottle",
+        "detailBreast": "{{ml}} bottle, {{breast}} breast"
       },
       "diapers": {
         "wet": "Wet",
         "dirty": "Dirty",
-        "title": "Diapers, last 24 hours"
+        "title": "Diapers, last 24 hours",
+        "value": "Wet {{wet}} · Dirty {{dirty}}"
       },
       "temperature": {
-        "last": "Last reading",
+        "last": "Last temperature",
         "value": "{{celsius}} °C at {{time}}",
         "only": "Temperature only",
         "title": "Temperature"
@@ -724,21 +814,22 @@
       "none": "None logged",
       "worry": {
         "title": "What I'm worried about",
-        "label": "Write it down before you call",
-        "hint": "Stays on this screen. Nothing here is saved."
+        "hint": "Stays on this screen. Nothing here is saved.",
+        "placeholder": "Write what worries you, in your own words."
       },
       "questions": {
-        "title": "What I meant to ask",
+        "title": "Questions from the next appointment",
         "visit": "For {{title}}, {{date}}",
         "none": "Nothing written down yet"
-      }
+      },
+      "intro": "Read these out when you call a doctor or nurse line. Only what you logged."
     },
     "pdf": {
       "title": "Moraki report — {{name}}",
       "subtitle": "{{range}}, made {{generated}}",
       "baby": "Baby",
       "name": "Name",
-      "window": "Totals for this report",
+      "feeds": "Feeds",
       "sleep": "Sleep",
       "averageBottle": "Average bottle",
       "averageInterval": "Average time between feeds",
@@ -753,10 +844,13 @@
       "question": "Question {{number}}"
     },
     "share": {
-      "action": "Share as PDF",
+      "action": "Share PDF",
       "working": "Making the PDF…",
       "unavailable": "This device has nowhere to share a file.",
       "failed": "The PDF couldn't be made. Try again."
+    },
+    "preview": {
+      "title": "Report"
     }
   },
   "about": {
@@ -808,9 +902,9 @@
     "intro": "Tell us what happened, or what you wish the app did. It goes to Moraki's own servers in the EU and nowhere else.",
     "kindLabel": "What this is about",
     "kind": {
-      "problem": "Something's wrong",
-      "idea": "An idea",
-      "other": "Something else"
+      "problem": "Problem",
+      "idea": "Idea",
+      "other": "Other"
     },
     "message": "Your message",
     "messageHint": "Please leave out health details about your baby. We don't need them to fix the app.",
@@ -834,11 +928,11 @@
   "baby": {
     "title": "Baby details",
     "name": "Name",
-    "born": "Born this many days ago",
-    "daysAgo": "days",
+    "born": "Born",
+    "daysAgo": "days ago",
     "birthWeight": "Birth weight",
-    "weightKnown": "I know it",
-    "weightUnknown": "I don't know it",
+    "weightKnown": "Known",
+    "weightUnknown": "Unknown",
     "grams": "g",
     "weightHint": "The weight chart measures day 0 and its lines from these, so a correction here fixes the whole chart.",
     "save": "Save",
@@ -886,5 +980,15 @@
     "successor": {
       "question": "Who becomes owner?"
     }
+  },
+  "common": {
+    "error": "Error",
+    "close": "Close",
+    "back": "Back"
+  },
+  "duration": {
+    "minutes": "{{minutes}} min",
+    "long": "{{hours}} h {{minutes}} min",
+    "short": "{{hours}} h {{minutes}}"
   }
 }

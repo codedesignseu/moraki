@@ -15,6 +15,15 @@ export const PAST_SLEEP = {
   duration: { initial: 45, min: 5 },
 } as const;
 
+/** Whether a sleep is running, for the sheet's title ("Sleep running"). */
+export function useSleepRunning(): boolean {
+  const events = useEvents();
+  const [openedAt] = useState(Date.now);
+  return (
+    selectHomeState(events, openedAt, deviceTimeZone(), DEFAULT_HOME_SETTINGS).activeSleep !== null
+  );
+}
+
 /**
  * Start a sleep now, stop the running one, or add one that already happened.
  * A running sleep is just a sleep event with no end time: nothing about it is
@@ -42,7 +51,11 @@ export function useSleepSheet() {
   const end = exactEnd ?? start + Math.min(duration, maxDuration) * MINUTE_MS;
 
   return {
-    running: running && { id: running.id, startedAt: formatClock(running.occurredAt, tz) },
+    running: running && {
+      id: running.id,
+      startedAt: formatClock(running.occurredAt, tz),
+      startedAtMs: running.occurredAt,
+    },
     startNow: () =>
       saves.insert('undo.sleepStarted', { type: 'sleep', occurredAt: openedAt, payload: {} }),
     stop: (id: string) =>

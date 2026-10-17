@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useEvents, useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
@@ -10,11 +10,12 @@ import {
   MEDICATION_NAME_MAX,
   type MedicationPayload,
 } from '@/domain/activities/medication';
-import { formatClock } from '@/domain/time/formatClock';
+import { fieldTime } from '@/domain/time/fieldTime';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
+import { formatFieldTime } from '@/i18n/fieldTime';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
-import { Button, TextField, TimeShiftField } from '@/ui/primitives';
+import { Button, DateTimeField, TextField, TimeShiftField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 /**
@@ -34,6 +35,8 @@ export function MedicationSheet({ onDone, entryId }: { onDone: () => void; entry
   const saves = useUndoableSaves(repository);
   const events = useEvents();
   const [openedAt] = useState(Date.now);
+  // A dose written up afterwards can be given the time it was given (G: Time).
+  const [at, setAt] = useState(openedAt);
   // Editing (P1-12) opens on the entry itself; logging, on the last medication.
   const [entry] = useState(() => (entryId ? repository.get(entryId) : null));
   const [last] = useState(() =>
@@ -66,7 +69,7 @@ export function MedicationSheet({ onDone, entryId }: { onDone: () => void; entry
         },
       ]);
     } else {
-      saves.insert('undo.medicationSaved', { type: 'medication', occurredAt: openedAt, payload });
+      saves.insert('undo.medicationSaved', { type: 'medication', occurredAt: at, payload });
     }
     onDone();
   }
@@ -100,38 +103,55 @@ export function MedicationSheet({ onDone, entryId }: { onDone: () => void; entry
         />
       ) : (
         <>
-          <Text style={theme.text.heading}>{t('log.medication.adding')}</Text>
-          <Text style={s.muted}>{t('log.time', { time: formatClock(openedAt, tz) })}</Text>
+          <Text style={theme.type.heading}>{t('log.medication.adding')}</Text>
           {last !== null && <Text style={s.muted}>{t('log.medication.prefilled')}</Text>}
+          <DateTimeField
+            label={t('log.medication.when')}
+            value={at}
+            onChange={setAt}
+            display={formatFieldTime(t, fieldTime(at, openedAt, tz, dateLocale(i18n.language)))}
+            openLabel={t('log.exactTime')}
+            maximumDate={new Date()}
+            testID="medication-when"
+          />
         </>
       )}
       <TextField
         label={t('log.medication.name')}
         value={name}
         onChangeText={setName}
+        placeholder={t('log.medication.namePlaceholder')}
         maxLength={MEDICATION_NAME_MAX}
         hint={t('log.characters', { count: name.length, max: MEDICATION_NAME_MAX })}
         invalid={attempted && nameMissing}
         message={t('log.medication.nameMissing')}
+        errorPrefix={t('common.error')}
       />
       <TextField
         label={t('log.medication.dose')}
         value={dose}
         onChangeText={setDose}
+        placeholder={t('log.medication.dosePlaceholder')}
         maxLength={MEDICATION_DOSE_MAX}
         hint={t('log.characters', { count: dose.length, max: MEDICATION_DOSE_MAX })}
       />
-      <Button label={t('log.save')} onPress={save} />
+      <View style={s.footer}>
+        <Button label={entry ? t('entry.saveChanges') : t('log.save')} onPress={save} />
+      </View>
     </ScrollView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
+    // G sheets/medication: the feed sheet's spacing.
     content: {
-      padding: theme.spacing.lg,
+      flexGrow: 1,
+      paddingHorizontal: theme.spacing.screen,
+      paddingTop: theme.spacing.section,
       paddingBottom: theme.spacing.xl,
-      gap: theme.spacing.lg,
+      gap: theme.spacing.section,
     },
-    muted: { ...theme.text.label, color: theme.colors.textMuted },
+    muted: { ...theme.type.detail, color: theme.palette.textSoft },
+    footer: { marginTop: 'auto' },
   });

@@ -1,11 +1,10 @@
 import { Stack, useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { HouseholdSetupScreen } from '@/features/onboarding/HouseholdSetupScreen';
+import { PAGE_OPTIONS } from '@/ui/pageOptions';
 
 export default function HouseholdSetup() {
-  const { t } = useTranslation();
   const router = useRouter();
   // Ends on home (P2-05 done-when), whichever tab it was opened from.
   const toHome = useCallback(() => {
@@ -15,8 +14,8 @@ export default function HouseholdSetup() {
   }, [router]);
   return (
     <>
-      <Stack.Screen options={{ title: t('householdSetup.title'), presentation: 'modal' }} />
-      <HouseholdSetupScreen onDone={toHome} />
+      <Stack.Screen options={PAGE_OPTIONS} />
+      <HouseholdSetupScreen onDone={toHome} onClose={() => router.back()} />
     </>
   );
 }

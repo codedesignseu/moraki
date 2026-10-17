@@ -3,15 +3,38 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import {
+  ActivityTile,
   Button,
   Card,
+  ChoiceButtons,
   Chip,
+  DateTimeField,
+  EmptyState,
+  Icon,
+  IconButton,
+  IconCircle,
+  InlineError,
+  Legend,
+  ListGroup,
+  ListRow,
+  PillButton,
   Segmented,
   Sheet,
   SheetPanel,
+  ScreenHeader,
+  ScreenTitle,
+  SheetHeader,
+  StatCell,
+  StatusPill,
   Stepper,
+  TabBar,
+  TextButton,
+  TextField,
   TimerText,
+  Toast,
 } from '../primitives';
+import type { IconName } from '../icons';
+import { ICONS } from '../icons';
 import type { Theme } from '../theme';
 import { ThemeProvider, useTheme } from '../theme';
 import type { Scheme } from '../tokens';
@@ -42,6 +65,11 @@ const diaper = [
   { value: 'dirty', label: 'Dirty' },
   { value: 'both', label: 'Both' },
 ] as const;
+const kinds = [
+  { value: 'bottle', label: 'Bottle', tone: 'feed' },
+  { value: 'breast', label: 'Breast', tone: 'sleep' },
+  { value: 'mixed', label: 'Mixed', tone: 'pump' },
+] as const;
 
 function SchemeSection() {
   const theme = useTheme();
@@ -51,6 +79,9 @@ function SchemeSection() {
   const [kind, setKind] = useState<'wet' | 'dirty' | 'both' | null>(null);
   const [feeds, setFeeds] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [feedKind, setFeedKind] = useState<'bottle' | 'breast' | 'mixed' | null>('bottle');
+  const [note, setNote] = useState('');
+  const [grams, setGrams] = useState(3240);
 
   return (
     <View style={s.section}>
@@ -79,8 +110,17 @@ function SchemeSection() {
         <State name="secondary pressed">
           <Button label="Cancel" variant="secondary" onPress={() => {}} testOnly_pressed />
         </State>
+        <State name="secondary with icon">
+          <Button label="Invite" variant="secondary" icon="invite" onPress={() => {}} />
+        </State>
         <State name="disabled">
           <Button label="Save" onPress={() => {}} disabled />
+        </State>
+        <State name="secondary disabled">
+          <Button label="Cancel" variant="secondary" onPress={() => {}} disabled />
+        </State>
+        <State name="busy">
+          <Button label="Save" onPress={() => {}} busy />
         </State>
       </Group>
 
@@ -112,8 +152,67 @@ function SchemeSection() {
         </State>
         <State name="invalid">
           <Stepper value={0} onChange={() => {}} unit="mL" accessibilityLabel="Amount" invalid />
-          <Text style={[theme.text.caption, s.invalidText]}>Enter an amount</Text>
+          <InlineError prefix="Error" message="Enter an amount" />
         </State>
+        <State name="compact (interactive)">
+          <Stepper
+            value={grams}
+            onChange={setGrams}
+            step={10}
+            unit="g"
+            accessibilityLabel="Grams"
+            size="compact"
+          />
+        </State>
+      </Group>
+
+      <Group title="ChoiceButtons">
+        <State name="default (interactive)">
+          <ChoiceButtons
+            options={kinds}
+            value={feedKind}
+            onChange={setFeedKind}
+            accessibilityLabel="Kind"
+          />
+        </State>
+        <State name="pressed">
+          <ChoiceButtons
+            options={kinds}
+            value="bottle"
+            onChange={() => {}}
+            accessibilityLabel="Kind"
+            testOnly_pressedValue="breast"
+          />
+        </State>
+        <State name="disabled">
+          <ChoiceButtons
+            options={kinds}
+            value="bottle"
+            onChange={() => {}}
+            accessibilityLabel="Kind"
+            disabled
+          />
+        </State>
+      </Group>
+
+      <Group title="TextField">
+        <TextField label="Note (interactive)" value={note} onChangeText={setNote} hint="0 of 500" />
+        <TextField label="Email" value="parent@example.com" onChangeText={() => {}} icon="mail" />
+        <TextField
+          label="Weight"
+          value="32400"
+          onChangeText={() => {}}
+          suffix="g"
+          invalid
+          message="enter a weight between 500 and 10,000 g."
+          errorPrefix="Error"
+        />
+        <TextField label="Disabled" value="Baby" onChangeText={() => {}} disabled />
+        <TextField label="Multiline" value="" onChangeText={() => {}} multiline />
+      </Group>
+
+      <Group title="InlineError">
+        <InlineError prefix="Error" message="enter an amount above 0 ml." />
       </Group>
 
       <Group title="Segmented">
@@ -146,9 +245,7 @@ function SchemeSection() {
             accessibilityLabel="Diaper"
             invalid={kind === null}
           />
-          {kind === null ? (
-            <Text style={[theme.text.caption, s.invalidText]}>Choose one</Text>
-          ) : null}
+          {kind === null ? <InlineError prefix="Error" message="Choose one" /> : null}
         </State>
       </Group>
 
@@ -159,14 +256,82 @@ function SchemeSection() {
           <Chip label="Sleep" selected={false} onPress={() => {}} testOnly_pressed />
           <Chip label="Health" selected={false} onPress={() => {}} disabled />
           <Chip label="Pump" selected onPress={() => {}} disabled />
+          <Chip label="Card fill" selected={false} fill="card" onPress={() => {}} />
         </View>
       </Group>
 
       <Group title="Card">
         <Card>
-          <Text style={theme.text.heading}>Card</Text>
-          <Text style={[theme.text.body, s.muted]}>surface, radius lg, padding lg</Text>
+          <Text style={theme.type.cardTitle}>Card</Text>
+          <Text style={[theme.type.body, s.muted]}>card, corner 26</Text>
         </Card>
+        <Card variant="hero" tone="feed">
+          <Text style={theme.type.cardTitle}>Hero variant</Text>
+        </Card>
+        <Card tone="warning" icon="alert" message="Warning tone with an icon and one line.">
+          <Button label="Outlined action" variant="secondary" onPress={() => {}} />
+        </Card>
+        <Card icon="feed" iconTone="feed" message="A card with a tinted badge." />
+      </Group>
+
+      <Group title="IconCircle">
+        <View style={s.row}>
+          <IconCircle icon="feed" tone="feed" size="row" />
+          <IconCircle icon="sleep" tone="sleep" size="card" />
+          <IconCircle icon="diaper" tone="diaper" size="sheet" />
+          <IconCircle icon="visit" tone="pump" size="control" />
+          <IconCircle icon="pump" tone="card" size="tile" />
+          <IconCircle icon="tab-history" tone="chip" size="empty" iconColour="soft" />
+        </View>
+      </Group>
+
+      <Group title="StatCell">
+        <View style={s.cells}>
+          <StatCell value="6" label="feeds" tone="feed" />
+          <StatCell value="5" label="diapers" tone="diaper" />
+          <StatCell value="11.5" label="h sleep" tone="sleep" />
+          <StatCell value="520" label="ml bottle" tone="pump" />
+        </View>
+        <View style={s.cells}>
+          <StatCell value="240 ml" label="Fridge" tone="pump" layout="labelFirst" />
+          <StatCell value="600 ml" label="Freezer" tone="pump" layout="labelFirst" />
+        </View>
+      </Group>
+
+      <Group title="PillButton">
+        <View style={s.row}>
+          <PillButton label="Log a feed" onPress={() => {}} />
+          <PillButton label="Adjust" variant="outlined" onPress={() => {}} />
+          <PillButton label="Pressed" onPress={() => {}} testOnly_pressed />
+          <PillButton label="Disabled" onPress={() => {}} disabled />
+        </View>
+      </Group>
+
+      <Group title="TextButton">
+        <TextButton label="Review consent" onPress={() => {}} />
+        <TextButton label="Revoke" tone="destructive" onPress={() => {}} />
+        <TextButton label="Not now" align="center" onPress={() => {}} />
+        <Button label="Delete account" variant="destructive" onPress={() => {}} />
+      </Group>
+
+      <Group title="Toast">
+        <View style={s.toastFrame}>
+          <Toast message="Feed saved" actionLabel="Undo" onAction={() => {}} />
+        </View>
+      </Group>
+
+      <Group title="Legend">
+        <Legend items={[{ label: 'Clinic' }, { label: 'Home', shape: 'hollow' }]} />
+      </Group>
+
+      <Group title="DateTimeField">
+        <DateTimeField
+          label="Time"
+          value={0}
+          onChange={() => {}}
+          display="Today, 22:40 · now"
+          openLabel="Set exact time"
+        />
       </Group>
 
       <Group title="Sheet">
@@ -193,6 +358,148 @@ function SchemeSection() {
           />
           <Button label="Done" onPress={() => setSheetOpen(false)} />
         </Sheet>
+      </Group>
+
+      <Group title="Sage icons">
+        <View style={s.row}>
+          {(Object.keys(ICONS) as IconName[]).map((name) => (
+            <Icon key={name} name={name} />
+          ))}
+          <Icon name="back" />
+          <Icon name="close" />
+          <Icon name="plus" />
+          <Icon name="check" />
+        </View>
+      </Group>
+
+      <Group title="Activity tiles">
+        <View style={s.row}>
+          <ActivityTile
+            colour="feed"
+            icon="feed"
+            title="Feed"
+            detail="Detail line"
+            onPress={() => {}}
+            accessibilityLabel="Log"
+          />
+          <ActivityTile
+            colour="sleep"
+            icon="sleep"
+            title="Sleep"
+            detail="Detail line"
+            onPress={() => {}}
+            accessibilityLabel="Log"
+          />
+        </View>
+        <View style={s.row}>
+          <ActivityTile
+            colour="diaper"
+            icon="diaper"
+            title="Diaper"
+            onPress={() => {}}
+            accessibilityLabel="Log"
+          />
+          <ActivityTile
+            colour="pump"
+            icon="pump"
+            title="Pump"
+            onPress={() => {}}
+            accessibilityLabel="Log"
+          />
+        </View>
+      </Group>
+
+      <Group title="ListRow">
+        <ListGroup>
+          <ListRow grouped title="Health note" icon="health" badge="sleep" onPress={() => {}} />
+          <ListRow
+            grouped
+            title="Medication"
+            detail="Detail line"
+            icon="health"
+            badge="pump"
+            onPress={() => {}}
+          />
+        </ListGroup>
+        <ListRow
+          title="List row"
+          detail="Pressable"
+          icon="visit"
+          badge="diaper"
+          onPress={() => {}}
+        />
+        <ListRow
+          title="List row"
+          detail="With a button"
+          icon="health"
+          trailing={
+            <IconButton icon="plus" tone="line" onPress={() => {}} accessibilityLabel="Add" />
+          }
+        />
+        <View style={s.row}>
+          <IconButton icon="back" onPress={() => {}} accessibilityLabel="Back" />
+          <IconButton icon="close" tone="chip" onPress={() => {}} accessibilityLabel="Close" />
+          <StatusPill label="Status pill" />
+          <StatusPill label="Running" live />
+        </View>
+      </Group>
+
+      <Group title="Sage empty state">
+        <EmptyState
+          icon="tab-history"
+          title="Empty title"
+          body="One warm line."
+          action={<PillButton label="Log a feed" onPress={() => {}} />}
+        />
+      </Group>
+
+      <Group title="Screen title and header">
+        <ScreenTitle title="Trends" subtitle="Last 7 days" />
+        <ScreenHeader title="About Moraki" onBack={() => {}} backLabel="Back" />
+      </Group>
+
+      <Group title="Sheet header">
+        <View style={s.sheetFrame}>
+          <SheetHeader
+            icon="feed"
+            tone="feed"
+            title="Log a feed"
+            subtitle="Now · 22:40 · Parent 1"
+            onClose={() => {}}
+            closeLabel="Close"
+          />
+        </View>
+      </Group>
+
+      <Group title="Tab bar">
+        <View style={s.tabBarFrame}>
+          <TabBar
+            items={[
+              { key: 'a', label: 'Home', icon: 'tab-home', selected: true, onPress: () => {} },
+              {
+                key: 'b',
+                label: 'History',
+                icon: 'tab-history',
+                selected: false,
+                onPress: () => {},
+              },
+              {
+                key: 'c',
+                label: 'Insights',
+                icon: 'tab-insights',
+                selected: false,
+                onPress: () => {},
+              },
+              {
+                key: 'd',
+                label: 'Settings',
+                icon: 'tab-settings',
+                selected: false,
+                onPress: () => {},
+              },
+            ]}
+          />
+        </View>
       </Group>
     </View>
   );
@@ -228,8 +535,17 @@ const styles = (t: Theme) =>
     group: { gap: t.spacing.lg },
     state: { gap: t.spacing.xs },
     wrapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.sm },
+    row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.spacing.md },
+    cells: { flexDirection: 'row', gap: t.spacing.sm },
+    toastFrame: { height: t.size.toast + t.size.navBar + t.size.navBottom + t.spacing.xl },
+    sheetFrame: {
+      backgroundColor: t.palette.card,
+      borderTopLeftRadius: t.radius.sheet,
+      borderTopRightRadius: t.radius.sheet,
+      paddingBottom: t.spacing.lg,
+    },
+    tabBarFrame: { height: t.size.navBar + t.size.navBottom },
     muted: { color: t.colors.textMuted },
-    invalidText: { color: t.colors.invalid },
     input: {
       minHeight: t.size.touchTarget * 2,
       padding: t.spacing.md,

@@ -1,0 +1,270 @@
+{
+  "app": "Moraki",
+  "device": "390x844 (iPhone 14/15 logical points)",
+  "modes": [
+    "day",
+    "night"
+  ],
+  "screens": [
+    {
+      "id": "01-welcome",
+      "title": "Welcome",
+      "sourceComponent": "SoftWelcome",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/01-welcome.html",
+        "night": "screens/night/01-welcome.html"
+      }
+    },
+    {
+      "id": "02-household",
+      "title": "Create or join household",
+      "sourceComponent": "SgHousehold",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/02-household.html",
+        "night": "screens/night/02-household.html"
+      }
+    },
+    {
+      "id": "03-baby-details",
+      "title": "Baby details",
+      "sourceComponent": "SgBaby",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/03-baby-details.html",
+        "night": "screens/night/03-baby-details.html"
+      }
+    },
+    {
+      "id": "04-consent",
+      "title": "Consent",
+      "sourceComponent": "SgConsent",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/04-consent.html",
+        "night": "screens/night/04-consent.html"
+      }
+    },
+    {
+      "id": "05-home-empty",
+      "title": "Home, new household",
+      "sourceComponent": "SgHomeEmpty",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/05-home-empty.html",
+        "night": "screens/night/05-home-empty.html"
+      }
+    },
+    {
+      "id": "06-home",
+      "title": "Home, activity tiles",
+      "sourceComponent": "SoftHomeA",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/06-home.html",
+        "night": "screens/night/06-home.html"
+      }
+    },
+    {
+      "id": "07-home-timer",
+      "title": "Home, timer first (alternative)",
+      "sourceComponent": "SoftHomeB",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/07-home-timer.html",
+        "night": "screens/night/07-home-timer.html"
+      }
+    },
+    {
+      "id": "08-feed-bottle",
+      "title": "Log feed, bottle",
+      "sourceComponent": "SoftFeed",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/08-feed-bottle.html",
+        "night": "screens/night/08-feed-bottle.html"
+      }
+    },
+    {
+      "id": "09-feed-breast",
+      "title": "Log feed, breast",
+      "sourceComponent": "SgBreast",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/09-feed-breast.html",
+        "night": "screens/night/09-feed-breast.html"
+      }
+    },
+    {
+      "id": "10-diaper",
+      "title": "Log diaper (sheet)",
+      "sourceComponent": "SgDiaper",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/10-diaper.html",
+        "night": "screens/night/10-diaper.html"
+      }
+    },
+    {
+      "id": "11-sleep",
+      "title": "Sleep running",
+      "sourceComponent": "SoftSleep",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/11-sleep.html",
+        "night": "screens/night/11-sleep.html"
+      }
+    },
+    {
+      "id": "12-history",
+      "title": "History",
+      "sourceComponent": "SgHistory",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/12-history.html",
+        "night": "screens/night/12-history.html"
+      }
+    },
+    {
+      "id": "13-insights",
+      "title": "Insights",
+      "sourceComponent": "SgInsights",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/13-insights.html",
+        "night": "screens/night/13-insights.html"
+      }
+    },
+    {
+      "id": "14-call-script",
+      "title": "Call script",
+      "sourceComponent": "SgCall",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/14-call-script.html",
+        "night": "screens/night/14-call-script.html"
+      }
+    },
+    {
+      "id": "15-milk-stock",
+      "title": "Milk stock",
+      "sourceComponent": "SgMilk",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/15-milk-stock.html",
+        "night": "screens/night/15-milk-stock.html"
+      }
+    },
+    {
+      "id": "16-milk-adjust",
+      "title": "Adjust milk stock (sheet)",
+      "sourceComponent": "SgMilkAdjust",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/16-milk-adjust.html",
+        "night": "screens/night/16-milk-adjust.html"
+      }
+    },
+    {
+      "id": "17-appointments",
+      "title": "Appointments",
+      "sourceComponent": "SgAppts",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/17-appointments.html",
+        "night": "screens/night/17-appointments.html"
+      }
+    },
+    {
+      "id": "18-appointment-add",
+      "title": "Add appointment (sheet)",
+      "sourceComponent": "SgApptAdd",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/18-appointment-add.html",
+        "night": "screens/night/18-appointment-add.html"
+      }
+    },
+    {
+      "id": "19-settings",
+      "title": "Settings",
+      "sourceComponent": "SgSettings",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/19-settings.html",
+        "night": "screens/night/19-settings.html"
+      }
+    },
+    {
+      "id": "20-caregivers",
+      "title": "Caregivers",
+      "sourceComponent": "SgCaregivers",
+      "size": [
+        390,
+        844
+      ],
+      "files": {
+        "day": "screens/day/20-caregivers.html",
+        "night": "screens/night/20-caregivers.html"
+      }
+    }
+  ]
+}

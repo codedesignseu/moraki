@@ -1,4 +1,5 @@
 import { buildReport } from '@/domain/report/buildReport';
+import { palette } from '@/ui/tokens';
 import type { Event, EventType } from '@/domain/activities';
 
 import { reportFileName, reportHtml } from './reportHtml';
@@ -69,8 +70,9 @@ describe('the printable report', () => {
     const out = html('24h', [], { ...BABY, birthWeightG: null });
     expect(out).not.toContain('data-section="weight"');
     expect(out).not.toContain('data-section="health"');
-    // The window section still stands: zero feeds is a fact worth printing.
-    expect(out).toContain('data-section="feeds"');
+    // The window's counts still stand: zero feeds is a fact worth printing.
+    expect(out).toContain('data-section="stats"');
+    expect(out).toContain('report.call.ml(0)');
   });
 
   it('prints a day table for 3 and 7 days, and none for 24 hours', () => {
@@ -85,6 +87,18 @@ describe('the printable report', () => {
     const out = html('24h', [nasty]);
     expect(out).not.toContain('<script>alert');
     expect(out).toContain('&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt; &amp; more');
+  });
+
+  it('draws G’s layout: the mark top right, the counts in boxes, dark on white', () => {
+    const out = html('7d');
+    expect(out).toMatch(/<header>[\s\S]*<h1>[\s\S]*<svg class="mark"[^>]*aria-hidden="true"/);
+    expect(out).toContain(`stroke="${palette.light.logo}"`);
+    expect(out).toContain('<div class="stat"><div class="label">report.call.feeds.count</div>');
+    expect(out).toContain(`color: ${palette.light.ink}; background: ${palette.light.card}`);
+    expect(out).toContain('<h2>insights.days.title</h2>');
+    // The system font (G6): nothing is embedded or fetched.
+    expect(out).not.toMatch(/@font-face|https?:\/\//);
+    expect(out).toContain('<footer>report.pdf.footer</footer>');
   });
 
   it('keeps sections whole across a page break', () => {
