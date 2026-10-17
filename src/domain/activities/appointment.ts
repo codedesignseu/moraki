@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { formatClock } from '../time/formatClock';
+
 import type { ActivityModule } from './contract';
 
 export const appointmentSchema = z.object({
@@ -33,10 +35,11 @@ export const appointmentModule: ActivityModule<AppointmentPayload> = {
   /**
    * A day before and an hour before (P3-12). Only what is still ahead: a
    * reminder for a moment that has passed would fire the instant it was set.
-   * The appointment's own title is in the body, which is a clinic and a time,
-   * not anything about the baby's health (rule 8).
+   * The body says only that there is an appointment and, the day before, at
+   * what time. The title is free text someone typed (a clinic, a reason for
+   * the visit), so it never reaches a lock screen (rule 8).
    */
-  reminders: (events, _settings, now) =>
+  reminders: (events, _settings, now, tz) =>
     events
       .filter((e) => e.deletedAt === null)
       .flatMap((e) =>
@@ -45,7 +48,7 @@ export const appointmentModule: ActivityModule<AppointmentPayload> = {
           category: 'appointment' as const,
           at: e.occurredAt - reminder.before,
           bodyKey: reminder.bodyKey,
-          values: { title: e.payload.title },
+          ...(reminder.id === 'day' ? { values: { time: formatClock(e.occurredAt, tz) } } : {}),
         })),
       )
       .filter((reminder) => reminder.at > now),

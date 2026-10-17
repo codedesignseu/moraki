@@ -105,10 +105,14 @@ describe.each(LANGUAGES)('every user-facing string in $language', ({ copy, never
     }
   });
 
-  it('puts no health figure in a notification body (rule 8)', () => {
-    const notifications = all.filter((entry) => entry.key.startsWith('notifications.'));
-    for (const entry of notifications) {
-      expect(entry.text).not.toMatch(/\{\{(ml|grams|celsius|temp|count|wet|dirty)\}\}/);
+  it('puts nothing but a clock time into what shows on a lock screen (rule 8)', () => {
+    // Every reminder body lives under `reminders.`. A title, a note or an
+    // amount is never interpolated there: only `{{time}}` is.
+    const lockScreen = all.filter((entry) => entry.key.startsWith('reminders.'));
+    expect(lockScreen.length).toBeGreaterThanOrEqual(4);
+    for (const entry of lockScreen) {
+      const placeholders = [...entry.text.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]);
+      expect(placeholders.every((name) => name === 'time')).toBe(true);
     }
   });
 });

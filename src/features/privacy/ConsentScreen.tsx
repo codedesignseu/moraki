@@ -9,13 +9,14 @@ import { useTheme, type Theme } from '@/ui/theme';
 import { useConsent } from '@/privacy/useConsent';
 
 const PARAGRAPHS: readonly {
-  key: 'consent.what' | 'consent.where' | 'consent.who' | 'consent.rights';
+  key: 'consent.what' | 'consent.where' | 'consent.who' | 'consent.rights' | 'consent.withdrawal';
   icon: IconName;
 }[] = [
   { key: 'consent.what', icon: 'health' },
   { key: 'consent.where', icon: 'eu-shield' },
   { key: 'consent.who', icon: 'private' },
   { key: 'consent.rights', icon: 'export' },
+  { key: 'consent.withdrawal', icon: 'stop' },
 ];
 
 /**
@@ -23,8 +24,9 @@ const PARAGRAPHS: readonly {
  * bundled with terms, there is no pre-ticked box, and the way to say no is
  * always there: "Not now" and the close button.
  *
- * G account/consent and consent-agreed: one white card of four icon rows.
- * The text is the app's, unchanged (decision G3): no titles, intro or date.
+ * G account/consent and consent-agreed: one white card of icon rows, the
+ * fifth (what withdrawing does) added with the 2026-10-18 text. No titles,
+ * intro or date (decision G3).
  */
 export function ConsentScreen({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation();
