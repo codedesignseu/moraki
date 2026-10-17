@@ -1,133 +1,59 @@
 <!doctype html>
-<!--
-  DRAFT, pending review by a Cyprus lawyer before release (SDD 12.1).
-  The liability, governing-law, minimum-age and App Store sections in
-  particular are placeholders in plain English for the lawyer to replace or
-  confirm. Not legal advice. Keep it in step with public/el/terms/index.html.
--->
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Terms of use · Moraki</title>
-    <meta name="description" content="The terms for using Moraki." />
-    <link rel="alternate" hreflang="el" href="https://moraki.app/el/terms/" />
-    <style>
-      :root {
-        color-scheme: light dark;
-        --background: #f4efe7;
-        --surface: #faf6f0;
-        --text: #2b2621;
-        --text-muted: #6b6259;
-        --accent: #4a6550;
-        --accent-subtle: #dce4d9;
-        --border: #ddd4c5;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --background: #1c1814;
-          --surface: #27221d;
-          --text: #ddd2c2;
-          --text-muted: #a89d8c;
-          --accent: #9bb59f;
-          --accent-subtle: #2e3830;
-          --border: #3a332b;
-        }
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        padding: 24px 16px 48px;
-        background: var(--background);
-        color: var(--text);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 16px;
-        line-height: 1.6;
-      }
-      main {
-        max-width: 720px;
-        margin: 0 auto;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 32px 24px;
-      }
-      nav {
-        max-width: 720px;
-        margin: 0 auto 16px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        font-size: 14px;
-      }
-      h1 {
-        font-size: 26px;
-        line-height: 1.25;
-        margin: 0 0 4px;
-      }
-      h2 {
-        font-size: 19px;
-        margin: 32px 0 8px;
-      }
-      p,
-      li {
-        overflow-wrap: anywhere;
-      }
-      a {
-        color: var(--accent);
-      }
-      .meta {
-        color: var(--text-muted);
-        font-size: 14px;
-        margin: 0 0 24px;
-      }
-      .note {
-        background: var(--accent-subtle);
-        border-radius: 10px;
-        padding: 14px 16px;
-      }
-      .table {
-        overflow-x: auto;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 15px;
-      }
-      th,
-      td {
-        text-align: left;
-        vertical-align: top;
-        padding: 8px 10px 8px 0;
-        border-bottom: 1px solid var(--border);
-      }
-      th {
-        font-weight: 600;
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <a href="/privacy/">Privacy</a>
-      <a href="/terms/">Terms</a>
-      <a href="/support/">Support</a>
-      <a href="/el/terms/" hreflang="el" lang="el">Ελληνικά</a>
-    </nav>
-    <main>
-      <h1>Terms of use</h1>
-      <p class="meta">Effective 5 October 2026</p>
-
-      <p>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms of use · Moraki</title>
+<meta name="description" content="The rules for using Moraki.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F3F2EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171411" media="(prefers-color-scheme: dark)">
+<meta name="referrer" content="no-referrer">
+<script>(function(){try{var t=localStorage.getItem('moraki-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);var m=document.querySelectorAll('meta[name="theme-color"]');for(var i=0;i<m.length;i++){m[i].setAttribute('content',t==='dark'?'#171411':'#F3F2EE');}}}catch(e){}})();</script>
+<link rel="canonical" href="https://moraki.app/terms/">
+<link rel="alternate" hreflang="en" href="https://moraki.app/terms/">
+<link rel="alternate" hreflang="el" href="https://moraki.app/el/terms/">
+<link rel="alternate" hreflang="x-default" href="https://moraki.app/terms/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Moraki">
+<meta property="og:title" content="Terms of use · Moraki">
+<meta property="og:description" content="The rules for using Moraki.">
+<meta property="og:url" content="https://moraki.app/terms/">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="el_GR">
+<meta property="og:image" content="https://moraki.app/images/share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Moraki, one shared notebook for your newborn">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Terms of use · Moraki">
+<meta name="twitter:description" content="The rules for using Moraki.">
+<meta name="twitter:image" content="https://moraki.app/images/share.png">
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+<link rel="preload" href="/fonts/manrope-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/comfortaa-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<script src="/theme.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap"><a class="brand" href="/" aria-label="Moraki home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d="M16 76V48a13 13 0 0 1 26 0v28M58 76V48a13 13 0 0 1 26 0v28" fill="none" stroke-width="10" stroke-linecap="round"/><circle cx="50" cy="26" r="7"/></svg><span>moraki</span></a><div class="tools"><div class="theme-pill" role="group" aria-label="Theme" hidden><button type="button" data-theme-set="auto" aria-pressed="true" title="Auto"><svg class="ti i-auto" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path class="ti-fill" d="M12 4a8 8 0 0 0 0 16Z"/></svg><span class="vh">Auto</span></button><button type="button" data-theme-set="light" aria-pressed="false" title="Light"><svg class="ti i-light" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg><span class="vh">Light</span></button><button type="button" data-theme-set="dark" aria-pressed="false" title="Dark"><svg class="ti i-dark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1Z"/></svg><span class="vh">Dark</span></button></div><button type="button" class="theme-cycle" data-state="auto" aria-label="Theme: Auto" hidden><svg class="ti i-auto" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path class="ti-fill" d="M12 4a8 8 0 0 0 0 16Z"/></svg><svg class="ti i-light" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg><svg class="ti i-dark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1Z"/></svg></button><nav class="lang" aria-label="Language"><a href="/terms/" lang="en" hreflang="en" aria-current="true">EN</a><a href="/el/terms/" lang="el" hreflang="el">ΕΛ</a></nav></div></div></header>
+<main id="main" class="doc">
+<div class="doc-head"><span class="eyebrow">Moraki</span><h1>Terms of use</h1><p class="soft lead">The rules for using Moraki.</p><p class="small soft">Effective 5 October 2026</p></div>
+<p class="draft"><strong>Draft.</strong> This text is still waiting for a legal review and may change.</p>
+<nav aria-labelledby="toc-h" class="toc-wrap"><h2 id="toc-h" class="toc-h">On this page</h2><ol class="toc"><li><a href="#s1">1. Moraki is not medical advice</a></li><li><a href="#s2">2. Who can use Moraki</a></li><li><a href="#s3">3. Households and caregivers</a></li><li><a href="#s4">4. What you log</a></li><li><a href="#s5">5. Using Moraki fairly</a></li><li><a href="#s6">6. Price</a></li><li><a href="#s7">7. The service</a></li><li><a href="#s8">8. Ending</a></li><li><a href="#s9">9. Liability</a></li><li><a href="#s10">10. Law</a></li><li><a href="#s11">11. App stores</a></li><li><a href="#s12">12. Changes</a></li><li><a href="#s13">13. Contact</a></li></ol></nav>
+<div class="card doc-intro">
+<p>
         These terms are an agreement between you and CE Code Designs Ltd (Code Designs Ltd), a
         company established in Cyprus (“we”), for your use of the Moraki app. By using Moraki you
         accept them. How we handle your data is set out in our
         <a href="/privacy/">privacy policy</a>.
       </p>
-
-      <h2>1. Moraki is not medical advice</h2>
-      <div class="note">
+</div>
+<section class="card" id="s1" aria-labelledby="s1-h"><h2 id="s1-h">1. Moraki is not medical advice</h2>
+<div class="note">
         <p>
           Moraki is a notebook. It records what you type and adds it up. It is
           <strong>not a medical device</strong>, it does <strong>not give medical advice</strong>,
@@ -153,16 +79,16 @@
         turned off. Don't rely on Moraki alone for anything time-critical, such as when medication
         is due.
       </p>
-
-      <h2>2. Who can use Moraki</h2>
-      <p>
+</section>
+<section class="card" id="s2" aria-labelledby="s2-h"><h2 id="s2-h">2. Who can use Moraki</h2>
+<p>
         Moraki is for adults caring for a baby. You must be 18 or over to use it. If you create an
         account, use an email address you control and keep your phone secure, ideally with a
         passcode.
       </p>
-
-      <h2>3. Households and caregivers</h2>
-      <ul>
+</section>
+<section class="card" id="s3" aria-labelledby="s3-h"><h2 id="s3-h">3. Households and caregivers</h2>
+<ul>
         <li>
           A household is shared by the people in it. Its owner invites others with a single-use code
           and can remove them. Each person the owner invites either logs entries or only views them.
@@ -182,80 +108,95 @@
           their phone stays there, and we cannot remove it.
         </li>
       </ul>
-
-      <h2>4. What you log</h2>
-      <p>
+</section>
+<section class="card" id="s4" aria-labelledby="s4-h"><h2 id="s4-h">4. What you log</h2>
+<p>
         What you enter is yours. You give us permission to store, sync and process it only to run
         Moraki for you and your household, as described in the privacy policy. You are responsible
         for what you type, including anything you write about other people, such as a clinician's
         name in an appointment.
       </p>
-
-      <h2>5. Using Moraki fairly</h2>
-      <p>Don't:</p>
+</section>
+<section class="card" id="s5" aria-labelledby="s5-h"><h2 id="s5-h">5. Using Moraki fairly</h2>
+<p>Don't:</p>
       <ul>
         <li>try to reach a household or data that isn't yours, or guess invite codes;</li>
         <li>interfere with the service, overload it, or get around its security;</li>
         <li>use Moraki to harass anyone or to store anything unlawful;</li>
         <li>copy, resell or reverse engineer the app, except where the law allows it.</li>
       </ul>
-
-      <h2>6. Price</h2>
-      <p>
+</section>
+<section class="card" id="s6" aria-labelledby="s6-h"><h2 id="s6-h">6. Price</h2>
+<p>
         Moraki is free. There are no in-app purchases or subscriptions. If we ever offer paid
         features, we will tell you first, and nothing will be charged without your agreement.
       </p>
-
-      <h2>7. The service</h2>
-      <p>
+</section>
+<section class="card" id="s7" aria-labelledby="s7-h"><h2 id="s7-h">7. The service</h2>
+<p>
         Moraki works without signal and syncs when it can, usually within seconds. We work to keep
         it running and your data safe, but we can't promise it will always be available or free of
         errors. We may change or improve features. If we ever stop offering Moraki, we will give you
         notice and time to export your data.
       </p>
-
-      <h2>8. Ending</h2>
-      <p>
+</section>
+<section class="card" id="s8" aria-labelledby="s8-h"><h2 id="s8-h">8. Ending</h2>
+<p>
         You can stop using Moraki at any time, and delete your account in Settings. We may suspend
         or close an account that breaks these terms or puts others at risk; where we can, we will
         tell you why first.
       </p>
-
-      <h2>9. Liability</h2>
-      <p>
+</section>
+<section class="card" id="s9" aria-labelledby="s9-h"><h2 id="s9-h">9. Liability</h2>
+<p>
         To the extent the law allows, we are not liable for decisions made from what Moraki shows,
         for loss caused by entries that were missing, late or wrong, or for indirect loss. Nothing
         in these terms limits liability for death or personal injury caused by negligence, for
         fraud, or anything else the law does not allow us to limit, and nothing affects your rights
         as a consumer.
       </p>
-
-      <h2>10. Law</h2>
-      <p>
+</section>
+<section class="card" id="s10" aria-labelledby="s10-h"><h2 id="s10-h">10. Law</h2>
+<p>
         These terms are governed by the law of the Republic of Cyprus. If you live in the EU, you
         also keep the protection of the mandatory consumer law of your country, and you can bring a
         claim in its courts.
       </p>
-
-      <h2>11. App stores</h2>
-      <p>
+</section>
+<section class="card" id="s11" aria-labelledby="s11-h"><h2 id="s11-h">11. App stores</h2>
+<p>
         If you downloaded Moraki from the App Store or Google Play, these terms are between you and
         us, not Apple or Google, and their store terms also apply to your download. Apple and Google
         are not responsible for Moraki or its support. Apple and its subsidiaries are third-party
         beneficiaries of these terms and may enforce them.
       </p>
-
-      <h2>12. Changes</h2>
-      <p>
+</section>
+<section class="card" id="s12" aria-labelledby="s12-h"><h2 id="s12-h">12. Changes</h2>
+<p>
         If we change these terms, we will update the date above and tell you in the app before the
         change applies. If you don't agree, you can stop using Moraki and delete your account.
       </p>
-
-      <h2>13. Contact</h2>
-      <p>
+</section>
+<section class="card" id="s13" aria-labelledby="s13-h"><h2 id="s13-h">13. Contact</h2>
+<p>
         CE Code Designs Ltd, Cyprus ·
-        <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>
+        <a href="mailto:hello@moraki.app">hello@moraki.app</a>
       </p>
-    </main>
-  </body>
+</section>
+</main>
+<footer class="site-footer"><div class="wrap">
+<div class="footer-main">
+<a class="brand" href="/" aria-label="Moraki home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d="M16 76V48a13 13 0 0 1 26 0v28M58 76V48a13 13 0 0 1 26 0v28" fill="none" stroke-width="10" stroke-linecap="round"/><circle cx="50" cy="26" r="7"/></svg><span>moraki</span></a>
+<p class="health-note">Moraki is a notebook, not medical advice. If you’re worried about your baby, contact your doctor.</p>
+</div>
+<nav aria-label="Footer"><ul class="footer-links">
+<li><a href="/privacy/">Privacy</a></li>
+<li><a href="/terms/">Terms</a></li>
+<li><a href="/support/">Support</a></li>
+<li><a href="/terms/" lang="en" hreflang="en">English</a></li>
+<li><a href="/el/terms/" lang="el" hreflang="el">Ελληνικά</a></li>
+</ul></nav>
+<p class="small soft">© 2026 CE Code Designs Ltd, Cyprus</p>
+</div></footer>
+</body>
 </html>

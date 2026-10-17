@@ -4,3 +4,6 @@ dist/
 package-lock.json
 expo-env.d.ts
 design/
+# The site's HTML is hand-written, and its inline theme script is allowed by its
+# SHA-256 hash in the CSP. Reformatting it would change the hash (docs/website.md).
+public/**/*.html

@@ -1,0 +1,3 @@
+# Netlify and Cloudflare Pages: serve the invite page for any /join/CODE link.
+# Existing files win over this rule, so /join/ itself is served as it is.
+/join/*  /join/index.html  200
