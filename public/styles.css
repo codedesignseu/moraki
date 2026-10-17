@@ -1034,8 +1034,17 @@ ul.privacy-grid {
   --hair-grey: #c9c3ba;
   --blush: #f2b9a6;
 }
+:root[data-theme='dark'] {
+  --skin-1: #c9a78e;
+  --skin-2: #a87b5d;
+  --skin-3: #7a5038;
+  --hair-1: #1e1612;
+  --hair-2: #6a4428;
+  --hair-grey: #8f8880;
+  --blush: #9c6a5c;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --skin-1: #c9a78e;
     --skin-2: #a87b5d;
     --skin-3: #7a5038;
@@ -1314,4 +1323,12 @@ ul.privacy-grid {
   .theme-cycle {
     display: none;
   }
+}
+
+/* join and 404 drawings */
+.illo-join {
+  width: 200px;
+}
+.illo-404 {
+  width: 170px;
 }
