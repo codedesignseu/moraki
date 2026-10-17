@@ -20,7 +20,8 @@ create function pg_temp.id(prefix text, n int) returns uuid language sql as $$
   select (prefix || '-0000-0000-0000-00000000000' || n)::uuid
 $$;
 
-create function pg_temp.idle_household(n int) returns void language plpgsql as $$
+-- households.created_at is locked once written, so it is chosen here.
+create function pg_temp.idle_household(n int, created timestamptz) returns void language plpgsql as $$
 declare
   long_ago timestamptz := now() - interval '30 months';
   h uuid := pg_temp.id('aaaaaaaa', n);
@@ -28,7 +29,7 @@ declare
   b uuid := pg_temp.id('bbbbbbbb', n);
 begin
   insert into auth.users (id, email, last_sign_in_at) values (u, 'u' || n || '@example.test', long_ago);
-  insert into public.households (id, name, created_by, created_at) values (h, 'H' || n, u, long_ago);
+  insert into public.households (id, name, created_by, created_at) values (h, 'H' || n, u, created);
   insert into public.memberships (household_id, user_id, role, display_name, joined_at)
     values (h, u, 'owner', 'Owner', long_ago);
   insert into public.babies (id, household_id, name, born_at, updated_at)
@@ -62,7 +63,9 @@ select ok(
 select ok(not has_function_privilege('authenticated', 'public.sweep_inactive_households()', 'execute'),
   'nothing but the schedule may run it');
 
-select pg_temp.idle_household(n) from generate_series(1, 8) n;
+select pg_temp.idle_household(n, case n when 7 then now() - interval '7 days'
+                                       else now() - interval '30 months' end)
+from generate_series(1, 8) n;
 insert into public.invites (code, household_id, created_by, expires_at) values
   ('ABCDEFGH', pg_temp.id('aaaaaaaa', 1), pg_temp.id('00000000', 1), now() - interval '29 months');
 
@@ -72,7 +75,6 @@ select pg_temp.entry_written(4, now() - interval '24 months');
 select pg_temp.entry_written(5, now() - interval '24 months' - interval '1 minute');
 insert into auth.sessions (id, user_id, created_at, updated_at) values
   (gen_random_uuid(), pg_temp.id('00000000', 6), now() - interval '25 months', now() - interval '2 days');
-update public.households set created_at = now() - interval '7 days' where id = pg_temp.id('aaaaaaaa', 7);
 update public.babies set updated_at = now() - interval '3 months' where id = pg_temp.id('bbbbbbbb', 8);
 
 select is(public.sweep_inactive_households(), 2, 'two households are swept: 1 and 5');
