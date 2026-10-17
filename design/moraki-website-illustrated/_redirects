@@ -1,0 +1,2 @@
+# Netlify and Cloudflare Pages: serve the invite page for any /join/CODE link.
+/join/*  /join/index.html  200

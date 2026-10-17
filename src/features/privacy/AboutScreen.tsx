@@ -12,7 +12,7 @@ import { useTheme, type Theme } from '@/ui/theme';
  * be read, rather than a line nobody sees at sign-up.
  */
 const SITE = 'https://moraki.app';
-const CONTACT = 'info@codedesigns.eu';
+const CONTACT = 'hello@moraki.app';
 const PAGES = ['privacy', 'terms', 'support'] as const;
 
 /** The pages on moraki.app (P5-06), in Greek when the app is read in Greek. */

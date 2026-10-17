@@ -22,6 +22,8 @@ This is the current list. The sections further down are the original plan from S
 - [ ] **App Privacy** answers in App Store Connect from `docs/store/app-privacy-answers.md`.
 - [ ] **Demo household for App Review**, shortly before submitting. Seed one on prod with a review account you control, make a fresh invite code (valid 7 days, single use), and put it in the review notes (`docs/10-release-runbook.md`, "Submitting for review"). Delete the household after review.
 
+- [ ] **The `hello@moraki.app` mailbox**, receiving mail. Since 2026-10-17 it is the contact address on the website, in the app's About screen and in the App Store listing (it replaced `info@codedesigns.eu`). Send yourself a test message before the site goes live.
+
 ### Needed for a good release, not blocking
 
 - [ ] **`SENTRY_AUTH_TOKEN`** as a _secret_ in the EAS `production` environment. Without it builds still succeed, but crash reports have minified stack traces.
