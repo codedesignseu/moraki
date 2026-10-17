@@ -2,10 +2,10 @@
 --
 -- User 1 owns the household and has consented. User 2 is a caregiver who has
 -- not. User 3 consented and then withdrew. User 4 consented to an older
--- version of the policy.
+-- version of the policy (2026-09-23, the text before the rewrite).
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(26);
+select plan(27);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-000000000001', 'owner@example.test'),
@@ -24,7 +24,7 @@ insert into public.babies (id, household_id, name, born_at) values
 insert into public.consents (user_id, policy_version) values
   ('00000000-0000-0000-0000-000000000001', public.consent_version()),
   ('00000000-0000-0000-0000-000000000003', public.consent_version()),
-  ('00000000-0000-0000-0000-000000000004', 'an-older-version');
+  ('00000000-0000-0000-0000-000000000004', '2026-09-23');
 update public.consents set withdrawn_at = now()
   where user_id = '00000000-0000-0000-0000-000000000003';
 -- One event already synced, so "reading still works" has something to read.
@@ -48,6 +48,9 @@ create function pg_temp.an_event(n int) returns text language sql as $$
 $$;
 
 set local role authenticated;
+
+select is(public.consent_version(), '2026-10-18',
+  'the version in force is the rewritten text of 2026-10-18, so everyone is asked again');
 
 -- The helper itself --------------------------------------------------------
 select pg_temp.login(1);

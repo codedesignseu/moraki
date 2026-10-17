@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor, within } from 'expo-router/testing-library'
 
 import { META_KEYS } from '@/db/meta';
 import { meta } from '@/db/schema';
+import { CONSENT_VERSION } from '@/domain/consent/consent';
 import { createAuth } from '@/sync/auth';
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
 import {
@@ -65,15 +66,20 @@ describe('asking for consent', () => {
 
     const card = within(screen.getByTestId('consent-what'));
     expect(
-      card.getByText(/That is health data, so we ask before processing it\./),
+      card.getByText(/That is health data, so we ask before your entries leave this phone\./),
     ).toBeOnTheScreen();
     expect(card.getByText(/servers in the EU/)).toBeOnTheScreen();
-    expect(card.getByText(/never sold, never used for advertising/)).toBeOnTheScreen();
-    expect(card.getByText(/export everything at any time/)).toBeOnTheScreen();
+    expect(card.getByText(/Nothing is ever sold, used for advertising or used to train anything/)).toBeOnTheScreen();
+    expect(card.getByText(/Until you agree, your entries stay on this phone/)).toBeOnTheScreen();
+    expect(card.getByText(/shared with the household as soon as you set it up/)).toBeOnTheScreen();
+    expect(
+      card.getByText(/Settings → Data export → Export my data\. .*Settings → Leave or delete/),
+    ).toBeOnTheScreen();
+    expect(card.getByText(/What you already shared stays with the household/)).toBeOnTheScreen();
     // The app cannot delete from the servers yet (P4-06), so the screen does
     // not say it can.
     expect(card.queryByText(/delete it at any time/)).toBeNull();
-    expect(screen.getByText('Policy version 2026-09-23')).toBeOnTheScreen();
+    expect(screen.getByText('Policy version 2026-10-18')).toBeOnTheScreen();
     // Nothing is agreed by opening the screen.
     expect(screen.getByRole('button', { name: 'I agree' })).toBeOnTheScreen();
     expect(screen.queryByTestId('consent-granted')).toBeNull();
@@ -89,7 +95,7 @@ describe('asking for consent', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'I agree' }));
 
     await waitFor(() => expect(calls).toEqual(['/rest/v1/rpc/grant_consent']));
-    expect(h.prefs.get('consent')).toMatchObject({ userId: USER_ID, version: '2026-09-23' });
+    expect(h.prefs.get('consent')).toMatchObject({ userId: USER_ID, version: CONSENT_VERSION });
   });
 
   it('lets it be withdrawn again, keeping what is already logged', async () => {
@@ -150,7 +156,7 @@ describe('when it is asked', () => {
   });
 
   it('is not asked again once this account has answered', async () => {
-    h.prefs.set('consent', { userId: USER_ID, version: '2026-09-23', grantedAt: NOW });
+    h.prefs.set('consent', { userId: USER_ID, version: CONSENT_VERSION, grantedAt: NOW });
     const server = authServer({ events: () => [] });
     const { store } = keychain();
     await renderApp(h.repo, { auth: createAuth(TEST_SUPABASE_ENV, store, server.fetchImpl) });
@@ -164,6 +170,43 @@ describe('when it is asked', () => {
 
     expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(screen.queryByTestId('consent-what')).toBeNull();
+  });
+});
+
+describe('a new version of the text', () => {
+  it('asks again after signing in when this account agreed to an older version', async () => {
+    h.prefs.set('consent', { userId: USER_ID, version: '2026-09-23', grantedAt: NOW });
+    const server = authServer({ events: () => [] });
+    const { store } = keychain();
+    await renderApp(h.repo, { auth: createAuth(TEST_SUPABASE_ENV, store, server.fetchImpl) });
+
+    await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
+    await fireEvent.changeText(screen.getByLabelText('Email'), EMAIL);
+    await fireEvent.press(screen.getByRole('button', { name: 'Send code' }));
+    await fireEvent.changeText(screen.getByLabelText('Code'), '123456');
+    await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
+
+    expect(await screen.findByTestId('consent-what')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'I agree' })).toBeOnTheScreen();
+    expect(screen.queryByTestId('consent-granted')).toBeNull();
+  });
+
+  it('sends nothing on an agreement to an older version', async () => {
+    const pushes: unknown[] = [];
+    h.prefs.set('consent', { userId: USER_ID, version: '2026-09-23', grantedAt: NOW });
+    const logged = h.repo.insert({ type: 'diaper', occurredAt: NOW, payload: { kind: 'wet' } });
+    link(logged.babyId);
+    await signedIn({
+      pushEvents: (ops) => (pushes.push(ops), new Response('[]', { status: 200 })),
+    });
+
+    await openSettings();
+    expect(
+      within(await screen.findByTestId('settings-privacy')).getByText('Not agreed'),
+    ).toBeOnTheScreen();
+    expect(pushes).toEqual([]);
+    expect(h.outbox.pending()).toBeGreaterThan(0);
   });
 });
 

@@ -1,6 +1,7 @@
 import { act, fireEvent, screen, waitFor } from 'expo-router/testing-library';
 
 import { readLinkedIdentity } from '@/db/identity';
+import { CONSENT_VERSION } from '@/domain/consent/consent';
 import { createAuth, type Auth } from '@/sync/auth';
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
 import {
@@ -78,7 +79,7 @@ async function openSignedOut(fake: ReturnType<typeof authServer>): Promise<Auth>
 
 const grantConsent = () =>
   act(async () => {
-    h.prefs.set('consent', { userId: USER_ID, version: '2026-09-23', grantedAt: NOW });
+    h.prefs.set('consent', { userId: USER_ID, version: CONSENT_VERSION, grantedAt: NOW });
   });
 
 /*

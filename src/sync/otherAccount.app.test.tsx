@@ -3,6 +3,7 @@ import { act, fireEvent, screen, waitFor } from 'expo-router/testing-library';
 import { readLinkedIdentity } from '@/db/identity';
 import { META_KEYS } from '@/db/meta';
 import { events, meta, outbox } from '@/db/schema';
+import { CONSENT_VERSION } from '@/domain/consent/consent';
 import { createAuth } from '@/sync/auth';
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
 import {
@@ -68,7 +69,7 @@ async function openAsSecondAccount(member: 'owner' | null, initialUrl?: string) 
     ...(initialUrl ? { initialUrl } : {}),
   });
   await act(async () => {
-    h.prefs.set('consent', { userId: USER_ID, version: '2026-09-23', grantedAt: NOW });
+    h.prefs.set('consent', { userId: USER_ID, version: CONSENT_VERSION, grantedAt: NOW });
   });
   return fake;
 }
