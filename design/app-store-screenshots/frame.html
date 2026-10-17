@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1320">
+<title>Moraki App Store frame</title>
+<!--
+  One App Store screenshot: 1320 × 2868 (6.9" iPhone, portrait).
+  render.mjs loads this file and calls window.setShot({...}). Opened on its
+  own in a browser it reads the same fields from the query string, e.g.
+  frame.html?caption=Hello&sub=World&screen=out/en-01-home.png&theme=night
+-->
+<style>
+  @font-face { font-family: 'Comfortaa'; font-weight: 700; src: url('../../node_modules/@expo-google-fonts/comfortaa/700Bold/Comfortaa_700Bold.ttf') format('truetype'); }
+  @font-face { font-family: 'Manrope'; font-weight: 600; src: url('../../node_modules/@expo-google-fonts/manrope/600SemiBold/Manrope_600SemiBold.ttf') format('truetype'); }
+
+  :root {
+    --bg: #F7EBC0;
+    --ink: #161412;
+    --soft: #5C5852;
+    --bezel: #141210;
+    --ring: rgba(22, 20, 18, 0.10);
+  }
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 1320px; height: 2868px; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body.night {
+    --bg: #171411; --ink: #F1EAE0; --soft: #BBB0A2;
+    --bezel: #050404; --ring: rgba(241, 234, 224, 0.16);
+  }
+  .canvas { position: relative; width: 1320px; height: 2868px; }
+
+  /* Caption block: 120 px side margins, top of the canvas. */
+  .copy {
+    position: absolute; left: 120px; right: 120px; top: 150px; height: 450px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: 30px;
+  }
+  .caption {
+    margin: 0;
+    font-family: 'Comfortaa', sans-serif; font-weight: 700;
+    font-size: 96px; line-height: 1.14; letter-spacing: -0.01em;
+    color: var(--ink);
+    text-wrap: balance; white-space: pre-line;
+  }
+  .sub {
+    margin: 0;
+    font-family: 'Manrope', sans-serif; font-weight: 600;
+    font-size: 46px; line-height: 1.3;
+    color: var(--soft);
+    text-wrap: balance; white-space: pre-line;
+  }
+  .sub:empty { display: none; }
+
+  /* Phone: a plain rounded bezel, no device artwork. Screen 960 × 2086 (1320:2868). */
+  .phone {
+    position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%);
+    width: 1012px; height: 2138px; box-sizing: border-box;
+    padding: 26px; border-radius: 150px;
+    background: var(--bezel);
+    box-shadow: 0 0 0 4px var(--ring), 0 40px 90px rgba(22, 20, 18, 0.22);
+  }
+  .screen {
+    width: 960px; height: 2086px; border-radius: 124px; overflow: hidden;
+    background: #F3F2EE;
+  }
+  body.night .screen { background: #171411; }
+  .screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="copy">
+    <h1 class="caption" id="caption"></h1>
+    <p class="sub" id="sub"></p>
+  </div>
+  <div class="phone"><div class="screen"><img id="screen" alt=""></div></div>
+</div>
+<script>
+  // Fields: caption, sub (a \n forces a line break), bg (hex), theme ('day' | 'night'), screen (image URL), lang.
+  window.setShot = function (shot) {
+    document.documentElement.lang = shot.lang || 'en';
+    document.body.classList.toggle('night', shot.theme === 'night');
+    if (shot.bg) document.body.style.setProperty('--bg', shot.bg);
+    document.getElementById('caption').textContent = shot.caption || '';
+    document.getElementById('sub').textContent = shot.sub || '';
+    const img = document.getElementById('screen');
+    return new Promise((resolve, reject) => {
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      img.onerror = () => reject(new Error('screen image did not load'));
+      img.src = shot.screen;
+    }).then(async (size) => {
+      await document.fonts.ready;
+      // Keep the caption to two lines: step the size down if a language runs long.
+      const cap = document.getElementById('caption');
+      cap.style.fontSize = '';
+      let px = parseFloat(getComputedStyle(cap).fontSize);
+      const lines = () => Math.round(cap.getBoundingClientRect().height / parseFloat(getComputedStyle(cap).lineHeight));
+      while (lines() > 2 && px > 72) { px -= 4; cap.style.fontSize = px + 'px'; }
+      return size;
+    });
+  };
+  const q = new URLSearchParams(location.search);
+  if (q.has('caption') || q.has('screen')) {
+    window.setShot(Object.fromEntries(q.entries())).catch(() => {});
+  }
+</script>
+</body>
+</html>
