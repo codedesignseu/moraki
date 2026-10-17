@@ -36,13 +36,15 @@ export function TimeShiftField({ label, minutes, onChange, unit, result, max }: 
         unit={unit}
         accessibilityLabel={label}
       />
-      <Text style={theme.text.body}>{result}</Text>
+      <Text style={s.result}>{result}</Text>
     </View>
   );
 }
 
 const styles = (t: Theme) =>
   StyleSheet.create({
-    wrap: { gap: t.spacing.xs },
-    label: { ...t.text.label, color: t.colors.textMuted },
+    // G: a small soft label above the stepper's grey box, as in every sheet.
+    wrap: { gap: t.spacing.sm },
+    label: { ...t.type.small, color: t.palette.textSoft },
+    result: { ...t.type.body, color: t.palette.ink },
   });

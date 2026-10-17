@@ -21,7 +21,26 @@ it('renders every primitive group in every scheme', async () => {
       color: colors[scheme].text,
     });
   }
-  for (const group of ['TimerText', 'Button', 'Stepper', 'Segmented', 'Chip', 'Card', 'Sheet']) {
+  for (const group of [
+    'TimerText',
+    'Button',
+    'Stepper',
+    'ChoiceButtons',
+    'TextField',
+    'InlineError',
+    'Segmented',
+    'Chip',
+    'Card',
+    'IconCircle',
+    'StatCell',
+    'PillButton',
+    'TextButton',
+    'Toast',
+    'Legend',
+    'DateTimeField',
+    'ListRow',
+    'Sheet',
+  ]) {
     expect(screen.getAllByRole('header', { name: group })).toHaveLength(schemes.length);
   }
 });

@@ -4,12 +4,15 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BREAST_MINUTES, type FeedKind, type FeedPrefill } from '@/domain/activities';
 import {
   Button,
+  ChoiceButtons,
   DateTimeField,
+  FieldLabel,
   Segmented,
   StatusPill,
   Stepper,
   TimeShiftField,
 } from '@/ui/primitives';
+import type { ChoiceOption } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useFeedSheet } from './useFeedSheet';
@@ -38,10 +41,11 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
     setAt,
   } = useFeedSheet(entryId);
 
-  const kinds: { value: FeedKind; label: string }[] = [
-    { value: 'bottle', label: t('log.feed.kind.bottle') },
-    { value: 'breast', label: t('log.feed.kind.breast') },
-    { value: 'mixed', label: t('log.feed.kind.mixed') },
+  // G: each kind in its tile colour, bottle butter, breast pink, mixed green.
+  const kinds: ChoiceOption<FeedKind>[] = [
+    { value: 'bottle', label: t('log.feed.kind.bottle'), tone: 'feed' },
+    { value: 'breast', label: t('log.feed.kind.breast'), tone: 'sleep' },
+    { value: 'mixed', label: t('log.feed.kind.mixed'), tone: 'pump' },
   ];
   const milks: { value: FeedPrefill['milk']; label: string }[] = [
     { value: 'breast', label: t('log.feed.milk.breast') },
@@ -65,6 +69,14 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
 
   return (
     <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+      <ChoiceButtons
+        options={kinds}
+        value={form.kind}
+        onChange={(kind) => update({ kind })}
+        accessibilityLabel={t('log.feed.kind.label')}
+        // A logged feed keeps its kind; to change it, delete and log again.
+        disabled={editing}
+      />
       {editing ? (
         <TimeShiftField
           label={t('entry.moveTime')}
@@ -74,10 +86,7 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
           result={t('entry.newTime', { time: newStart })}
         />
       ) : (
-        <>
-          <StatusPill
-            label={'at' in when ? t('log.time', { time: when.at }) : t('log.feed.range', when)}
-          />
+        <View style={s.field}>
           {/* The fast path is logging it now; this is for writing one up
               later (P3-F7). */}
           <DateTimeField
@@ -89,89 +98,101 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
             maximumDate={new Date()}
             testID="feed-when"
           />
+          <StatusPill
+            label={'at' in when ? t('log.time', { time: when.at }) : t('log.feed.range', when)}
+          />
+        </View>
+      )}
+      {hasBreast && (
+        <>
+          <View style={s.field}>
+            <FieldLabel label={t('log.feed.side.label')} />
+            <Segmented
+              options={sides}
+              value={form.side}
+              onChange={(side) => update({ side })}
+              accessibilityLabel={t('log.feed.side.label')}
+            />
+          </View>
+          <View style={s.field}>
+            <FieldLabel label={t('log.feed.fedFor')} />
+            <Stepper
+              value={form.breastMinutes}
+              onChange={(breastMinutes) => update({ breastMinutes })}
+              step={BREAST_MINUTES.step}
+              min={BREAST_MINUTES.min}
+              max={BREAST_MINUTES.max}
+              unit={t('log.feed.minutes')}
+              accessibilityLabel={t('log.feed.fedFor')}
+            />
+          </View>
         </>
       )}
-      <Segmented
-        options={kinds}
-        value={form.kind}
-        onChange={(kind) => update({ kind })}
-        accessibilityLabel={t('log.feed.kind.label')}
-        // A logged feed keeps its kind; to change it, delete and log again.
-        disabled={editing}
-      />
       {hasBottle && (
-        // Sage 08 amount card on the feed colour.
-        <View style={s.panel}>
-          <Stepper
-            value={form.ml}
-            onChange={(ml) => update({ ml })}
-            step={ML_STEP}
-            min={ML_MIN}
-            max={ML_MAX}
-            unit={t('log.feed.unit')}
-            accessibilityLabel={t('log.feed.amount')}
-          />
-          <Segmented
-            options={milks}
-            value={form.milk}
-            onChange={(milk) => update({ milk })}
-            accessibilityLabel={t('log.feed.milk.label')}
-          />
+        <>
+          <View style={s.field}>
+            <FieldLabel label={t('log.feed.amount')} />
+            <Stepper
+              value={form.ml}
+              onChange={(ml) => update({ ml })}
+              step={ML_STEP}
+              min={ML_MIN}
+              max={ML_MAX}
+              unit={t('log.feed.unit')}
+              accessibilityLabel={t('log.feed.amount')}
+            />
+          </View>
+          <View style={s.field}>
+            <FieldLabel label={t('log.feed.milk.label')} />
+            <Segmented
+              options={milks}
+              value={form.milk}
+              onChange={(milk) => update({ milk })}
+              accessibilityLabel={t('log.feed.milk.label')}
+            />
+          </View>
           {form.milk !== 'formula' && (
-            <>
+            <View style={s.field}>
+              <FieldLabel label={t('log.feed.from.label')} />
               <Segmented
                 options={froms}
                 value={form.fromStock ?? 'none'}
                 onChange={(from) => update({ fromStock: from === 'none' ? null : from })}
                 accessibilityLabel={t('log.feed.from.label')}
               />
-              <Text style={s.onTileSoft}>
+              <Text style={s.soft}>
                 {t('log.feed.from.have', { fridge: stock.fridge.ml, freezer: stock.freezer.ml })}
               </Text>
-            </>
+            </View>
           )}
-        </View>
+        </>
       )}
-      {hasBreast && (
-        <View style={s.panel}>
-          <Segmented
-            options={sides}
-            value={form.side}
-            onChange={(side) => update({ side })}
-            accessibilityLabel={t('log.feed.side.label')}
-          />
-          <Text style={s.onTileSoft}>{t('log.feed.fedFor')}</Text>
-          <Stepper
-            value={form.breastMinutes}
-            onChange={(breastMinutes) => update({ breastMinutes })}
-            step={BREAST_MINUTES.step}
-            min={BREAST_MINUTES.min}
-            max={BREAST_MINUTES.max}
-            unit={t('log.feed.minutes')}
-            accessibilityLabel={t('log.feed.fedFor')}
-          />
-        </View>
-      )}
-      <Button
-        label={t('log.save')}
-        onPress={() => {
-          save();
-          onDone();
-        }}
-      />
+      <View style={s.footer}>
+        <Button
+          label={editing ? t('entry.saveChanges') : t('log.feed.save')}
+          onPress={() => {
+            save();
+            onDone();
+          }}
+        />
+      </View>
     </ScrollView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
-    content: { padding: theme.spacing.screen, gap: theme.spacing.lg },
-    muted: { ...theme.type.detail, color: theme.palette.textSoft },
-    panel: {
-      backgroundColor: theme.palette.feed,
-      borderRadius: theme.radius.tile,
-      padding: theme.spacing.screen,
-      gap: theme.spacing.md,
+    // G sheets/feed-*: 14 between blocks, the screen edge at the sides.
+    content: {
+      flexGrow: 1,
+      paddingHorizontal: theme.spacing.screen,
+      paddingTop: theme.spacing.section,
+      paddingBottom: theme.spacing.xl,
+      gap: theme.spacing.section,
     },
-    onTileSoft: { ...theme.type.detail, color: theme.palette.onTileSoft },
+    // A small label and its control.
+    field: { gap: theme.spacing.sm },
+    soft: { ...theme.type.small, color: theme.palette.textSoft },
+    // Save sits at the foot of a short sheet and after the last field of a long one.
+    footer: { marginTop: 'auto' },
   });

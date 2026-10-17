@@ -44,8 +44,8 @@ describe('logging a feed', () => {
     await renderApp();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Log feed' })); // tap 1
-    expect(screen.getByRole('button', { name: 'Save' })).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' })); // tap 2
+    expect(screen.getByRole('button', { name: 'Save feed' })).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' })); // tap 2
 
     const [latest] = feeds();
     expect(latest).toMatchObject({
@@ -55,21 +55,25 @@ describe('logging a feed', () => {
     });
     expect(feeds()).toHaveLength(2);
     // Back on home, which shows the new feed straight away.
-    expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
-    expect(screen.getByLabelText('Feeds: 2')).toBeOnTheScreen();
-    expect(screen.getByRole('timer')).toHaveTextContent('0m');
+    expect(screen.queryByRole('button', { name: 'Save feed' })).toBeNull();
+    expect(screen.getByLabelText('2 feeds')).toBeOnTheScreen();
+    expect(screen.getByRole('timer')).toHaveTextContent('0 min');
   });
 
   it('logs the very first feed in 2 taps with the first-feed defaults', async () => {
     await renderApp();
     await fireEvent.press(screen.getByRole('button', { name: 'Log feed' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
     expect(feeds()[0]).toMatchObject({ type: 'feed_bottle', payload: { ml: 90, milk: 'formula' } });
   });
 
   it('opens with the current time', async () => {
     await openSheet();
     expect(screen.getByText('At 12:00')).toBeOnTheScreen();
+    // G: the header says when and who, the time field says today and now.
+    expect(screen.getByRole('header', { name: 'Log a feed' })).toBeOnTheScreen();
+    expect(screen.getByText('Now · 12:00')).toBeOnTheScreen();
+    expect(screen.getByTestId('feed-when-value')).toHaveTextContent('Today, 12:00 · now');
   });
 
   it('logs a breast feed on the suggested side', async () => {
@@ -77,17 +81,19 @@ describe('logging a feed', () => {
     await openSheet();
     const side = within(screen.getByLabelText('Side'));
     expect(side.getByRole('radio', { name: 'Right' })).toBeChecked();
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
     expect(feeds()[0]).toMatchObject({ type: 'feed_breast', payload: { side: 'right' } });
   });
 
   it('logs a mixed feed as a bottle and a breast event sharing a group', async () => {
     await openSheet();
-    await fireEvent.press(screen.getByRole('radio', { name: 'Both' }));
+    await fireEvent.press(
+      within(screen.getByLabelText('Feed type')).getByRole('radio', { name: 'Mixed' }),
+    );
     await fireEvent.press(
       within(screen.getByLabelText('Side')).getByRole('radio', { name: 'Left' }),
     );
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
     const [a, b] = feeds();
     expect(new Set([a?.type, b?.type])).toEqual(new Set(['feed_bottle', 'feed_breast']));
     expect(a?.groupId).toBeTruthy();
@@ -102,7 +108,7 @@ describe('logging a feed', () => {
     await fireEvent.press(
       within(screen.getByLabelText('Milk')).getByRole('radio', { name: 'Breast milk' }),
     );
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
     expect(feeds()[0]).toMatchObject({ payload: { ml: 100, milk: 'breast' } });
   });
 
@@ -122,13 +128,13 @@ describe('logging a feed', () => {
     it('saves a breastfeed as ending now and starting "Fed for" minutes ago', async () => {
       await openSheet();
       await choose('Feed type', 'Breast');
-      expect(screen.getByLabelText('Fed for')).toHaveAccessibilityValue({ now: 15 });
+      expect(screen.getByLabelText('Minutes')).toHaveAccessibilityValue({ now: 15 });
       // The sheet shows the times it will save: 11:45 to 12:00 local.
       expect(screen.getByText('11:45 to 12:00')).toBeOnTheScreen();
-      await step('Fed for', 'increment');
+      await step('Minutes', 'increment');
       expect(screen.getByText('11:40 to 12:00')).toBeOnTheScreen();
-      await step('Fed for', 'decrement');
-      await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+      await step('Minutes', 'decrement');
+      await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
 
       expect(feeds()[0]).toMatchObject({
         type: 'feed_breast',
@@ -137,23 +143,23 @@ describe('logging a feed', () => {
       });
       expect(today()).toMatchObject({ feeds: 1, ml: 0, breastMs: 15 * MIN });
       // "Since last feed" counts from when the feed started.
-      expect(screen.getByRole('timer')).toHaveTextContent('15m');
+      expect(screen.getByRole('timer')).toHaveTextContent('15 min');
     });
 
     it('saves a changed duration', async () => {
       await openSheet();
       await choose('Feed type', 'Breast');
-      await step('Fed for', 'increment');
-      await step('Fed for', 'increment');
-      await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+      await step('Minutes', 'increment');
+      await step('Minutes', 'increment');
+      await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
       expect(today().breastMs).toBe(25 * MIN);
     });
 
     it('starts both parts of a mixed feed when the session started, adding mL and minutes separately', async () => {
       await openSheet();
-      await choose('Feed type', 'Both');
-      await step('Fed for', 'decrement');
-      await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+      await choose('Feed type', 'Mixed');
+      await step('Minutes', 'decrement');
+      await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
 
       const [a, b] = feeds();
       expect(a?.occurredAt).toBe(NOW - 10 * MIN);
@@ -171,13 +177,13 @@ describe('logging a feed', () => {
         payload: { side: 'left' },
       });
       await openSheet();
-      expect(screen.getByLabelText('Fed for')).toHaveAccessibilityValue({ now: 20 });
+      expect(screen.getByLabelText('Minutes')).toHaveAccessibilityValue({ now: 20 });
     });
 
     it('does not show the duration for a bottle-only feed, which still saves at the time the sheet opened', async () => {
       await openSheet();
-      expect(screen.queryByLabelText('Fed for')).toBeNull();
-      await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+      expect(screen.queryByLabelText('Minutes')).toBeNull();
+      await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
       expect(feeds()[0]).toMatchObject({ type: 'feed_bottle', occurredAt: NOW, endedAt: null });
     });
   });

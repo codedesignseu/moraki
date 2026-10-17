@@ -1,18 +1,24 @@
 import { useTheme } from './ThemeProvider';
 
 /**
- * Screen options for a log or edit sheet: the platform modal, with the
- * sheet, its header and content on the Sage card colour.
+ * Screen options for a log or edit sheet (decision G1): the native form
+ * sheet of react-native-screens, with G's 32 top corners, on the card
+ * colour, swiped down to close. The native header and grabber are off; each
+ * sheet draws SheetHandle and SheetHeader itself, as every G sheet does.
  *
- * The design's bottom sheet has 32 top corners. A native formSheet could
- * draw them (sheetCornerRadius), but it could not be checked on devices
- * with the keyboard open and at 200% text, so the modal stays (D5 fallback).
+ * One detent, the full height ([1]), for every sheet. `fitToContents` would
+ * suit the short diaper and sleep sheets, but their bodies scroll
+ * (ScrollView), and a scrolling body has no fixed height for the sheet to
+ * fit to. Revisit when those bodies are restyled (MAPPING_G steps 10, 11).
  */
 export function useSheetOptions() {
-  const { palette } = useTheme();
+  const { palette, radius } = useTheme();
   return {
-    presentation: 'modal' as const,
+    presentation: 'formSheet' as const,
+    headerShown: false,
+    sheetAllowedDetents: [1],
+    sheetCornerRadius: radius.sheet,
+    sheetGrabberVisible: false,
     contentStyle: { backgroundColor: palette.card },
-    headerStyle: { backgroundColor: palette.card },
   };
 }

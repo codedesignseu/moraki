@@ -28,9 +28,9 @@ const wait = (ms: number) =>
 
 describe('undo toast on every save (P1-12)', () => {
   it.each([
-    ['a bottle feed', ['Log feed', 'Save'], 'Feed saved'],
+    ['a bottle feed', ['Log feed', 'Save feed'], 'Feed saved'],
     ['a diaper', ['Diaper', 'Wet'], 'Diaper saved'],
-    ['a sleep start', ['Sleep', 'Start sleep now'], 'Sleep started'],
+    ['a sleep start', ['Sleep', 'Start now'], 'Sleep started'],
     ['a past sleep', ['Sleep', 'Save past sleep'], 'Sleep saved'],
   ])('offers Undo after %s, and Undo takes it back', async (_what, taps, message) => {
     await renderApp(h.repo);
@@ -44,8 +44,8 @@ describe('undo toast on every save (P1-12)', () => {
     expect(h.repo.list()).toEqual(listBefore);
     expect(toast()).toBeNull();
     // Home reflects it at once.
-    expect(screen.getByLabelText('Feeds: 0')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Wet: 0')).toBeOnTheScreen();
+    expect(screen.getByLabelText('0 feeds')).toBeOnTheScreen();
+    expect(screen.getByText(/^Wet 0 · /)).toBeOnTheScreen();
   });
 
   it('offers Undo after a health note and a medication', async () => {
@@ -56,7 +56,7 @@ describe('undo toast on every save (P1-12)', () => {
     expect(toast()).toHaveTextContent(/Health note saved/);
     await undo();
     await press('Medication');
-    await fireEvent.changeText(screen.getByLabelText('Medication name'), 'Vitamin D');
+    await fireEvent.changeText(screen.getByLabelText('Name'), 'Vitamin D');
     await press('Save');
     expect(toast()).toHaveTextContent(/Medication saved/);
     await undo();
@@ -67,9 +67,9 @@ describe('undo toast on every save (P1-12)', () => {
     await renderApp(h.repo);
     await press('Log feed');
     await fireEvent.press(
-      within(screen.getByLabelText('Feed type')).getByRole('radio', { name: 'Both' }),
+      within(screen.getByLabelText('Feed type')).getByRole('radio', { name: 'Mixed' }),
     );
-    await press('Save');
+    await press('Save feed');
     expect(h.repo.list()).toHaveLength(2);
     await undo();
     expect(h.repo.list()).toEqual([]);
@@ -80,13 +80,15 @@ describe('undo toast on every save (P1-12)', () => {
     await renderApp(h.repo);
     const before = rows();
     await wait(5 * MIN);
-    await press('Stop sleep');
+    await press('Stop the sleep timer');
     expect(toast()).toHaveTextContent(/Sleep stopped/);
     expect(screen.queryByTestId('home-sleep')).toBeNull();
 
     await undo();
     expect(rows()).toEqual(before);
-    expect(within(screen.getByTestId('home-sleep')).getByRole('timer')).toHaveTextContent('45m');
+    expect(within(screen.getByTestId('home-sleep')).getByRole('timer')).toHaveTextContent(
+      '0:45:00',
+    );
   });
 
   it('still undoes just before 6 seconds, and is gone at 6 seconds', async () => {

@@ -18,6 +18,8 @@ export const medicationModule: ActivityModule<MedicationPayload> = {
   type: 'medication',
   schema: medicationSchema,
   i18nKey: 'activity.medication.label',
+  icon: 'health',
+  tone: 'pump',
   historyGroup: 'health',
   summarize: (e) =>
     e.payload.dose

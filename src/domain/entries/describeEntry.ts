@@ -1,4 +1,11 @@
-import { getActivity, type Event, type EventType, type Summary } from '../activities';
+import {
+  getActivity,
+  type BadgeTone,
+  type Event,
+  type EventType,
+  type IconName,
+  type Summary,
+} from '../activities';
 import { formatClock } from '../time/formatClock';
 import { dayBucket } from '../time/zoned';
 
@@ -8,6 +15,9 @@ export type EntryRow = {
   type: EventType;
   /** The activity's label key. */
   labelKey: string;
+  /** The activity's badge: its icon and the tile colour behind it (direction G). */
+  icon: IconName;
+  tone: BadgeTone;
   summary: Summary | null;
   /** Local 24-hour time it happened, e.g. `14:05`. */
   time: string;
@@ -31,6 +41,8 @@ export function describeEntry(
     id: e.id,
     type: e.type,
     labelKey: module?.i18nKey ?? '',
+    icon: module?.icon ?? 'feed',
+    tone: module?.tone ?? 'feed',
     summary: module?.summarize?.(e) ?? null,
     time: formatClock(e.occurredAt, tz),
     daysAgo: dayBucket(e.occurredAt, now, tz).daysAgo,

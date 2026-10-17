@@ -26,27 +26,47 @@ async function openSheet() {
 const diapers = () => repo.list().filter((e) => e.type === 'diaper');
 
 describe('logging a diaper', () => {
-  it('opens from home with the current time', async () => {
+  it('opens from home ready to save with one tap, the time field tucked away (G4)', async () => {
     await openSheet();
-    expect(screen.getByTestId('diaper-when-value')).toHaveTextContent('Wed 1 Jul, 12:00');
+    expect(screen.getByRole('header', { name: 'Log a diaper' })).toBeOnTheScreen();
+    expect(screen.getByText('Now · 12:00')).toBeOnTheScreen();
+    expect(screen.getByText('Tap one. It saves right away.')).toBeOnTheScreen();
+    expect(screen.queryByTestId('diaper-when')).toBeNull();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Changed earlier? Pick time' }));
+    expect(screen.getByTestId('diaper-when-value')).toHaveTextContent('Today, 12:00 · now');
+    expect(screen.getByText('Now tap what it was.')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Changed earlier? Pick time' })).toBeNull();
   });
 
   it('takes a change noticed an hour late', async () => {
     await openSheet();
+    await fireEvent.press(screen.getByRole('button', { name: 'Changed earlier? Pick time' }));
     const at = Date.parse('2026-07-01T08:00:00Z');
     await fireEvent(screen.getByTestId('diaper-when'), 'change', at);
 
-    expect(screen.getByTestId('diaper-when-value')).toHaveTextContent('Wed 1 Jul, 11:00');
+    expect(screen.getByTestId('diaper-when-value')).toHaveTextContent('Today, 11:00');
     await fireEvent.press(screen.getByRole('button', { name: 'Wet' }));
 
     expect(diapers()).toHaveLength(1);
     expect(diapers()[0]?.occurredAt).toBe(at);
   });
 
+  it('keeps the full date for a change on another day', async () => {
+    await openSheet();
+    await fireEvent.press(screen.getByRole('button', { name: 'Changed earlier? Pick time' }));
+    await fireEvent(
+      screen.getByTestId('diaper-when'),
+      'change',
+      Date.parse('2026-06-30T20:00:00Z'),
+    );
+    expect(screen.getByTestId('diaper-when-value')).toHaveTextContent('Tue 30 Jun, 23:00');
+  });
+
   it.each([
     ['Wet', 'wet', { wet: 1, dirty: 0 }],
     ['Dirty', 'dirty', { wet: 0, dirty: 1 }],
-    ['Wet and dirty', 'both', { wet: 1, dirty: 1 }],
+    ['Both', 'both', { wet: 1, dirty: 1 }],
   ])('saves %s in one tap from the sheet and returns home', async (label, kind, today) => {
     await openSheet();
     await fireEvent.press(screen.getByRole('button', { name: label })); // the one tap
@@ -56,8 +76,9 @@ describe('logging a diaper', () => {
     ]);
     // Home again, already counting it.
     expect(screen.queryByRole('button', { name: label })).toBeNull();
-    expect(screen.getByLabelText(`Wet: ${today.wet}`)).toBeOnTheScreen();
-    expect(screen.getByLabelText(`Dirty: ${today.dirty}`)).toBeOnTheScreen();
+    expect(
+      screen.getByText(new RegExp(`^Wet ${today.wet} · Dirty ${today.dirty} · `)),
+    ).toBeOnTheScreen();
   });
 
   it('queues the diaper for sync in the same write (rule 2)', async () => {

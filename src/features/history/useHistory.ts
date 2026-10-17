@@ -64,5 +64,7 @@ export function useHistory() {
         else next.add(group);
         return next;
       }),
+    /** "Clear filters": back to everything (G tabs/history-filtered). */
+    clear: () => setGroups(new Set()),
   };
 }

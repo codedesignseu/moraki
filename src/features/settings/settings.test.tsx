@@ -2,7 +2,7 @@ import { act, fireEvent, screen, within } from 'expo-router/testing-library';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
-import { colors, typography } from '@/ui/tokens';
+import { colors, type } from '@/ui/tokens';
 
 import { MAX_NIGHT_CHECK_MS } from './useNightScheme';
 
@@ -49,7 +49,7 @@ describe('night mode setting', () => {
     expect(option('Auto')).toBeChecked();
     expect(option('On')).not.toBeChecked();
     expect(option('Off')).not.toBeChecked();
-    expect(screen.getByText('Dark screens from 21:00 to 06:00.')).toBeOnTheScreen();
+    expect(screen.getByText('Auto: 21:00 to 06:00')).toBeOnTheScreen();
   });
 
   it('forces night on at noon and off at midnight, and stores the choice on this phone', async () => {
@@ -123,7 +123,7 @@ describe('night mode setting', () => {
     const heading = screen.getByText('Night mode', { exact: true });
     expect(heading).toHaveStyle({
       color: colors.night.text,
-      fontSize: typography.heading.fontSize,
+      fontSize: type.cardTitle.fontSize, // G card title
     });
     for (const value of Object.values(colors.night)) {
       expect(value.toUpperCase()).not.toBe('#FFFFFF');

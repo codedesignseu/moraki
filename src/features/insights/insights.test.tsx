@@ -53,10 +53,10 @@ describe('trends', () => {
     await openTrends();
 
     const bottles = card('insights-bottle');
-    expect(bottles.getByLabelText('Thursday: 90 mL')).toBeOnTheScreen();
-    expect(bottles.getByLabelText('Friday: 0 mL')).toBeOnTheScreen();
-    expect(bottles.getByLabelText('Today: 105 mL')).toBeOnTheScreen();
-    expect(bottles.getByText('7 days: 195 mL')).toBeOnTheScreen();
+    expect(bottles.getByLabelText('Thursday: 90 ml')).toBeOnTheScreen();
+    expect(bottles.getByLabelText('Friday: 0 ml')).toBeOnTheScreen();
+    expect(bottles.getByLabelText('Today: 105 ml')).toBeOnTheScreen();
+    expect(bottles.getByText('7 days: 195 ml')).toBeOnTheScreen();
     // The tallest bar fills the plot; the others scale to it.
     const chart = within(screen.getByTestId('insights-bottle-chart'));
     expect(chart.getByTestId('bar-2026-10-28-fill')).toHaveStyle({ height: size.chartHeight });
@@ -64,40 +64,45 @@ describe('trends', () => {
       height: (90 / 105) * size.chartHeight,
     });
 
-    // Breastfeeding is its own chart, never folded into mL.
-    expect(card('insights-breast').getByLabelText('Today: 12m')).toBeOnTheScreen();
-    expect(card('insights-breast').getByText('7 days: 12m')).toBeOnTheScreen();
+    // Breastfeeding is its own chart, never folded into ml.
+    expect(card('insights-breast').getByLabelText('Today: 12 min')).toBeOnTheScreen();
+    expect(card('insights-breast').getByText('7 days: 12 min')).toBeOnTheScreen();
 
-    // (90 + 105) / 2 bottles = 97.5, shown as 98 mL. Three feeds from 21 Oct 21:10Z to
+    // (90 + 105) / 2 bottles = 97.5, shown as 98 ml. Three feeds from 21 Oct 21:10Z to
     // 28 Oct 07:10Z: 154 hours over 2 gaps = 77 hours.
     const averages = card('insights-averages');
-    expect(averages.getByLabelText('Average bottle: 98 mL')).toBeOnTheScreen();
-    expect(averages.getByLabelText('Average time between feeds: 77h 0m')).toBeOnTheScreen();
+    expect(averages.getByLabelText('Bottle amount: 98 ml')).toBeOnTheScreen();
+    expect(averages.getByLabelText('Gap between feeds: 77 h 00')).toBeOnTheScreen();
 
-    expect(row('2026-10-25')).toEqual(['Sun', '0', '0', '0', '5h 0m']);
-    expect(row('2026-10-28')).toEqual(['Today', '2', '1', '1', '0m']);
-    expect(row('total')).toEqual(['7 days', '3', '1', '1', '5h 0m']);
+    expect(row('2026-10-25')).toEqual(['Sun', '0', '0', '0', '5 h 00']);
+    expect(row('2026-10-28')).toEqual(['Today', '2', '1', '1', '0 min']);
+    expect(row('total')).toEqual(['7 days', '3', '1', '1', '5 h 00']);
   });
 
   it('leaves out the breastfeeding chart when there was none, and says when there is too little to average', async () => {
     bottle('2026-10-28T05:00:00+02:00', 100);
     await openTrends();
     expect(screen.queryByTestId('insights-breast')).toBeNull();
-    expect(card('insights-averages').getByLabelText('Average bottle: 100 mL')).toBeOnTheScreen();
+    expect(card('insights-averages').getByLabelText('Bottle amount: 100 ml')).toBeOnTheScreen();
     expect(
-      card('insights-averages').getByLabelText(
-        'Average time between feeds: Nothing to average yet',
-      ),
+      card('insights-averages').getByLabelText('Gap between feeds: Nothing to average yet'),
     ).toBeOnTheScreen();
   });
 
-  it('updates the moment something is logged', async () => {
+  it('shows the empty state until something is logged in the window, then updates at once', async () => {
+    bottle('2026-10-21T12:00:00+03:00', 60); // Wednesday 21, before the window
     await openTrends();
-    expect(card('insights-bottle').getByText('7 days: 0 mL')).toBeOnTheScreen();
+    expect(screen.getByText('Trends start after the first full day')).toBeOnTheScreen();
+    expect(screen.queryByText('Last 7 days')).toBeNull();
+    expect(screen.queryByTestId('insights-bottle')).toBeNull();
+    expect(screen.getByTestId('insights-weight')).toBeOnTheScreen();
+
     await act(async () => {
       bottle('2026-10-28T13:00:00+02:00', 80);
     });
-    expect(card('insights-bottle').getByText('7 days: 80 mL')).toBeOnTheScreen();
-    expect(row('2026-10-28')).toEqual(['Today', '1', '0', '0', '0m']);
+    expect(screen.queryByTestId('insights-empty')).toBeNull();
+    expect(screen.getByText('Last 7 days')).toBeOnTheScreen();
+    expect(card('insights-bottle').getByText('7 days: 80 ml')).toBeOnTheScreen();
+    expect(row('2026-10-28')).toEqual(['Today', '1', '0', '0', '0 min']);
   });
 });

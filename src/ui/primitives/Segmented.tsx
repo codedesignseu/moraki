@@ -23,7 +23,11 @@ type Props<T extends string> = {
   testOnly_pressedValue?: T;
 };
 
-/** A small set of exclusive choices: wet, dirty, both; left, right. */
+/**
+ * A small set of exclusive choices: wet, dirty, both; left, right. G: a
+ * chip-coloured track with 48-high round segments; the chosen one takes the
+ * selected fill and a heavier label.
+ */
 export function Segmented<T extends string>({
   options,
   value,
@@ -60,7 +64,7 @@ export function Segmented<T extends string>({
           >
             <Text
               style={[
-                theme.text.label,
+                selected ? theme.type.detailHeavy : theme.type.detail,
                 s.label,
                 disabled && s.disabledLabel,
                 selected && !disabled && s.selectedLabel,
@@ -80,26 +84,27 @@ const styles = (t: Theme) =>
     group: {
       flexDirection: 'row',
       gap: t.spacing.xs,
-      padding: t.spacing.xs,
+      padding: t.spacing.track,
       borderRadius: t.radius.pill,
-      backgroundColor: t.colors.surfaceSunken,
+      backgroundColor: t.palette.chip,
       // Always drawn so switching to invalid never shifts layout.
-      borderWidth: t.size.borderThick,
-      borderColor: t.colors.surfaceSunken,
+      borderWidth: t.size.borderControl,
+      borderColor: t.palette.chip,
     },
-    invalid: { borderColor: t.colors.invalid },
+    invalid: { borderColor: t.palette.error },
     segment: {
       flex: 1,
-      minHeight: t.size.buttonSmall,
+      minHeight: t.size.minTouch,
       paddingHorizontal: t.spacing.sm,
       borderRadius: t.radius.pill,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    pressed: { backgroundColor: t.colors.surfacePressed },
-    selected: { backgroundColor: t.colors.accent },
-    selectedDisabled: { backgroundColor: t.colors.surfacePressed },
-    label: { color: t.colors.text, textAlign: 'center' },
-    selectedLabel: { color: t.colors.onAccent },
-    disabledLabel: { color: t.colors.textMuted },
+    pressed: { backgroundColor: t.palette.line },
+    selected: { backgroundColor: t.palette.selected },
+    // At night disabledFill is the track colour, so a disabled choice keeps the line fill.
+    selectedDisabled: { backgroundColor: t.palette.line },
+    label: { color: t.palette.ink, textAlign: 'center' },
+    selectedLabel: { color: t.palette.onSelected },
+    disabledLabel: { color: t.palette.disabledText },
   });

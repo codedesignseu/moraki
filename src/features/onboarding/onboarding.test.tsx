@@ -49,21 +49,21 @@ async function signedIn(options: Parameters<typeof authServer>[0] = {}, fetchImp
   await press('Sign in');
   // Signing in leads to the consent screen (P3-09); agreeing goes back.
   await press('I agree');
-  await screen.findByText(`Signed in as ${EMAIL}`);
+  await screen.findByLabelText(`Signed in as ${EMAIL}`);
   return server;
 }
 
 async function fillIn() {
   await type('Your name', ' Maria ');
   await fireEvent.press(screen.getByRole('togglebutton', { name: 'Mother' }));
-  await type('Baby’s name', ' Ella ');
+  await type('Name', ' Ella ');
   // Two days ago, through the Stepper's accessibility action, as VoiceOver does.
   for (let i = 0; i < 2; i += 1) {
     await fireEvent(screen.getByRole('adjustable', { name: 'Born' }), 'accessibilityAction', {
       nativeEvent: { actionName: 'increment' },
     });
   }
-  await type('Birth weight in grams (optional)', '3400');
+  await type('Birth weight (optional)', '3400');
 }
 
 describe('household setup', () => {
@@ -71,7 +71,7 @@ describe('household setup', () => {
     const server = await signedIn();
     expect(screen.getByText(/Add your baby to create a household/)).toBeOnTheScreen();
 
-    await press('Set up your household');
+    await press('Set up household');
     await fillIn();
     expect(screen.getByText('Born on Monday 26 October')).toBeOnTheScreen();
     await press('Create household');
@@ -106,8 +106,8 @@ describe('household setup', () => {
     });
 
     await press(/Settings/);
-    expect(screen.getByText('Household: Ella')).toBeOnTheScreen();
-    expect(screen.queryByRole('button', { name: 'Set up your household' })).toBeNull();
+    expect(screen.getByLabelText('Household: Ella')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Set up household' })).toBeNull();
   });
 
   it('keeps entries already on this phone, now belonging to the new household', async () => {
@@ -120,7 +120,7 @@ describe('household setup', () => {
     const queued = h.mem.db.select().from(outbox).all();
 
     await signedIn();
-    await press('Set up your household');
+    await press('Set up household');
     await fillIn();
     await press('Create household');
     expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
@@ -147,7 +147,7 @@ describe('household setup', () => {
     });
 
     // Settings asks the server once, in the background, and remembers it.
-    expect(await screen.findByText('Household: Leo')).toBeOnTheScreen();
+    expect(await screen.findByLabelText('Household: Leo')).toBeOnTheScreen();
     expect(h.prefs.get('accountHousehold')).toEqual({
       userId: USER_ID,
       householdId: baby.household_id,
@@ -160,18 +160,18 @@ describe('household setup', () => {
 
   it('asks for the missing details before calling the server', async () => {
     const server = await signedIn();
-    await press('Set up your household');
+    await press('Set up household');
 
     await press('Create household');
-    expect(screen.getByText('Enter your name.')).toBeOnTheScreen();
+    expect(screen.getByText('Error: Enter your name.')).toBeOnTheScreen();
     await type('Your name', 'Maria');
     await press('Create household');
-    expect(screen.getByText('Enter your baby’s name.')).toBeOnTheScreen();
-    await type('Baby’s name', 'Ella');
-    await type('Birth weight in grams (optional)', '34');
+    expect(screen.getByText('Error: Enter your baby’s name.')).toBeOnTheScreen();
+    await type('Name', 'Ella');
+    await type('Birth weight (optional)', '34');
     await press('Create household');
     expect(
-      screen.getByText('Enter a weight between 500 and 7000 grams, or leave it empty.'),
+      screen.getByText('Error: Enter a weight between 500 and 7000 grams, or leave it empty.'),
     ).toBeOnTheScreen();
 
     expect(server.calls.some((c) => c.path === '/rest/v1/rpc/create_household')).toBe(false);
@@ -184,13 +184,13 @@ describe('household setup', () => {
     const flaky = ((input: RequestInfo | URL, init?: RequestInit) =>
       online ? server.fetchImpl(input, init) : offline(input, init)) as typeof fetch;
     await signedIn({}, flaky);
-    await press('Set up your household');
+    await press('Set up household');
     await fillIn();
     online = false;
     await press('Create household');
 
     expect(
-      await screen.findByText('You’re offline. Setting up a household needs a connection.'),
+      await screen.findByText('Error: You’re offline. Setting up a household needs a connection.'),
     ).toBeOnTheScreen();
     await waitFor(() => expect(h.prefs.get('accountHousehold')).toBeNull());
   });
@@ -204,7 +204,7 @@ describe('household setup', () => {
       role: 'owner',
     });
     await signedIn();
-    expect(screen.queryByText('Household: Someone else')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Set up your household' })).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Household: Someone else')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Set up household' })).toBeOnTheScreen();
   });
 });

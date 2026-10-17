@@ -137,8 +137,10 @@ describe('who logged what', () => {
 
     await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
     expect(await screen.findByTestId('settings-caregivers')).toBeOnTheScreen();
-    expect(screen.getByText('You — Owner')).toBeOnTheScreen();
-    expect(screen.getByText('Nik — Logs entries')).toBeOnTheScreen();
+    expect(screen.getByLabelText(/\(you\), Owner$/)).toBeOnTheScreen();
+    expect(screen.getByLabelText('Nik, Caregiver')).toBeOnTheScreen();
+    // G marks your own row with "· you" after your name.
+    expect(screen.getByText(/· you/)).toBeOnTheScreen();
   });
 
   it('still says "Another caregiver" before this phone knows any names', async () => {

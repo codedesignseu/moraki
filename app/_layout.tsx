@@ -1,3 +1,9 @@
+import { Comfortaa_700Bold } from '@expo-google-fonts/comfortaa/700Bold';
+import { Manrope_500Medium } from '@expo-google-fonts/manrope/500Medium';
+import { Manrope_600SemiBold } from '@expo-google-fonts/manrope/600SemiBold';
+import { Manrope_700Bold } from '@expo-google-fonts/manrope/700Bold';
+import { Manrope_800ExtraBold } from '@expo-google-fonts/manrope/800ExtraBold';
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, View } from 'react-native';
@@ -18,7 +24,7 @@ import { DEFAULT_NIGHT_MODE } from '@/domain/time/night';
 import { startCrashReporting } from '@/observability/sentry';
 import { Notice } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
-import { type } from '@/ui/tokens';
+import { fonts, type } from '@/ui/tokens';
 
 // Before anything else, so a crash while the database opens is still reported.
 // Does nothing unless the build carries an EU Sentry DSN (P4-08).
@@ -29,12 +35,26 @@ const appAuth = createAppAuth();
 // One port per launch. The web preview has no notifications to schedule.
 const notifications = Platform.OS === 'web' ? null : createExpoNotificationPort();
 
+// The G faces, each loaded under its family name in src/ui/tokens.ts.
+// Only these five files are bundled, not every weight of each package.
+const FONT_FILES = {
+  [fonts.heading]: Comfortaa_700Bold,
+  [fonts.text]: Manrope_500Medium,
+  [fonts.textSemi]: Manrope_600SemiBold,
+  [fonts.textBold]: Manrope_700Bold,
+  [fonts.textHeavy]: Manrope_800ExtraBold,
+};
+
 export default function RootLayout() {
+  // The startup screen stays blank until the fonts load, so no text draws in
+  // the system font first. A font that fails to load falls back to the
+  // system font rather than holding the app.
+  const [fontsLoaded, fontError] = useFonts(FONT_FILES);
   // The stored night mode is in the database, so the brief startup screen
   // uses the default (auto) until it opens.
   return (
     <NightModeTheme mode={DEFAULT_NIGHT_MODE}>
-      <DatabaseGate open={openAppDatabase}>
+      <DatabaseGate open={openAppDatabase} hold={!fontsLoaded && !fontError}>
         <PreferredNightModeTheme>
           <PreferredLanguage>
             <AuthProvider auth={appAuth}>

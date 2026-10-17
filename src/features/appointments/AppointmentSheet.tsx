@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, DateTimeField, TextField } from '@/ui/primitives';
+import { Button, DateTimeField, IconButton, TextField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useAppointmentSheet } from './useAppointmentSheet';
@@ -61,16 +61,31 @@ export function AppointmentSheet({ onDone, entryId }: { onDone: () => void; entr
         multiline
       />
 
-      <Text style={theme.type.tileTitle}>{t('log.appointment.questions')}</Text>
+      <Text style={[theme.type.cardTitle, s.ink]} accessibilityRole="header">
+        {t('log.appointment.questions')}
+      </Text>
       <Text style={s.muted}>{t('log.appointment.questionsHint')}</Text>
       {sheet.form.questions.map((question, index) => (
-        <View key={`${index}-${question}`} style={s.question} testID={`question-${index}`}>
-          <Text style={[theme.text.body, s.questionText]}>{question}</Text>
-          <Button
-            label={t('log.appointment.removeQuestion')}
-            variant="secondary"
-            onPress={() => sheet.removeQuestion(index)}
-          />
+        // Keyed by place, not text: the field is edited in place and a key
+        // that changed with every letter would drop the keyboard.
+        <View key={index} style={s.question} testID={`question-${index}`}>
+          <View style={s.questionField}>
+            <TextField
+              label={t('log.appointment.question', { n: index + 1 })}
+              value={question}
+              onChangeText={(text) => sheet.editQuestion(index, text)}
+              maxLength={sheet.limits.question}
+            />
+          </View>
+          <View style={s.remove}>
+            <IconButton
+              icon="close"
+              tone="chip"
+              size="large"
+              accessibilityLabel={t('log.appointment.removeQuestion', { n: index + 1 })}
+              onPress={() => sheet.removeQuestion(index)}
+            />
+          </View>
         </View>
       ))}
       <TextField
@@ -82,30 +97,40 @@ export function AppointmentSheet({ onDone, entryId }: { onDone: () => void; entr
       <Button
         label={t('log.appointment.add')}
         variant="secondary"
+        icon="plus"
         onPress={sheet.addQuestion}
         disabled={sheet.draft.trim() === ''}
       />
 
-      <Button
-        label={t('log.save')}
-        disabled={!sheet.canSave}
-        onPress={() => {
-          sheet.save();
-          onDone();
-        }}
-      />
+      <View style={s.footer}>
+        <Button
+          label={sheet.editing ? t('entry.saveChanges') : t('log.save')}
+          disabled={!sheet.canSave}
+          onPress={() => {
+            sheet.save();
+            onDone();
+          }}
+        />
+      </View>
     </ScrollView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
+    // G sheets/appointment: the feed sheet's spacing.
     content: {
-      padding: theme.spacing.screen,
+      flexGrow: 1,
+      paddingHorizontal: theme.spacing.screen,
+      paddingTop: theme.spacing.section,
       paddingBottom: theme.spacing.xl,
-      gap: theme.spacing.md,
+      gap: theme.spacing.section,
     },
+    ink: { color: theme.palette.ink },
     muted: { ...theme.type.detail, color: theme.palette.textSoft },
-    question: { gap: theme.spacing.xs },
-    questionText: { flexShrink: 1 },
+    // The field and its round remove button, the button level with the box.
+    question: { flexDirection: 'row', alignItems: 'flex-end', gap: theme.spacing.md },
+    questionField: { flex: 1 },
+    remove: { marginBottom: (theme.size.input - theme.size.circleControl) / 2 },
+    footer: { marginTop: 'auto' },
   });

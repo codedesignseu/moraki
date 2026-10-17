@@ -51,7 +51,9 @@ describe('writing a sleep up afterwards', () => {
     await pick('sleep-start', NOW - HOUR);
     await pick('sleep-end', NOW - 2 * HOUR);
 
-    expect(screen.getByTestId('sleep-backwards')).toBeOnTheScreen();
+    expect(screen.getByTestId('sleep-backwards')).toHaveTextContent(
+      'Error: A sleep has to end after it starts.',
+    );
     expect(screen.getByRole('button', { name: 'Save past sleep' })).toBeDisabled();
     expect(sleeps()).toHaveLength(0);
   });
@@ -77,7 +79,7 @@ describe('writing other entries up afterwards', () => {
 
     const at = Date.parse('2026-10-28T09:20:00Z');
     await pick('feed-when', at);
-    await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Save feed' }));
 
     const feeds = repo.list().filter((e) => e.type === 'feed_bottle');
     expect(feeds[0]?.occurredAt).toBe(at);
@@ -86,7 +88,7 @@ describe('writing other entries up afterwards', () => {
   it('dates a weight from the clinic visit, not from when it was typed', async () => {
     await renderApp(repo);
     await fireEvent.press(screen.getByRole('button', { name: /Trends/ }));
-    await fireEvent.press(await screen.findByRole('button', { name: 'Add a weight' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Add weight' }));
     await screen.findByTestId('weight-when');
 
     const at = Date.parse('2026-10-26T08:00:00Z');
@@ -102,7 +104,7 @@ describe('writing other entries up afterwards', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Add an appointment' }));
     await screen.findByTestId('appointment-when');
 
-    await fireEvent.changeText(screen.getByLabelText('What is it'), 'Two month check');
+    await fireEvent.changeText(screen.getByLabelText('Title'), 'Two month check');
     const at = Date.parse('2026-11-28T08:30:00Z');
     await pick('appointment-when', at);
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));

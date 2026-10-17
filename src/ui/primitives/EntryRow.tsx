@@ -1,37 +1,66 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import type { IconName } from '../icons';
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
+import { Icon } from './Icon';
+import type { CircleTone } from './IconCircle';
+import { IconCircle } from './IconCircle';
 
 type Props = {
+  /** The whole title, already worded, e.g. "21:40 · Bottle, 90 ml formula". */
   title: string;
+  /** The start of `title` set in bold, e.g. the time. Ignored if the title doesn't start with it. */
+  lead?: string | undefined;
+  /** The line underneath, e.g. who logged it. */
   detail?: string | undefined;
-  /** Right-hand lines, e.g. the time and who logged it. */
-  meta: readonly string[];
+  /** The activity's badge icon and its fill. */
+  icon: IconName;
+  tone: CircleTone;
   testID?: string;
-  /** Makes the row a button, e.g. to open the entry for editing. */
+  /** Makes the row a button, e.g. to open the entry for editing. Shows a chevron. */
   onPress?: () => void;
   /** Screen reader hint when the row is a button. */
   accessibilityHint?: string;
 };
 
-/** A logged entry in a list: what it was on the left, when and by whom on the right. */
-export function EntryRow({ title, detail, meta, testID, onPress, accessibilityHint }: Props) {
+/**
+ * G History row (tabs/history): a 44 type badge, "time · summary" with the
+ * time in bold, the person underneath and a chevron when it opens. 66 high.
+ * Rows sit in a card; the screen draws the hairlines between them.
+ */
+export function EntryRow({
+  title,
+  lead,
+  detail,
+  icon,
+  tone,
+  testID,
+  onPress,
+  accessibilityHint,
+}: Props) {
   const theme = useTheme();
   const s = styles(theme);
+  const rest = lead && title.startsWith(lead) ? title.slice(lead.length) : null;
   const content = (
     <>
-      <View style={s.main}>
-        <Text style={theme.text.bodyStrong}>{title}</Text>
-        {detail ? <Text style={theme.text.body}>{detail}</Text> : null}
+      <IconCircle icon={icon} tone={tone} size="card" />
+      <View style={s.text}>
+        <Text style={[theme.type.lead, s.ink]}>
+          {rest === null ? (
+            title
+          ) : (
+            <>
+              <Text style={theme.type.entryTime}>{lead}</Text>
+              {rest}
+            </>
+          )}
+        </Text>
+        {detail ? <Text style={[theme.type.small, s.soft]}>{detail}</Text> : null}
       </View>
-      <View style={s.meta}>
-        {meta.map((line, i) => (
-          <Text key={i} style={s.muted}>
-            {line}
-          </Text>
-        ))}
-      </View>
+      {onPress ? (
+        <Icon name="chevron" size={theme.size.iconField} color={theme.palette.textSoft} />
+      ) : null}
     </>
   );
   if (!onPress) {
@@ -47,6 +76,7 @@ export function EntryRow({ title, detail, meta, testID, onPress, accessibilityHi
       testID={testID}
       onPress={onPress}
       accessibilityRole="button"
+      accessibilityLabel={[title, detail].filter(Boolean).join(', ')}
       accessibilityHint={accessibilityHint}
     >
       {content}
@@ -57,15 +87,14 @@ export function EntryRow({ title, detail, meta, testID, onPress, accessibilityHi
 const styles = (t: Theme) =>
   StyleSheet.create({
     row: {
+      minHeight: t.size.entryRow,
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      alignItems: 'center',
       gap: t.spacing.md,
       paddingVertical: t.spacing.sm,
-      borderTopWidth: t.size.borderThin,
-      borderTopColor: t.colors.divider,
     },
-    main: { flex: 1 },
-    meta: { alignItems: 'flex-end' },
-    muted: { ...t.text.label, color: t.colors.textMuted },
-    pressed: { backgroundColor: t.colors.surfacePressed },
+    text: { flex: 1 },
+    ink: { color: t.palette.ink },
+    soft: { color: t.palette.textSoft },
+    pressed: { opacity: t.opacity.pressed },
   });

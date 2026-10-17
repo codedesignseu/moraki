@@ -13,7 +13,10 @@ export const pumpModule: ActivityModule<PumpPayload> = {
   type: 'pump',
   schema: pumpSchema,
   i18nKey: 'activity.pump.label',
+  icon: 'pump',
+  tone: 'pump',
   historyGroup: 'other',
+  quickAction: { tile: 'pump' },
   contributes: {
     // Milk pumped and put away is a batch, dated when it was pumped, so its
     // age is the age of the milk (SDD 6.3). `fed` never reaches a store.

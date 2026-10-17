@@ -79,7 +79,7 @@ describe('correcting the baby’s details', () => {
 
     await fireEvent.changeText(screen.getByLabelText('Name'), 'Eleni');
     // Born a day earlier than first typed.
-    await nudge('Born this many days ago', 'increment');
+    await nudge('Born', 'increment');
     await nudge('Birth weight in grams', 'increment', 5); // 3400 → 3450
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
@@ -111,7 +111,7 @@ describe('correcting the baby’s details', () => {
     await openBaby({ updateBaby: (columns) => sent.push(columns) });
 
     await fireEvent.press(
-      within(screen.getByTestId('baby-details')).getByRole('radio', { name: "I don't know it" }),
+      within(screen.getByTestId('baby-details')).getByRole('radio', { name: 'Unknown' }),
     );
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
@@ -140,7 +140,7 @@ describe('correcting the baby’s details', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Save' }));
 
     expect(await screen.findByTestId('baby-problem')).toHaveTextContent(
-      'No connection. Try again when you have one.',
+      'Error: No connection. Try again when you have one.',
     );
     // The household's record is the truth; this phone doesn't pretend.
     expect(h.prefs.get('accountHousehold')?.babyName).toBe('Ella');

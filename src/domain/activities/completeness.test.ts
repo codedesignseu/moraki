@@ -1,6 +1,15 @@
 import { resources } from '@/i18n';
 
-import { EVENT_TYPES, HISTORY_GROUPS, listActivities, type Event, type EventType } from '.';
+import {
+  ACTIVITY_ICONS,
+  BADGE_TONES,
+  EVENT_TYPES,
+  HISTORY_GROUPS,
+  HOME_TILES,
+  listActivities,
+  type Event,
+  type EventType,
+} from '.';
 
 /** Walks a dotted key through a locale's nested JSON. */
 function lookup(locale: unknown, key: string): unknown {
@@ -22,8 +31,8 @@ function lookup(locale: unknown, key: string): unknown {
 // in contract.ts and add its check here.
 //
 // historyGroup  required of every module from P1-11 (checked below).
-// icon       P1-06 defines IconName for the home grid; every type needs one
-//            by P1-11, since history rows show all types.
+// icon, tone required of every module from direction G step 3 (checked below):
+//            the badge on history and recent rows.
 // summarize  P1-06 home recent list first (bottle, breast, diaper, sleep),
 //            health and medication from P1-10;
 //            every type by P1-11 history. Checked below for modules that have it.
@@ -48,6 +57,44 @@ describe('activity registry completeness', () => {
       expect(HISTORY_GROUPS).toContain(module.historyGroup);
     },
   );
+
+  it.each(modules.map((m) => [m.type, m] as const))(
+    '%s has a badge icon and tone',
+    (_type, module) => {
+      expect(ACTIVITY_ICONS).toContain(module.icon);
+      expect(BADGE_TONES).toContain(module.tone);
+    },
+  );
+
+  it('gives each kind its G badge (history and recent rows)', () => {
+    const badges = Object.fromEntries(modules.map((m) => [m.type, [m.icon, m.tone]]));
+    expect(badges).toEqual({
+      feed_bottle: ['feed', 'feed'],
+      feed_breast: ['feed', 'feed'],
+      diaper: ['diaper', 'diaper'],
+      sleep: ['sleep', 'sleep'],
+      pump: ['pump', 'pump'],
+      stock_adjust: ['pump', 'pump'],
+      health: ['health', 'sleep'],
+      medication: ['health', 'pump'],
+      weight: ['weight', 'pump'],
+      appointment: ['visit', 'diaper'],
+    });
+  });
+
+  it('fills every Home tile, and only from the kinds G puts on it', () => {
+    const tiles = Object.fromEntries(
+      modules.filter((m) => m.quickAction).map((m) => [m.type, m.quickAction?.tile]),
+    );
+    expect(tiles).toEqual({
+      feed_bottle: 'feed',
+      feed_breast: 'feed',
+      sleep: 'sleep',
+      diaper: 'diaper',
+      pump: 'pump',
+    });
+    expect(new Set(Object.values(tiles))).toEqual(new Set(HOME_TILES));
+  });
 
   const locales = Object.entries(resources).map(
     ([lang, { translation }]) => [lang, translation] as const,
@@ -83,6 +130,7 @@ describe('activity registry completeness', () => {
     sleep: [
       [{}, null],
       [{}, 3_600_000],
+      [{}, 1_200_000],
     ],
   };
   const summaries = modules.flatMap((m) =>

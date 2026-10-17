@@ -25,11 +25,22 @@ const save = () => screen.getByRole('button', { name: 'Save' });
 async function openSheet() {
   await renderApp(repo);
   await fireEvent.press(screen.getByRole('button', { name: /Trends/ }));
-  await fireEvent.press(await screen.findByRole('button', { name: 'Add a weight' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Add weight' }));
   await screen.findByTestId('weight-when');
 }
 
 describe('typing a weight off the scale', () => {
+  it('opens as G draws it: title, today’s date, fine adjust and where it was weighed', async () => {
+    await openSheet();
+
+    expect(screen.getByRole('header', { name: 'Add weight' })).toBeOnTheScreen();
+    expect(screen.getByTestId('weight-when-value')).toHaveTextContent('Today, 28 Oct');
+    expect(screen.getByLabelText('Fine adjust')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('radio', { name: 'Clinic' }));
+    await fireEvent.press(save());
+    expect(weights()[0]?.payload).toMatchObject({ source: 'clinic' });
+  });
+
   it('saves the number that was typed', async () => {
     await openSheet();
     await fireEvent.changeText(box(), '4120');
@@ -52,7 +63,9 @@ describe('typing a weight off the scale', () => {
     await fireEvent.changeText(box(), '41a');
 
     expect(save()).toBeDisabled();
-    expect(screen.getByText('A weight in grams, between 500 and 15000')).toBeOnTheScreen();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Error: Enter a weight between 500 and 15,000 g.',
+    );
 
     await fireEvent.press(save());
     expect(weights()).toHaveLength(0);
@@ -63,7 +76,9 @@ describe('typing a weight off the scale', () => {
     await fireEvent.changeText(box(), '3.6');
 
     expect(save()).toBeDisabled();
-    expect(screen.getByText('A weight in grams, between 500 and 15000')).toBeOnTheScreen();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Error: Enter a weight between 500 and 15,000 g.',
+    );
 
     await fireEvent.press(save());
     expect(weights()).toHaveLength(0);

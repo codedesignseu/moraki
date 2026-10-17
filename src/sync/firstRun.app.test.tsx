@@ -92,21 +92,21 @@ describe('a phone that gets its household while the app is open', () => {
     await openSignedIn(server('caregiver'));
     await grantConsent();
 
-    expect(await screen.findByText('120 mL formula')).toBeOnTheScreen();
+    expect(await screen.findByText(/120 ml formula/)).toBeOnTheScreen();
     expect(readLinkedIdentity(h.mem.db)).toEqual({ householdId: HOUSEHOLD_ID, userId: USER_ID });
   });
 
   it('shows home and history after consent is given on its screen', async () => {
     await openSignedIn(server('caregiver'));
     await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
-    await fireEvent.press(await screen.findByRole('button', { name: 'Health data' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Review consent' }));
     await fireEvent.press(await screen.findByRole('button', { name: 'I agree' }));
     await waitFor(() => expect(h.prefs.get('consent')).not.toBeNull());
 
     await fireEvent.press(screen.getByRole('button', { name: /Home/ }));
-    expect(await screen.findByText('120 mL formula')).toBeOnTheScreen();
+    expect(await screen.findByText(/120 ml formula/)).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: /History/ }));
-    expect(await screen.findByText('120 mL formula')).toBeOnTheScreen();
+    expect(await screen.findByText(/120 ml formula/)).toBeOnTheScreen();
   });
 
   it('first sign in on a phone with entries of its own: both show, no restart', async () => {
@@ -123,7 +123,7 @@ describe('a phone that gets its household while the app is open', () => {
     });
     await grantConsent();
 
-    expect(await screen.findByText('120 mL formula')).toBeOnTheScreen();
+    expect(await screen.findByText(/120 ml formula/)).toBeOnTheScreen();
     expect(screen.getByTestId(`recent-${mine.id}`)).toBeOnTheScreen();
     expect(h.repo.get(mine.id)).toMatchObject({ householdId: HOUSEHOLD_ID, babyId: BABY_ID });
   });
@@ -134,7 +134,7 @@ describe('a phone that gets its household while the app is open', () => {
       await auth.verifyCode(EMAIL, '123456');
     });
     await grantConsent();
-    expect(await screen.findByText('120 mL formula')).toBeOnTheScreen();
+    expect(await screen.findByText(/120 ml formula/)).toBeOnTheScreen();
 
     // Sign out and clear the phone (P5-F1), then sign in again.
     await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
@@ -150,7 +150,7 @@ describe('a phone that gets its household while the app is open', () => {
     });
     await grantConsent();
     await fireEvent.press(screen.getByRole('button', { name: /Home/ }));
-    expect(await screen.findByText('120 mL formula')).toBeOnTheScreen();
+    expect(await screen.findByText(/120 ml formula/)).toBeOnTheScreen();
   });
 
   it('a second caregiver accepting an invite sees the household on home', async () => {
@@ -159,7 +159,7 @@ describe('a phone that gets its household while the app is open', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Join' }));
     await grantConsent();
 
-    expect(await screen.findByText('120 mL formula')).toBeOnTheScreen();
+    expect(await screen.findByText(/120 ml formula/)).toBeOnTheScreen();
     expect(readLinkedIdentity(h.mem.db)).toEqual({ householdId: HOUSEHOLD_ID, userId: USER_ID });
   });
 });

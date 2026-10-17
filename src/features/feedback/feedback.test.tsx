@@ -61,7 +61,7 @@ describe('sending feedback', () => {
       },
     });
     await openFeedback();
-    await fireEvent.press(screen.getByRole('radio', { name: 'An idea' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Idea' }));
     await type('  a widget for the last feed  ');
     await sendIt();
 

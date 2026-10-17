@@ -3,11 +3,11 @@ import DateTimePicker, {
   DateTimePickerAndroid,
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Theme } from '../theme';
 import { useTheme } from '../theme';
-import { Button } from './Button';
+import { Icon } from './Icon';
 
 type Props = {
   /** Names the field for a screen reader, e.g. "Feed time". */
@@ -17,16 +17,22 @@ type Props = {
   onChange: (at: number) => void;
   /** Already formatted by the caller: this primitive knows no locale. */
   display: string;
-  /** The button that opens the picker, e.g. "Set exact time". */
+  /** What pressing the field does, e.g. "Set exact time". Read as its hint. */
   openLabel: string;
   /** Nothing later than this can be chosen, e.g. now for something logged. */
   maximumDate?: Date | undefined;
   minimumDate?: Date | undefined;
+  /** Draws the edge in the error colour (G sheets/sleep-idle "End"). The message is the caller's. */
+  invalid?: boolean;
   testID?: string;
 };
 
 /**
  * The platform's own date and time picker, behind one prop shape.
+ *
+ * G draws it as a text field (sheets/feed-bottle "Time", sheets/weight
+ * "Date"): 54 high, a clock icon and the value. The whole field is the button
+ * that opens the picker.
  *
  * Android opens date then time, as its guidelines ask; iOS shows one inline
  * picker. Neither does any date arithmetic here: the caller passes the moment
@@ -41,6 +47,7 @@ export function DateTimeField({
   openLabel,
   maximumDate,
   minimumDate,
+  invalid = false,
   testID,
 }: Props) {
   const theme = useTheme();
@@ -76,15 +83,20 @@ export function DateTimeField({
   return (
     <View style={s.field} testID={testID}>
       <Text style={s.label}>{label}</Text>
-      <Text style={theme.text.title} testID={testID ? `${testID}-value` : undefined}>
-        {display}
-      </Text>
-      <Button
-        label={openLabel}
-        variant="secondary"
+      <Pressable
+        accessibilityRole="button"
         accessibilityLabel={label}
+        accessibilityHint={openLabel}
+        accessibilityValue={{ text: display }}
+        accessibilityState={{ expanded: Platform.OS === 'android' ? undefined : showing }}
         onPress={() => (Platform.OS === 'android' ? openOnAndroid() : setShowing((was) => !was))}
-      />
+        style={({ pressed }) => [s.box, (pressed || showing) && s.active, invalid && s.invalid]}
+      >
+        <Icon name="time" size={theme.size.iconField} color={theme.palette.textSoft} />
+        <Text style={[theme.type.body, s.value]} testID={testID ? `${testID}-value` : undefined}>
+          {display}
+        </Text>
+      </Pressable>
       {showing && Platform.OS !== 'android' && (
         <DateTimePicker
           testID={testID ? `${testID}-picker` : undefined}
@@ -95,7 +107,7 @@ export function DateTimeField({
           // palette came out almost white on cream — legible in dark mode
           // and invisible in light. Both are told explicitly.
           themeVariant={theme.scheme === 'night' ? 'dark' : 'light'}
-          textColor={theme.colors.text}
+          textColor={theme.palette.ink}
           {...(maximumDate && { maximumDate })}
           {...(minimumDate && { minimumDate })}
           onChange={(_event: DateTimePickerEvent, picked?: Date) => {
@@ -110,5 +122,20 @@ export function DateTimeField({
 const styles = (t: Theme) =>
   StyleSheet.create({
     field: { gap: t.spacing.xs },
-    label: { ...t.text.label, color: t.colors.textMuted },
+    label: { ...t.type.small, color: t.palette.textSoft },
+    box: {
+      minHeight: t.size.input,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: t.spacing.sm,
+      paddingHorizontal: t.spacing.field,
+      paddingVertical: t.spacing.sm,
+      borderRadius: t.radius.input,
+      borderWidth: t.size.borderControl,
+      borderColor: t.palette.inputBorder,
+    },
+    // Pressed, or open on iOS: the edge turns ink, like a focused text field.
+    active: { borderColor: t.palette.ink },
+    invalid: { borderColor: t.palette.error },
+    value: { flex: 1 },
   });

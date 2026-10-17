@@ -17,13 +17,17 @@ export const diaperModule: ActivityModule<DiaperPayload> = {
   type: 'diaper',
   schema: diaperSchema,
   i18nKey: 'activity.diaper.label',
+  icon: 'diaper',
+  tone: 'diaper',
   historyGroup: 'diapers',
+  quickAction: { tile: 'diaper' },
   summarize: (e) => ({ key: `activity.diaper.summary.${e.payload.kind}` }),
   contributes: {
     stats: (acc, e) => ({
       ...acc,
       wet: acc.wet + (e.payload.kind === 'dirty' ? 0 : 1),
       dirty: acc.dirty + (e.payload.kind === 'wet' ? 0 : 1),
+      diapers: acc.diapers + 1,
     }),
   },
 };

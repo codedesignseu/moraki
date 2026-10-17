@@ -6,6 +6,41 @@ Give Claude Code the credentials by putting them in a local `.env` file (never c
 
 ---
 
+## Before the App Store release (updated 2026-10-17)
+
+This is the current list. The sections further down are the original plan from September and are kept for the record. Tick an item here when it's done, or tell Claude Code and it will.
+
+### Blocking the store submission
+
+- [ ] **Lawyer review** of the privacy policy, terms and DPIA (SDD 12.1).
+  - The pages are `public/privacy/`, `public/terms/` and `/el/...` on moraki.app, still marked as drafts in an HTML comment. The DPIA is in `docs/compliance/`.
+  - When the lawyer is done, send the changes. Claude Code updates the pages and removes the draft marks.
+  - While at it, decide about the Greek wording inside the consent, erasure and About texts (κινητό and καταχωρίσεις, task G-F3).
+- [ ] **Screenshots**, 6.9" iPhone, taken on your phone _after_ the redesign is in the TestFlight build. At least 3, at most 10, in English and Greek if you want both listings.
+- [ ] **Age rating** answers in App Store Connect. Proposed answers are in `docs/store/app-store-listing.md`.
+- [ ] **App Store listing** pasted into App Store Connect from `docs/store/app-store-listing.md`, in English and Greek: name, subtitle, description, keywords and the support/privacy URLs.
+- [ ] **App Privacy** answers in App Store Connect from `docs/store/app-privacy-answers.md`.
+- [ ] **Demo household for App Review**, shortly before submitting. Seed one on prod with a review account you control, make a fresh invite code (valid 7 days, single use), and put it in the review notes (`docs/10-release-runbook.md`, "Submitting for review"). Delete the household after review.
+
+### Needed for a good release, not blocking
+
+- [ ] **`SENTRY_AUTH_TOKEN`** as a _secret_ in the EAS `production` environment. Without it builds still succeed, but crash reports have minified stack traces.
+- [ ] **TestFlight phone checks** on the first production build (Claude Code lists them with the build). They cover:
+  - existing history surviving the encrypted database
+  - Share PDF
+  - tapping an invite link at moraki.app/join
+  - account deletion on prod, including picking a successor
+  - History with 2,000 entries
+  - reminders
+- [ ] **Second phone** for the invite link and the shared household (the second iPhone is already registered for test builds).
+- [ ] **Landing page** design from Claude Design (prompt in `docs/store/landing-page-prompt.md`). Claude Code ports it into `public/`.
+
+### Later (v1.1, decided 2026-10-05)
+
+- Android and the Play Store listing; push notifications; Live Activity and widgets; payments.
+
+---
+
 ## Status (21 Sept)
 
 | Item                       | Status                                                                                                                              |

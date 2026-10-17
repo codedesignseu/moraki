@@ -78,7 +78,7 @@ describe('the report preview', () => {
       within(screen.getByTestId('report-weight')).getByLabelText('Birth weight: 3400 g'),
     ).toBeOnTheScreen();
     expect(
-      within(screen.getByTestId('report-feeds')).getByLabelText('Bottle total: 90 mL'),
+      within(screen.getByTestId('report-stats')).getByLabelText('Bottle total: 90 ml'),
     ).toBeOnTheScreen();
     expect(screen.getByText('Logged by hand in Moraki. Not a medical record.')).toBeOnTheScreen();
   });
@@ -107,7 +107,7 @@ describe('sharing the PDF', () => {
     });
     await openReport();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Share as PDF' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Share PDF' }));
 
     expect(mockPrint).toHaveBeenCalledTimes(1);
     const html = mockPrint.mock.calls[0]?.[0].html ?? '';
@@ -125,10 +125,10 @@ describe('sharing the PDF', () => {
     mockAvailable.mockResolvedValue(false);
     await openReport();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Share as PDF' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Share PDF' }));
 
     expect(await screen.findByTestId('report-problem')).toHaveTextContent(
-      'This device has nowhere to share a file.',
+      'Error: This device has nowhere to share a file.',
     );
     expect(mockPrint).not.toHaveBeenCalled();
   });
@@ -138,10 +138,10 @@ describe('sharing the PDF', () => {
     mockPrint.mockRejectedValueOnce(new Error('EACCES /var/ella-health-data.pdf'));
     await openReport();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Share as PDF' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Share PDF' }));
 
     const problem = await screen.findByTestId('report-problem');
-    expect(problem).toHaveTextContent("The PDF couldn't be made. Try again.");
+    expect(problem).toHaveTextContent("Error: The PDF couldn't be made. Try again.");
     // The reason can name a file holding health data, so it is never shown (rule 8).
     expect(problem).not.toHaveTextContent(/ella|EACCES/i);
     expect(mockShare).not.toHaveBeenCalled();
@@ -151,7 +151,7 @@ describe('sharing the PDF', () => {
     repo.insert({ type: 'diaper', occurredAt: NOW - HOUR, payload: { kind: 'wet' } });
     await openReport();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Share as PDF' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Share PDF' }));
     expect(mockPrint).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId('report-problem')).toBeNull();
   });

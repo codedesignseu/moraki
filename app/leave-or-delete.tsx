@@ -1,15 +1,14 @@
 import { Stack, useRouter } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 
 import { ErasureScreen } from '@/features/settings/ErasureScreen';
+import { PUSHED_PAGE_OPTIONS } from '@/ui/pageOptions';
 
 export default function LeaveOrDelete() {
-  const { t } = useTranslation();
   const router = useRouter();
   return (
     <>
-      <Stack.Screen options={{ title: t('erasure.screenTitle') }} />
-      <ErasureScreen onDone={() => router.replace('/')} />
+      <Stack.Screen options={PUSHED_PAGE_OPTIONS} />
+      <ErasureScreen onDone={() => router.replace('/')} onBack={() => router.back()} />
     </>
   );
 }

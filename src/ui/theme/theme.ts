@@ -9,6 +9,7 @@ import {
   opacity,
   palette,
   radius,
+  shadow,
   size,
   spacing,
   type,
@@ -19,17 +20,18 @@ export type Theme = {
   scheme: Scheme;
   /** Pre-Sage colours, for screens not yet restyled. */
   colors: Record<ColorName, string>;
-  /** Sage colours for this scheme. */
+  /** G colours for this scheme. */
   palette: Record<PaletteName, string>;
   logo: typeof logo;
   fonts: typeof fonts;
   spacing: typeof spacing;
   radius: typeof radius;
   size: typeof size;
+  shadow: typeof shadow;
   opacity: typeof opacity;
   /** Pre-Sage type, for screens not yet restyled. */
   text: Record<TypeVariant, TextStyle>;
-  /** Sage type in the UI font, coloured ink. */
+  /** G type in the UI font, coloured ink. */
   type: Record<TypeStyle, TextStyle>;
   motion: typeof motion;
 };
@@ -56,6 +58,7 @@ export function buildTheme(scheme: Scheme): Theme {
     spacing,
     radius,
     size,
+    shadow,
     opacity,
     text,
     type: sageType,

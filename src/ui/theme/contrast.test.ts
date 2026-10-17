@@ -6,7 +6,7 @@ const schemes = Object.keys(colors) as Scheme[];
 
 const backgrounds: ColorName[] = ['background', 'surface', 'surfaceSunken', 'accentSubtle'];
 
-// The pre-Sage names now point at Sage values; these pairs check the aliases.
+// The pre-Sage names now point at G values; these pairs check the aliases.
 
 // Every foreground that carries text, on every surface it can sit on.
 const textPairs: [ColorName, ColorName][] = [
@@ -66,28 +66,35 @@ describe.each(schemes)('%s theme', (scheme) => {
 
 it('touch target token is at least 48dp', () => {
   expect(size.touchTarget).toBeGreaterThanOrEqual(48);
+  expect(size.minTouch).toBeGreaterThanOrEqual(48);
 });
 
-describe.each(schemes)('Stone %s palette', (scheme) => {
-  const stone = palette[scheme];
+describe.each(schemes)('G %s palette', (scheme) => {
+  const g = palette[scheme];
   const tiles: PaletteName[] = ['feed', 'sleep', 'diaper', 'pump'];
 
   // Every foreground that carries text, on every surface it is drawn on.
   const textPairs: [PaletteName, PaletteName][] = [
     ...(['ink', 'textSoft'] as const).flatMap((fg) =>
-      (['background', 'card', 'chip', 'line'] as const).map((bg): [PaletteName, PaletteName] => [
-        fg,
-        bg,
-      ]),
+      (['background', 'card', 'chip', 'line', 'navButton', 'warning', ...tiles] as const).map(
+        (bg): [PaletteName, PaletteName] => [fg, bg],
+      ),
     ),
     ['onSelected', 'selected'],
     ['onButtonPrimary', 'buttonPrimary'],
-    ['onTabBar', 'tabBar'],
-    ['onTabActive', 'tabActive'],
+    ['onToast', 'toast'],
+    ['onUndo', 'undo'],
+    ['navActiveIcon', 'navActive'],
+    ['disabledText', 'disabledFill'],
+    ['ink', 'navBar'],
+    ['ink', 'navButton'],
     ...(['onTile', 'onTileSoft'] as const).flatMap((fg) =>
       tiles.map((bg): [PaletteName, PaletteName] => [fg, bg]),
     ),
     // Validation text on every surface a form field or its message sits on.
+    ...(['background', 'card', 'chip', 'errorSurface', ...tiles] as const).map(
+      (bg): [PaletteName, PaletteName] => ['error', bg],
+    ),
     ...(['background', 'card', 'chip', ...tiles] as const).map((bg): [PaletteName, PaletteName] => [
       'invalid',
       bg,
@@ -95,26 +102,42 @@ describe.each(schemes)('Stone %s palette', (scheme) => {
   ];
 
   it.each(textPairs)('%s on %s meets AA for text (4.5:1)', (fg, bg) => {
-    expect(contrastRatio(stone[fg], stone[bg])).toBeGreaterThanOrEqual(AA.text);
+    expect(contrastRatio(g[fg], g[bg])).toBeGreaterThanOrEqual(AA.text);
   });
 
   it.each(['background', 'card', 'chip'] as const)(
     'inputBorder on %s meets AA for non-text UI (3:1)',
     (bg) => {
-      expect(contrastRatio(stone.inputBorder, stone[bg])).toBeGreaterThanOrEqual(AA.nonText);
+      expect(contrastRatio(g.inputBorder, g[bg])).toBeGreaterThanOrEqual(AA.nonText);
     },
   );
 
-  it('shows the active tab apart from the tab bar (3:1)', () => {
-    expect(contrastRatio(stone.tabActive, stone.tabBar)).toBeGreaterThanOrEqual(AA.nonText);
+  it('shows the active tab apart from the bar and the other buttons (3:1)', () => {
+    expect(contrastRatio(g.navActive, g.navBar)).toBeGreaterThanOrEqual(AA.nonText);
+    expect(contrastRatio(g.navActive, g.navButton)).toBeGreaterThanOrEqual(AA.nonText);
   });
 
-  it('marks a selected chip with an ink ring that stands out from the card (3:1)', () => {
-    expect(contrastRatio(stone.ink, stone.card)).toBeGreaterThanOrEqual(AA.nonText);
+  it('shows the Undo pill apart from the toast (3:1)', () => {
+    expect(contrastRatio(g.undo, g.toast)).toBeGreaterThanOrEqual(AA.nonText);
+  });
+
+  it('points the kept names at G values', () => {
+    expect(g.invalid).toBe(g.error);
+    expect(g.onTile).toBe(g.ink);
   });
 
   it('has the same colour names as the other scheme', () => {
-    expect(Object.keys(stone).sort()).toEqual(Object.keys(palette.light).sort());
+    expect(Object.keys(g).sort()).toEqual(Object.keys(palette.light).sort());
+  });
+});
+
+it('uses the G day background and tiles', () => {
+  expect(palette.light).toMatchObject({
+    background: '#F3F2EE',
+    feed: '#F7EBC0',
+    sleep: '#F4E4DE',
+    diaper: '#E1E3F7',
+    pump: '#E0EEE7',
   });
 });
 

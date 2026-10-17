@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { useEventsRepository } from '@/db/react';
 import { useUndoableSaves } from '@/db/undo';
@@ -11,11 +11,19 @@ import {
   TEMP_C,
   type HealthPayload,
 } from '@/domain/activities/health';
-import { formatClock } from '@/domain/time/formatClock';
+import { fieldTime } from '@/domain/time/fieldTime';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
+import { formatFieldTime } from '@/i18n/fieldTime';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
-import { Button, Chip, StatusPill, TextField, TimeShiftField } from '@/ui/primitives';
+import {
+  Button,
+  Chip,
+  DateTimeField,
+  FieldLabel,
+  TextField,
+  TimeShiftField,
+} from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 type Tag = (typeof HEALTH_TAGS)[number];
@@ -34,6 +42,8 @@ export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?:
   const repository = useEventsRepository();
   const saves = useUndoableSaves(repository);
   const [openedAt] = useState(Date.now);
+  // A note written up afterwards can be given the time it happened (G: Time).
+  const [at, setAt] = useState(openedAt);
   // Editing (P1-12) opens on the entry; logging opens empty.
   const [entry] = useState(() => (entryId ? repository.get(entryId) : null));
   const initial = (entry?.payload ?? {}) as HealthPayload;
@@ -79,7 +89,7 @@ export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?:
         },
       ]);
     } else {
-      saves.insert('undo.healthSaved', { type: 'health', occurredAt: openedAt, payload });
+      saves.insert('undo.healthSaved', { type: 'health', occurredAt: at, payload });
     }
     onDone();
   }
@@ -115,8 +125,40 @@ export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?:
           })}
         />
       ) : (
-        <StatusPill label={t('log.time', { time: formatClock(openedAt, tz) })} />
+        <DateTimeField
+          label={t('log.health.when')}
+          value={at}
+          onChange={setAt}
+          display={formatFieldTime(t, fieldTime(at, openedAt, tz, dateLocale(i18n.language)))}
+          openLabel={t('log.exactTime')}
+          maximumDate={new Date()}
+          testID="health-when"
+        />
       )}
+      <TextField
+        label={t('log.health.temperature')}
+        value={temperature}
+        onChangeText={setTemperature}
+        keyboardType="decimal-pad"
+        icon="health"
+        suffix={t('log.health.tempUnit')}
+        invalid={attempted && tempInvalid}
+        message={tempMessage}
+        errorPrefix={t('common.error')}
+      />
+      <View style={s.field}>
+        <FieldLabel label={t('log.health.tags')} />
+        <View style={s.tags} accessibilityLabel={t('log.health.tags')}>
+          {HEALTH_TAGS.map((tag) => (
+            <Chip
+              key={tag}
+              label={t(`log.health.tag.${tag}`)}
+              selected={tags.includes(tag)}
+              onPress={() => toggle(tag)}
+            />
+          ))}
+        </View>
+      </View>
       <TextField
         label={t('log.health.note')}
         value={note}
@@ -126,38 +168,26 @@ export function HealthSheet({ onDone, entryId }: { onDone: () => void; entryId?:
         hint={t('log.characters', { count: note.length, max: HEALTH_NOTE_MAX })}
         invalid={attempted && nothingToSave}
         message={t('log.health.noteOrTemp')}
+        errorPrefix={t('common.error')}
       />
-      <TextField
-        label={t('log.health.temperature')}
-        value={temperature}
-        onChangeText={setTemperature}
-        keyboardType="decimal-pad"
-        invalid={attempted && tempInvalid}
-        message={tempMessage}
-      />
-      <Text style={s.muted}>{t('log.health.tags')}</Text>
-      <View style={s.tags}>
-        {HEALTH_TAGS.map((tag) => (
-          <Chip
-            key={tag}
-            label={t(`log.health.tag.${tag}`)}
-            selected={tags.includes(tag)}
-            onPress={() => toggle(tag)}
-          />
-        ))}
+      <View style={s.footer}>
+        <Button label={entry ? t('entry.saveChanges') : t('log.save')} onPress={save} />
       </View>
-      <Button label={t('log.save')} onPress={save} />
     </ScrollView>
   );
 }
 
 const styles = (theme: Theme) =>
   StyleSheet.create({
+    // G sheets/health-note: the feed sheet's spacing.
     content: {
-      padding: theme.spacing.screen,
+      flexGrow: 1,
+      paddingHorizontal: theme.spacing.screen,
+      paddingTop: theme.spacing.section,
       paddingBottom: theme.spacing.xl,
-      gap: theme.spacing.lg,
+      gap: theme.spacing.section,
     },
-    muted: { ...theme.type.detail, color: theme.palette.textSoft },
+    field: { gap: theme.spacing.sm },
     tags: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
+    footer: { marginTop: 'auto' },
   });

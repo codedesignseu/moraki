@@ -80,7 +80,7 @@ describe('the app reading what the other phone logged', () => {
     let page = 0;
     await openApp({ events: () => (page++ === 0 ? [theirBottle(12, 120)] : []) });
 
-    expect(await screen.findByText('120 mL formula')).toBeOnTheScreen();
+    expect(await screen.findByText(/120 ml formula/)).toBeOnTheScreen();
     expect(screen.getByTestId(`recent-${mine.id}`)).toBeOnTheScreen(); // mine is still there
     await waitFor(() => expect(h.outbox.cursor()).toBe(12));
   });
@@ -100,14 +100,14 @@ describe('the app reading what the other phone logged', () => {
       events: () => (asked++ % 2 === 0 ? theirs : []),
       pushEvents: () => new Response('no', { status: 503 }),
     });
-    await screen.findByText('120 mL formula');
+    await screen.findByText(/120 ml formula/);
 
     // Edited here. The op can't be sent, so it is still waiting.
     await act(async () => {
       h.repo.patch('e-theirs', { payload: { ml: 200 } });
     });
     expect(h.outbox.pending()).toBeGreaterThan(0);
-    expect(screen.getByText('200 mL formula')).toBeOnTheScreen();
+    expect(screen.getByText(/200 ml formula/)).toBeOnTheScreen();
 
     // The server sends its older amount back, with a correction of its own.
     theirs = [{ ...theirBottle(19, 120), payload: { ml: 120, milk: 'breast' } }];
@@ -119,7 +119,7 @@ describe('the app reading what the other phone logged', () => {
     await waitFor(() => expect(h.outbox.cursor()).toBe(19));
     expect(h.repo.get('e-theirs')).toMatchObject({ payload: { ml: 200, milk: 'breast' } });
     // My amount, their correction of the milk.
-    expect(await screen.findByText('200 mL breast milk')).toBeOnTheScreen();
+    expect(await screen.findByText(/200 ml breast milk/)).toBeOnTheScreen();
     expect(h.outbox.pending()).toBeGreaterThan(0); // the edit is still waiting to be sent
   });
 });

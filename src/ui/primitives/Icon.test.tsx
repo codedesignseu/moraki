@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/react-native';
 import { readdirSync } from 'fs';
 import { join } from 'path';
 
+import { ACTIVITY_ICONS, BADGE_TONES } from '@/domain/activities';
+
 import { GLYPHS, ICONS } from '../icons';
 import { ThemeProvider } from '../theme';
 import { palette, size } from '../tokens';
@@ -50,15 +52,32 @@ describe('Icon', () => {
     expect(screen.getByRole('image', { name: 'Diaper' })).toBeTruthy();
   });
 
-  it('draws back, close and the like as glyphs that do not grow with text size', async () => {
+  it('draws back and forward as glyphs that do not grow with text size', async () => {
     await render(
       <ThemeProvider scheme="night">
-        <Icon name="close" testID="glyph" />
+        <Icon name="back" testID="glyph" />
       </ThemeProvider>,
     );
     const glyph = screen.getByTestId('glyph', { includeHiddenElements: true });
-    expect(glyph).toHaveTextContent(GLYPHS.close);
+    expect(glyph).toHaveTextContent(GLYPHS.back);
     expect(glyph.props.allowFontScaling).toBe(false);
     expect(glyph).toHaveStyle({ color: palette.night.ink, fontSize: size.icon });
+  });
+
+  // The domain names badge icons and tones as plain strings (it can't import
+  // the UI); every one must resolve here.
+  it('has a file for every activity badge icon, and a colour for every tone', () => {
+    for (const name of ACTIVITY_ICONS) expect(ICONS).toHaveProperty(name);
+    for (const tone of BADGE_TONES) {
+      expect(palette.light).toHaveProperty(tone);
+      expect(palette.night).toHaveProperty(tone);
+    }
+  });
+
+  it('draws check, close, plus and minus as line icons, not glyphs', () => {
+    for (const name of ['check', 'close', 'plus', 'minus'] as const) {
+      expect(ICONS[name]).toBeDefined();
+      expect(name in GLYPHS).toBe(false);
+    }
   });
 });

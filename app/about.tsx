@@ -1,15 +1,15 @@
-import { Stack } from 'expo-router';
-import { useTranslation } from 'react-i18next';
+import { Stack, useRouter } from 'expo-router';
 import { Linking } from 'react-native';
 
 import { AboutScreen } from '@/features/privacy/AboutScreen';
+import { PUSHED_PAGE_OPTIONS } from '@/ui/pageOptions';
 
 export default function About() {
-  const { t } = useTranslation();
+  const router = useRouter();
   return (
     <>
-      <Stack.Screen options={{ title: t('about.title') }} />
-      <AboutScreen onOpenLink={(url) => void Linking.openURL(url)} />
+      <Stack.Screen options={PUSHED_PAGE_OPTIONS} />
+      <AboutScreen onOpenLink={(url) => void Linking.openURL(url)} onBack={() => router.back()} />
     </>
   );
 }

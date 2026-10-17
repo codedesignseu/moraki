@@ -1,8 +1,11 @@
-import type { Report } from '@/domain/report/buildReport';
-import { formatClock } from '@/domain/time/formatClock';
-import { formatElapsed } from '@/domain/time/formatElapsed';
+import type { TFunction } from 'i18next';
 
-import type { ReportLabels, ReportSection } from './reportHtml';
+import type { Report } from '@/domain/report/buildReport';
+import { durationParts } from '@/domain/time/durationParts';
+import { formatClock } from '@/domain/time/formatClock';
+import { formatDuration } from '@/i18n/duration';
+
+import type { ReportLabels, ReportSection, ReportStat } from './reportHtml';
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
 
@@ -23,6 +26,23 @@ export function reportLabels(
   dateTime: (at: number) => string,
 ): ReportLabels {
   const feeds = report.window.feeds;
+  // "2 h 15 min" in the reader's language (formatDuration only calls t).
+  const duration = (ms: number) => formatDuration(t as unknown as TFunction, durationParts(ms));
+  const ml = (value: number) => t('report.call.ml', { ml: value });
+  // G reports/report and reports/pdf: the window's counts as stat tiles. Only
+  // figures the report already has; breastfeeding and sleep only when logged.
+  const stats = rows([
+    { label: t('report.call.feeds.count'), value: `${feeds.count}` },
+    { label: t('report.call.feeds.ml'), value: ml(feeds.bottleMl) },
+    feeds.breastMs === 0
+      ? null
+      : { label: t('report.call.feeds.breast'), value: duration(feeds.breastMs) },
+    { label: t('report.call.diapers.wet'), value: `${report.window.wet}` },
+    { label: t('report.call.diapers.dirty'), value: `${report.window.dirty}` },
+    report.window.sleepMs === 0
+      ? null
+      : { label: t('report.pdf.sleep'), value: duration(report.window.sleepMs) },
+  ]) satisfies ReportStat[];
   const sections: ReportSection[] = [
     {
       key: 'baby',
@@ -69,35 +89,25 @@ export function reportLabels(
     },
     {
       key: 'feeds',
-      heading: t('report.pdf.window'),
+      heading: t('report.pdf.feeds'),
       rows: rows([
-        { label: t('report.call.feeds.count'), value: `${feeds.count}` },
-        { label: t('report.call.feeds.ml'), value: t('report.call.ml', { ml: feeds.bottleMl }) },
-        feeds.breastMs === 0
-          ? null
-          : { label: t('report.call.feeds.breast'), value: formatElapsed(feeds.breastMs) },
         feeds.longestGapMs === null
           ? null
           : {
               label: t('report.call.feeds.longestGap'),
-              value: formatElapsed(feeds.longestGapMs),
+              value: duration(feeds.longestGapMs),
             },
-        { label: t('report.call.diapers.wet'), value: `${report.window.wet}` },
-        { label: t('report.call.diapers.dirty'), value: `${report.window.dirty}` },
-        report.window.sleepMs === 0
-          ? null
-          : { label: t('report.pdf.sleep'), value: formatElapsed(report.window.sleepMs) },
         report.averageBottleMl === null
           ? null
           : {
               label: t('report.pdf.averageBottle'),
-              value: t('report.call.ml', { ml: report.averageBottleMl }),
+              value: ml(report.averageBottleMl),
             },
         report.averageIntervalMs === null
           ? null
           : {
               label: t('report.pdf.averageInterval'),
-              value: formatElapsed(report.averageIntervalMs),
+              value: duration(report.averageIntervalMs),
             },
       ]),
     },
@@ -155,16 +165,18 @@ export function reportLabels(
       range: t(`report.pdf.range.${report.range}`),
       generated: dateTime(report.to),
     }),
+    stats,
     sections,
     // One day of rows says nothing a section hasn't; 3d and 7d get the table.
     table:
       report.days.length < 2
         ? null
         : {
+            heading: t('insights.days.title'),
             headers: [
               t('insights.days.day'),
               t('insights.days.feeds'),
-              t('report.call.feeds.ml'),
+              t('insights.bottle.title'),
               t('insights.days.wet'),
               t('insights.days.dirty'),
               t('insights.days.sleep'),
@@ -172,10 +184,10 @@ export function reportLabels(
             rows: report.days.map((day) => [
               day.key,
               `${day.feeds}`,
-              `${day.ml}`,
+              ml(day.ml),
               `${day.wet}`,
               `${day.dirty}`,
-              formatElapsed(day.sleepMs),
+              duration(day.sleepMs),
             ]),
           },
     footer: t('report.pdf.footer'),
