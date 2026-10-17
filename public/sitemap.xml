@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://moraki.app/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/el/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/privacy/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/el/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/privacy/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/terms/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/el/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/terms/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/terms/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/terms/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/support/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/el/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/support/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/support/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/support/"/>
+  </url>
+</urlset>

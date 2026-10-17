@@ -1,148 +1,70 @@
 <!doctype html>
-<!--
-  ΠΡΟΣΧΕΔΙΟ / DRAFT, pending review by a Cyprus data protection lawyer (SDD 12.1).
-  Greek version of public/privacy/index.html; keep the two in step.
-  Not legal advice.
--->
 <html lang="el">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Πολιτική απορρήτου · Moraki</title>
-    <meta
-      name="description"
-      content="Πώς το Moraki χειρίζεται τα δεδομένα σου και του μωρού σου."
-    />
-    <link rel="alternate" hreflang="en" href="https://moraki.app/privacy/" />
-    <style>
-      :root {
-        color-scheme: light dark;
-        --background: #f4efe7;
-        --surface: #faf6f0;
-        --text: #2b2621;
-        --text-muted: #6b6259;
-        --accent: #4a6550;
-        --accent-subtle: #dce4d9;
-        --border: #ddd4c5;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --background: #1c1814;
-          --surface: #27221d;
-          --text: #ddd2c2;
-          --text-muted: #a89d8c;
-          --accent: #9bb59f;
-          --accent-subtle: #2e3830;
-          --border: #3a332b;
-        }
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        padding: 24px 16px 48px;
-        background: var(--background);
-        color: var(--text);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 16px;
-        line-height: 1.6;
-      }
-      main {
-        max-width: 720px;
-        margin: 0 auto;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 32px 24px;
-      }
-      nav {
-        max-width: 720px;
-        margin: 0 auto 16px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        font-size: 14px;
-      }
-      h1 {
-        font-size: 26px;
-        line-height: 1.25;
-        margin: 0 0 4px;
-      }
-      h2 {
-        font-size: 19px;
-        margin: 32px 0 8px;
-      }
-      p,
-      li {
-        overflow-wrap: anywhere;
-      }
-      a {
-        color: var(--accent);
-      }
-      .meta {
-        color: var(--text-muted);
-        font-size: 14px;
-        margin: 0 0 24px;
-      }
-      .note {
-        background: var(--accent-subtle);
-        border-radius: 10px;
-        padding: 14px 16px;
-      }
-      .table {
-        overflow-x: auto;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 15px;
-      }
-      th,
-      td {
-        text-align: left;
-        vertical-align: top;
-        padding: 8px 10px 8px 0;
-        border-bottom: 1px solid var(--border);
-      }
-      th {
-        font-weight: 600;
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <a href="/el/privacy/">Απόρρητο</a>
-      <a href="/el/terms/">Όροι</a>
-      <a href="/el/support/">Υποστήριξη</a>
-      <a href="/privacy/" hreflang="en" lang="en">English</a>
-    </nav>
-    <main>
-      <h1>Πολιτική απορρήτου</h1>
-      <p class="meta">Ισχύει από 5 Οκτωβρίου 2026</p>
-
-      <p class="note">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Πολιτική απορρήτου · Moraki</title>
+<meta name="description" content="Πώς χειρίζεται το Moraki τα δεδομένα σου, με απλά λόγια.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F3F2EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171411" media="(prefers-color-scheme: dark)">
+<meta name="referrer" content="no-referrer">
+<link rel="canonical" href="https://moraki.app/el/privacy/">
+<link rel="alternate" hreflang="en" href="https://moraki.app/privacy/">
+<link rel="alternate" hreflang="el" href="https://moraki.app/el/privacy/">
+<link rel="alternate" hreflang="x-default" href="https://moraki.app/privacy/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Moraki">
+<meta property="og:title" content="Πολιτική απορρήτου · Moraki">
+<meta property="og:description" content="Πώς χειρίζεται το Moraki τα δεδομένα σου, με απλά λόγια.">
+<meta property="og:url" content="https://moraki.app/el/privacy/">
+<meta property="og:locale" content="el_GR">
+<meta property="og:locale:alternate" content="en_GB">
+<meta property="og:image" content="https://moraki.app/images/share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Moraki, ένα κοινό τετράδιο για το νεογέννητό σου">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Πολιτική απορρήτου · Moraki">
+<meta name="twitter:description" content="Πώς χειρίζεται το Moraki τα δεδομένα σου, με απλά λόγια.">
+<meta name="twitter:image" content="https://moraki.app/images/share.png">
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+<link rel="preload" href="/fonts/manrope-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/comfortaa-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Μετάβαση στο περιεχόμενο</a>
+<header class="site-header"><div class="wrap"><a class="brand" href="/el/" aria-label="Αρχική του Moraki"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d="M16 76V48a13 13 0 0 1 26 0v28M58 76V48a13 13 0 0 1 26 0v28" fill="none" stroke-width="10" stroke-linecap="round"/><circle cx="50" cy="26" r="7"/></svg><span>moraki</span></a><div class="tools"><nav class="lang" aria-label="Γλώσσα"><a href="/privacy/" lang="en" hreflang="en">EN</a><a href="/el/privacy/" lang="el" hreflang="el" aria-current="true">ΕΛ</a></nav></div></div></header>
+<main id="main" class="doc">
+<div class="doc-head"><span class="eyebrow">Moraki</span><h1>Πολιτική απορρήτου</h1><p class="soft lead">Πώς χειρίζεται το Moraki τα δεδομένα σου, με απλά λόγια.</p><p class="small soft">Ισχύει από 5 Οκτωβρίου 2026</p></div>
+<p class="draft"><strong>Προσχέδιο.</strong> Το κείμενο περιμένει ακόμα νομικό έλεγχο και μπορεί να αλλάξει.</p>
+<nav aria-labelledby="toc-h" class="toc-wrap"><h2 id="toc-h" class="toc-h">Σε αυτή τη σελίδα</h2><ol class="toc"><li><a href="#s1">1. Ποιος είναι υπεύθυνος για τα δεδομένα σου</a></li><li><a href="#s2">2. Τι συλλέγουμε</a></li><li><a href="#s3">3. Γιατί τα χρησιμοποιούμε και με ποια νομική βάση</a></li><li><a href="#s4">4. Δεδομένα υγείας και η συγκατάθεσή σου</a></li><li><a href="#s5">5. Τα δεδομένα του μωρού σου</a></li><li><a href="#s6">6. Ποιος τα βλέπει</a></li><li><a href="#s7">7. Πάροχοι υπηρεσιών και πού φυλάσσονται τα δεδομένα σου</a></li><li><a href="#s8">8. Για πόσο τα κρατάμε</a></li><li><a href="#s9">9. Τα δικαιώματά σου και πώς τα ασκείς μέσα από την εφαρμογή</a></li><li><a href="#s10">10. Ασφάλεια</a></li><li><a href="#s11">11. Ειδοποιήσεις</a></li><li><a href="#s12">12. Αλλαγές σε αυτή την πολιτική</a></li><li><a href="#s13">13. Επικοινωνία</a></li></ol></nav>
+<div class="card doc-intro">
+<p class="note">
         Το Moraki κρατά ένα ημερολόγιο της φροντίδας του μωρού σου, που το βλέπεις εσύ και όσοι
         προσκαλέσεις. Οι εγγραφές σου αποθηκεύονται στο τηλέφωνό σου και, μόλις συνδεθείς, σε
         διακομιστές στην ΕΕ. Τις βλέπουν μόνο τα άτομα του νοικοκυριού σου. Δεν πωλούνται ποτέ, δεν
         χρησιμοποιούνται για διαφημίσεις και δεν χρησιμοποιούνται για την εκπαίδευση κανενός
         μοντέλου. Η εφαρμογή δεν έχει εργαλεία στατιστικών χρήσης (analytics) ούτε διαφημίσεις.
       </p>
-
-      <h2>1. Ποιος είναι υπεύθυνος για τα δεδομένα σου</h2>
-      <p>
+</div>
+<section class="card" id="s1" aria-labelledby="s1-h"><h2 id="s1-h">1. Ποιος είναι υπεύθυνος για τα δεδομένα σου</h2>
+<p>
         Υπεύθυνος επεξεργασίας είναι η CE Code Designs Ltd (Code Designs Ltd), εταιρεία με έδρα την
         Κύπρο, που εκδίδει το Moraki. Επικοινώνησε μαζί μας στο
-        <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>. Δεν έχουμε ορίσει υπεύθυνο
+        <a href="mailto:hello@moraki.app">hello@moraki.app</a>. Δεν έχουμε ορίσει υπεύθυνο
         προστασίας δεδομένων· γράψε μας σε αυτή τη διεύθυνση για οτιδήποτε αφορά αυτή την πολιτική.
       </p>
       <p>
         Χρησιμοποιείς το Moraki ως γονιός ή φροντιστής. Τα στοιχεία του μωρού τα καταχωρείς εσύ ή
         κάποιος άλλος ενήλικας του νοικοκυριού σου, όχι το ίδιο το μωρό.
       </p>
-
-      <h2>2. Τι συλλέγουμε</h2>
-      <p><strong>Ο λογαριασμός σου.</strong></p>
+</section>
+<section class="card" id="s2" aria-labelledby="s2-h"><h2 id="s2-h">2. Τι συλλέγουμε</h2>
+<p><strong>Ο λογαριασμός σου.</strong></p>
       <ul>
         <li>
           Η διεύθυνση email σου και ο κωδικός μίας χρήσης που σου στέλνουμε για να συνδεθείς. Ο
@@ -225,9 +147,9 @@
         Μπορείς να χρησιμοποιείς το Moraki χωρίς λογαριασμό. Τότε οι εγγραφές σου μένουν στο
         τηλέφωνό σου και τίποτα από αυτές δεν φτάνει στους διακομιστές μας.
       </p>
-
-      <h2>3. Γιατί τα χρησιμοποιούμε και με ποια νομική βάση</h2>
-      <div class="table">
+</section>
+<section class="card" id="s3" aria-labelledby="s3-h"><h2 id="s3-h">3. Γιατί τα χρησιμοποιούμε και με ποια νομική βάση</h2>
+<div class="table">
         <table>
           <thead>
             <tr>
@@ -272,9 +194,9 @@
           </tbody>
         </table>
       </div>
-
-      <h2>4. Δεδομένα υγείας και η συγκατάθεσή σου</h2>
-      <p>
+</section>
+<section class="card" id="s4" aria-labelledby="s4-h"><h2 id="s4-h">4. Δεδομένα υγείας και η συγκατάθεσή σου</h2>
+<p>
         Ό,τι καταγράφεις για ταΐσματα, πάνες, ύπνο, αντλήσεις, βάρος, θερμοκρασία, φάρμακα,
         σημειώσεις και ραντεβού είναι δεδομένα υγείας. Κάθε φροντιστής ενός νοικοκυριού, ακόμα και
         ένας θεατής που μόνο διαβάζει, δίνει ρητή συγκατάθεση σε δική της οθόνη πριν γίνει
@@ -291,16 +213,16 @@
         Το Moraki δεν ερμηνεύει τις εγγραφές σου. Τις αθροίζει και τις δείχνει, χωρίς εύρη,
         προειδοποιήσεις ή βαθμολογίες, και καμία απόφαση για σένα δεν λαμβάνεται αυτόματα.
       </p>
-
-      <h2>5. Τα δεδομένα του μωρού σου</h2>
-      <p>
+</section>
+<section class="card" id="s5" aria-labelledby="s5-h"><h2 id="s5-h">5. Τα δεδομένα του μωρού σου</h2>
+<p>
         Το Moraki το χρησιμοποιούν ενήλικες. Το μωρό σου δεν μπορεί να δώσει συγκατάθεση, οπότε τη
         δίνεις εσύ για λογαριασμό του, ως πρόσωπο με γονική μέριμνα. Πρόσθεσε στο νοικοκυριό σου
         μόνο άτομα με τα οποία θέλεις να μοιράζεσαι το ημερολόγιο του μωρού σου.
       </p>
-
-      <h2>6. Ποιος τα βλέπει</h2>
-      <ul>
+</section>
+<section class="card" id="s6" aria-labelledby="s6-h"><h2 id="s6-h">6. Ποιος τα βλέπει</h2>
+<ul>
         <li>
           <strong>Τα άτομα του νοικοκυριού σου.</strong> Όλοι όσοι προσκαλείς βλέπουν τις ίδιες
           εγγραφές και ποιος τις έκανε. Όποιος αφαιρεθεί από ένα νοικοκυριό χάνει αμέσως την
@@ -316,9 +238,9 @@
         Τίποτα δεν πωλείται, δεν χρησιμοποιείται για διαφημίσεις και δεν χρησιμοποιείται για την
         εκπαίδευση κανενός μοντέλου.
       </p>
-
-      <h2>7. Πάροχοι υπηρεσιών και πού φυλάσσονται τα δεδομένα σου</h2>
-      <div class="table">
+</section>
+<section class="card" id="s7" aria-labelledby="s7-h"><h2 id="s7-h">7. Πάροχοι υπηρεσιών και πού φυλάσσονται τα δεδομένα σου</h2>
+<div class="table">
         <table>
           <thead>
             <tr>
@@ -372,9 +294,9 @@
         Ρητρών της ΕΕ στους όρους της Expo και της πιστοποίησης της Expo στο Πλαίσιο Προστασίας
         Δεδομένων ΕΕ-ΗΠΑ.
       </p>
-
-      <h2>8. Για πόσο τα κρατάμε</h2>
-      <div class="table">
+</section>
+<section class="card" id="s8" aria-labelledby="s8-h"><h2 id="s8-h">8. Για πόσο τα κρατάμε</h2>
+<div class="table">
         <table>
           <thead>
             <tr>
@@ -438,9 +360,9 @@
           </tbody>
         </table>
       </div>
-
-      <h2>9. Τα δικαιώματά σου και πώς τα ασκείς μέσα από την εφαρμογή</h2>
-      <ul>
+</section>
+<section class="card" id="s9" aria-labelledby="s9-h"><h2 id="s9-h">9. Τα δικαιώματά σου και πώς τα ασκείς μέσα από την εφαρμογή</h2>
+<ul>
         <li>
           <strong>Αντίγραφο (πρόσβαση και φορητότητα).</strong> Από Ρυθμίσεις → Τα δεδομένα σου →
           Εξαγωγή όλων φτιάχνονται στο τηλέφωνό σου δύο αρχεία, ένα για υπολογιστικό φύλλο (CSV) και
@@ -483,7 +405,7 @@
         </li>
         <li>
           <strong>Οτιδήποτε άλλο.</strong> Γράψε στο
-          <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>. Απαντάμε μέσα σε έναν μήνα.
+          <a href="mailto:hello@moraki.app">hello@moraki.app</a>. Απαντάμε μέσα σε έναν μήνα.
         </li>
       </ul>
       <p>
@@ -492,9 +414,9 @@
           >dataprotection.gov.cy</a
         >) ή στην αρχή προστασίας δεδομένων της χώρας όπου ζεις.
       </p>
-
-      <h2>10. Ασφάλεια</h2>
-      <p>
+</section>
+<section class="card" id="s10" aria-labelledby="s10-h"><h2 id="s10-h">10. Ασφάλεια</h2>
+<p>
         Τα δεδομένα μεταφέρονται κρυπτογραφημένα (HTTPS/TLS). Στους διακομιστές μας, κανόνες της
         βάσης δεδομένων επιτρέπουν σε κάθε άτομο να φτάνει μόνο τα δεδομένα του δικού του
         νοικοκυριού, και δεδομένα υγείας μπορεί να αποθηκεύσει μόνο όποιος έχει δώσει συγκατάθεση.
@@ -506,26 +428,41 @@
         Moraki. Βάλε κωδικό κλειδώματος στο τηλέφωνό σου: αυτός προστατεύει τις εγγραφές σου αν το
         χάσεις.
       </p>
-
-      <h2>11. Ειδοποιήσεις</h2>
-      <p>
+</section>
+<section class="card" id="s11" aria-labelledby="s11-h"><h2 id="s11-h">11. Ειδοποιήσεις</h2>
+<p>
         Οι υπενθυμίσεις ταΐσματος προγραμματίζονται στο τηλέφωνό σου και δεν περιέχουν ποτέ
         ποσότητα, θερμοκρασία ή άλλο νούμερο, ώστε τίποτα για την υγεία του μωρού σου να μην
         εμφανίζεται στην οθόνη κλειδώματος.
       </p>
-
-      <h2>12. Αλλαγές σε αυτή την πολιτική</h2>
-      <p>
+</section>
+<section class="card" id="s12" aria-labelledby="s12-h"><h2 id="s12-h">12. Αλλαγές σε αυτή την πολιτική</h2>
+<p>
         Αν αλλάξουμε αυτή την πολιτική, θα ενημερώσουμε την ημερομηνία παραπάνω και θα σου το πούμε
         μέσα από την εφαρμογή. Αν μια αλλαγή αφορά αυτό για το οποίο έδωσες συγκατάθεση, θα σου
         ζητήσουμε ξανά τη συγκατάθεσή σου.
       </p>
-
-      <h2>13. Επικοινωνία</h2>
-      <p>
+</section>
+<section class="card" id="s13" aria-labelledby="s13-h"><h2 id="s13-h">13. Επικοινωνία</h2>
+<p>
         CE Code Designs Ltd, Κύπρος ·
-        <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>
+        <a href="mailto:hello@moraki.app">hello@moraki.app</a>
       </p>
-    </main>
-  </body>
+</section>
+</main>
+<footer class="site-footer"><div class="wrap">
+<div class="footer-main">
+<a class="brand" href="/el/" aria-label="Αρχική του Moraki"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d="M16 76V48a13 13 0 0 1 26 0v28M58 76V48a13 13 0 0 1 26 0v28" fill="none" stroke-width="10" stroke-linecap="round"/><circle cx="50" cy="26" r="7"/></svg><span>moraki</span></a>
+<p class="health-note">Το Moraki είναι σημειωματάριο, όχι ιατρική συμβουλή. Αν ανησυχείς για το μωρό σου, μίλησε με τον γιατρό σου.</p>
+</div>
+<nav aria-label="Υποσέλιδο"><ul class="footer-links">
+<li><a href="/el/privacy/">Απόρρητο</a></li>
+<li><a href="/el/terms/">Όροι</a></li>
+<li><a href="/el/support/">Υποστήριξη</a></li>
+<li><a href="/privacy/" lang="en" hreflang="en">English</a></li>
+<li><a href="/el/privacy/" lang="el" hreflang="el">Ελληνικά</a></li>
+</ul></nav>
+<p class="small soft">© 2026 CE Code Designs Ltd, Κύπρος</p>
+</div></footer>
+</body>
 </html>

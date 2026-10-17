@@ -1,125 +1,54 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Support · Moraki</title>
-    <meta name="description" content="Help with Moraki, the shared newborn tracker." />
-    <link rel="alternate" hreflang="el" href="https://moraki.app/el/support/" />
-    <style>
-      :root {
-        color-scheme: light dark;
-        --background: #f4efe7;
-        --surface: #faf6f0;
-        --text: #2b2621;
-        --text-muted: #6b6259;
-        --accent: #4a6550;
-        --accent-subtle: #dce4d9;
-        --border: #ddd4c5;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --background: #1c1814;
-          --surface: #27221d;
-          --text: #ddd2c2;
-          --text-muted: #a89d8c;
-          --accent: #9bb59f;
-          --accent-subtle: #2e3830;
-          --border: #3a332b;
-        }
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        padding: 24px 16px 48px;
-        background: var(--background);
-        color: var(--text);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 16px;
-        line-height: 1.6;
-      }
-      main {
-        max-width: 720px;
-        margin: 0 auto;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 32px 24px;
-      }
-      nav {
-        max-width: 720px;
-        margin: 0 auto 16px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        font-size: 14px;
-      }
-      h1 {
-        font-size: 26px;
-        line-height: 1.25;
-        margin: 0 0 4px;
-      }
-      h2 {
-        font-size: 19px;
-        margin: 32px 0 8px;
-      }
-      p,
-      li {
-        overflow-wrap: anywhere;
-      }
-      a {
-        color: var(--accent);
-      }
-      .meta {
-        color: var(--text-muted);
-        font-size: 14px;
-        margin: 0 0 24px;
-      }
-      .note {
-        background: var(--accent-subtle);
-        border-radius: 10px;
-        padding: 14px 16px;
-      }
-      .table {
-        overflow-x: auto;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 15px;
-      }
-      th,
-      td {
-        text-align: left;
-        vertical-align: top;
-        padding: 8px 10px 8px 0;
-        border-bottom: 1px solid var(--border);
-      }
-      th {
-        font-weight: 600;
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <a href="/privacy/">Privacy</a>
-      <a href="/terms/">Terms</a>
-      <a href="/support/">Support</a>
-      <a href="/el/support/" hreflang="el" lang="el">Ελληνικά</a>
-    </nav>
-    <main>
-      <h1>Moraki support</h1>
-      <p class="meta">Help with the shared newborn tracker</p>
-
-      <p class="note">
-        Email <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>, or use Settings → Send
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support · Moraki</title>
+<meta name="description" content="Answers to the questions parents ask most. Can’t find yours? Email us.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F3F2EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171411" media="(prefers-color-scheme: dark)">
+<meta name="referrer" content="no-referrer">
+<link rel="canonical" href="https://moraki.app/support/">
+<link rel="alternate" hreflang="en" href="https://moraki.app/support/">
+<link rel="alternate" hreflang="el" href="https://moraki.app/el/support/">
+<link rel="alternate" hreflang="x-default" href="https://moraki.app/support/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Moraki">
+<meta property="og:title" content="Support · Moraki">
+<meta property="og:description" content="Answers to the questions parents ask most. Can’t find yours? Email us.">
+<meta property="og:url" content="https://moraki.app/support/">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="el_GR">
+<meta property="og:image" content="https://moraki.app/images/share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Moraki, one shared notebook for your newborn">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Support · Moraki">
+<meta name="twitter:description" content="Answers to the questions parents ask most. Can’t find yours? Email us.">
+<meta name="twitter:image" content="https://moraki.app/images/share.png">
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+<link rel="preload" href="/fonts/manrope-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/comfortaa-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap"><a class="brand" href="/" aria-label="Moraki home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d="M16 76V48a13 13 0 0 1 26 0v28M58 76V48a13 13 0 0 1 26 0v28" fill="none" stroke-width="10" stroke-linecap="round"/><circle cx="50" cy="26" r="7"/></svg><span>moraki</span></a><div class="tools"><nav class="lang" aria-label="Language"><a href="/support/" lang="en" hreflang="en" aria-current="true">EN</a><a href="/el/support/" lang="el" hreflang="el">ΕΛ</a></nav></div></div></header>
+<main id="main" class="doc">
+<div class="doc-head"><span class="eyebrow">Moraki</span><h1>Support</h1><p class="soft lead">Answers to the questions parents ask most. Can’t find yours? Email us.</p><p class="small soft">Help with the shared newborn tracker</p></div>
+<div class="notice"><span class="icon-circle"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5v5.5M12 16.2v.3"></path></svg></span><span>Moraki is a notebook, not medical advice. If you’re worried about your baby, contact your doctor.</span></div>
+<div class="card doc-intro">
+<p class="note">
+        Email <a href="mailto:hello@moraki.app">hello@moraki.app</a>, or use Settings → Send
         feedback in the app. Please leave your baby's health details out of your message.
       </p>
-
-      <h2>How do other caregivers see my entries?</h2>
-      <p>
+</div>
+<section class="card" id="s1" aria-labelledby="q1"><h2 id="q1">How do other caregivers see my entries?</h2>
+<p>
         Sign in, then invite them from Settings → Invite a caregiver. They install Moraki, sign in,
         and join with the code or the link you send them (Settings → Join with a code). Each code
         works once and expires after 7 days.
@@ -129,29 +58,29 @@
         Moraki works without signal: an entry made offline stays on the phone and is sent when there
         is a connection again.
       </p>
-
-      <h2>An entry isn't showing on another phone</h2>
-      <p>
+</section>
+<section class="card" id="s2" aria-labelledby="q2"><h2 id="q2">An entry isn't showing on another phone</h2>
+<p>
         Check that both phones are online and signed in to the same household. If a caregiver has
         withdrawn consent for health data (Settings → Privacy → Health data), their entries stay on
         their phone and don't sync until they agree again.
       </p>
-
-      <h2>Do I need an account?</h2>
-      <p>
+</section>
+<section class="card" id="s3" aria-labelledby="q3"><h2 id="q3">Do I need an account?</h2>
+<p>
         No. Without one, everything stays on your phone. An account is needed to share with other
         caregivers and to send feedback.
       </p>
-
-      <h2>How do I get a copy of my data?</h2>
-      <p>
+</section>
+<section class="card" id="s4" aria-labelledby="q4"><h2 id="q4">How do I get a copy of my data?</h2>
+<p>
         Settings → Your data → Export everything. Moraki makes two files on your phone, one for a
         spreadsheet (CSV) and one that keeps every detail (JSON), and opens the share sheet so you
         can save or send them.
       </p>
-
-      <h2 id="delete">How do I leave a household or delete my account?</h2>
-      <p>Both are in Settings.</p>
+</section>
+<section class="card" id="s5" aria-labelledby="delete"><h2 id="delete">How do I leave a household or delete my account?</h2>
+<p>Both are in Settings.</p>
       <ul>
         <li>
           <strong>Leave a household</strong> you share with others. It carries on without you.
@@ -173,29 +102,44 @@
       </p>
       <p>
         No longer have the app? Email
-        <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a> from the address you signed in
+        <a href="mailto:hello@moraki.app">hello@moraki.app</a> from the address you signed in
         with and ask us to delete your account. We will do it and confirm, within one month.
       </p>
-
-      <h2>Reminders aren't appearing</h2>
-      <p>
+</section>
+<section class="card" id="s6" aria-labelledby="q6"><h2 id="q6">Reminders aren't appearing</h2>
+<p>
         Check that notifications are on for Moraki in your phone's settings, and that reminders are
         on in Settings → Reminders.
       </p>
-
-      <h2>Can Moraki tell me if something is wrong?</h2>
-      <p>
+</section>
+<section class="card" id="s7" aria-labelledby="q7"><h2 id="q7">Can Moraki tell me if something is wrong?</h2>
+<p>
         No. Moraki records and adds up what you log; it is not a medical device and does not give
         medical advice. If you are worried about your baby, contact your doctor or your local
         emergency number.
       </p>
-
-      <h2>More</h2>
-      <ul>
+</section>
+<section class="card" id="s8" aria-labelledby="q8"><h2 id="q8">More</h2>
+<ul>
         <li><a href="/privacy/">Privacy policy</a></li>
         <li><a href="/terms/">Terms of use</a></li>
       </ul>
       <p class="meta">Moraki is published by CE Code Designs Ltd, Cyprus.</p>
-    </main>
-  </body>
+</section>
+</main>
+<footer class="site-footer"><div class="wrap">
+<div class="footer-main">
+<a class="brand" href="/" aria-label="Moraki home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d="M16 76V48a13 13 0 0 1 26 0v28M58 76V48a13 13 0 0 1 26 0v28" fill="none" stroke-width="10" stroke-linecap="round"/><circle cx="50" cy="26" r="7"/></svg><span>moraki</span></a>
+<p class="health-note">Moraki is a notebook, not medical advice. If you’re worried about your baby, contact your doctor.</p>
+</div>
+<nav aria-label="Footer"><ul class="footer-links">
+<li><a href="/privacy/">Privacy</a></li>
+<li><a href="/terms/">Terms</a></li>
+<li><a href="/support/">Support</a></li>
+<li><a href="/support/" lang="en" hreflang="en">English</a></li>
+<li><a href="/el/support/" lang="el" hreflang="el">Ελληνικά</a></li>
+</ul></nav>
+<p class="small soft">© 2026 CE Code Designs Ltd, Cyprus</p>
+</div></footer>
+</body>
 </html>

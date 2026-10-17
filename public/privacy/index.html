@@ -1,145 +1,69 @@
 <!doctype html>
-<!--
-  DRAFT, pending review by a Cyprus data protection lawyer (SDD 12.1).
-  Written from docs/compliance/records-of-processing.md, processors.md,
-  retention.md and dpia.md as they stood on 2026-10-05. Not legal advice.
-  Keep it in step with public/el/privacy/index.html.
--->
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Privacy policy · Moraki</title>
-    <meta name="description" content="How Moraki handles your data and your baby's." />
-    <link rel="alternate" hreflang="el" href="https://moraki.app/el/privacy/" />
-    <style>
-      :root {
-        color-scheme: light dark;
-        --background: #f4efe7;
-        --surface: #faf6f0;
-        --text: #2b2621;
-        --text-muted: #6b6259;
-        --accent: #4a6550;
-        --accent-subtle: #dce4d9;
-        --border: #ddd4c5;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --background: #1c1814;
-          --surface: #27221d;
-          --text: #ddd2c2;
-          --text-muted: #a89d8c;
-          --accent: #9bb59f;
-          --accent-subtle: #2e3830;
-          --border: #3a332b;
-        }
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        padding: 24px 16px 48px;
-        background: var(--background);
-        color: var(--text);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 16px;
-        line-height: 1.6;
-      }
-      main {
-        max-width: 720px;
-        margin: 0 auto;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 32px 24px;
-      }
-      nav {
-        max-width: 720px;
-        margin: 0 auto 16px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        font-size: 14px;
-      }
-      h1 {
-        font-size: 26px;
-        line-height: 1.25;
-        margin: 0 0 4px;
-      }
-      h2 {
-        font-size: 19px;
-        margin: 32px 0 8px;
-      }
-      p,
-      li {
-        overflow-wrap: anywhere;
-      }
-      a {
-        color: var(--accent);
-      }
-      .meta {
-        color: var(--text-muted);
-        font-size: 14px;
-        margin: 0 0 24px;
-      }
-      .note {
-        background: var(--accent-subtle);
-        border-radius: 10px;
-        padding: 14px 16px;
-      }
-      .table {
-        overflow-x: auto;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 15px;
-      }
-      th,
-      td {
-        text-align: left;
-        vertical-align: top;
-        padding: 8px 10px 8px 0;
-        border-bottom: 1px solid var(--border);
-      }
-      th {
-        font-weight: 600;
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <a href="/privacy/">Privacy</a>
-      <a href="/terms/">Terms</a>
-      <a href="/support/">Support</a>
-      <a href="/el/privacy/" hreflang="el" lang="el">Ελληνικά</a>
-    </nav>
-    <main>
-      <h1>Privacy policy</h1>
-      <p class="meta">Effective 5 October 2026</p>
-
-      <p class="note">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy policy · Moraki</title>
+<meta name="description" content="How Moraki handles your data, in plain words.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F3F2EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171411" media="(prefers-color-scheme: dark)">
+<meta name="referrer" content="no-referrer">
+<link rel="canonical" href="https://moraki.app/privacy/">
+<link rel="alternate" hreflang="en" href="https://moraki.app/privacy/">
+<link rel="alternate" hreflang="el" href="https://moraki.app/el/privacy/">
+<link rel="alternate" hreflang="x-default" href="https://moraki.app/privacy/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Moraki">
+<meta property="og:title" content="Privacy policy · Moraki">
+<meta property="og:description" content="How Moraki handles your data, in plain words.">
+<meta property="og:url" content="https://moraki.app/privacy/">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="el_GR">
+<meta property="og:image" content="https://moraki.app/images/share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Moraki, one shared notebook for your newborn">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Privacy policy · Moraki">
+<meta name="twitter:description" content="How Moraki handles your data, in plain words.">
+<meta name="twitter:image" content="https://moraki.app/images/share.png">
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+<link rel="preload" href="/fonts/manrope-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/comfortaa-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap"><a class="brand" href="/" aria-label="Moraki home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d="M16 76V48a13 13 0 0 1 26 0v28M58 76V48a13 13 0 0 1 26 0v28" fill="none" stroke-width="10" stroke-linecap="round"/><circle cx="50" cy="26" r="7"/></svg><span>moraki</span></a><div class="tools"><nav class="lang" aria-label="Language"><a href="/privacy/" lang="en" hreflang="en" aria-current="true">EN</a><a href="/el/privacy/" lang="el" hreflang="el">ΕΛ</a></nav></div></div></header>
+<main id="main" class="doc">
+<div class="doc-head"><span class="eyebrow">Moraki</span><h1>Privacy policy</h1><p class="soft lead">How Moraki handles your data, in plain words.</p><p class="small soft">Effective 5 October 2026</p></div>
+<p class="draft"><strong>Draft.</strong> This text is still waiting for a legal review and may change.</p>
+<nav aria-labelledby="toc-h" class="toc-wrap"><h2 id="toc-h" class="toc-h">On this page</h2><ol class="toc"><li><a href="#s1">1. Who is responsible for your data</a></li><li><a href="#s2">2. What we collect</a></li><li><a href="#s3">3. Why we use it, and on what legal basis</a></li><li><a href="#s4">4. Health data and your consent</a></li><li><a href="#s5">5. Your baby's data</a></li><li><a href="#s6">6. Who can see it</a></li><li><a href="#s7">7. Service providers and where your data is kept</a></li><li><a href="#s8">8. How long we keep it</a></li><li><a href="#s9">9. Your rights, and how to use them in the app</a></li><li><a href="#s10">10. Security</a></li><li><a href="#s11">11. Notifications</a></li><li><a href="#s12">12. Changes to this policy</a></li><li><a href="#s13">13. Contact</a></li></ol></nav>
+<div class="card doc-intro">
+<p class="note">
         Moraki keeps a record of your baby's care that you and the people you invite can all see.
         Your entries are stored on your phone and, once you sign in, on servers in the EU. Only
         people in your household see them. They are never sold, never used for advertising and never
         used to train any model. There are no analytics and no ads in the app.
       </p>
-
-      <h2>1. Who is responsible for your data</h2>
-      <p>
+</div>
+<section class="card" id="s1" aria-labelledby="s1-h"><h2 id="s1-h">1. Who is responsible for your data</h2>
+<p>
         The controller is CE Code Designs Ltd (Code Designs Ltd), a company established in Cyprus,
         which publishes Moraki. You can reach us at
-        <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>. We have not appointed a data
+        <a href="mailto:hello@moraki.app">hello@moraki.app</a>. We have not appointed a data
         protection officer; write to that address about anything in this policy.
       </p>
       <p>
         You use Moraki as a parent or caregiver. Your baby's details are entered by you, or by
         another adult in your household, not by the baby.
       </p>
-
-      <h2>2. What we collect</h2>
-      <p><strong>Your account.</strong></p>
+</section>
+<section class="card" id="s2" aria-labelledby="s2-h"><h2 id="s2-h">2. What we collect</h2>
+<p><strong>Your account.</strong></p>
       <ul>
         <li>
           Your email address, and the one-time code we email you to sign in. The code expires after
@@ -217,9 +141,9 @@
         You can use Moraki without an account. Your entries then stay on your phone and nothing
         about them reaches our servers.
       </p>
-
-      <h2>3. Why we use it, and on what legal basis</h2>
-      <div class="table">
+</section>
+<section class="card" id="s3" aria-labelledby="s3-h"><h2 id="s3-h">3. Why we use it, and on what legal basis</h2>
+<div class="table">
         <table>
           <thead>
             <tr>
@@ -261,9 +185,9 @@
           </tbody>
         </table>
       </div>
-
-      <h2>4. Health data and your consent</h2>
-      <p>
+</section>
+<section class="card" id="s4" aria-labelledby="s4-h"><h2 id="s4-h">4. Health data and your consent</h2>
+<p>
         Everything you log about feeding, diapers, sleep, pumping, weight, temperature, medication,
         notes and appointments is health data. Every caregiver in a household, including a viewer
         who only reads, is asked for explicit consent on its own screen before it is processed.
@@ -278,16 +202,16 @@
         Moraki does not interpret your entries. It adds them up and shows them, with no ranges,
         warnings or scores, and no decision about you is made automatically.
       </p>
-
-      <h2>5. Your baby's data</h2>
-      <p>
+</section>
+<section class="card" id="s5" aria-labelledby="s5-h"><h2 id="s5-h">5. Your baby's data</h2>
+<p>
         Moraki is used by adults. Your baby cannot consent, so you consent on their behalf as
         someone with parental responsibility. Please only add people to your household whom you are
         happy to share your baby's record with.
       </p>
-
-      <h2>6. Who can see it</h2>
-      <ul>
+</section>
+<section class="card" id="s6" aria-labelledby="s6-h"><h2 id="s6-h">6. Who can see it</h2>
+<ul>
         <li>
           <strong>People in your household.</strong> Everyone you invite sees the same entries and
           who logged them. Someone removed from a household loses access to our servers straight
@@ -299,9 +223,9 @@
         </li>
       </ul>
       <p>Nothing is sold, used for advertising or used to train any model.</p>
-
-      <h2>7. Service providers and where your data is kept</h2>
-      <div class="table">
+</section>
+<section class="card" id="s7" aria-labelledby="s7-h"><h2 id="s7-h">7. Service providers and where your data is kept</h2>
+<div class="table">
         <table>
           <thead>
             <tr>
@@ -347,9 +271,9 @@
         EU Standard Contractual Clauses in Expo's terms and Expo's certification under the EU-US
         Data Privacy Framework.
       </p>
-
-      <h2>8. How long we keep it</h2>
-      <div class="table">
+</section>
+<section class="card" id="s8" aria-labelledby="s8-h"><h2 id="s8-h">8. How long we keep it</h2>
+<div class="table">
         <table>
           <thead>
             <tr>
@@ -412,9 +336,9 @@
           </tbody>
         </table>
       </div>
-
-      <h2>9. Your rights, and how to use them in the app</h2>
-      <ul>
+</section>
+<section class="card" id="s9" aria-labelledby="s9-h"><h2 id="s9-h">9. Your rights, and how to use them in the app</h2>
+<ul>
         <li>
           <strong>Get a copy (access and portability).</strong> Settings → Your data → Export
           everything makes two files on your phone, a spreadsheet (CSV) and a complete one (JSON),
@@ -454,7 +378,7 @@
         </li>
         <li>
           <strong>Anything else.</strong> Email
-          <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>. We answer within one month.
+          <a href="mailto:hello@moraki.app">hello@moraki.app</a>. We answer within one month.
         </li>
       </ul>
       <p>
@@ -462,9 +386,9 @@
         Cyprus (<a href="https://www.dataprotection.gov.cy">dataprotection.gov.cy</a>) or to the
         data protection authority where you live.
       </p>
-
-      <h2>10. Security</h2>
-      <p>
+</section>
+<section class="card" id="s10" aria-labelledby="s10-h"><h2 id="s10-h">10. Security</h2>
+<p>
         Data travels encrypted (HTTPS/TLS). On our servers, database rules let a person reach only
         their own household's data, and health data can only be saved by someone who has consented.
         Your sign-in token is kept in your phone's secure keychain.
@@ -474,24 +398,39 @@
         encryption of Moraki's own database is planned. Please use a passcode on your phone: it is
         what protects your entries if the phone is lost.
       </p>
-
-      <h2>11. Notifications</h2>
-      <p>
+</section>
+<section class="card" id="s11" aria-labelledby="s11-h"><h2 id="s11-h">11. Notifications</h2>
+<p>
         Feed reminders are scheduled on your phone and never include an amount, a temperature or any
         other figure, so nothing about your baby's health appears on a lock screen.
       </p>
-
-      <h2>12. Changes to this policy</h2>
-      <p>
+</section>
+<section class="card" id="s12" aria-labelledby="s12-h"><h2 id="s12-h">12. Changes to this policy</h2>
+<p>
         If we change this policy, we will update the date above and tell you in the app. If a change
         affects what you consented to, we will ask for your consent again.
       </p>
-
-      <h2>13. Contact</h2>
-      <p>
+</section>
+<section class="card" id="s13" aria-labelledby="s13-h"><h2 id="s13-h">13. Contact</h2>
+<p>
         CE Code Designs Ltd, Cyprus ·
-        <a href="mailto:info@codedesigns.eu">info@codedesigns.eu</a>
+        <a href="mailto:hello@moraki.app">hello@moraki.app</a>
       </p>
-    </main>
-  </body>
+</section>
+</main>
+<footer class="site-footer"><div class="wrap">
+<div class="footer-main">
+<a class="brand" href="/" aria-label="Moraki home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d="M16 76V48a13 13 0 0 1 26 0v28M58 76V48a13 13 0 0 1 26 0v28" fill="none" stroke-width="10" stroke-linecap="round"/><circle cx="50" cy="26" r="7"/></svg><span>moraki</span></a>
+<p class="health-note">Moraki is a notebook, not medical advice. If you’re worried about your baby, contact your doctor.</p>
+</div>
+<nav aria-label="Footer"><ul class="footer-links">
+<li><a href="/privacy/">Privacy</a></li>
+<li><a href="/terms/">Terms</a></li>
+<li><a href="/support/">Support</a></li>
+<li><a href="/privacy/" lang="en" hreflang="en">English</a></li>
+<li><a href="/el/privacy/" lang="el" hreflang="el">Ελληνικά</a></li>
+</ul></nav>
+<p class="small soft">© 2026 CE Code Designs Ltd, Cyprus</p>
+</div></footer>
+</body>
 </html>
