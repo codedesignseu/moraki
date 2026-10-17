@@ -1,24 +1,45 @@
-# For Apache hosting (cPanel, GoDaddy shared, most shared hosts). The
-# Cloudflare Pages and Netlify equivalent is `_headers` beside this file; both
-# are committed so the folder can be copied to any host unchanged.
-#
+# For Apache hosting (cPanel, most shared hosts). The Cloudflare Pages and
+# Netlify equivalents are _headers and _redirects beside this file. nginx lines
+# are in docs/website.md.
+
 # Apple rejects the association file unless it is served as JSON, and the file
 # has no extension, so Apache sends it as text/plain by default and the link
-# fails silently — the tap just opens the browser (P2-F6).
+# fails silently. The tap just opens the browser (P2-F6).
 <Files "apple-app-site-association">
   ForceType application/json
 </Files>
 
-# Never rewrite or redirect these two paths. Apple refuses to follow a redirect
-# for the association file, including a plain apex-to-www one, and a landing
-# page's rewrite rules are the usual thing that swallows them.
+AddType font/woff2 .woff2
+AddType image/svg+xml .svg
+AddCharset utf-8 .html .css .js .txt .xml .json
+DirectoryIndex index.html
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  # Never rewrite or redirect /.well-known/. Apple refuses to follow a redirect
+  # for the association file, including a plain apex-to-www one.
   RewriteRule ^\.well-known/ - [L]
+  # A tapped invite link reaches the browser whenever the app isn't installed.
+  # Every /join/CODE path gets the invite page, which reads the code itself.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^join/[^/]+/?$ /join/index.html [L]
 </IfModule>
 
-# A tapped invite link reaches the browser whenever the app isn't installed
-# (P2-F6). 404.html reads the code out of the path itself and shows it, rather
-# than a dead end. Cloudflare Pages and Netlify serve 404.html automatically
-# with no config; Apache needs telling.
+# Unknown paths get the 404 page with a real 404 status. Without mod_rewrite,
+# 404.html still sends /join/CODE on to /join/?code=CODE.
 ErrorDocument 404 /404.html
+
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-i5QyTIeYRtd2INriPH6Xl+UF1iK2xCEBDVbdUxF6LwE='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+  Header always set Referrer-Policy "no-referrer"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+  Header always set X-Frame-Options "DENY"
+  Header set Cache-Control "public, max-age=300"
+  <FilesMatch "\.woff2$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(png|svg|ico)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+</IfModule>

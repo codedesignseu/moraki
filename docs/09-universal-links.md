@@ -35,10 +35,11 @@ The third is a hosting step, and only a device can prove it.
   certificate's SHA-256 fingerprint.
 - `app.json` → `android.intentFilters`, one `VIEW` filter for
   `https://moraki.app/join` with `autoVerify: true`.
-- `public/404.html` — what a browser shows when a link is tapped with no
-  Moraki installed: reads the code out of the path and displays it, rather
-  than a dead end. `public/.htaccess` wires it in for Apache; Cloudflare
-  Pages and Netlify serve `404.html` automatically with no config.
+- `public/join/index.html` — what a browser shows when a link is tapped with
+  no Moraki installed: reads the code out of the path and displays it, rather
+  than a dead end. `public/.htaccess` (Apache) and `public/_redirects`
+  (Cloudflare Pages, Netlify) rewrite `/join/*` to it, and `public/404.html`
+  forwards there on hosts with no rewrite.
 
 `public/` is Expo's own convention for files copied verbatim into a web export,
 so the path in the repository is the path on the domain. Beside the two files
@@ -98,19 +99,15 @@ app is not installed — a desktop, someone else's phone, a mail client that
 rewrites URLs. Confirmed on a real phone 2026-09-27: the second person's
 iPhone had no Moraki installed yet, and the tap landed on `moraki.app/join/…`
 as a 404, exactly as the universal link config would produce for an uninstalled
-app. `public/404.html` now turns that into a page saying what Moraki is, with
-the code read out of the path and shown to copy — not a dead end, and the
-invite message still carries the code as a fallback either way (P2-06).
+app. `public/join/index.html` now answers every `/join/CODE` path with a page
+saying what Moraki is, with the code read out of the path and shown to copy,
+not a dead end, and the invite message still carries the code as a fallback
+either way (P2-06).
 
-It ships as `404.html` because that is the one convention every static host
-recognises without extra config: Cloudflare Pages and Netlify serve it
-automatically for any unmatched path, and `public/.htaccess` adds
-`ErrorDocument 404 /404.html` for Apache (cPanel, most shared hosting). On
-nginx, add to the server block instead:
-
-```nginx
-error_page 404 /404.html;
-```
+`public/.htaccess` (Apache) and `public/_redirects` (Cloudflare Pages, Netlify)
+rewrite `/join/*` to that page. On a host with no rewrite, the unknown path
+lands on `public/404.html`, which sends it on to `/join/?code=CODE`, a form the
+invite page reads as well. The nginx lines are in `docs/website.md`.
 
 **This is not what happens when a link is tapped with the app installed** —
 that case is the universal link succeeding, handled entirely by iOS and
@@ -210,7 +207,7 @@ provisioning profile the first time still goes through an Apple ID session.
 ### 4. Tap a real link on the phone
 
 **The app must already be installed on the phone doing the tapping.** A tap on
-a phone with no Moraki falls through to the domain — `public/404.html` reads
+a phone with no Moraki falls through to the domain — `public/join/index.html` reads
 the code and shows it, which is correct behaviour for an uninstalled app, but
 it is not the test. It only proves the universal link when the app is present
 to intercept the request before it ever reaches the domain.
