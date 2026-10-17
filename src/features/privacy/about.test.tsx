@@ -71,9 +71,9 @@ describe('the disclaimer', () => {
       'https://moraki.app/privacy/',
       'https://moraki.app/terms/',
       'https://moraki.app/support/',
-      'mailto:info@codedesigns.eu',
+      'mailto:hello@moraki.app',
     ]);
-    expect(legal.getByText(/info@codedesigns.eu/)).toBeOnTheScreen();
+    expect(legal.getByText(/hello@moraki.app/)).toBeOnTheScreen();
   });
 });
 

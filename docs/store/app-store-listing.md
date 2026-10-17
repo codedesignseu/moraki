@@ -261,7 +261,7 @@ OTHER
 
 Support: https://moraki.app/support
 Privacy: https://moraki.app/privacy
-Contact: info@codedesigns.eu
+Contact: hello@moraki.app
 ```
 
 2304 characters (Apple's limit is 4000).
