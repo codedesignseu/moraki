@@ -135,6 +135,95 @@ that can't run it.
 Channels: `development`, `preview` and `production`, one per build profile in
 `eas.json`.
 
+## Sign in with Apple token revocation
+
+App Store guideline 5.1.1(v): an app that offers Sign in with Apple must revoke
+the person's Apple tokens when they delete their account. Supabase keeps no
+Apple refresh token after `signInWithIdToken`, so the app gets a fresh one at
+deletion time:
+
+1. Settings → Leave or delete → Delete account → "Yes, delete my account".
+2. If the account is linked to Apple and the phone is an iPhone, Apple's sheet
+   asks the person to confirm (no scopes, so it asks for nothing new). The app
+   gets a one-time `authorizationCode`, valid for five minutes.
+3. The app sends the code to the `apple-revoke` Edge Function with the
+   person's Supabase session. The function checks the session
+   (`auth.getUser`), signs a five-minute ES256 client secret with the Sign in
+   with Apple key, exchanges the code at `https://appleid.apple.com/auth/token`
+   and revokes the refresh token (or the access token, if Apple returns no
+   refresh token) at `https://appleid.apple.com/auth/revoke`.
+4. Only after `{ revoked: true }` does the app call `delete_account`.
+
+If the person closes Apple's sheet, or the revoke fails (offline, Apple down,
+secrets missing), **nothing is deleted** and the screen says so; they can try
+again. Deleting without revoking would leave the app listed under the person's
+Apple ID with no way for them to trigger the revoke later, because the account
+it belongs to is gone. The flip side: until the secrets below are set and the
+function is deployed, an Apple-linked account cannot be deleted on iOS, so
+this is a **release blocker**.
+
+Off iOS (Android is v1.1; there is no web app) Apple's native sheet doesn't
+exist, so an Apple-linked account is deleted without revoking. Known
+limitation: the person can remove Moraki at appleid.apple.com → Sign-In and
+Security → Sign in with Apple. Nothing is logged in either case.
+
+The function logs only a failure code (`invalid_code`, `apple_rejected`,
+`apple_unreachable`, `not_configured`), never the code, Apple's tokens, the key
+or an email. Source: `supabase/functions/apple-revoke/` (`apple.ts` is the
+tested logic, `index.ts` the Deno entry point). No new processor: Apple is
+already listed as an independent controller for sign in, and the function runs
+on Supabase.
+
+### Owner steps, once
+
+1. **Create the key.** Apple Developer → Certificates, Identifiers & Profiles →
+   Keys → **+**. Name it e.g. "Moraki Sign in with Apple", tick **Sign in with
+   Apple**, Configure → primary App ID **eu.codedesigns.moraki** → Save →
+   Continue → Register. **Download the `.p8` file** (Apple lets you download
+   it once only) and note the **Key ID** shown on the page. Keep the `.p8`
+   out of the repo, e.g. in your password manager.
+2. **Set the secrets** on the hosted project (from the repo root, logged in
+   with `supabase login` and linked with `supabase link`):
+
+   ```sh
+   supabase secrets set \
+     APPLE_TEAM_ID=285GZCH8W4 \
+     APPLE_CLIENT_ID=eu.codedesigns.moraki \
+     APPLE_KEY_ID=<the Key ID from step 1> \
+     APPLE_PRIVATE_KEY="$(cat ~/path/to/AuthKey_<KEYID>.p8)"
+   ```
+
+   `supabase secrets list` shows the names (not values) afterwards.
+
+3. **Deploy the function:**
+
+   ```sh
+   supabase functions deploy apple-revoke
+   ```
+
+   Edge Functions are included in the free tier. The gateway's JWT check is
+   left on (the default). If the app's call is refused with 401 "Invalid JWT"
+   because the project signs sessions with the newer asymmetric JWT keys,
+   redeploy with `--no-verify-jwt`: the function checks the session itself
+   with `auth.getUser` and refuses anyone without one.
+
+### How to test
+
+1. Without a session the function refuses:
+   `curl -i -X POST https://<project-ref>.supabase.co/functions/v1/apple-revoke`
+   answers 401.
+2. On a TestFlight build, sign in with Apple using a throwaway Apple ID (or
+   your own, on a test account), then Settings → Leave or delete → Delete
+   account → confirm. Apple's sheet appears; confirm with Face ID. The account
+   is deleted and the phone signs out.
+3. On the iPhone: Settings → [your name] → Sign-In & Security → Sign in with
+   Apple. Moraki is no longer listed (it may take a minute). Apple also emails
+   the Apple ID that the app was disconnected.
+4. Cancel case: repeat with another test account, close Apple's sheet; the
+   screen says nothing was deleted, and the account is still there.
+5. Logs: Supabase dashboard → Edge Functions → apple-revoke → Logs show only
+   a failure code, if anything.
+
 ## Submitting for review
 
 1. Store listing and privacy answers: `docs/store/` (P5-06).
@@ -152,5 +241,8 @@ Channels: `development`, `preview` and `production`, one per build profile in
    Join with a code → `XXXXXXXX`". Make the code shortly before submitting,
    and delete the household after review. No credentials leave your inbox.
 
-5. **Open.** Screenshots, age rating, the demo household and invite code
+5. **Account deletion with Apple** works on the build (see "Sign in with Apple
+   token revocation" above): the `apple-revoke` secrets are set and the
+   function is deployed.
+6. **Open.** Screenshots, age rating, the demo household and invite code
    above, and the lawyer's review of the privacy policy, terms and DPIA.

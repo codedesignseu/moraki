@@ -976,7 +976,9 @@
       "only_member": "You are the only member, so you can't leave. Delete the household instead.",
       "offline": "No connection. Nothing was deleted. Try again when you're online.",
       "unknown": "Something went wrong. Nothing was deleted. Try again.",
-      "successor": "That person is no longer in the household. Go back to Settings and choose again."
+      "successor": "That person is no longer in the household. Go back to Settings and choose again.",
+      "apple_cancelled": "You signed in with Apple, so Apple needs to confirm before your account is deleted. Nothing was deleted. Tap the button again and confirm with Apple.",
+      "apple_revoke": "Couldn't disconnect your account from Sign in with Apple. Nothing was deleted. Try again."
     },
     "successor": {
       "question": "Who becomes owner?"

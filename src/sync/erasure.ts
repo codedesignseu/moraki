@@ -7,9 +7,18 @@ import type { Auth } from './auth';
  * - `only_member`: the last member can't leave, only delete the household;
  * - `successor`: the person named as the next owner isn't in the household;
  * - `offline`: the request never reached the server;
+ * - `apple_cancelled`: the person closed Apple's sheet instead of confirming;
+ * - `apple_revoke`: Apple's tokens could not be revoked, so nothing was deleted;
  * - `unknown`: anything else.
  */
-export type ErasureFailure = 'forbidden' | 'only_member' | 'successor' | 'offline' | 'unknown';
+export type ErasureFailure =
+  | 'forbidden'
+  | 'only_member'
+  | 'successor'
+  | 'offline'
+  | 'apple_cancelled'
+  | 'apple_revoke'
+  | 'unknown';
 
 export class ErasureError extends Error {
   override name = 'ErasureError';
@@ -58,4 +67,24 @@ export function deleteHousehold(auth: Auth, householdId: string): Promise<void> 
 export async function deleteAccount(auth: Auth, successor: string | null): Promise<void> {
   await call(auth, 'delete_account', { successor });
   await auth.signOut();
+}
+
+/**
+ * Revokes this account's Sign in with Apple tokens (App Store guideline
+ * 5.1.1(v)) through the `apple-revoke` Edge Function, which exchanges the
+ * fresh `authorizationCode` from Apple's sheet for a refresh token and
+ * revokes it. Runs before `deleteAccount`: if it fails, nothing is deleted
+ * and the person can try again. The code itself is never logged.
+ */
+export async function revokeAppleTokens(auth: Auth, authorizationCode: string): Promise<void> {
+  const { data, error } = await auth.client.functions.invoke<{ revoked?: boolean }>(
+    'apple-revoke',
+    { body: { authorizationCode } },
+  );
+  if (error) {
+    // functions-js: FunctionsFetchError when the request never got there.
+    const name = (error as { name?: string }).name;
+    throw new ErasureError(name === 'FunctionsFetchError' ? 'offline' : 'apple_revoke');
+  }
+  if (data?.revoked !== true) throw new ErasureError('apple_revoke');
 }

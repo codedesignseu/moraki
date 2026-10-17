@@ -12,6 +12,11 @@ This is the current list. The sections further down are the original plan from S
 
 ### Blocking the store submission
 
+- [ ] **Sign in with Apple token revocation** (App Store 5.1.1(v), added 2026-10-18). Until this is done, an account that signed in with Apple can't be deleted on an iPhone. Steps in `docs/10-release-runbook.md`, "Sign in with Apple token revocation":
+  - Apple Developer → Keys → new key with **Sign in with Apple** enabled for the primary App ID `eu.codedesigns.moraki`. Download the `.p8` once and note the Key ID. (secret)
+  - `supabase secrets set APPLE_TEAM_ID=285GZCH8W4 APPLE_CLIENT_ID=eu.codedesigns.moraki APPLE_KEY_ID=… APPLE_PRIVATE_KEY="$(cat AuthKey_XXX.p8)"`
+  - `supabase functions deploy apple-revoke`
+  - Test on TestFlight: delete an Apple-linked test account and check Moraki disappears from the Apple ID's "Sign in with Apple" list.
 - [ ] **Lawyer review** of the privacy policy, terms and DPIA (SDD 12.1).
   - The pages are `public/privacy/`, `public/terms/` and `/el/...` on moraki.app, still marked as drafts in an HTML comment. The DPIA is in `docs/compliance/`.
   - When the lawyer is done, send the changes. Claude Code updates the pages and removes the draft marks.
