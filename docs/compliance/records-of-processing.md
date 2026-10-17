@@ -39,7 +39,9 @@ long.
 The consent in Article 9(2)(a) is **not** the basis for running the service; it
 is the additional condition for processing the special category. Withdrawing it
 stops that processing (writes stop syncing) without terminating the account,
-which is why the two are kept separate.
+which is why the two are kept separate. What it does not gate, and the consent
+text (version 2026-10-18) says so: reading the household's data, the baby's
+details sent when a household is set up, and joining a household by invite.
 
 **Children's data.** The baby cannot consent. The parents consent as holders of
 parental responsibility. A `viewer` who never writes anything still consents,
@@ -174,7 +176,8 @@ identity data in §3.1 comes back. Nothing about the household goes to them.
 
 ## 6. Retention
 
-See [`retention.md`](./retention.md).
+See [`retention.md`](./retention.md). A household with no activity for 24
+months is deleted by a daily sweep, without a warning email (2026-10-18).
 
 ## 7. Security measures
 
