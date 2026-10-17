@@ -46,16 +46,21 @@
 <nav aria-labelledby="toc-h" class="toc-wrap"><h2 id="toc-h" class="toc-h">On this page</h2><ol class="toc"><li><a href="#s1">1. Who is responsible for your data</a></li><li><a href="#s2">2. What we collect</a></li><li><a href="#s3">3. Why we use it, and on what legal basis</a></li><li><a href="#s4">4. Health data and your consent</a></li><li><a href="#s5">5. Your baby's data</a></li><li><a href="#s6">6. Who can see it</a></li><li><a href="#s7">7. Service providers and where your data is kept</a></li><li><a href="#s8">8. How long we keep it</a></li><li><a href="#s9">9. Your rights, and how to use them in the app</a></li><li><a href="#s10">10. Security</a></li><li><a href="#s11">11. Notifications</a></li><li><a href="#s12">12. Changes to this policy</a></li><li><a href="#s13">13. Contact</a></li></ol></nav>
 <p class="note doc-note">
         Moraki keeps a record of your baby's care that you and the people you invite can all see.
-        Your entries are stored on your phone and, once you sign in, on servers in the EU. Only
+        Your entries are stored on your phone and, once you sign in and agree, on servers in the EU. Only
         people in your household see them. They are never sold, never used for advertising and never
         used to train any model. There are no analytics and no ads in the app.
       </p>
 <section class="card" id="s1" aria-labelledby="s1-h"><h2 id="s1-h">1. Who is responsible for your data</h2>
 <p>
-        The controller is CE Code Designs Ltd (Code Designs Ltd), a company established in Cyprus,
+        The controller is CE Code Designs Ltd, a company established in Cyprus,
         which publishes Moraki. You can reach us at
         <a href="mailto:hello@moraki.app">hello@moraki.app</a>. We have not appointed a data
         protection officer; write to that address about anything in this policy.
+      </p>
+      <p>
+        Company registration number: <span class="placeholder">[Company registration number]</span><br>
+        Registered address: <span class="placeholder">[Registered address]</span><br>
+        VAT number: <span class="placeholder">[VAT number]</span>
       </p>
       <p>
         You use Moraki as a parent or caregiver. Your baby's details are entered by you, or by
@@ -112,9 +117,11 @@
         <strong>Crash reports.</strong> If the app crashes, it sends a report to our crash reporting
         service: the type of error, a shortened and redacted error message, where in the code it
         happened, the app version, and your device model and operating system. Before anything
-        leaves the phone, the app removes who you are, your IP address, any request or response
+        leaves the phone, the app removes who you are, any request or response
         content and any field it has not explicitly allowed, and replaces quoted text, email
-        addresses and IDs.
+        addresses and IDs. A report can include a random identifier for this installation of the
+        app. Our crash reporting service is set not to store your IP address, and it keeps reports
+        for 30 days.
       </p>
 
       <p>
@@ -190,13 +197,23 @@
 <p>
         Everything you log about feeding, diapers, sleep, pumping, weight, temperature, medication,
         notes and appointments is health data. Every caregiver in a household, including a viewer
-        who only reads, is asked for explicit consent on its own screen before it is processed.
+        who only reads, is asked for explicit consent on its own screen before their entries leave
+        their phone.
         Nothing is pre-ticked, and saying no leaves the app working on your phone.
       </p>
       <p>
-        You can withdraw consent at any time in Settings → Privacy → Health data. Your entries then
-        stay on your phone and stop syncing. Withdrawing does not delete anything already saved and
-        does not close your account; to delete, see section 9.
+        Until you agree, your entries stay on your phone and are not shared. You still see what
+        others in the household share. The baby's details you enter when you set up a household,
+        like name, birth time and weight, are shared with the household as soon as you set it up,
+        even before you agree.
+      </p>
+      <p>
+        You can withdraw consent at any time in Settings → Privacy → “Review consent” → “Withdraw
+        my agreement”. Your new entries then stay on your phone and stop syncing. What you already
+        shared stays with the household, as part of the baby's record, until the household is
+        deleted. While your consent is withdrawn, you can't change or delete the entries you
+        already shared. Withdrawing does not close your account. Deleting your account removes what
+        you shared only if nobody else is in the household. See section 9.
       </p>
       <p>
         Moraki does not interpret your entries. It adds them up and shows them, with no ranges,
@@ -242,13 +259,24 @@
             </tr>
             <tr>
               <td>Sentry</td>
-              <td>Crash reports, with personal details removed as described above</td>
+              <td>
+                Crash reports, with personal details removed as described above. IP addresses are
+                not stored, and reports are kept for 30 days
+              </td>
               <td>EU (Germany)</td>
             </tr>
             <tr>
               <td>Google Workspace</td>
               <td>Sending the email with your sign-in code: your email address and the code</td>
               <td>Google's infrastructure</td>
+            </tr>
+            <tr>
+              <td><span class="placeholder">[Email provider]</span></td>
+              <td>
+                Receiving and answering email you send to hello@moraki.app: your email address and
+                your message
+              </td>
+              <td><span class="placeholder">[Region]</span></td>
             </tr>
             <tr>
               <td>Expo</td>
@@ -285,14 +313,19 @@
             <tr>
               <td>Entries and your baby's details</td>
               <td>
-                For as long as the household exists. We don't trim a family's record on a schedule.
+                For as long as the household exists. A household with no activity for 24 months is
+                deleted automatically, with everything in it. Activity means anyone in the household
+                adding or changing an entry, changing the baby's details, joining, signing in or
+                using the app while signed in. We don't send a warning first. Your account is not
+                deleted.
               </td>
             </tr>
             <tr>
               <td>Deleted entries</td>
               <td>
                 Marked as deleted rather than removed, so every phone in the household learns of the
-                deletion. Removed when the household is deleted.
+                deletion. A deleted entry is hidden but stays on our servers, with what it said,
+                for the life of the household. Removed when the household is deleted.
               </td>
             </tr>
             <tr>
@@ -340,9 +373,11 @@
 <section class="card" id="s9" aria-labelledby="s9-h"><h2 id="s9-h">9. Your rights, and how to use them in the app</h2>
 <ul>
         <li>
-          <strong>Get a copy (access and portability).</strong> Settings → Your data → Export
-          everything makes two files on your phone, a spreadsheet (CSV) and a complete one (JSON),
-          including deleted entries marked as deleted. Feedback you sent is not in that export;
+          <strong>Get a copy (access and portability).</strong> Settings → “Data export” → “Export
+          my data” makes two files on your phone, a spreadsheet (CSV) and a fuller one (JSON). The
+          spreadsheet holds the current baby's entries. The fuller file also holds the baby's
+          details and the names and roles of the people in your household. Deleted entries and
+          email addresses are not included. Feedback you sent is not in that export;
           email us and we will send it.
         </li>
         <li>
@@ -350,7 +385,7 @@
           changed by anyone in the household who logs entries.
         </li>
         <li>
-          <strong>Delete it.</strong> In Settings you can:
+          <strong>Delete it.</strong> In Settings → “Leave or delete” you can:
           <ul>
             <li>
               <em>leave a household</em> that others share; the household and its entries carry on
@@ -366,15 +401,16 @@
               you are the only member is deleted with everything in it. A household others share
               stays, because its entries are their record of their baby too: the entries you logged
               remain and show as logged by someone who has left, and if you were the only owner, you
-              choose who becomes owner before you go.
+              choose who becomes owner before you go. If you signed in with Apple, Moraki first
+              asks Apple to remove its access, by revoking your Sign in with Apple token.
             </li>
           </ul>
           Deletion removes the data from our servers. Copies already on someone's phone, and files
           anyone exported, stay where they are until removed there.
         </li>
         <li>
-          <strong>Restrict or object.</strong> Withdraw consent in Settings → Privacy → Health data,
-          or stop using the app. There is no profiling or marketing to object to.
+          <strong>Restrict or object.</strong> Withdraw consent in Settings → Privacy → “Review
+          consent” → “Withdraw my agreement”, or stop using the app. There is no profiling or marketing to object to.
         </li>
         <li>
           <strong>Anything else.</strong> Email
@@ -394,15 +430,16 @@
         Your sign-in token is kept in your phone's secure keychain.
       </p>
       <p>
-        Entries on your phone are protected by your phone's own storage encryption; adding
-        encryption of Moraki's own database is planned. Please use a passcode on your phone: it is
-        what protects your entries if the phone is lost.
+        Entries on your phone are kept in an encrypted database (SQLCipher). Its key is kept in
+        your phone's secure keychain, and your phone's own storage encryption applies too. Please
+        use a passcode on your phone: it is what protects your entries if the phone is lost.
       </p>
 </section>
 <section class="card" id="s11" aria-labelledby="s11-h"><h2 id="s11-h">11. Notifications</h2>
 <p>
-        Feed reminders are scheduled on your phone and never include an amount, a temperature or any
-        other figure, so nothing about your baby's health appears on a lock screen.
+        Feed and appointment reminders are scheduled on your phone. They show at most a time, never
+        a title, a note, an amount, a temperature or any other figure, so nothing about your baby's
+        health appears on a lock screen.
       </p>
 </section>
 <section class="card" id="s12" aria-labelledby="s12-h"><h2 id="s12-h">12. Changes to this policy</h2>
@@ -415,6 +452,11 @@
 <p>
         CE Code Designs Ltd, Cyprus ·
         <a href="mailto:hello@moraki.app">hello@moraki.app</a>
+      </p>
+      <p>
+        Registered address: <span class="placeholder">[Registered address]</span><br>
+        Company registration number: <span class="placeholder">[Company registration number]</span><br>
+        VAT number: <span class="placeholder">[VAT number]</span>
       </p>
 </section>
 </main>
