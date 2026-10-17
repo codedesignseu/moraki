@@ -176,6 +176,30 @@ describe('reminders this phone schedules', () => {
     const { title, body } = os.held()[0] ?? { title: '', body: '' };
     expect(`${title} ${body}`).not.toMatch(/175|mL|formula|diaper|weight|temp/i);
   });
+
+  it('reminds of an appointment without its title or notes', async () => {
+    // 10:30 in Nicosia, two days ahead.
+    repo.insert({
+      type: 'appointment',
+      occurredAt: Date.parse('2026-10-30T08:30:00Z'),
+      payload: { title: 'Dr Andreou about reflux', notes: 'Ask about the rash' },
+    });
+    onByDefault();
+    const os = createFakeNotifications();
+
+    await renderApp(repo, { notifications: os });
+
+    await waitFor(() => expect(os.held()).toHaveLength(2));
+    expect(os.held().map((n) => n.body)).toEqual([
+      'Appointment tomorrow at 10:30',
+      'Appointment in an hour',
+    ]);
+    const shown = os
+      .held()
+      .map((n) => `${n.title} ${n.body}`)
+      .join(' ');
+    expect(shown).not.toMatch(/Andreou|reflux|rash/i);
+  });
 });
 
 describe('asking the phone for permission', () => {

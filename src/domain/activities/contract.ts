@@ -237,5 +237,10 @@ export type ActivityModule<P> = {
     stock?(acc: Stock, e: Event<P>): Stock;
     report?(events: Event<P>[], range: Range): ReportSection | null;
   };
-  reminders?(events: Event<P>[], settings: Settings, now: number): ScheduledReminder[];
+  /**
+   * What this activity wants on the lock screen. The values are only ever a
+   * clock time: never a title, a note or an amount, because anyone holding the
+   * phone can read them (rule 8).
+   */
+  reminders?(events: Event<P>[], settings: Settings, now: number, tz: string): ScheduledReminder[];
 };
