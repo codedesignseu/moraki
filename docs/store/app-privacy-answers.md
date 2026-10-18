@@ -36,13 +36,15 @@ App Tracking Transparency prompt.
 | Contact Info → **Name**               | Yes       | Yes                | No       | App Functionality |
 | Identifiers → **User ID**             | Yes       | Yes                | No       | App Functionality |
 | Diagnostics → **Crash Data**          | Yes       | **No**             | No       | App Functionality |
+| Identifiers → **Device ID**           | Yes       | **No**             | No       | App Functionality |
+| Diagnostics → **Other Diagnostic Data** | Yes     | **No**             | No       | App Functionality |
 | User Content → **Other User Content** | Yes       | Yes                | No       | App Functionality |
 
 Not collected, so answered "No" or left unticked: Financial Info, Location (precise and coarse),
 Sensitive Info, Contacts, Emails or Text Messages, Photos or Videos, Audio Data, Gameplay
 Content, Customer Support (see the note under Other User Content), Browsing History, Search
-History, Device ID, Purchases, Product Interaction, Advertising Data, Other Usage Data,
-Performance Data, Other Diagnostic Data, Environment Scanning, Hands, Head, Body, Other Data
+History, Purchases, Product Interaction, Advertising Data, Other Usage Data,
+Performance Data, Environment Scanning, Hands, Head, Body, Other Data
 Types. The basis for "no" is RoP 63–64 ("No name, address, phone number, payment detail, location
 or contact list is collected anywhere in the app") and RoP 178 ("no location, contacts, photos, or
 advertising identifiers anywhere"), plus RoP 149 (no analytics). Performance Data is "No" because
@@ -73,6 +75,15 @@ every membership, every entry it authored (RoP 90–91), every consent row (RoP 
 feedback row (RoP 116). It is never sent to Sentry: `Sentry.setUser(null)` in
 `src/observability/sentry.ts`, and the scrubber replaces UUIDs in any text that travels (RoP
 109–111).
+
+**Device ID and Other Diagnostic Data, not linked (changed 2026-10-18 after the privacy audit,
+`docs/compliance/privacy-audit-2026-10-18.md` §6).** Two random install identifiers leave the phone:
+
+- Expo's update check sends `EAS-Client-ID` (from `expo-eas-client`) on each launch.
+- Sentry's native SDK adds its own installation ID to crash reports and release-health sessions.
+
+Neither is tied to the account, so both are "not linked". Sentry's release-health sessions (app
+start, crash-free or not) are Other Diagnostic Data. Neither is used for tracking or advertising.
 
 **Crash Data — not linked, App Functionality.** A crash report carries the exception type, a
 redacted message, stack frames, app version, device model and OS, and data-stripped navigation
@@ -109,6 +120,7 @@ count data that never leaves the device as collected.
 | App activity → **Other user-generated content** | Yes       | No     | Optional  | App functionality (baby profile); Developer communications (feedback) |
 | App info and performance → **Crash logs**       | Yes       | No     | Required  | App functionality                                                     |
 | App info and performance → **Diagnostics**      | Yes       | No     | Required  | App functionality                                                     |
+| Device or other IDs → **Device or other IDs**   | Yes       | No     | Required  | App functionality (update checks, crash reports)                      |
 
 - **Optional**: an account is not required to use the app (support page, "Do I need an account?"). Nothing in the first five rows reaches a server without signing in.
 - **Required** for crash logs and diagnostics: there is no in-app switch for crash reporting. Diagnostics covers the device model, OS and app version that travel with a crash (RoP 102–105).
