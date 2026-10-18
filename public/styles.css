@@ -3563,3 +3563,35 @@ details p {
   padding: 0 0 18px;
   color: var(--soft);
 }
+
+/* Moraki at a glance: plain facts for people and answer engines */
+.glance {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.glance dl {
+  margin: 0;
+}
+.glance dl > div {
+  display: grid;
+  gap: 2px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.glance dl > div:first-child {
+  border-top: none;
+}
+.glance dt {
+  font-weight: 800;
+}
+.glance dd {
+  margin: 0;
+  color: var(--soft);
+}
+@media (min-width: 720px) {
+  .glance dl > div {
+    grid-template-columns: 260px 1fr;
+    gap: 16px;
+  }
+}

@@ -46,6 +46,16 @@ need a hash for it. `sitemap.xml` lists every indexable page with its alternates
 The invite page and the 404 page are `noindex`, and `robots.txt` keeps crawlers
 off `/join/`.
 
+## Answer engines
+
+`llms.txt` describes Moraki in two lines, lists the key facts and links every
+page in both languages. `llms-full.txt` holds the full English text of Features
+and the FAQ. Both are plain Markdown, written from the pages, so update them when
+the page text changes. `robots.txt` allows GPTBot, ClaudeBot, PerplexityBot,
+Google-Extended and Applebot-Extended, with a note on how to block them. Home and
+Features end with a "Moraki at a glance" list of plain facts (a `<dl>`), and Age
+guides and the FAQ show a "Last updated" date.
+
 ## What the server has to do
 
 1. Serve `/join/<code>` with `join/index.html` (status 200).

@@ -1,0 +1,43 @@
+# Moraki
+
+> Moraki is a free iPhone app for the people looking after a newborn: one shared notebook for feeds, diapers, sleep and pumping.
+> One caregiver logs it and every phone in the household shows it, even offline. Moraki is a notebook, not medical advice.
+
+## Key facts
+
+- **What it is**: A free newborn tracker: one shared baby log for feeds, diapers, sleep and pumping.
+- **Who it’s for**: Parents and everyone who looks after a newborn, like a partner, a grandparent or a nanny.
+- **Price**: Free
+- **Platform**: iPhone. Android is planned.
+- **Languages**: English and Greek
+- **Where data is stored**: In the European Union
+- **Ads**: None
+- **Account needed**: No. You sign in only to share with your household.
+- **Made by**: CE Code Designs Ltd, Cyprus
+
+## Pages in English
+
+- [Home](https://moraki.app/): What Moraki is, how it works, and what you can log.
+- [Features](https://moraki.app/features/): Everything Moraki does: logging, history, sharing, night mode, offline use, the doctor report and privacy.
+- [Age guides](https://moraki.app/age-guides/): What changes for you in the baby’s first year, stage by stage, and how Moraki can help. Not medical advice.
+- [Our story](https://moraki.app/our-story/): Why a dad in Cyprus built Moraki, and its promises: no ads, nothing sold, no account needed, data in the EU.
+- [FAQ](https://moraki.app/faq/): Short answers about price, accounts, sharing with your household, privacy, offline use and health questions.
+- [Privacy policy](https://moraki.app/privacy/): How Moraki handles your data.
+- [Terms of use](https://moraki.app/terms/): The rules for using Moraki.
+- [Support](https://moraki.app/support/): Help with common questions, and how to email us.
+
+## Pages in Greek
+
+- [Αρχική](https://moraki.app/el/): Home, in Greek. What Moraki is, how it works, and what you can log.
+- [Λειτουργίες](https://moraki.app/el/features/): Features, in Greek. Everything Moraki does: logging, history, sharing, night mode, offline use, the doctor report and privacy.
+- [Οδηγοί ηλικίας](https://moraki.app/el/age-guides/): Age guides, in Greek. What changes for you in the baby’s first year, stage by stage, and how Moraki can help. Not medical advice.
+- [Η ιστορία μας](https://moraki.app/el/our-story/): Our story, in Greek. Why a dad in Cyprus built Moraki, and its promises: no ads, nothing sold, no account needed, data in the EU.
+- [Συχνές ερωτήσεις](https://moraki.app/el/faq/): FAQ, in Greek. Short answers about price, accounts, sharing with your household, privacy, offline use and health questions.
+- [Πολιτική απορρήτου](https://moraki.app/el/privacy/): Privacy policy, in Greek. How Moraki handles your data.
+- [Όροι χρήσης](https://moraki.app/el/terms/): Terms of use, in Greek. The rules for using Moraki.
+- [Υποστήριξη](https://moraki.app/el/support/): Support, in Greek. Help with common questions, and how to email us.
+
+## More
+
+- [Full text of Features and FAQ](https://moraki.app/llms-full.txt)
+- Contact: hello@moraki.app
