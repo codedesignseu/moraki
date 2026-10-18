@@ -33,6 +33,19 @@ Every page has the main menu (Features, Age guides, Our story, FAQ, with
 page carries the menu and footer links in both languages, switched with the rest
 of the page by `join.js`.
 
+## Search
+
+Every indexable page has its own title and description, a canonical URL, hreflang
+links both ways (en, el, x-default), Open Graph and Twitter tags, and a 1200 × 630
+share image in `images/og/` (`<page>.png`, `<page>-el.png`). A JSON-LD block at
+the end of each `<head>` holds the Organization (CE Code Designs Ltd, brand
+Moraki), the WebSite, the page and its BreadcrumbList, plus MobileApplication on
+Home and Features, FAQPage on the FAQ (word for word from the page) and an
+Article on Age guides and Our story. JSON-LD is a data block, so the CSP does not
+need a hash for it. `sitemap.xml` lists every indexable page with its alternates.
+The invite page and the 404 page are `noindex`, and `robots.txt` keeps crawlers
+off `/join/`.
+
 ## What the server has to do
 
 1. Serve `/join/<code>` with `join/index.html` (status 200).
