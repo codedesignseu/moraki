@@ -1,27 +1,37 @@
 # moraki.app: the website
 
 `public/` is the whole site: plain HTML, CSS and a little vanilla JavaScript, no
-build step. Copy the folder to the host as it is. `design/moraki-website-illustrated/`
-is the design it was built from and is never served.
+build step. Copy the folder to the host as it is. `design/v2/` is the design it was
+built from (brief: `docs/store/website-v2-brief.md`) and is never served.
 
 ## Pages
 
-| URL                              | File                                                        |
-| -------------------------------- | ----------------------------------------------------------- |
-| `/`, `/el/`                      | `index.html`, `el/index.html`                               |
-| `/privacy/`, `/el/privacy/`      | `privacy/index.html`, `el/privacy/index.html`               |
-| `/terms/`, `/el/terms/`          | `terms/index.html`, `el/terms/index.html`                   |
-| `/support/`, `/el/support/`      | `support/index.html`, `el/support/index.html`               |
-| `/join/CODE`, `/join/?code=CODE` | `join/index.html`, in both languages with an EN / ΕΛ switch |
-| any unknown URL                  | `404.html`, with a 404 status                               |
+| URL                               | File                                                        |
+| --------------------------------- | ----------------------------------------------------------- |
+| `/`, `/el/`                       | `index.html`, `el/index.html`                               |
+| `/features/`, `/el/features/`     | `features/index.html`, `el/features/index.html`             |
+| `/age-guides/`, `/el/age-guides/` | `age-guides/index.html`, `el/age-guides/index.html`         |
+| `/our-story/`, `/el/our-story/`   | `our-story/index.html`, `el/our-story/index.html`           |
+| `/faq/`, `/el/faq/`               | `faq/index.html`, `el/faq/index.html`                       |
+| `/privacy/`, `/el/privacy/`       | `privacy/index.html`, `el/privacy/index.html`               |
+| `/terms/`, `/el/terms/`           | `terms/index.html`, `el/terms/index.html`                   |
+| `/support/`, `/el/support/`       | `support/index.html`, `el/support/index.html`               |
+| `/join/CODE`, `/join/?code=CODE`  | `join/index.html`, in both languages with an EN / ΕΛ switch |
+| any unknown URL                   | `404.html`, with a 404 status                               |
 
-Shared files: `styles.css` (every colour is a CSS variable), `phone.css` (the
-phone mock-ups on the home pages), `theme.js` (the light and dark switch),
+Shared files: `styles.css` (the one stylesheet: every colour is a CSS variable,
+and the phone mock-ups on Home and Features use one `.mN` class per element style,
+because the CSP allows no inline style), `theme.js` (the light and dark switch),
 `join.js` (the invite page), `404.js` (sends `/join/CODE` on to the invite page
 on hosts with no rewrite), `fonts/` (Comfortaa and Manrope, Latin and Greek, OFL
 licence in `fonts/OFL.txt`), `images/`, `robots.txt`, `sitemap.xml`.
 
 Every asset path is absolute (`/styles.css`), so the 404 page works at any depth.
+
+Every page has the main menu (Features, Age guides, Our story, FAQ, with
+`aria-current="page"` on the current one) and the same footer links. The invite
+page carries the menu and footer links in both languages, switched with the rest
+of the page by `join.js`.
 
 ## What the server has to do
 
