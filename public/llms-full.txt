@@ -1,0 +1,192 @@
+# Moraki: full text of Features and FAQ
+
+> The English text of https://moraki.app/features/ and https://moraki.app/faq/, as it appears on the pages.
+
+Source: https://moraki.app/features/
+
+# Everything Moraki does
+
+Moraki is a shared notebook for your newborn, built to be quick, calm and private. Here’s what’s inside.
+
+## The big four, two taps away
+
+Tap a tile and a short sheet slides up. Pick what happened with big buttons, and Moraki fills in the time.
+
+- **Feed**: Breast, bottle or both. Side, minutes, millilitres, formula or breast milk.
+- **Sleep**: Start a timer when the baby falls asleep, or add a nap afterwards.
+- **Diaper**: Wet, dirty or both, with the time.
+- **Pump**: Amount per side, and whether it went to the fridge, the freezer or a bottle.
+
+## And the rest of your baby’s day
+
+- **Weight**: Write it down after a check-up or a home weigh-in.
+- **Temperature**: Keep each reading with the time you took it.
+- **Medication**: Name, amount and time, so nobody gives a second dose by mistake.
+- **Health notes**: A rash, a cough, a question. Write it while you remember.
+- **Appointments**: Date, place and the questions you want to ask.
+- **Milk stock**: See how much milk you have in the fridge and the freezer.
+
+See what you might log at each stage of the first year
+
+## Every entry, in one place
+
+History shows every entry, newest first, with who logged it. Filter by feeds, diapers, sleep or health.
+
+- **History**: Scroll back through any day. Tap an entry to fix it.
+- **Trends**: Totals by day and by week. Moraki adds things up. It doesn’t judge them.
+- **Undo**: Logged the wrong thing? Tap Undo right away.
+
+## One notebook for the whole household
+
+- **Invite with a code**: Send a short code to a partner, grandparent or nanny.
+- **Caregivers and viewers**: Caregivers log and edit. Viewers see everything but can’t log.
+- **Live on every phone**: An entry shows up on every phone in the household within seconds.
+- **See who logged it**: Every entry shows who added it, so you never have to ask.
+
+Read the questions about sharing in the FAQ
+
+## Built for the night shift
+
+Moraki is designed for one hand, half asleep, in the dark.
+
+- **Night mode**: Warm, dim colours from 21:00 to 06:00, or whenever you choose.
+- **Big buttons**: Large numbers and buttons you can hit without looking twice.
+- **Works offline**: No signal in the nursery? Moraki saves first and syncs later.
+
+## Ready when someone asks
+
+- **Call script**: One screen with what a doctor or nurse line usually asks, taken from what you logged.
+- **PDF report**: The last days on clean pages, to print or send.
+
+Moraki is a notebook, not medical advice. If you’re worried about your baby, contact your doctor.
+
+## Your baby’s data stays yours
+
+- **Stored in the EU**: Your data lives on servers in the European Union.
+- **No ads**: Moraki shows no ads. Not now, not later.
+- **No data sold**: We don’t sell your data or hand it to anyone.
+- **No analytics**: No trackers and no analytics, in the app or on this site.
+- **No account needed**: Start logging right away. Sign in only when you want to share.
+- **Export or delete**: Download or delete everything from Settings, whenever you like.
+
+Read the privacy policy
+
+## English and Greek
+
+Use Moraki in English or Greek. Each person in the household can pick their own.
+
+## Start your notebook tonight
+
+Free on iPhone. Invite the others whenever you’re ready.
+
+## Moraki at a glance
+
+- **What it is**: A free newborn tracker: one shared baby log for feeds, diapers, sleep and pumping.
+- **Who it’s for**: Parents and everyone who looks after a newborn, like a partner, a grandparent or a nanny.
+- **Price**: Free
+- **Platform**: iPhone. Android is planned.
+- **Languages**: English and Greek
+- **Where data is stored**: In the European Union
+- **Ads**: None
+- **Account needed**: No. You sign in only to share with your household.
+- **Made by**: CE Code Designs Ltd, Cyprus
+
+---
+
+Source: https://moraki.app/faq/
+
+# Questions parents ask us
+
+Short answers to the questions we hear most about Moraki. Can’t find yours? Our support page has a way to reach us.
+
+Last updated: [date]
+
+## Getting started
+
+### Is Moraki free?
+
+Yes. Moraki is free to download and free to use. There are no ads.
+
+### Do I need an account?
+
+No. You can start logging right away. You only sign in when you want to share the notebook with someone else.
+
+### Is there an Android version?
+
+Not yet. Moraki is on iPhone first. Android comes next.
+
+### Which languages does it speak?
+
+English and Greek. Each person in your household can choose their own.
+
+## Sharing with your household
+
+### How do I invite someone?
+
+Open Settings, tap Invite someone, choose Caregiver or Viewer, and send them the code.
+
+### What’s the difference between a caregiver and a viewer?
+
+Caregivers can log and edit. Viewers can see everything but can’t log.
+
+### How do I join a household?
+
+Install Moraki, open Settings and tap Join with a code. Type in the code you got.
+
+### Can I take an invite back?
+
+Yes. Each code expires, and you can revoke it from Settings at any time.
+
+## Privacy and your data
+
+### Where is my data stored?
+
+On servers in the European Union.
+
+### Who can see my baby’s data?
+
+Only the people you invite into your household.
+
+### Do you sell data or show ads?
+
+No. We don’t sell your data, we don’t share it for ads, and Moraki shows no ads.
+
+### Can I delete everything?
+
+Yes. Open Settings and go to Your data. You can download everything or delete it all.
+
+## Everyday use
+
+### Does it work without signal?
+
+Yes. Moraki saves each entry on your phone first and syncs when you’re back online.
+
+### I logged something wrong. How do I fix it?
+
+Tap Undo right after you log it. Later, open History, tap the entry and edit it.
+
+### How does night mode work?
+
+Pick Auto, On or Off in Settings. Auto switches to warm, dim colours from 21:00 to 06:00.
+
+### Can I share a report with my doctor?
+
+Yes. Make a PDF of the last days and print it or send it. The call script puts the basics on one screen for a phone call.
+
+## Health questions
+
+### Will Moraki tell me if something is wrong?
+
+No. Moraki writes things down and adds them up. It doesn’t judge them or give medical advice. If you’re worried about your baby, contact your doctor.
+
+### Is Moraki a medical device?
+
+No. It’s a notebook to help you remember and share what happened.
+
+Read the privacy policy
+
+Go to Support
+
+## Start your notebook tonight
+
+Free on iPhone. Invite the others whenever you’re ready.

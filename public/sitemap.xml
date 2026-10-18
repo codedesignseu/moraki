@@ -2,48 +2,112 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://moraki.app/</loc>
+    <lastmod>2026-10-18</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/"/>
     <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/"/>
   </url>
   <url>
     <loc>https://moraki.app/el/</loc>
+    <lastmod>2026-10-18</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/"/>
     <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/"/>
   </url>
   <url>
+    <loc>https://moraki.app/features/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/features/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/features/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/features/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/el/features/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/features/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/features/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/features/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/age-guides/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/age-guides/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/age-guides/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/age-guides/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/el/age-guides/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/age-guides/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/age-guides/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/age-guides/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/our-story/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/our-story/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/our-story/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/our-story/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/el/our-story/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/our-story/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/our-story/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/our-story/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/faq/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/faq/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/el/faq/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/faq/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/faq/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/faq/"/>
+  </url>
+  <url>
     <loc>https://moraki.app/privacy/</loc>
+    <lastmod>2026-10-18</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/privacy/"/>
     <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/privacy/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/privacy/"/>
   </url>
   <url>
     <loc>https://moraki.app/el/privacy/</loc>
+    <lastmod>2026-10-18</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/privacy/"/>
     <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/privacy/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/privacy/"/>
   </url>
   <url>
     <loc>https://moraki.app/terms/</loc>
+    <lastmod>2026-10-18</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/terms/"/>
     <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/terms/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/terms/"/>
   </url>
   <url>
     <loc>https://moraki.app/el/terms/</loc>
+    <lastmod>2026-10-18</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/terms/"/>
     <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/terms/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/terms/"/>
   </url>
   <url>
     <loc>https://moraki.app/support/</loc>
+    <lastmod>2026-10-18</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/support/"/>
     <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/support/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/support/"/>
   </url>
   <url>
     <loc>https://moraki.app/el/support/</loc>
+    <lastmod>2026-10-18</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/support/"/>
     <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/support/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/support/"/>

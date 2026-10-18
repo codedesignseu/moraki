@@ -1,4 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /join/
+
+# AI answer engines may read and quote the site. To block them later, change
+# "Allow: /" to "Disallow: /" under the ones you want to keep out.
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /join/
 
 Sitemap: https://moraki.app/sitemap.xml
