@@ -318,7 +318,7 @@ Sources: `rls_policies.sql`, `consent.sql`, `erasure*.sql`.
 - **Fonts:** self-hosted woff2 with `fonts/OFL.txt`.
 - **Outbound links:** apps.apple.com and dataprotection.gov.cy.
 - **Headers:** `_headers` and `.htaccess` set:
-  - a strict CSP (`default-src 'self'`, `connect-src 'none'`)
+  - a strict CSP (`default-src 'self'`; `connect-src` was `'none'` at audit time and became `'self'` in website v2, #188, so Lighthouse can read robots.txt. Still no third-party origins)
   - `Referrer-Policy: no-referrer`, `nosniff`
   - a Permissions-Policy
   - `X-Frame-Options: DENY`
