@@ -97,18 +97,53 @@ add_header X-Content-Type-Options "nosniff" always;
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()" always;
 add_header X-Frame-Options "DENY" always;
 
+gzip on;
+gzip_types text/css text/javascript application/javascript application/json image/svg+xml text/plain application/xml;
+# brotli on; brotli_types ...;   (same list, if the ngx_brotli module is installed)
+
 location /fonts/  { add_header Cache-Control "public, max-age=31536000, immutable"; }
-location /images/ { add_header Cache-Control "public, max-age=2592000"; }
-location ~* \.(html|css|js)$ { add_header Cache-Control "public, max-age=300"; }
+location /images/ { add_header Cache-Control "public, max-age=31536000, immutable"; }
+location ~* \.(css|js)$ { add_header Cache-Control "public, max-age=31536000, immutable"; }
+location ~* \.html$ { add_header Cache-Control "public, max-age=300"; }
 ```
 
 nginx drops server-level `add_header` lines inside a `location` that has its own,
 so repeat the security headers in the `/fonts/` and `/images/` blocks, or use an
 `include` file.
 
+## Speed
+
+The pages aim for Lighthouse mobile scores of 95 or more (Performance) and 100
+(Accessibility, Best Practices, SEO), LCP under 1.8 s, CLS under 0.05, and under
+300 KB per page with fonts.
+
+- **Fonts.** Only Manrope 500 and Comfortaa 700 are preloaded. Each face has a
+  local fallback (`Manrope fallback`, `Comfortaa fallback`, built on Arial) with
+  `size-adjust` and ascent and descent overrides measured from the woff2 files,
+  so the swap barely moves the text.
+- **Caching.** Fonts, images, `styles.css` and the scripts are cached for a year
+  (`immutable`), HTML and text for 5 minutes. The CSS and JS links carry a
+  `?v=` query, the first 8 hex digits of the file's SHA-256, and the App Store
+  badges carry `?v=1`. When one of these files changes, update its query in
+  every page, or the change won't reach people who have the old copy:
+
+  ```sh
+  for f in styles.css theme.js join.js 404.js; do echo "$f $(shasum -a 256 public/$f | cut -c1-8)"; done
+  ```
+
+- **Drawing less.** Every section after the first screen has
+  `content-visibility: auto`. The night copy of each phone mock-up is
+  `display: none` until the night theme shows it. Badges are `loading="lazy"`,
+  so the hidden one is never fetched.
+- **Illustrations** stay inline SVG so they follow the theme. Numbers have at
+  most one decimal, and the shared ink outline is one class, `.o`, in
+  `styles.css`. Each is under 10 KB.
+- **One stylesheet**, linked in the head. It is well under 14 KB compressed, so
+  nothing is inlined.
+
 ## Content-Security-Policy
 
-`default-src 'self'` with no third-party origin, no `'unsafe-inline'`. The one
+`default-src 'self'` with no third-party origin, no `'unsafe-inline'`. `connect-src` is `'self'` so tools like Lighthouse can read `robots.txt` from the page. The one
 inline script is the few lines in each page's `<head>` that apply the saved
 theme before the page paints. The CSP allows it by its SHA-256 hash. If that
 script changes, the hash in `_headers` and `.htaccess` (and nginx) must change

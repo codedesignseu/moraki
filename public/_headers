@@ -2,18 +2,35 @@
 # Apache uses .htaccess beside this file. nginx lines are in docs/website.md.
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-i5QyTIeYRtd2INriPH6Xl+UF1iK2xCEBDVbdUxF6LwE='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-i5QyTIeYRtd2INriPH6Xl+UF1iK2xCEBDVbdUxF6LwE='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
   Referrer-Policy: no-referrer
   X-Content-Type-Options: nosniff
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
   X-Frame-Options: DENY
   Cache-Control: public, max-age=300
 
+# HTML and text files keep the short time above. Fonts and images keep their
+# names for good, and the CSS and JS are linked with a ?v= version query, so all
+# of them can be cached for a year. Change a file's name or bump its ?v= when
+# its content changes (docs/website.md). Both hosts compress with Brotli or gzip
+# on their own.
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
 /images/*
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=31536000, immutable
+
+/styles.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/theme.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/join.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/404.js
+  Cache-Control: public, max-age=31536000, immutable
 
 # Apple rejects the association file unless it is served as JSON, and the file
 # has no extension, so a static host guesses wrong by default and the link

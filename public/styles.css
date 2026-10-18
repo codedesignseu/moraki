@@ -38,6 +38,26 @@
   font-display: swap;
 }
 
+/* Fallbacks tuned to Manrope 500 and Comfortaa 700, so the swap to the real font
+   barely moves the text (metrics measured against Arial over the site's own text). */
+@font-face {
+  font-family: 'Manrope fallback';
+  src: local('Arial'), local('ArialMT'), local('Helvetica');
+  size-adjust: 104.45%;
+  ascent-override: 102.06%;
+  descent-override: 28.72%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Comfortaa fallback';
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Arial');
+  font-weight: 700;
+  size-adjust: 110.67%;
+  ascent-override: 79.61%;
+  descent-override: 21.14%;
+  line-gap-override: 0%;
+}
+
 :root {
   --bg: #f3f2ee;
   --card: #ffffff;
@@ -55,8 +75,8 @@
   --logo: #c9802f;
   --focus: #161412;
   --shadow: 0 10px 40px rgba(22, 20, 18, 0.08);
-  --font-head: 'Comfortaa', 'Manrope', system-ui, sans-serif;
-  --font-text: 'Manrope', -apple-system, system-ui, 'Segoe UI', sans-serif;
+  --font-head: 'Comfortaa', 'Comfortaa fallback', 'Manrope', system-ui, sans-serif;
+  --font-text: 'Manrope', 'Manrope fallback', -apple-system, system-ui, 'Segoe UI', sans-serif;
   --r-card: 28px;
   --r-tile: 28px;
   --max: 1100px;
@@ -668,19 +688,6 @@ section {
 .cta > * {
   position: relative;
 }
-.cta .mark-circle {
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  background: var(--card);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.cta .mark-circle svg {
-  width: 52px;
-  height: 52px;
-}
 
 /* footer */
 .site-footer {
@@ -783,19 +790,6 @@ section {
   gap: 18px;
   text-align: center;
   align-items: center;
-}
-.join-card .mark-circle {
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  background: var(--feed);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.join-card .mark-circle svg {
-  width: 52px;
-  height: 52px;
 }
 .code-box {
   width: 100%;
@@ -3223,9 +3217,6 @@ ul.privacy-grid {
 .tint-pump {
   background: var(--pump) !important;
 }
-.night-band .list .icon-circle[class*='tint-'] {
-  color: #f1eae0;
-}
 
 /* page hero */
 .page-hero {
@@ -3594,4 +3585,20 @@ details p {
     grid-template-columns: 260px 1fr;
     gap: 16px;
   }
+}
+
+/* the ink outline every illustration shape shares */
+.illo .o {
+  stroke: var(--ink);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Sections below the first screen are drawn only when they come near the viewport. */
+main > section:not(:first-child),
+.glance-sec {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
 }
