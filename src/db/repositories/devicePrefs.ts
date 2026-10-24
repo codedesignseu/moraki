@@ -135,6 +135,17 @@ export const DEVICE_PREFS = {
       .nullable(),
     default: null,
   },
+  /**
+   * Why this phone was just cleared of its household (P0.5), shown once and
+   * then set back to null: the account was removed from it, the household
+   * was deleted, or the account itself was. Kept through the reset it
+   * explains, and about no household, so nothing of the old one is in it.
+   */
+  revokedNotice: {
+    key: 'pref.revoked_notice',
+    schema: z.enum(['not_member', 'household_gone', 'account_gone']).nullable(),
+    default: null,
+  },
 } as const;
 
 export type DevicePrefName = keyof typeof DEVICE_PREFS;

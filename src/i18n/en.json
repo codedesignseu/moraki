@@ -1106,5 +1106,12 @@
     "confirmGuardian": "I’m the baby’s parent or guardian",
     "delete": "Delete the household",
     "leave": "Leave the household"
+  },
+  "removed": {
+    "title": "You’re no longer in this household",
+    "not_member": "You were removed from the household, or left it on another phone. Its entries are cleared from this phone, and its reminders are cancelled. You’re still signed in.",
+    "household_gone": "The household was deleted. Its entries are cleared from this phone, and its reminders are cancelled. You’re still signed in.",
+    "account_gone": "This account was deleted, so it’s signed out here. The household’s entries are cleared from this phone, and its reminders are cancelled.",
+    "ok": "OK"
   }
 }
