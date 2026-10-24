@@ -151,7 +151,7 @@ select throws_ok(
   $$insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
       client_created_at)
     values (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000001',
-      'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(),
+      'bbbbbbbb-0000-0000-0000-000000000001', 'sleep', now(),
       '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004', now())$$,
   '42501', null, 'and still can''t log anything');
 
