@@ -98,6 +98,16 @@ export const DEVICE_PREFS = {
       .nullable(),
     default: null,
   },
+  /**
+   * Whether this account's guardian declaration for its household is on the
+   * server's record (P0.1): an owner without one is asked once, and their
+   * entries wait until they answer. Null until the server has been asked.
+   */
+  guardianDeclaration: {
+    key: 'pref.guardian_declaration',
+    schema: z.object({ userId: z.uuid(), householdId: z.uuid(), onRecord: z.boolean() }).nullable(),
+    default: null,
+  },
 } as const;
 
 export type DevicePrefName = keyof typeof DEVICE_PREFS;

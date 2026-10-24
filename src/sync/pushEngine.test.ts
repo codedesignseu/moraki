@@ -99,6 +99,23 @@ describe('pushing the outbox', () => {
     expect(fake.batches).toEqual([]);
   });
 
+  it('sends nothing for an owner whose guardian declaration isn’t on record (P0.1)', async () => {
+    const h = await harness();
+    bottle(h.events);
+    h.link();
+    const fake = server(allApplied);
+    const engine = h.engine({ send: fake.send, guardianMissing: () => true });
+    expect(await engine.push()).toEqual({ kind: 'blocked', by: 'no_guardian' });
+    expect(engine.status().blocked).toBe('no_guardian');
+    expect(fake.batches).toEqual([]);
+    // Consent is asked about first: it is the one every caregiver answers.
+    expect(
+      await h
+        .engine({ send: fake.send, guardianMissing: () => true, consented: () => false })
+        .push(),
+    ).toEqual({ kind: 'blocked', by: 'no_consent' });
+  });
+
   it('drains the outbox once the phone is linked', async () => {
     const h = await harness();
     bottle(h.events);

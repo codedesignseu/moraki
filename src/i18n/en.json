@@ -485,7 +485,8 @@
         "not_found": "it isn’t on the server",
         "unknown": "the server refused it"
       },
-      "noConsent": "Sharing is off until you agree to health data being processed."
+      "noConsent": "Sharing is off until you agree to health data being processed.",
+      "noGuardian": "Sharing is paused until you confirm you’re the baby’s parent or legal guardian."
     },
     "report": {
       "title": "Report",
@@ -582,6 +583,12 @@
       "keep": "Sign out, keep entries",
       "clear": "Sign out and clear this phone",
       "cancel": "Cancel"
+    },
+    "guardian": {
+      "title": "Parent or guardian",
+      "bodyOwner": "Confirm you’re the baby’s parent or legal guardian, so your entries sync again.",
+      "bodyMember": "Only a parent or legal guardian can take over this household.",
+      "button": "Confirm I’m a parent or guardian"
     }
   },
   "insights": {
@@ -984,10 +991,13 @@
       "unknown": "Something went wrong. Nothing was deleted. Try again.",
       "successor": "That person is no longer in the household. Go back to Settings and choose again.",
       "apple_cancelled": "You signed in with Apple, so Apple needs to confirm before your account is deleted. Nothing was deleted. Tap the button again and confirm with Apple.",
-      "apple_revoke": "Couldn't disconnect your account from Sign in with Apple. Nothing was deleted. Try again."
+      "apple_revoke": "Couldn't disconnect your account from Sign in with Apple. Nothing was deleted. Try again.",
+      "no_guardian": "Nobody else here has confirmed they’re the baby’s parent or guardian, so you can’t hand the household over yet. Delete the household, or ask the other parent to confirm it in Settings first."
     },
     "successor": {
-      "question": "Who becomes owner?"
+      "question": "Who becomes owner?",
+      "hint": "Only someone who has confirmed they’re the baby’s parent or guardian can become owner.",
+      "none": "Nobody else here has confirmed they’re the baby’s parent or guardian, so you can’t hand the household over yet. Delete the household, or ask the other parent to confirm it in Settings first."
     }
   },
   "common": {
@@ -999,5 +1009,17 @@
     "minutes": "{{minutes}} min",
     "long": "{{hours}} h {{minutes}} min",
     "short": "{{hours}} h {{minutes}}"
+  },
+  "guardian": {
+    "title": "Parent or guardian",
+    "introOwner": "Moraki now asks whoever runs a household to confirm they’re the baby’s parent or legal guardian. Your entries wait on this phone until you do.",
+    "introMember": "Only a parent or legal guardian can take over this household. If that’s you, confirm it here.",
+    "confirm": "Confirm",
+    "working": "Saving…",
+    "notNow": "Not now",
+    "problem": {
+      "offline": "No connection. Try again when you have one.",
+      "unknown": "That didn’t save. Try again."
+    }
   }
 }

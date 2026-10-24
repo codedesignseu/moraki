@@ -19,7 +19,7 @@ import {
   useLinkedIdentity,
   useOutboxRepository,
 } from '@/db/react';
-import { agreedToCurrent } from '@/domain/consent/consent';
+import { agreedToCurrent, guardianStatus } from '@/domain/consent/consent';
 
 import { useAuth } from './AuthProvider';
 import { createPullEngine, type PullEngine } from './pullEngine';
@@ -70,10 +70,17 @@ export function SyncProvider({
   // stops the phone asking.
   const [consent] = useDevicePref('consent');
   const userId = state.status === 'signedIn' ? state.user.id : null;
-  const consented = useCallback(
-    () => agreedToCurrent(consent, userId),
-    [consent, userId],
-  );
+  const consented = useCallback(() => agreedToCurrent(consent, userId), [consent, userId]);
+  // P0.1: an owner waits until the server has said their guardian
+  // declaration is on record: nothing of theirs syncs before it has.
+  const [guardian] = useDevicePref('guardianDeclaration');
+  const [accountHousehold] = useDevicePref('accountHousehold');
+  // Reduced to one boolean first: a pull rewrites the household record, and
+  // a new callback for an unchanged answer would start another cycle.
+  const missing =
+    accountHousehold?.role === 'owner' &&
+    guardianStatus(guardian, userId, accountHousehold.householdId) !== 'on_record';
+  const guardianMissing = useCallback(() => missing, [missing]);
   // Re-pushes after every committed write (the events repository's signal).
   const events = useEvents();
   // Links the phone once the account has a household, whichever screen is open.
@@ -90,8 +97,9 @@ export function SyncProvider({
   const cycle = useRef<() => void>(() => {});
 
   const engine = useMemo(
-    () => createPushEngine({ linked, outbox, auth, state, now: Date.now, consented }),
-    [linked, outbox, auth, state, consented],
+    () =>
+      createPushEngine({ linked, outbox, auth, state, now: Date.now, consented, guardianMissing }),
+    [linked, outbox, auth, state, consented, guardianMissing],
   );
   const pull = useMemo(
     () =>

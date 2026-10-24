@@ -39,7 +39,12 @@ export function useErasure(onDone: () => void) {
    */
   const needsSuccessor =
     owner && others && !caregivers.some((person) => !person.you && person.role === 'owner');
-  const candidates = needsSuccessor ? caregivers.filter((person) => !person.you) : [];
+  // P0.1: only someone who has declared they are a parent or guardian.
+  const candidates = needsSuccessor
+    ? caregivers.filter((person) => !person.you && person.isGuardian)
+    : [];
+  /** Nobody can take over, so the household can only be deleted (P0.1). */
+  const noGuardian = needsSuccessor && candidates.length === 0;
   const [successor, setSuccessor] = useState<string | null>(null);
 
   const run = useCallback(
@@ -76,18 +81,19 @@ export function useErasure(onDone: () => void) {
   return {
     signedIn: state.status === 'signedIn',
     /** Which household actions this account has. */
-    canLeave: household != null && (!owner || others),
+    canLeave: household != null && (!owner || others) && !noGuardian,
     canDeleteHousehold: household != null && owner,
     /** Deleting the account also deletes a household nobody else is in. */
     soleMember: household != null && !others,
     babyName: household?.babyName ?? '',
     /** Who may take over, when this account holds the last owner seat (D3). */
     candidates,
+    noGuardian,
     successor,
     setSuccessor,
     /** Leaving or deleting the account waits for a successor to be chosen. */
     ready: (action: ErasureAction) =>
-      action === 'deleteHousehold' || !needsSuccessor || successor !== null,
+      action === 'deleteHousehold' || !needsSuccessor || (!noGuardian && successor !== null),
     busy,
     problem,
     run,

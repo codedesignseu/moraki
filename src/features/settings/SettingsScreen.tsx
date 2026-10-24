@@ -22,6 +22,7 @@ import { useTheme, type Theme } from '@/ui/theme';
 
 import { AccountCard } from './AccountCard';
 import { AdoptionCards } from './AdoptionCards';
+import { GuardianCard } from './GuardianCard';
 import { PrivacyCard } from './PrivacyCard';
 import { RemindersCard } from './RemindersCard';
 import { SettingsCard } from './SettingsCard';
@@ -50,6 +51,7 @@ export function SettingsScreen({
   onAbout,
   onBaby,
   onConsent,
+  onGuardian = () => {},
   onFeedback,
   onLeaveOrDelete,
 }: {
@@ -67,6 +69,8 @@ export function SettingsScreen({
   onBaby: () => void;
   /** Opens the consent screen (P3-09). */
   onConsent: () => void;
+  /** Opens the guardian declaration (P0.1). */
+  onGuardian?: () => void;
   /** Opens the feedback form (P4-13). */
   onFeedback: () => void;
   /** Opens leaving a household and deleting the account (P4-06). */
@@ -96,6 +100,7 @@ export function SettingsScreen({
         />
         <SyncCard />
         <PrivacyCard onConsent={onConsent} />
+        <GuardianCard onDeclare={onGuardian} />
         <RemindersCard />
 
         <SettingsCard

@@ -9,6 +9,7 @@ type ServerMember = {
   display_name: string;
   relation: Caregiver['relation'];
   joined_at: string;
+  is_guardian?: boolean;
 };
 
 /**
@@ -19,7 +20,7 @@ type ServerMember = {
 export async function pullCaregivers(auth: Auth, householdId: string): Promise<Caregiver[]> {
   const { data, error } = await auth.client
     .from('memberships')
-    .select('household_id, user_id, role, display_name, relation, joined_at')
+    .select('household_id, user_id, role, display_name, relation, joined_at, is_guardian')
     .eq('household_id', householdId);
   if (error || !Array.isArray(data)) return [];
   return (data as ServerMember[]).map((row) => ({
@@ -29,5 +30,6 @@ export async function pullCaregivers(auth: Auth, householdId: string): Promise<C
     displayName: row.display_name,
     relation: row.relation,
     joinedAt: Date.parse(row.joined_at),
+    isGuardian: row.is_guardian === true,
   }));
 }
