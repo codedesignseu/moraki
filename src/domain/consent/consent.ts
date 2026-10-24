@@ -29,3 +29,10 @@ export type ConsentLocale = 'en' | 'el';
 export function consentLocale(language: string): ConsentLocale {
   return language.split('-')[0] === 'el' ? 'el' : 'en';
 }
+
+/**
+ * The guardian declaration this build shows when a household is created, or
+ * when a member declares later (P0.1). The server records it with this
+ * version; a new wording gets a new date.
+ */
+export const GUARDIAN_DECLARATION_VERSION = '2026-10-24';

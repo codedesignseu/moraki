@@ -694,6 +694,11 @@
       "birthWeight": "Birth weight (optional)",
       "birthWeightHint": "You can add it later."
     },
+    "guardian": {
+      "title": "Parent or guardian",
+      "declaration": "I confirm that I am the parent or legal guardian of this child, or otherwise have lawful authority to provide and manage the child’s information in Moraki.",
+      "hint": "Only a parent or legal guardian can set up a household. Other caregivers join with an invite."
+    },
     "save": "Create household",
     "problem": {
       "display_name": "Enter your name.",
@@ -701,7 +706,8 @@
       "birth_weight": "Enter a weight between 500 and 7000 grams, or leave it empty.",
       "offline": "You’re offline. Setting up a household needs a connection.",
       "signed_out": "Sign in first.",
-      "unknown": "Couldn’t set up the household. Try again."
+      "unknown": "Couldn’t set up the household. Try again.",
+      "guardian": "Tick the box to confirm you’re the parent or legal guardian."
     }
   },
   "invite": {

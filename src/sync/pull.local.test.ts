@@ -66,6 +66,8 @@ const row = (body: object, op: 'insert' | 'patch'): OutboxRow => ({
         birthWeightG: null,
         displayName: 'Maria',
         relation: 'mother',
+        guardianDeclared: true,
+        locale: 'en',
       },
       newUuid,
     );

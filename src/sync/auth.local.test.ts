@@ -57,6 +57,8 @@ import {
         birthWeightG: 3400,
         displayName: 'Maria',
         relation: 'mother',
+        guardianDeclared: true,
+        locale: 'en',
       },
       () => newId(Date.now(), () => crypto.getRandomValues(new Uint8Array(16))),
     );
@@ -102,6 +104,8 @@ import {
         birthWeightG: null,
         displayName: 'Maria',
         relation: 'mother',
+        guardianDeclared: true,
+        locale: 'en',
       },
       newUuid,
     );
