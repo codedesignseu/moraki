@@ -52,6 +52,7 @@ export default function TabsLayout() {
   const askTerms = useCallback(() => router.push('/onboarding/terms'), [router]);
   const askAgreement = useCallback(() => router.push('/onboarding/agreement'), [router]);
   const askConsent = useCallback(() => router.push('/onboarding/consent'), [router]);
+  const showPaused = useCallback(() => router.push('/onboarding/paused'), [router]);
 
   return (
     <>
@@ -60,7 +61,11 @@ export default function TabsLayout() {
       {/* P0.9: an account that hasn't agreed to the Terms in force is asked once. */}
       <TermsGate onMissing={askTerms} />
       {/* P0.2: a member the server says can't see the household yet is asked once. */}
-      <AccessGate onNeedsAgreement={askAgreement} onNeedsConsent={askConsent} />
+      <AccessGate
+        onNeedsAgreement={askAgreement}
+        onNeedsConsent={askConsent}
+        onFrozen={showPaused}
+      />
       <Tabs
         screenOptions={{
           headerShown: false,

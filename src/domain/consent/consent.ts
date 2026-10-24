@@ -2,9 +2,10 @@
  * The consent policy this build asks about (SDD 12). It must match the
  * server's public.consent_version(). Bumping it asks everyone again: an
  * agreement to any other version counts as no agreement at all. Since P0.2
- * it is the parent's or guardian's consent, for the baby.
+ * it is the parent's or guardian's consent, for the baby. 2026-10-25 says
+ * what withdrawing does to the household (P0.3).
  */
-export const CONSENT_VERSION = '2026-10-24';
+export const CONSENT_VERSION = '2026-10-25';
 
 /** What this phone remembers about an account's agreement. */
 export type ConsentRecord = { userId: string; version: string };
@@ -93,9 +94,10 @@ export const CAREGIVER_AGREEMENT_VERSION = '2026-10-24';
  * What the server says this account may do with its household's baby data
  * (P0.2, `my_membership_status`): `granted`, or which agreement is missing.
  * A guardian is asked for health-data consent; anyone else for the caregiver
- * agreement.
+ * agreement. `frozen` (P0.3): no guardian in the household has consent in
+ * force, so nobody may see or send its baby data until one does.
  */
-export type HouseholdAccess = 'granted' | 'needs_consent' | 'needs_agreement';
+export type HouseholdAccess = 'granted' | 'needs_consent' | 'needs_agreement' | 'frozen';
 
 /** The phone's copy of that answer, for one account and household. */
 export type AccessRecord = {

@@ -151,6 +151,35 @@ describe('pushing the outbox', () => {
     });
   });
 
+  it('still deletes this account’s own entries while its other writes wait (P0.3)', async () => {
+    const h = await harness();
+    const sent = bottle(h.events);
+    h.link();
+    const fake = server(allApplied);
+    // The first bottle reached the server before access stopped.
+    await h.engine({ send: fake.send }).push();
+    fake.batches.length = 0;
+
+    const neverSent = bottle(h.events, 60);
+    const theirs = bottle(h.events, 30);
+    h.events.softDelete([sent.id, neverSent.id, theirs.id]);
+    const mine = new Set([sent.id, neverSent.id]);
+    const engine = h.engine({
+      send: fake.send,
+      access: () => 'frozen',
+      // Past the undo window that holds a deletion back (P1-12).
+      now: () => NOW + 3_600_000,
+      erasable: (row) => row.op === 'delete' && mine.has(row.entityId),
+    });
+
+    expect(await engine.push()).toEqual({ kind: 'blocked', by: 'frozen' });
+    // Only the deletion of an entry of its own that the server has: one that
+    // was never sent waits behind its insert, and someone else's isn't tried.
+    expect(fake.batches.flat().map((row) => [row.op, row.entityId])).toEqual([['delete', sent.id]]);
+    expect(h.outbox.errors()).toEqual([]);
+    expect(h.outbox.due(NOW + 3_600_000).map((row) => row.entityId)).not.toContain(sent.id);
+  });
+
   it('drains the outbox once the phone is linked', async () => {
     const h = await harness();
     bottle(h.events);

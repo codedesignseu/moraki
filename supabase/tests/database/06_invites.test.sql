@@ -20,6 +20,9 @@ insert into public.memberships (household_id, user_id, role, display_name) value
   ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'caregiver', 'Nik');
 insert into public.babies (id, household_id, name, born_at) values
   ('bbbbbbbb-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001', 'Ella', now());
+-- P0.3: the owner is a guardian with consent in force (every user consented
+-- above), so the household isn't frozen and takes new members.
+update public.memberships set is_guardian = true where role = 'owner';
 
 -- P0.2: joining needs the Terms on record.
 insert into public.consent_events (user_id, purpose, version, action, text_key)

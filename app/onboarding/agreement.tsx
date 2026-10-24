@@ -8,7 +8,10 @@ export default function Agreement() {
   return (
     <>
       <Stack.Screen options={PAGE_OPTIONS} />
-      <CaregiverAgreementScreen onDone={() => router.back()} />
+      <CaregiverAgreementScreen
+        onDone={() => router.back()}
+        onWithdraw={() => router.replace('/leave-or-delete')}
+      />
     </>
   );
 }

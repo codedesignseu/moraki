@@ -27,6 +27,7 @@ export type InviteFailure =
   | 'rate_limited'
   | 'terms'
   | 'agreement'
+  | 'paused'
   | 'offline'
   | 'unknown';
 
@@ -49,6 +50,9 @@ const REASONS: Record<string, InviteFailure> = {
   // P0.2: joining needs the Terms, and the caregiver agreement in force.
   MKI06: 'terms',
   MKI07: 'agreement',
+  // P0.3: a frozen household takes no invites (MK005) and no joins (MKI08).
+  MKI08: 'paused',
+  MK005: 'paused',
   '42501': 'signed_out',
 };
 
