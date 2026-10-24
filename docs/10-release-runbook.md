@@ -250,7 +250,7 @@ its household is kept until it goes. The function logs counts and error codes
 `brevo_unavailable`, `brevo_unreachable`), never an address or the text.
 Source: `supabase/functions/send-inactivity-warnings/` (`warning.ts` is the
 tested logic, `index.ts` the Deno entry) and
-`supabase/migrations/20261024090000_inactivity_warning.sql`.
+`supabase/migrations/20261024180000_inactivity_warning.sql`.
 
 **Until the steps below are done, no email is sent and so no household is
 deleted.** Warnings still queue up and go out once they are.
