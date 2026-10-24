@@ -79,12 +79,11 @@ describe('the call script block', () => {
   });
 
   it('gives birth weight, the latest weighing and the change', () => {
-    // 3510 of 3400 is 110 g and 103.2%, so 3.2 points above birth weight.
+    // 3510 less 3400 is 110 g. No percentage of birth weight (P0.7).
     expect(report().weight).toEqual({
       birthGrams: 3400,
       latest: { grams: 3510, at: at('2026-10-21T12:00:00+03:00'), day: 12 },
       changeG: 110,
-      changePct: 3.2,
     });
   });
 
@@ -209,7 +208,7 @@ describe('what a report leaves out', () => {
 
   it('says nothing about a baby with no recorded birth weight', () => {
     const r = buildReport(events, { ...BABY, birthWeightG: null }, '24h', NOW, TZ);
-    expect(r.weight).toMatchObject({ birthGrams: null, changeG: null, changePct: null });
+    expect(r.weight).toMatchObject({ birthGrams: null, changeG: null });
     expect(r.weight.latest?.grams).toBe(3510);
   });
 
