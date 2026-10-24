@@ -19,10 +19,10 @@ Nothing below is live for users until the new app build is released. Database ch
 | Item | Status | What was built |
 |---|---|---|
 | **P0.1 Guardian declaration** | Ready (#198, #201) | Creating a household requires the declaration, a separate unticked checkbox, enforced by the server. Wording: "I confirm that I am the parent or legal guardian of this child, or otherwise have lawful authority to provide and manage the child's information in Moraki." Each member is marked as having declared or not. Ownership can pass only to a declared guardian, and if no guardian is left the household can't be handed over. Owners from before this change are asked once, with sharing paused until they declare. A caregiver can make the declaration later from Settings. Self-declared, not independently verified. |
-| **P0.2 Consent and access gates** | In progress | The guardian gives the health-data consent, before any baby data is uploaded. Caregivers don't consent for the baby. Instead, before joining they see their role, that they will see the full history, and a short confidentiality agreement, which they must accept. The server allows reading household data only after the right agreement. Terms acceptance is also checked by the server. |
-| **P0.3 Withdrawal** | In progress | A caregiver withdrawing means leaving the household. A guardian withdrawing: if another guardian with consent remains, only that person's processing stops. If none remains, the household is frozen: no new entries, members or reading by non-guardians. The guardian then deletes it, hands it over, or consents again. Deleting your own entries stays possible after withdrawal (it was blocked before). |
+| **P0.2 Consent and access gates** | Ready (#208) | The guardian gives the health-data consent, before any baby data is uploaded. Caregivers don't consent for the baby. Instead, before joining they see their role, that they will see the full history, and a short confidentiality agreement, which they must accept. The server allows reading household data only after the right agreement. Terms acceptance is also checked by the server. |
+| **P0.3 Withdrawal** | Ready (#210) | A caregiver withdrawing means leaving the household. A guardian withdrawing: if another guardian with consent remains, only that person's processing stops. If none remains, the household is frozen: no new entries, members or reading by non-guardians. The guardian then deletes it, hands it over, or consents again. Deleting your own entries stays possible after withdrawal (it was blocked before). |
 | **P0.4 Consent evidence** | Ready (#194) | An append-only history of every grant and withdrawal: purpose (health data, terms, guardian declaration, caregiver agreement), text version, date and user. Records are written only by server functions, and users can read their own but can't change or delete them. The earlier records were copied in. |
-| **P0.5 Access after removal** | In progress | When the server confirms a person is no longer a member, or the household no longer exists, the app clears that household's data and reminders from the phone and shows a notice. A network error never triggers this. Files already exported or shared can't be recalled. |
+| **P0.5 Access after removal** | Ready (#211) | When the server confirms a person is no longer a member, or the household no longer exists, the app clears that household's data and reminders from the phone and shows a notice. A network error never triggers this. Files already exported or shared can't be recalled. |
 | **P0.6 Purging deleted content** | Ready (#203) | 30 days after deletion, an entry's content is erased on the server, leaving only a small "deleted" marker so an offline phone can't bring it back. Phones also drop the content. Exports never include deleted entries. |
 | **P0.7 Weight chart** | **Merged** (#193) | Removed: the 100% and 90% lines, the Day 10 and Day 14 markers, the "pediatrician tracks this" note and the percentage of birth weight. Kept: weights over time, birth and latest weight, and "+/− X g since birth" as plain arithmetic, also in the call script and the PDF. |
 | **P0.8 Server-side validation** | Ready (#206) | The server checks entry types, value ranges and text lengths (matching the app), with a size cap per entry. Baby names are limited to 60 characters. The checks apply to new writes. |
@@ -37,10 +37,10 @@ Nothing below is live for users until the new app build is released. Database ch
 | **P1.2 PDF cleanup** | **Merged** (#195) | PDF reports are deleted from the phone after sharing, as exports already are. |
 | **P1.3 Guardian dispute** | Ready (#202) | A support procedure, not a custody system: ask for evidence, inform the owner, refer disputes to the lawyer. |
 | **P1.4 Policy-change notice** | Ready (#205) | A new Terms version triggers an in-app notice and a renewed agreement. |
-| **P1.5 Invitations** | In progress (with P0.2) | The scope is shown before joining, and the agreement is required. |
+| **P1.5 Invitations** | Ready (#208) | The scope is shown before joining, and the agreement is required. |
 | **P1.6 Production access** | Owner action | Two-factor login on Supabase, Sentry, Expo and Apple. Only the owner has access. The secret key isn't kept on laptops. |
 | **P1.7 Test environment** | Later (owner decision) | A separate staging project after launch. Before launch, the test households are deleted from production. |
-| **P1.8 Reminders** | In progress (with P0.5) | Reminders are cancelled when access is lost or the household is cleared. |
+| **P1.8 Reminders** | Ready (#211) | Reminders are cancelled when access is lost or the household is cleared. |
 
 ### P2 and other reviews
 
@@ -57,9 +57,17 @@ Nothing below is live for users until the new app build is released. Database ch
   - A household is deleted only if it was warned at least 30 days earlier and nobody used it since.
 - **Backups:** Supabase Pro from launch, with daily backups kept 7 days and no point-in-time recovery. The owner confirms this in the dashboard.
 
+**Detail from #208 to #211, for the texts:**
+- **Before joining,** a person sees only their role (from an `invite_preview` check) and the statement "you'll see every entry, past and future". They see nothing about the baby until they accept the caregiver agreement.
+- **A frozen household:**
+  - Nobody can add entries, invite or join.
+  - Non-guardians can't read.
+  - Authors can always read and delete their own entries.
+- **Health-data consent version:** this release asks every user to agree again (version 2026-10-25). Until the owner agrees again, existing households are frozen.
+
 ## 2. What the published documents must now say
 
-These are facts for you to put in your own wording. Items marked (after P0.2/0.3/0.5) apply once those are merged.
+These are facts for you to put in your own wording. Items marked (after P0.2/0.3/0.5) apply once #208, #210 and #211 are merged.
 
 **Privacy Policy**
 1. **Guardian authority:** the person creating a household declares they are the parent or legal guardian, or otherwise have lawful authority. The declaration is self-declared and recorded with its date and version.
