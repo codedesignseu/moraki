@@ -16,8 +16,12 @@ import { pullCaregivers } from './pullCaregivers';
 import { pullHousehold, type PulledHousehold } from './pullHousehold';
 import { pullPage, PULL_PAGE, PullTransportError } from './pullEvents';
 
+/** Why the server says this phone no longer belongs to its household (P0.5). */
+export type Revocation = 'not_member' | 'household_gone';
+
 export type PullOutcome =
   | { kind: 'blocked'; by: PushBlock }
+  | { kind: 'revoked'; reason: Revocation }
   | { kind: 'pulled'; stored: number; skipped: number; cursor: number }
   | { kind: 'failed'; failures: number; retryInMs: number };
 
@@ -45,6 +49,12 @@ type Deps = {
    * pull alone, access is taken as granted.
    */
   fetchStatus?: (auth: Auth, householdId: string) => Promise<MembershipStatus>;
+  /**
+   * The server said plainly that this account is no longer a member, or the
+   * household is gone (P0.5): clear the household from the phone. Never
+   * called for an error, a timeout or an answer that isn't clear.
+   */
+  onRevoked?: (reason: Revocation) => Promise<void> | void;
 };
 
 /**
@@ -128,6 +138,15 @@ export function createPullEngine(deps: Deps) {
         if (status.access !== 'granted') {
           return { kind: 'blocked', by: ACCESS_BLOCK[status.access] };
         }
+      } else {
+        // Only about the household and account asked about: a phone that was
+        // linked elsewhere meanwhile is left alone.
+        const now = deps.linked();
+        if (now?.householdId !== householdId || now.userId !== userId) {
+          return { kind: 'blocked', by: 'not_linked' };
+        }
+        await deps.onRevoked?.(status.status);
+        return { kind: 'revoked', reason: status.status };
       }
     }
 

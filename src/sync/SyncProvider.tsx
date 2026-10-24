@@ -18,6 +18,7 @@ import {
   useEventsRepository,
   useLinkedIdentity,
   useOutboxRepository,
+  useResetPhone,
 } from '@/db/react';
 import type { OutboxRow } from '@/db/repositories/outbox';
 import {
@@ -30,7 +31,7 @@ import {
 
 import { useAuth } from './AuthProvider';
 import { fetchMembershipStatus } from './membershipStatus';
-import { createPullEngine, type PullEngine } from './pullEngine';
+import { createPullEngine, type PullEngine, type Revocation } from './pullEngine';
 import { pushBlock } from './pushEngine';
 import { watchHousehold } from './realtime';
 import { createPushEngine, type PushEngine, type PushStatus } from './pushEngine';
@@ -125,6 +126,21 @@ export function SyncProvider({
       row.op === 'delete' && eventsRepository.get(row.entityId)?.createdBy === linked()?.userId,
     [eventsRepository, linked],
   );
+  // P0.5: the server says this account is no longer in its household, or the
+  // household is gone. Everything of it leaves the phone (entries, the
+  // outbox, so nothing stale is sent, and with the entries every reminder
+  // computed from them); the account stays signed in unless it was deleted
+  // too. A notice says why, once.
+  const resetPhone = useResetPhone();
+  const onRevoked = useCallback(
+    async (reason: Revocation) => {
+      const gone = auth ? (await auth.accountExists()) === false : false;
+      resetPhone({ forgetAccount: gone });
+      devicePrefs.set('revokedNotice', gone ? 'account_gone' : reason);
+      if (gone) await auth?.signOut();
+    },
+    [auth, resetPhone, devicePrefs],
+  );
   // Re-pushes after every committed write (the events repository's signal).
   const events = useEvents();
   // Links the phone once the account has a household, whichever screen is open.
@@ -167,8 +183,9 @@ export function SyncProvider({
         auth,
         state,
         fetchStatus: fetchMembershipStatus,
+        onRevoked,
       }),
-    [linked, eventsRepository, outbox, caregivers, devicePrefs, auth, state],
+    [linked, eventsRepository, outbox, caregivers, devicePrefs, auth, state, onRevoked],
   );
 
   // The Terms agreed, the guardian declaration on record, or the server's

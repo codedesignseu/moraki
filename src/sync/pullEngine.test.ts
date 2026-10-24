@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm';
+
 import { META_KEYS } from '@/db/meta';
 import {
   createDevicePrefsRepository,
@@ -326,7 +328,10 @@ describe('the household’s own row', () => {
 });
 
 describe('asking first whether this account may read (P0.2)', () => {
-  async function gated(status: () => Promise<MembershipStatus>) {
+  async function gated(
+    status: () => Promise<MembershipStatus>,
+    onRevoked?: (reason: 'not_member' | 'household_gone') => void,
+  ) {
     const h = await harness();
     h.link();
     const prefs = createDevicePrefsRepository(h.db);
@@ -339,6 +344,7 @@ describe('asking first whether this account may read (P0.2)', () => {
       auth,
       state: signedIn,
       fetchStatus: status,
+      ...(onRevoked && { onRevoked }),
       fetchPage: async (_auth, _household, cursor) => {
         pages.push(cursor);
         return [fromServer('00000000-0000-7000-8000-0000000000e1', 1)];
@@ -399,5 +405,46 @@ describe('asking first whether this account may read (P0.2)', () => {
     expect(await engine.pull()).toMatchObject({ kind: 'failed', failures: 1 });
     expect(pages).toEqual([]);
     expect(prefs.get('householdAccess')).toBeNull();
+  });
+
+  it('hands a plain "no longer a member" or "gone" on, without reading (P0.5)', async () => {
+    for (const status of ['not_member', 'household_gone'] as const) {
+      const revoked: string[] = [];
+      const { engine, pages } = await gated(
+        async () => ({ status }),
+        (reason) => void revoked.push(reason),
+      );
+      expect(await engine.pull()).toEqual({ kind: 'revoked', reason: status });
+      expect(revoked).toEqual([status]);
+      expect(pages).toEqual([]);
+    }
+  });
+
+  it('never calls it for a server it couldn’t ask (P0.5)', async () => {
+    const revoked: string[] = [];
+    const { engine } = await gated(
+      async () => {
+        throw new MembershipStatusError('request failed');
+      },
+      (reason) => void revoked.push(reason),
+    );
+    expect(await engine.pull()).toMatchObject({ kind: 'failed' });
+    expect(revoked).toEqual([]);
+  });
+
+  it('never calls it when the phone was linked elsewhere while it asked (P0.5)', async () => {
+    const revoked: string[] = [];
+    let unlink = () => {};
+    const { engine, db } = await gated(
+      async () => {
+        unlink();
+        return { status: 'not_member' };
+      },
+      (reason) => void revoked.push(reason),
+    );
+    unlink = () =>
+      db.update(meta).set({ value: OTHER_USER }).where(eq(meta.key, META_KEYS.userId)).run();
+    expect(await engine.pull()).toEqual({ kind: 'blocked', by: 'not_linked' });
+    expect(revoked).toEqual([]);
   });
 });
