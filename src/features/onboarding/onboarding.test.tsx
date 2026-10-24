@@ -47,6 +47,7 @@ async function signedIn(options: Parameters<typeof authServer>[0] = {}, fetchImp
   await press(/Settings/);
   await press('Sign in');
   await type('Email', EMAIL);
+  await agreeToTerms();
   await press('Send code');
   await type('Code', '123456');
   await press('Sign in');
@@ -236,3 +237,9 @@ describe('household setup', () => {
     expect(screen.getByRole('button', { name: 'Set up household' })).toBeOnTheScreen();
   });
 });
+
+/** Ticks "I agree to the Terms of Use" on the sign-in screen, unless it is already (P0.9). */
+async function agreeToTerms() {
+  const box = screen.getByRole('checkbox', { name: 'I agree to the Terms of Use' });
+  if (!box.props.accessibilityState?.checked) await fireEvent.press(box);
+}

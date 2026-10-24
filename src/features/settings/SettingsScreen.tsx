@@ -52,6 +52,7 @@ export function SettingsScreen({
   onBaby,
   onConsent,
   onGuardian = () => {},
+  onTerms = () => {},
   onFeedback,
   onLeaveOrDelete,
 }: {
@@ -71,6 +72,8 @@ export function SettingsScreen({
   onConsent: () => void;
   /** Opens the guardian declaration (P0.1). */
   onGuardian?: () => void;
+  /** Opens the Terms of Use (P0.9). */
+  onTerms?: () => void;
   /** Opens the feedback form (P4-13). */
   onFeedback: () => void;
   /** Opens leaving a household and deleting the account (P4-06). */
@@ -99,7 +102,7 @@ export function SettingsScreen({
           onInvite={onInvite}
         />
         <SyncCard />
-        <PrivacyCard onConsent={onConsent} />
+        <PrivacyCard onConsent={onConsent} onTerms={onTerms} />
         <GuardianCard onDeclare={onGuardian} />
         <RemindersCard />
 

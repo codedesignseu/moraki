@@ -486,7 +486,8 @@
         "unknown": "the server refused it"
       },
       "noConsent": "Sharing is off until you agree to health data being processed.",
-      "noGuardian": "Sharing is paused until you confirm you’re the baby’s parent or legal guardian."
+      "noGuardian": "Sharing is paused until you confirm you’re the baby’s parent or legal guardian.",
+      "noTerms": "Sharing is paused until you agree to the Terms of Use."
     },
     "report": {
       "title": "Report",
@@ -527,7 +528,8 @@
       "consentValue": "Consent: {{value}}",
       "agreed": "Agreed",
       "notAgreed": "Not agreed",
-      "review": "Review consent"
+      "review": "Review consent",
+      "terms": "Terms of Use"
     },
     "reminders": {
       "title": "Reminders",
@@ -714,7 +716,8 @@
       "offline": "You’re offline. Setting up a household needs a connection.",
       "signed_out": "Sign in first.",
       "unknown": "Couldn’t set up the household. Try again.",
-      "guardian": "Tick the box to confirm you’re the parent or legal guardian."
+      "guardian": "Tick the box to confirm you’re the parent or legal guardian.",
+      "terms": "Agree to the Terms of Use first, in Settings → Privacy."
     }
   },
   "invite": {
@@ -775,7 +778,8 @@
       "already_in_household": "You’re already in a household.",
       "signed_out": "Sign in first.",
       "offline": "You’re offline. Joining needs a connection.",
-      "unknown": "Couldn’t join. Try again."
+      "unknown": "Couldn’t join. Try again.",
+      "terms": "Agree to the Terms of Use first, in Settings → Privacy."
     }
   },
   "report": {
@@ -1018,6 +1022,25 @@
     "working": "Saving…",
     "notNow": "Not now",
     "problem": {
+      "offline": "No connection. Try again when you have one.",
+      "unknown": "That didn’t save. Try again."
+    }
+  },
+  "terms": {
+    "title": "Terms of Use",
+    "updatedTitle": "We updated our Terms",
+    "intro": "Read the Terms of Use and the Privacy Policy before you continue.",
+    "updatedIntro": "We changed the Terms of Use. Read what changed, then agree so your entries keep syncing.",
+    "termsLink": "Read the Terms of Use",
+    "privacyLink": "Read the Privacy Policy",
+    "agree": "I agree to the Terms of Use",
+    "continue": "Continue",
+    "working": "Saving…",
+    "notNow": "Not now",
+    "disclaimer": "Moraki is a notebook, not medical advice. If you’re worried about your baby, contact your doctor.",
+    "version": "Terms {{terms}} · Privacy Policy {{privacy}}",
+    "problem": {
+      "unticked": "Tick the box to agree to the Terms of Use.",
       "offline": "No connection. Try again when you have one.",
       "unknown": "That didn’t save. Try again."
     }
