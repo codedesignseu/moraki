@@ -20,7 +20,7 @@
 --     allows (title, doctor, clinic, notes and 20 questions, 4,740
 --     characters) is over 8 KiB in Greek, and four times that in emoji.
 --   * a deleted entry's payload is not checked: deleting must always work,
---     and a purged one is empty (20261024090000).
+--     and a purged one is empty (20261024140000).
 --   * a baby's name: 1 to 60 characters, the app's one limit
 --     (src/domain/babyName.ts).
 --
