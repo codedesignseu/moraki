@@ -99,6 +99,15 @@ export const DEVICE_PREFS = {
     default: null,
   },
   /**
+   * This account agreeing to the Terms of Use (P0.9), by version: the server
+   * holds the record (consent_events); this copy says whether to ask again.
+   */
+  terms: {
+    key: 'pref.terms',
+    schema: z.object({ userId: z.uuid(), version: z.string().min(1) }).nullable(),
+    default: null,
+  },
+  /**
    * Whether this account's guardian declaration for its household is on the
    * server's record (P0.1): an owner without one is asked once, and their
    * entries wait until they answer. Null until the server has been asked.

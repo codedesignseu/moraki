@@ -12,15 +12,19 @@ export async function guardianOnRecord(
   userId: string,
   householdId: string,
 ): Promise<boolean | null> {
-  const { data, error } = await auth.client
-    .from('consent_events')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('purpose', 'guardian_declaration')
-    .eq('household_id', householdId)
-    .limit(1);
-  if (error || !Array.isArray(data)) return null;
-  return data.length > 0;
+  try {
+    const { data, error } = await auth.client
+      .from('consent_events')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('purpose', 'guardian_declaration')
+      .eq('household_id', householdId)
+      .limit(1);
+    if (error || !Array.isArray(data)) return null;
+    return data.length > 0;
+  } catch {
+    return null;
+  }
 }
 
 /**

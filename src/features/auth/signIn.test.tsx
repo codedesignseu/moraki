@@ -51,6 +51,7 @@ const type = (label: string, text: string) =>
 async function signInThroughTheApp(code = '123456') {
   await press('Sign in');
   await type('Email', ` ${EMAIL.toUpperCase()} `);
+  await agreeToTerms();
   await press('Send code');
   expect(
     await screen.findByText(`We sent a sign-in code to ${EMAIL.toUpperCase()}.`),
@@ -117,11 +118,13 @@ describe('sign in with an emailed code', () => {
     await press('Sign in');
 
     await type('Email', 'parent@example');
+    await agreeToTerms();
     await press('Send code');
     expect(screen.getByText('Error: Check the email address.')).toBeOnTheScreen();
     expect(server.calls).toEqual([]);
 
     await type('Email', EMAIL);
+    await agreeToTerms();
     await press('Send code');
     await type('Code', '12a3');
     expect(screen.getByLabelText('Code').props.value).toBe('123');
@@ -147,6 +150,7 @@ describe('sign in with an emailed code', () => {
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
     await press('Sign in');
     await type('Email', EMAIL);
+    await agreeToTerms();
     await press('Send code');
     await type('Code', '12345678');
     await press('Sign in');
@@ -163,6 +167,7 @@ describe('sign in with an emailed code', () => {
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
     await press('Sign in');
     await type('Email', EMAIL);
+    await agreeToTerms();
     await press('Send code');
     await type('Code', '1234');
     await press('Sign in');
@@ -175,6 +180,7 @@ describe('sign in with an emailed code', () => {
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, offline));
     await press('Sign in');
     await type('Email', EMAIL);
+    await agreeToTerms();
     await press('Send code');
     expect(
       await screen.findByText("Error: You're offline. Signing in needs a connection."),
@@ -210,7 +216,9 @@ describe('Sign in with Apple (P5-04)', () => {
 
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
     await press('Sign in');
+    await agreeToTerms();
     await screen.findByRole('button', { name: 'Continue with Apple' });
+    await agreeToTerms();
     await press('Continue with Apple');
     await press('Not now'); // the consent screen (P3-09)
 
@@ -231,7 +239,9 @@ describe('Sign in with Apple (P5-04)', () => {
 
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
     await press('Sign in');
+    await agreeToTerms();
     await screen.findByRole('button', { name: 'Continue with Apple' });
+    await agreeToTerms();
     await press('Continue with Apple');
 
     expect(screen.getByRole('button', { name: 'Continue with Apple' })).toBeBusy();
@@ -244,7 +254,9 @@ describe('Sign in with Apple (P5-04)', () => {
 
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
     await press('Sign in');
+    await agreeToTerms();
     await screen.findByRole('button', { name: 'Continue with Apple' });
+    await agreeToTerms();
     await press('Continue with Apple');
 
     expect(await screen.findByRole('button', { name: 'Continue with Apple' })).toBeOnTheScreen();
@@ -271,6 +283,7 @@ describe('Sign in with Google (P5-04)', () => {
 
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
     await press('Sign in');
+    await agreeToTerms();
     await press('Continue with Google');
     await press('Not now'); // the consent screen (P3-09)
 
@@ -291,9 +304,16 @@ describe('Sign in with Google (P5-04)', () => {
 
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
     await press('Sign in');
+    await agreeToTerms();
     await press('Continue with Google');
 
     expect(await screen.findByRole('button', { name: 'Continue with Google' })).toBeOnTheScreen();
     expect(screen.queryByText(/Couldn.t sign in/)).toBeNull();
   });
 });
+
+/** Ticks "I agree to the Terms of Use" on the sign-in screen, unless it is already (P0.9). */
+async function agreeToTerms() {
+  const box = screen.getByRole('checkbox', { name: 'I agree to the Terms of Use' });
+  if (!box.props.accessibilityState?.checked) await fireEvent.press(box);
+}

@@ -69,7 +69,9 @@ describe('asking for consent', () => {
       card.getByText(/That is health data, so we ask before your entries leave this phone\./),
     ).toBeOnTheScreen();
     expect(card.getByText(/servers in the EU/)).toBeOnTheScreen();
-    expect(card.getByText(/Nothing is ever sold, used for advertising or used to train anything/)).toBeOnTheScreen();
+    expect(
+      card.getByText(/Nothing is ever sold, used for advertising or used to train anything/),
+    ).toBeOnTheScreen();
     expect(card.getByText(/Until you agree, your entries stay on this phone/)).toBeOnTheScreen();
     expect(card.getByText(/shared with the household as soon as you set it up/)).toBeOnTheScreen();
     expect(
@@ -151,6 +153,7 @@ describe('when it is asked', () => {
     await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
     await fireEvent.changeText(screen.getByLabelText('Email'), EMAIL);
+    await agreeToTerms();
     await fireEvent.press(screen.getByRole('button', { name: 'Send code' }));
     await fireEvent.changeText(screen.getByLabelText('Code'), '123456');
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
@@ -168,6 +171,7 @@ describe('when it is asked', () => {
     await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
     await fireEvent.changeText(screen.getByLabelText('Email'), EMAIL);
+    await agreeToTerms();
     await fireEvent.press(screen.getByRole('button', { name: 'Send code' }));
     await fireEvent.changeText(screen.getByLabelText('Code'), '123456');
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
@@ -187,6 +191,7 @@ describe('a new version of the text', () => {
     await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
     await fireEvent.changeText(screen.getByLabelText('Email'), EMAIL);
+    await agreeToTerms();
     await fireEvent.press(screen.getByRole('button', { name: 'Send code' }));
     await fireEvent.changeText(screen.getByLabelText('Code'), '123456');
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
@@ -272,3 +277,9 @@ describe('what happens until someone agrees', () => {
     );
   });
 });
+
+/** Ticks "I agree to the Terms of Use" on the sign-in screen, unless it is already (P0.9). */
+async function agreeToTerms() {
+  const box = screen.getByRole('checkbox', { name: 'I agree to the Terms of Use' });
+  if (!box.props.accessibilityState?.checked) await fireEvent.press(box);
+}
