@@ -1,7 +1,7 @@
 /**
  * Deleted entries keep their content for 30 days, then only an empty
  * tombstone is left (P0.6). The server purges its copy on a daily schedule
- * (supabase/migrations/20261024090000_purge_deleted_event_content.sql) and
+ * (supabase/migrations/20261024140000_purge_deleted_event_content.sql) and
  * every phone pulls the result; a phone also empties its own old tombstones,
  * so one that is offline, or never signed in, does not keep them either.
  *
