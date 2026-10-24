@@ -49,5 +49,5 @@ or delete.
 ## Follow-ups this document creates
 
 - **Inactive households** — built 2026-10-18 as a daily `pg_cron` sweep, without the warning email (there is still no email-sending path). Revisit the warning once one exists.
-- **P4-F5** — two of the three sweeps this policy names now run: feedback past 24 months and invites past 90 days of being used or expired, both a daily `pg_cron` job (`supabase/migrations/20260928090000_retention_sweeps.sql`). The third, inactive households, is not built and is not a smaller version of the same task — its delete half needs P4-06's household-deletion RPC to exist first, and there is no email-sending mechanism in the project at all yet. It waits on P4-06, not on more engineering time.
+- **P4-F5** — all three sweeps this policy names run as daily `pg_cron` jobs: feedback past 24 months and invites past 90 days of being used or expired (`supabase/migrations/20260928090000_retention_sweeps.sql`), and inactive households past 24 months (`sweep-inactive-households`, `supabase/migrations/20261018093000_sweep_inactive_households.sql`, #185). The household sweep runs without the warning email, as the bullet above says.
 - Both figures that were marked **confirm** are now read off the dashboards and written in: Supabase is `eu-central-1` (Frankfurt) and Sentry retains errors for 30 days.
