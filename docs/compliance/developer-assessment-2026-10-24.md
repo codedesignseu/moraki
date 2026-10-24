@@ -2551,6 +2551,10 @@ The other findings in that audit still hold unless an answer below says otherwis
 **150. Does Expo EAS Update or another update service receive IP addresses, device or installation IDs, or usage information?**
 
 - **Status:** Implemented.
+- **Owner decision (2026-10-24): kept as it is** (option A). Update checks continue on every launch so security and bug fixes reach all users quickly. Proposed legal basis: legitimate interest. Transfer safeguards: Expo's EU Standard Contractual Clauses and its EU–US Data Privacy Framework certification. For the lawyer to confirm. The other options considered:
+  - check only after sign-in;
+  - no over-the-air updates;
+  - an update server hosted in the EU.
 - **Answer:** Yes. `expo-updates` is enabled with `checkAutomatically` at its default (`ON_LOAD`) and `fallbackToCacheTimeout: 0`. On every cold start it requests `https://u.expo.dev/<projectId>` with these headers:
   - `Expo-Platform: ios`
   - `EAS-Client-ID`: a random UUID that `expo-eas-client` persists for the install
