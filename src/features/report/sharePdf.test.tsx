@@ -1,4 +1,4 @@
-import { fireEvent, screen, within } from 'expo-router/testing-library';
+import { fireEvent, screen, waitFor, within } from 'expo-router/testing-library';
 
 import type { DevicePrefsRepository } from '@/db/repositories/devicePrefs';
 import type { EventsRepository } from '@/db/repositories/events';
@@ -14,6 +14,25 @@ const mockAvailable = jest.fn(async () => true);
 jest.mock('expo-print', () => ({
   printToFileAsync: (options: { html: string }) => mockPrint(options),
 }));
+/** What expo-print has written to the cache and not yet been deleted. */
+const onDisk = new Set<string>();
+jest.mock('expo-file-system', () => ({
+  File: class {
+    uri: string;
+    constructor(uri: string) {
+      this.uri = uri;
+    }
+    private get disk() {
+      return (globalThis as { __pdfOnDisk?: Set<string> }).__pdfOnDisk;
+    }
+    get exists() {
+      return this.disk?.has(this.uri) ?? false;
+    }
+    delete() {
+      this.disk?.delete(this.uri);
+    }
+  },
+}));
 jest.mock('expo-sharing', () => ({
   isAvailableAsync: () => mockAvailable(),
   shareAsync: (uri: string, options: Record<string, unknown>) => mockShare(uri, options),
@@ -28,7 +47,13 @@ let prefs: DevicePrefsRepository;
 
 beforeEach(async () => {
   ({ repo, prefs } = await createHarness(NOW));
-  mockPrint.mockClear();
+  onDisk.clear();
+  (globalThis as { __pdfOnDisk?: Set<string> }).__pdfOnDisk = onDisk;
+  mockPrint.mockReset();
+  mockPrint.mockImplementation(async () => {
+    onDisk.add('file:///tmp/report.pdf');
+    return { uri: 'file:///tmp/report.pdf' };
+  });
   mockShare.mockClear();
   mockAvailable.mockClear();
   mockAvailable.mockResolvedValue(true);
@@ -118,6 +143,35 @@ describe('sharing the PDF', () => {
       'file:///tmp/report.pdf',
       expect.objectContaining({ mimeType: 'application/pdf' }),
     );
+  });
+
+  it('deletes the PDF from the cache once the share sheet closes (P1.2)', async () => {
+    knowsTheBaby();
+    let presentWhileSharing = false;
+    mockShare.mockImplementationOnce(async (uri: string) => {
+      presentWhileSharing = onDisk.has(uri);
+    });
+    await openReport();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Share PDF' }));
+
+    await waitFor(() => expect(mockShare).toHaveBeenCalledTimes(1));
+    // There while the share sheet is open, gone once it closes.
+    expect(presentWhileSharing).toBe(true);
+    await waitFor(() => expect(onDisk.size).toBe(0));
+  });
+
+  it('deletes the PDF when the share sheet fails', async () => {
+    knowsTheBaby();
+    mockShare.mockRejectedValueOnce(new Error('share sheet dismissed badly'));
+    await openReport();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Share PDF' }));
+
+    expect(await screen.findByTestId('report-problem')).toHaveTextContent(
+      "Error: The PDF couldn't be made. Try again.",
+    );
+    expect(onDisk.size).toBe(0);
   });
 
   it('says so when the device has nowhere to share a file', async () => {
