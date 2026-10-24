@@ -10,6 +10,9 @@ insert into auth.users (id, email) values
 -- P3-09: writing an event needs consent for the version in force.
 insert into public.consents (user_id, policy_version)
   select id, public.consent_version() from auth.users;
+-- P0.2: and the Terms, before any baby data is stored.
+insert into public.consent_events (user_id, purpose, version, action, text_key)
+  select id, 'terms', public.terms_version(), 'grant', 'test' from auth.users;
 
 create function pg_temp.login(n int) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object(
@@ -44,7 +47,8 @@ select is_empty('select * from public.events', 'an empty baby: no events');
 -- P0.1: the creator declared they are the parent or guardian, on record.
 select ok((select is_guardian from public.memberships), 'the creator is marked as a guardian');
 select results_eq(
-  $$select purpose, version, action, locale, household_id, baby_id from public.consent_events$$,
+  $$select purpose, version, action, locale, household_id, baby_id from public.consent_events
+    where purpose = 'guardian_declaration'$$,
   $$values ('guardian_declaration', '2026-10-24', 'grant', 'en',
             'aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'bbbbbbbb-0000-0000-0000-000000000001'::uuid)$$,
   'and the declaration is recorded, for this household and baby');

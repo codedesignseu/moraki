@@ -34,6 +34,7 @@ export function resetPhone(db: SyncDb, scope: ResetScope, newId: () => string): 
     DEVICE_PREFS.localEntries.key,
     DEVICE_PREFS.keptDuplicates.key,
     DEVICE_PREFS.guardianDeclaration.key,
+    DEVICE_PREFS.householdAccess.key,
     ...(scope.forgetAccount ? [DEVICE_PREFS.consent.key, DEVICE_PREFS.terms.key] : []),
   ];
 

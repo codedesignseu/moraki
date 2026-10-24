@@ -73,7 +73,7 @@ const row = (body: object, op: 'insert' | 'patch'): OutboxRow => ({
     );
     const invite = await createInvite(a.auth, household.householdId, 'caregiver');
     const b = await phone('p2-09-carer');
-    await acceptInvite(b.auth, invite.code, 'Nik', 'father');
+    await acceptInvite(b.auth, invite.code, 'Nik', 'father', 'en');
 
     // A logs a bottle, through the same RPC the app uses.
     const eventId = newUuid();

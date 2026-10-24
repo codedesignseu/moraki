@@ -1,4 +1,5 @@
 import {
+  accessStatus,
   agreedToCurrent,
   CONSENT_VERSION,
   consentLocale,
@@ -84,5 +85,27 @@ describe('legalLink', () => {
   it('links the Greek page when the app is read in Greek', () => {
     expect(legalLink('terms', 'el')).toBe('https://moraki.app/el/terms/');
     expect(legalLink('privacy', 'en')).toBe('https://moraki.app/privacy/');
+  });
+});
+
+describe('accessStatus', () => {
+  const HOUSEHOLD = '0190a0b0-0000-7000-8000-0000000000a1';
+  const record = {
+    userId: USER,
+    householdId: HOUSEHOLD,
+    access: 'needs_agreement',
+    isGuardian: false,
+  } as const;
+
+  it('says what the server said for this account and household', () => {
+    expect(accessStatus(record, USER, HOUSEHOLD)).toBe('needs_agreement');
+    expect(accessStatus({ ...record, access: 'granted' }, USER, HOUSEHOLD)).toBe('granted');
+  });
+
+  it('is unknown with no answer yet, or an answer about someone or somewhere else', () => {
+    expect(accessStatus(null, USER, HOUSEHOLD)).toBe('unknown');
+    expect(accessStatus(record, '0190a0b0-0000-7000-8000-000000000002', HOUSEHOLD)).toBe('unknown');
+    expect(accessStatus(record, USER, '0190a0b0-0000-7000-8000-0000000000a2')).toBe('unknown');
+    expect(accessStatus(record, null, null)).toBe('unknown');
   });
 });

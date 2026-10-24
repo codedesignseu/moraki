@@ -51,6 +51,7 @@ export function SettingsScreen({
   onAbout,
   onBaby,
   onConsent,
+  onAgreement = () => {},
   onGuardian = () => {},
   onTerms = () => {},
   onFeedback,
@@ -70,6 +71,8 @@ export function SettingsScreen({
   onBaby: () => void;
   /** Opens the consent screen (P3-09). */
   onConsent: () => void;
+  /** Opens the caregiver agreement (P0.2). */
+  onAgreement?: () => void;
   /** Opens the guardian declaration (P0.1). */
   onGuardian?: () => void;
   /** Opens the Terms of Use (P0.9). */
@@ -102,7 +105,7 @@ export function SettingsScreen({
           onInvite={onInvite}
         />
         <SyncCard />
-        <PrivacyCard onConsent={onConsent} onTerms={onTerms} />
+        <PrivacyCard onConsent={onConsent} onAgreement={onAgreement} onTerms={onTerms} />
         <GuardianCard onDeclare={onGuardian} />
         <RemindersCard />
 

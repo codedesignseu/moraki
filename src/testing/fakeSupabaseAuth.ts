@@ -103,6 +103,14 @@ export function authServer(
     /** Rows a pull finds; `seq` is the PostgREST filter, e.g. "gt.7". */
     events?: (seq: string) => unknown[];
     acceptInvite?: () => Response;
+    /** invite_preview (P0.2): the role a code would give. Defaults to caregiver. */
+    previewInvite?: () => Response;
+    /**
+     * my_membership_status (P0.2): where the account stands with a household.
+     * Defaults to a member with access, in the role `memberships` gives (an
+     * owner otherwise), a guardian if an owner, with the first baby.
+     */
+    membershipStatus?: (body: Record<string, unknown>) => Record<string, unknown> | Response;
     /** record_invite_attempt (P2-F7), called before accept_invite. Defaults to success. */
     recordInviteAttempt?: () => Response;
     /** A message left through the feedback form (P4-13), and a way to refuse one. */
@@ -288,6 +296,24 @@ export function authServer(
             }),
           )
         );
+      case '/rest/v1/rpc/invite_preview':
+        return options.previewInvite?.() ?? json(200, one({ role: 'caregiver' }));
+      case '/rest/v1/rpc/my_membership_status': {
+        const answer = options.membershipStatus?.(body);
+        if (answer instanceof Response) return answer;
+        const role = options.memberships?.[0]?.role ?? 'owner';
+        const baby = options.babies?.[0];
+        return json(200, [
+          answer ?? {
+            status: 'member',
+            role,
+            is_guardian: role === 'owner',
+            access: 'granted',
+            baby_id: baby?.id ?? null,
+            baby_name: baby?.name ?? null,
+          },
+        ]);
+      }
       case '/rest/v1/consent_events': {
         const terms = url.searchParams.get('purpose') === 'eq.terms';
         const rows = (terms ? options.termsEvents : options.guardianEvents)?.() ?? [{ id: 1 }];

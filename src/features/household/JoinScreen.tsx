@@ -1,9 +1,19 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { RELATIONS } from '@/sync/household';
 import { CODE_LENGTH } from '@/sync/invites';
-import { Button, Card, Chip, Page, TextField } from '@/ui/primitives';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Chip,
+  InlineError,
+  Page,
+  TextButton,
+  TextField,
+} from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { useJoin } from './useJoin';
@@ -12,6 +22,11 @@ import { useJoin } from './useJoin';
  * `join/[code]` and manual entry (SDD 7; G account/join, -signed-out,
  * -already, -invalid): joins a household with an invite code. The app's
  * problem messages are kept; G's "Leave first" is not (decision G3).
+ *
+ * Then, before joining, the caregiver agreement (P0.2): the role the code
+ * gives, that every entry past and future will be visible, and the promise
+ * to keep it to the household. Nothing about the household or its baby is
+ * shown before joining.
  */
 export function JoinScreen({
   code,
@@ -28,6 +43,7 @@ export function JoinScreen({
   const theme = useTheme();
   const s = styles(theme);
   const join = useJoin(code, onDone);
+  const [ticked, setTicked] = useState(false);
   const page = {
     title: t('join.title'),
     kind: 'close',
@@ -73,8 +89,55 @@ export function JoinScreen({
 
   const problem = join.problem ? t(`join.problem.${join.problem}`) : undefined;
 
+  if (join.role) {
+    const unticked = join.problem === 'unticked' && !ticked;
+    return (
+      <Page
+        {...page}
+        footer={
+          <>
+            {problem && join.problem !== 'unticked' ? (
+              <InlineError message={problem} prefix={t('common.error')} />
+            ) : null}
+            <Button
+              label={t('agreement.acceptJoin')}
+              onPress={() => join.join(ticked)}
+              busy={join.busy}
+            />
+            <TextButton label={t('common.back')} align="center" onPress={join.back} />
+          </>
+        }
+      >
+        <Card testID="join-agreement">
+          <Text style={s.title} accessibilityRole="header">
+            {t('agreement.title')}
+          </Text>
+          <Text style={s.body}>{t('agreement.introJoin')}</Text>
+          <Text style={s.body}>{t(`agreement.roleJoin.${join.role}`)}</Text>
+          <Text style={s.body}>{t('agreement.history')}</Text>
+          <Checkbox
+            label={t('agreement.statement')}
+            checked={ticked}
+            onChange={setTicked}
+            invalid={unticked}
+            message={unticked ? problem : undefined}
+            errorPrefix={t('common.error')}
+            testID="join-agreement-statement"
+          />
+          <Text style={s.label}>{t('agreement.leave')}</Text>
+        </Card>
+        <Text style={s.label}>
+          {t('agreement.version', { version: t('agreement.versionName') })}
+        </Text>
+      </Page>
+    );
+  }
+
   return (
-    <Page {...page} footer={<Button label={t('join.join')} onPress={join.join} busy={join.busy} />}>
+    <Page
+      {...page}
+      footer={<Button label={t('join.continue')} onPress={join.next} busy={join.busy} />}
+    >
       <Text style={s.intro}>{t('join.intro')}</Text>
       <Card testID="join-form">
         <TextField
@@ -119,6 +182,8 @@ export function JoinScreen({
 const styles = (theme: Theme) =>
   StyleSheet.create({
     intro: { ...theme.type.detail, color: theme.palette.textSoft },
+    title: { ...theme.type.formTitle, color: theme.palette.ink },
+    body: { ...theme.type.body, color: theme.palette.ink },
     label: { ...theme.type.small, color: theme.palette.textSoft },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   });

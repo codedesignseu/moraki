@@ -51,8 +51,7 @@ async function signedIn(options: Parameters<typeof authServer>[0] = {}, fetchImp
   await press('Send code');
   await type('Code', '123456');
   await press('Sign in');
-  // Signing in leads to the consent screen (P3-09); agreeing goes back.
-  await press('I agree');
+  // Back to Settings: consent is asked when setting up a household (P0.2).
   await screen.findByLabelText(`Signed in as ${EMAIL}`);
   return server;
 }
@@ -69,6 +68,14 @@ async function fillIn() {
   }
   await type('Birth weight (optional)', '3400');
   await fireEvent.press(screen.getByRole('checkbox', { name: GUARDIAN }));
+  await agreeToConsent();
+}
+
+/** P0.2: health-data consent, on its own screen, then back to setup. */
+async function agreeToConsent() {
+  await press('Read and agree');
+  await press(await screen.findByRole('button', { name: 'I agree' }).then(() => 'I agree'));
+  await screen.findByText('You agreed to health data being processed.');
 }
 
 describe('household setup', () => {
@@ -202,8 +209,44 @@ describe('household setup', () => {
 
     await fireEvent.press(screen.getByRole('checkbox', { name: GUARDIAN }));
     expect(screen.getByRole('checkbox', { name: GUARDIAN })).toBeChecked();
+    await agreeToConsent();
     await press('Create household');
     expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
+  });
+
+  it('needs health-data consent first, on its own screen (P0.2)', async () => {
+    const server = await signedIn();
+    await press('Set up household');
+    await type('Your name', 'Maria');
+    await type('Name', 'Ella');
+    await fireEvent.press(screen.getByRole('checkbox', { name: GUARDIAN }));
+
+    await press('Create household');
+    expect(
+      screen.getByText('Error: Agree to health data being processed first.'),
+    ).toBeOnTheScreen();
+    expect(server.calls.some((c) => c.path === '/rest/v1/rpc/create_household')).toBe(false);
+
+    await agreeToConsent();
+    await press('Create household');
+    expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
+  });
+
+  it('explains a server that has no consent on record (P0.2)', async () => {
+    await signedIn({
+      createHousehold: () =>
+        new Response(JSON.stringify({ code: 'MK003', message: 'no consent' }), {
+          status: 400,
+          headers: { 'content-type': 'application/json' },
+        }),
+    });
+    await press('Set up household');
+    await fillIn();
+    await press('Create household');
+    expect(
+      await screen.findByText('Error: Agree to health data being processed first.'),
+    ).toBeOnTheScreen();
+    expect(h.prefs.get('accountHousehold')).toBeNull();
   });
 
   it('says a household needs a connection, and records nothing', async () => {

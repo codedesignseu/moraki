@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AccessGate } from '@/features/privacy/AccessGate';
 import { GuardianGate } from '@/features/privacy/GuardianGate';
 import { TermsGate } from '@/features/privacy/TermsGate';
 import type { IconName } from '@/ui/icons';
@@ -49,6 +50,8 @@ export default function TabsLayout() {
   const router = useRouter();
   const askGuardian = useCallback(() => router.push('/onboarding/guardian'), [router]);
   const askTerms = useCallback(() => router.push('/onboarding/terms'), [router]);
+  const askAgreement = useCallback(() => router.push('/onboarding/agreement'), [router]);
+  const askConsent = useCallback(() => router.push('/onboarding/consent'), [router]);
 
   return (
     <>
@@ -56,6 +59,8 @@ export default function TabsLayout() {
       <GuardianGate onMissing={askGuardian} />
       {/* P0.9: an account that hasn't agreed to the Terms in force is asked once. */}
       <TermsGate onMissing={askTerms} />
+      {/* P0.2: a member the server says can't see the household yet is asked once. */}
+      <AccessGate onNeedsAgreement={askAgreement} onNeedsConsent={askConsent} />
       <Tabs
         screenOptions={{
           headerShown: false,

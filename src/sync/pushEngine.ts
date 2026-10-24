@@ -1,3 +1,4 @@
+import type { HouseholdAccess } from '@/domain/consent/consent';
 import type { OutboxRepository, OutboxRow } from '@/db/repositories/outbox';
 import { PUSH_BATCH } from '@/db/repositories/outbox';
 
@@ -19,9 +20,21 @@ import { pushOps, PushTransportError, type PushResult } from './pushEvents';
  * owner's entries wait until the server has said their guardian declaration
  * is on record, and one without it is asked for it. `no_terms` is P0.9: an
  * account that hasn't agreed to the Terms of Use in force syncs nothing.
+ * `no_agreement` is P0.2: a member who isn't the baby's parent or guardian
+ * sends and reads nothing until they accept the caregiver agreement, and a
+ * guardian nothing without consent (`no_consent` again). `checking` is the
+ * moment before the server has said which: nothing is sent on a guess, so a
+ * refused write can't end up in the sync errors list.
  */
 export type PushBlock =
-  'signed_out' | 'not_linked' | 'other_account' | 'no_consent' | 'no_terms' | 'no_guardian';
+  | 'signed_out'
+  | 'not_linked'
+  | 'other_account'
+  | 'no_consent'
+  | 'no_terms'
+  | 'no_agreement'
+  | 'checking'
+  | 'no_guardian';
 
 export type PushOutcome =
   | { kind: 'blocked'; by: PushBlock }
@@ -46,12 +59,16 @@ export function pushBlock(
   consented = true,
   guardianMissing = false,
   termsAgreed = true,
+  access: HouseholdAccess | 'unknown' = 'granted',
 ): PushBlock | null {
   if (!auth || state.status !== 'signedIn') return 'signed_out';
   if (!linked) return 'not_linked';
   if (linked.userId !== state.user.id) return 'other_account';
   if (!consented) return 'no_consent';
   if (!termsAgreed) return 'no_terms';
+  if (access === 'needs_consent') return 'no_consent';
+  if (access === 'needs_agreement') return 'no_agreement';
+  if (access === 'unknown') return 'checking';
   return guardianMissing ? 'no_guardian' : null;
 }
 
@@ -68,6 +85,8 @@ type Deps = {
   guardianMissing?: () => boolean;
   /** Whether this account has agreed to the Terms of Use in force (P0.9). */
   termsAgreed?: () => boolean;
+  /** What the server last said this account may do in its household (P0.2). */
+  access?: () => HouseholdAccess | 'unknown';
   /** Swapped in tests; the real one calls push_events. */
   send?: (auth: Auth, rows: readonly OutboxRow[]) => Promise<PushResult[]>;
 };
@@ -94,6 +113,7 @@ export function createPushEngine(deps: Deps) {
       deps.consented?.() ?? true,
       deps.guardianMissing?.() ?? false,
       deps.termsAgreed?.() ?? true,
+      deps.access?.() ?? 'granted',
     );
     if (blocked) return { kind: 'blocked', by: blocked };
 
@@ -167,6 +187,7 @@ export function createPushEngine(deps: Deps) {
           deps.consented?.() ?? true,
           deps.guardianMissing?.() ?? false,
           deps.termsAgreed?.() ?? true,
+          deps.access?.() ?? 'granted',
         ),
         lastPushAt,
         failures,

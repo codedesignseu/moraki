@@ -107,9 +107,14 @@ export function useBabyProfile(): BabyProfile {
         setHousehold({ ...household, babyName: name.trim(), bornAt, birthWeightG });
         setSaved(true);
       } catch (error) {
-        // Only creating a household can miss the guardian declaration.
+        // Only creating a household can miss the guardian declaration, the
+        // Terms or consent (P0.1, P0.2).
         const reason = error instanceof HouseholdError ? error.reason : 'unknown';
-        setProblem(reason === 'guardian' ? 'unknown' : reason);
+        setProblem(
+          reason === 'offline' || reason === 'signed_out' || reason === 'unknown'
+            ? reason
+            : 'unknown',
+        );
       } finally {
         setBusy(false);
       }
