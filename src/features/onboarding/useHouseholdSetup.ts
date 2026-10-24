@@ -6,6 +6,7 @@ import { consentLocale } from '@/domain/consent/consent';
 import { newId } from '@/domain/ids';
 import { localTimeDaysAgo } from '@/domain/time/zoned';
 import { dateLocale } from '@/i18n';
+import { useDevicePref } from '@/db/react';
 import { useAuth } from '@/sync/AuthProvider';
 import { createHousehold, HouseholdError, type Relation } from '@/sync/household';
 import { useAccountHousehold } from '@/sync/useAccountHousehold';
@@ -21,13 +22,7 @@ export const LIMITS = {
 const BORN_HOUR = 12;
 
 export type SetupProblem =
-  | 'display_name'
-  | 'baby_name'
-  | 'birth_weight'
-  | 'guardian'
-  | 'offline'
-  | 'signed_out'
-  | 'unknown';
+  'display_name' | 'baby_name' | 'birth_weight' | 'guardian' | 'offline' | 'signed_out' | 'unknown';
 
 /**
  * Creates the account's household with its baby (P2-05). Only the server
@@ -38,6 +33,7 @@ export type SetupProblem =
 export function useHouseholdSetup(onDone: () => void) {
   const { auth, state } = useAuth();
   const { household, remember } = useAccountHousehold();
+  const [, setGuardian] = useDevicePref('guardianDeclaration');
   const { i18n } = useTranslation();
   const [displayName, setDisplayName] = useState('');
   const [relation, setRelation] = useState<Relation | null>(null);
@@ -90,6 +86,8 @@ export function useHouseholdSetup(onDone: () => void) {
         },
         () => newId(Date.now(), () => getRandomBytes(16)),
       );
+      // The declaration went on record with the household (P0.1).
+      setGuardian({ userId: created.userId, householdId: created.householdId, onRecord: true });
       remember(created);
     } catch (error) {
       setProblem(error instanceof HouseholdError ? error.reason : 'unknown');

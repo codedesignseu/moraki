@@ -1,4 +1,4 @@
-import { agreedToCurrent, CONSENT_VERSION, consentLocale } from './consent';
+import { agreedToCurrent, CONSENT_VERSION, consentLocale, guardianStatus } from './consent';
 
 const USER = '0190a0b0-0000-7000-8000-000000000001';
 
@@ -29,5 +29,28 @@ describe('consentLocale', () => {
   it('falls back to English, as the app does, for a language with no text', () => {
     expect(consentLocale('fr')).toBe('en');
     expect(consentLocale('')).toBe('en');
+  });
+});
+
+describe('guardianStatus', () => {
+  const HOUSEHOLD = '0190a0b0-0000-7000-8000-0000000000a1';
+
+  it('says what the server said for this account and household', () => {
+    expect(
+      guardianStatus({ userId: USER, householdId: HOUSEHOLD, onRecord: true }, USER, HOUSEHOLD),
+    ).toBe('on_record');
+    expect(
+      guardianStatus({ userId: USER, householdId: HOUSEHOLD, onRecord: false }, USER, HOUSEHOLD),
+    ).toBe('missing');
+  });
+
+  it('is unknown with no answer yet, or an answer about someone or somewhere else', () => {
+    const record = { userId: USER, householdId: HOUSEHOLD, onRecord: false };
+    expect(guardianStatus(null, USER, HOUSEHOLD)).toBe('unknown');
+    expect(guardianStatus(record, '0190a0b0-0000-7000-8000-000000000002', HOUSEHOLD)).toBe(
+      'unknown',
+    );
+    expect(guardianStatus(record, USER, '0190a0b0-0000-7000-8000-0000000000a2')).toBe('unknown');
+    expect(guardianStatus(record, null, null)).toBe('unknown');
   });
 });

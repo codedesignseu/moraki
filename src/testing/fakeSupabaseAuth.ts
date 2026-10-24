@@ -107,6 +107,13 @@ export function authServer(
     recordInviteAttempt?: () => Response;
     /** A message left through the feedback form (P4-13), and a way to refuse one. */
     feedback?: (row: Record<string, unknown>) => Response | undefined;
+    /**
+     * The account's guardian_declaration rows in consent_events (P0.1).
+     * Defaults to one, on record; a Response answers instead (an outage).
+     */
+    guardianEvents?: () => unknown[] | Response;
+    /** declare_guardian (P0.1): called with the body; a Response refuses it. */
+    declareGuardian?: (body: Record<string, unknown>) => Response | undefined;
     /** grant_consent and withdraw_consent (P3-09). */
     consent?: (path: string) => Response;
     createHousehold?: () => Response;
@@ -277,6 +284,12 @@ export function authServer(
             }),
           )
         );
+      case '/rest/v1/consent_events': {
+        const rows = options.guardianEvents?.() ?? [{ id: 1 }];
+        return rows instanceof Response ? rows : json(200, rows);
+      }
+      case '/rest/v1/rpc/declare_guardian':
+        return options.declareGuardian?.(body) ?? json(200, new Date().toISOString());
       case '/rest/v1/rpc/grant_consent':
       case '/rest/v1/rpc/withdraw_consent':
         return options.consent?.(url.pathname) ?? json(200, new Date().toISOString());

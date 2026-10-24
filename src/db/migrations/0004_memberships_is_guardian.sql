@@ -1,0 +1,1 @@
+ALTER TABLE `memberships` ADD `is_guardian` integer DEFAULT false NOT NULL;

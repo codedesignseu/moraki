@@ -36,3 +36,24 @@ export function consentLocale(language: string): ConsentLocale {
  * version; a new wording gets a new date.
  */
 export const GUARDIAN_DECLARATION_VERSION = '2026-10-24';
+
+/**
+ * What this phone knows about whether an account's guardian declaration for
+ * a household is on the server's record (P0.1). Owners from before the
+ * declaration existed were marked as guardians without one, and are asked once.
+ */
+export type GuardianRecord = { userId: string; householdId: string; onRecord: boolean };
+
+/**
+ * `on_record` or `missing` once the server has said so for this account and
+ * household; `unknown` before it has (or for another account's record), when
+ * nothing is held back on a guess.
+ */
+export function guardianStatus(
+  record: GuardianRecord | null,
+  userId: string | null,
+  householdId: string | null,
+): 'on_record' | 'missing' | 'unknown' {
+  if (!record || record.userId !== userId || record.householdId !== householdId) return 'unknown';
+  return record.onRecord ? 'on_record' : 'missing';
+}

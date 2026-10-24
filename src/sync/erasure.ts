@@ -5,7 +5,9 @@ import type { Auth } from './auth';
  * - `forbidden`: the server says this account may not (no longer a member,
  *   or not the owner);
  * - `only_member`: the last member can't leave, only delete the household;
- * - `successor`: the person named as the next owner isn't in the household;
+ * - `successor`: the person named as the next owner isn't in the household,
+ *   or hasn't declared they are the baby's parent or guardian;
+ * - `no_guardian`: nobody else has declared, so nobody can take over (P0.1);
  * - `offline`: the request never reached the server;
  * - `apple_cancelled`: the person closed Apple's sheet instead of confirming;
  * - `apple_revoke`: Apple's tokens could not be revoked, so nothing was deleted;
@@ -15,6 +17,7 @@ export type ErasureFailure =
   | 'forbidden'
   | 'only_member'
   | 'successor'
+  | 'no_guardian'
   | 'offline'
   | 'apple_cancelled'
   | 'apple_revoke'
@@ -31,6 +34,7 @@ function failure(error: { message?: string; code?: string }): ErasureError {
   if (error.code === '42501') return new ErasureError('forbidden');
   if (error.code === '23001') return new ErasureError('only_member');
   if (error.code === '22023') return new ErasureError('successor');
+  if (error.code === 'MK002') return new ErasureError('no_guardian');
   // postgrest-js reports a failed request with no code.
   if (!error.code && /fetch|network/i.test(error.message ?? '')) return new ErasureError('offline');
   return new ErasureError('unknown');
