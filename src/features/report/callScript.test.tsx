@@ -106,8 +106,9 @@ describe('the call script', () => {
     const card = within(screen.getByTestId('call-weight'));
     expect(card.getByText('3400 g')).toBeOnTheScreen();
     expect(card.getByText('3510 g on day 12')).toBeOnTheScreen();
-    // 110 g, which is 3.2 points of the birth weight.
-    expect(card.getByText('110 g (3.2%)')).toBeOnTheScreen();
+    // 110 g, plain arithmetic, with no percentage of birth weight (P0.7).
+    expect(card.getByText('+110 g')).toBeOnTheScreen();
+    expect(card.queryByText(/%/)).toBeNull();
   });
 
   it('gives the last 24 hours of feeds, with the longest gap', async () => {
