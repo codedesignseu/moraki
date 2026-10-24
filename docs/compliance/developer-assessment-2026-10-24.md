@@ -38,7 +38,7 @@
    - The call script and the PDF show the change since birth in grams and percent.
    - The About screen, Terms and Privacy say "no warnings, no ranges". (Q130–132.)
 6. **Backups and environments.**
-   - The Supabase Free plan has no restorable backups and pauses when idle, which also stops the 24-month sweep. The owner is moving to Pro.
+   - **Supabase plan:** production runs on Supabase **Pro** (owner decision 2026-10-24, in place before launch). Per Supabase's Pro plan documentation: the project never pauses, so sync and the cleanup jobs keep running, and daily backups are kept for 7 days. Point-in-time recovery is a paid add-on and is not enabled. Confirm in Supabase → Database → Backups after the upgrade.
    - There is a single Supabase project, so TestFlight test data sits in production. (Q9, Q115–121.)
 7. **Mismatches with the published website.**
    - Placeholders remain: `[Registered address]`, `[Email provider]`, `[Region]`, and `[date]` on Age guides and FAQ.
@@ -427,7 +427,7 @@ Answer:
 - Auth (`auth.users`, `auth.identities`, sessions) is in the same Postgres project, so it would be in the same region.
 - The code cannot show the region: the URL is in the EAS environment and its host does not encode a region. Unknown — NOT DETERMINABLE FROM CODE (Supabase → Project Settings → General / Infrastructure).
 - Backup storage location and plan:
-  - The project is currently on the Free plan; the owner is moving to Pro before launch (owner-confirmed 2026-10-18/24).
+  - Production runs on Supabase **Pro** (owner decision 2026-10-24, in place before launch). It was on the Free plan during TestFlight.
   - Backup location and retention: Unknown — NOT DETERMINABLE FROM CODE (Supabase → Database → Backups).
 
 Evidence:
@@ -1163,7 +1163,7 @@ Answer:
 - Any owner or caregiver who has consented can edit or soft-delete **any** entry in the household, including another person's. Viewers can't.
 - A patch merges fields into the row and overwrites `updated_by`. **No previous version or edit history is kept** on the server or the phone. The only exception is the in-memory 6-second undo.
 - Delete is a soft delete. The full payload is kept with `deleted_at` set.
-- Whether database backups or point-in-time recovery hold earlier versions: Unknown — NOT DETERMINABLE FROM CODE (Supabase → Database → Backups; Free plan now, Pro planned).
+- Whether database backups or point-in-time recovery hold earlier versions: Unknown — NOT DETERMINABLE FROM CODE (Supabase → Database → Backups; Pro plan from launch: daily backups kept 7 days).
 
 Evidence:
 - `supabase/migrations/20260923060000_consent.sql:70-78`
@@ -1226,7 +1226,7 @@ Website claim check: Privacy §9 and the support page say the export holds "name
 - **Source verified:** `main` at `4182a3fb` (2026-10-24). The app code is the same as TestFlight build 6 (`89b169fc`). That build includes #184 (export files deleted after sharing), #185 (consent v2026-10-18 and the inactive-household sweep) and #186 (Sign in with Apple revocation). `89b169fc` is an ancestor of `4182a3fb`, and nothing under `src/` or `app/` changed between them.
 - **Method:** I read the code, migrations, pgTAP tests and the website only. Nothing was run against Supabase.
 - **Owner-confirmed, not from code:**
-  - Supabase is on the Free plan today and moves to Pro before launch.
+  - Production runs on Supabase **Pro** (owner decision 2026-10-24, in place before launch).
   - `supabase db push` has been run, so consent v2026-10-18 and the inactive-household sweep are live.
   - The `apple-revoke` Edge Function is deployed and tested.
 - **Dashboard-only facts** are marked "Unknown — NOT DETERMINABLE FROM CODE (<dashboard>)".
@@ -1866,7 +1866,7 @@ Website claim check: Privacy §9 and the support page say the export holds "name
 
 - **Status:** Unknown — NOT DETERMINABLE FROM CODE (Supabase → Database → Backups).
 - **Answer:**
-  - Owner-confirmed: Free plan now, Pro before launch.
+  - Owner decision 2026-10-24: production runs on Supabase **Pro** before launch.
   - Per Supabase plan documentation, to be confirmed in the dashboard:
     - the Free plan has no customer-restorable daily backups or PITR;
     - Pro includes daily backups kept for 7 days, with PITR as a paid add-on.
@@ -1898,7 +1898,7 @@ Website claim check: Privacy §9 and the support page say the export holds "name
   - `sweep_inactive_households()` is scheduled daily at 03:31 UTC with pg_cron. It deletes households with no activity in 24 months, by the same cascade as `delete_household`.
   - No warning email is sent.
   - It is live, per the owner's confirmation of `db push`. Whether the cron job runs successfully on the hosted project is Unknown — NOT DETERMINABLE FROM CODE (Supabase → Integrations → Cron).
-  - On the Free plan, a paused project runs no cron.
+  - On Pro, the project never pauses, so the cron jobs run daily. During TestFlight it was on Free, where an idle project pauses and runs no cron.
 - **Evidence:** `20261018093000_sweep_inactive_households.sql:1-64`, `15_sweep_inactive_households.test.sql:58-104`.
 - **Website claim check:** Privacy policy §8 says "deleted automatically … We don't send a warning first. Your account is not deleted." This is consistent. **Stale internal doc:** `docs/compliance/retention.md:52` still says the inactive sweep "is not built" (line 25 of the same file says it is built).
 
@@ -2101,7 +2101,7 @@ Related status line (`sync.noConsent`):
 | Not swept by anything | — | `invite_attempts`, accounts with no household, consent rows of live accounts, soft-deleted payloads in live households | — | — | as in Q120 |
 | Local cache | OS / user | — | Until cleared in the app or uninstalled. iOS keychain items can survive uninstall; the encrypted database goes into iCloud or device backups | — | `src/db/client.ts:27-40` |
 | Exports and PDFs | The user | Never uploaded | JSON/CSV temporary files deleted after sharing; PDF temporary file left to the OS cache | — | `useExport.ts:66-76`, `useReport.ts:78-85` |
-| Supabase backups | Supabase | Per plan (Free now, Pro before launch). Whole-database snapshots that age out; no selective removal. Unknown — NOT DETERMINABLE FROM CODE (Supabase → Backups) | — | — | owner-confirmed plan |
+| Supabase backups | Supabase | Pro plan from launch: daily backups kept 7 days. Whole-database snapshots that age out; no selective removal. Unknown — NOT DETERMINABLE FROM CODE (Supabase → Backups) | — | — | owner-confirmed plan |
 | Logs (Supabase, Sentry, Expo, web host) | Providers | Sentry 30 days (owner-confirmed); the rest Unknown — NOT DETERMINABLE FROM CODE | — | — | — |
 
 ```mermaid
@@ -2987,8 +2987,7 @@ The other findings in that audit still hold unless an answer below says otherwis
   - **App corruption:** if the database key is lost, the local database is reset (`src/db/client.ts`). A signed-in user gets their data back by pulling it again; a signed-out user's data is lost.
   - **Export:** the JSON and CSV export is a manual copy, but the app has no import.
   - **Server:**
-    - Supabase Free plan (owner-confirmed; moving to Pro);
-    - `docs/11-go-live.md:23` says "The free plan also has no restorable backups";
+    - Supabase **Pro** from launch (owner decision 2026-10-24): daily backups kept 7 days, restored by Supabase, whole database only;
     - backup and point-in-time-recovery settings are NOT DETERMINABLE FROM CODE (Supabase → Database → Backups).
 - **Evidence:**
   - `src/db/repositories/events.ts:38`
@@ -3009,7 +3008,7 @@ The other findings in that audit still hold unless an answer below says otherwis
     - a delete wins and is final;
     - an insert never brings a deleted event back;
     - the server's sequence keeps the pull order correct.
-  - **If Supabase is down or paused:** the app keeps working locally and syncs later. A paused Free-plan project stops sync and the sweeps.
+  - **If Supabase is down or paused:** the app keeps working locally and syncs later. On Pro the project does not pause.
 - **Evidence:**
   - `src/sync/pushEngine.ts:25, 69, 97`
   - `src/sync/backoff.ts`
@@ -3554,7 +3553,7 @@ The foreign key `(baby_id, household_id) → babies` stops cross-household attac
 | `sweep-old-invites` | 03:23 daily | Delete invites more than 90 days after use or expiry | `:46-51, 60` |
 | `sweep-inactive-households` | 03:31 daily | Delete households with no activity for 24 months (activity is any of: event `server_updated_at`, baby `updated_at`, `joined_at`, a member's `last_sign_in_at`, a session's created or updated time). No warning email | `20261018093000_sweep_inactive_households.sql:30-64` |
 
-Whether the jobs exist and succeed on the hosted project is NOT DETERMINABLE FROM CODE (Supabase → Integrations → Cron). They do not run while a Free project is paused. Note that `babies.updated_at` is set by the client on edit (`src/sync/household.ts:139-149`), not by a trigger.
+Whether the jobs exist and succeed on the hosted project is NOT DETERMINABLE FROM CODE (Supabase → Integrations → Cron). On Pro the project never pauses, so they run daily. Note that `babies.updated_at` is set by the client on edit (`src/sync/household.ts:139-149`), not by a trigger.
 
 **Edge Function:** `apple-revoke`. It checks the caller's JWT with `auth.getUser`, then exchanges and revokes the Apple code. It never logs the code, the tokens or the email.
 
@@ -3620,9 +3619,12 @@ None of these has been implemented; that waits on a discussion first.
 - **H2. The live legal pages contain placeholders and draft banners.**
   - **Why:** EN shows `[Registered address]`, `[Email provider]` and `[Region]`; EL shows `[Έδρα εταιρείας]`, `[Πάροχος email]` and `[Περιοχή]`. The age-guides and FAQ pages show `[date]`. A registered address and a complete processor list are required for transparency and company-information duties.
   - **Fix:** fill them in, remove the draft banners after legal review, and re-upload the site.
-- **H3. The Supabase Free plan has no restorable backups and pauses when idle** (owner-confirmed Free; `docs/11-go-live.md:23`).
+- **H3. Resolved by decision: Supabase Pro from launch** (owner, 2026-10-24). The Free plan had no restorable backups and paused when idle.
   - **Why:** There is a data-loss and availability risk for a health record. While the project is paused, nothing syncs and the 24-month sweep does not run.
-  - **Fix:** move to Pro before the public launch (planned, owner-confirmed). Record the backup and point-in-time-recovery retention in `retention.md`.
+  - **Remaining actions:**
+    - Upgrade before the public launch.
+    - Record "daily backups, 7 days, no point-in-time recovery" in `retention.md` and the privacy policy.
+    - Decide whether point-in-time recovery is needed.
 - **H4. A medication safety claim on the website.**
   - **Why:** "Name, amount and time, so nobody gives a second dose by mistake" (`public/features/index.html:49`) invites reliance on timely sync, which is not guaranteed (Q140).
   - **Fix:** reword it as a record, for example "so everyone can see the last dose that was logged".

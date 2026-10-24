@@ -51,3 +51,11 @@ or delete.
 - **Inactive households** — built 2026-10-18 as a daily `pg_cron` sweep, without the warning email (there is still no email-sending path). Revisit the warning once one exists.
 - **P4-F5** — two of the three sweeps this policy names now run: feedback past 24 months and invites past 90 days of being used or expired, both a daily `pg_cron` job (`supabase/migrations/20260928090000_retention_sweeps.sql`). The third, inactive households, is not built and is not a smaller version of the same task — its delete half needs P4-06's household-deletion RPC to exist first, and there is no email-sending mechanism in the project at all yet. It waits on P4-06, not on more engineering time.
 - Both figures that were marked **confirm** are now read off the dashboards and written in: Supabase is `eu-central-1` (Frankfurt) and Sentry retains errors for 30 days.
+
+## Server backups (decided 2026-10-24)
+
+- **Plan:** production runs on Supabase Pro from launch.
+- **Daily backups:** whole-database snapshots, kept for 7 days according to Supabase's Pro plan documentation. Confirm in Supabase → Database → Backups.
+- **Point-in-time recovery:** not enabled (paid add-on).
+- **Deleted data:** it leaves the backups as they age out, at most 7 days after deletion. Data can't be removed from a backup selectively.
+- **Privacy policy:** should say this. The lawyer reviews the wording.

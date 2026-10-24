@@ -20,7 +20,7 @@ Status on 2026-10-18:
   3. Note the Key ID.
 - [ ] **Set the secrets:** `supabase secrets set APPLE_TEAM_ID=285GZCH8W4 APPLE_CLIENT_ID=eu.codedesigns.moraki APPLE_KEY_ID=<id> APPLE_PRIVATE_KEY="$(cat AuthKey_<id>.p8)"`
 - [ ] **Deploy the function:** `supabase functions deploy apple-revoke`. If deleting an account later fails with "Invalid JWT", redeploy with `--no-verify-jwt`. The function checks the session itself.
-- [ ] **Recommended: move Supabase to the Pro plan** before launch. Free projects pause when idle, and nothing syncs and no sweep runs while paused. The free plan also has no restorable backups.
+- [ ] **Upgrade Supabase to the Pro plan before launch** (owner decision 2026-10-24). On Pro the project never pauses, so sync and the cleanup jobs keep running, and daily backups are kept for 7 days. Point-in-time recovery is a paid add-on and is not enabled. After upgrading, check Database → Backups.
 
 Until the Apple steps are done, an account signed in with Apple can't be deleted on iOS. That would fail App Review.
 
