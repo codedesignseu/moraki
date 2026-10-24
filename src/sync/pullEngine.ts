@@ -111,6 +111,9 @@ export function createPullEngine(deps: Deps) {
       failures = 0;
       if (page.length < PULL_PAGE) break;
     }
+    // A phone that stays open for weeks still empties its old tombstones
+    // (P0.6), including any a pull could not bring because it skipped them.
+    deps.events.purgeOldTombstones();
 
     // Who is in the household comes with the same trip: a pull of events
     // carries no names (P2-F11), and without them another phone's entries
