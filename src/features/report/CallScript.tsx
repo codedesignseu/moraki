@@ -8,6 +8,7 @@ import { formatDuration } from '@/i18n/duration';
 import { Card, Page, TextField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
+import { signedGrams } from './reportLabels';
 import { useCallScript } from './useCallScript';
 
 const WORRY_MAX = 500;
@@ -67,12 +68,11 @@ export function CallScript({ onBack }: { onBack: () => void }) {
                 : t('report.call.weight.none')
             }
           />
-          {report.weight.changeG !== null && report.weight.changePct !== null && (
+          {report.weight.changeG !== null && (
             <Line
               label={t('report.call.weight.change')}
               value={t('report.call.weight.changeValue', {
-                grams: report.weight.changeG,
-                percent: report.weight.changePct,
+                grams: signedGrams(report.weight.changeG),
               })}
             />
           )}
