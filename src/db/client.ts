@@ -90,6 +90,9 @@ export async function openAppDatabase(): Promise<AppRepositories> {
     outbox: createOutboxRepository(db),
     caregivers: createCaregiversRepository(db),
   };
+  // Deleted entries past their 30 days lose their content on every start
+  // (P0.6), signed in or not.
+  repositories.events.purgeOldTombstones();
   return {
     ...repositories,
     linked: () => readLinkedIdentity(db),
