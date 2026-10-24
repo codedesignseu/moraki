@@ -31,10 +31,11 @@ $$;
 -- An insert op as the client writes it: epoch milliseconds, server column names.
 create function pg_temp.insert_op(event_id text, author int default 2, payload jsonb default '{"ml": 90, "milk": "formula"}',
     household text default 'aaaaaaaa-0000-0000-0000-000000000001',
-    baby text default 'bbbbbbbb-0000-0000-0000-000000000001') returns jsonb
+    baby text default 'bbbbbbbb-0000-0000-0000-000000000001',
+    event_type text default 'feed_bottle') returns jsonb
 language sql as $$
   select jsonb_build_object('op', 'insert', 'body', jsonb_build_object(
-    'id', event_id, 'household_id', household, 'baby_id', baby, 'type', 'feed_bottle',
+    'id', event_id, 'household_id', household, 'baby_id', baby, 'type', event_type,
     'occurred_at', 1793620800000::bigint, 'ended_at', null, 'payload', payload, 'group_id', null,
     'created_by', ('00000000-0000-0000-0000-00000000000' || author),
     'updated_by', ('00000000-0000-0000-0000-00000000000' || author),
@@ -106,7 +107,7 @@ select results_eq(
 
 -- unset: a cleared field is removed, not set to null (P1-F13)
 select pg_temp.push(pg_temp.insert_op('eeeeeeee-0000-0000-0000-000000000002', 2,
-  '{"note": "warm", "temp_c": 37.8}'::jsonb));
+  '{"note": "warm", "temp_c": 37.8}'::jsonb, event_type => 'health'));
 select results_eq(
   $$select status from pg_temp.push('{"op":"patch","body":{"id":"eeeeeeee-0000-0000-0000-000000000002",
     "payload":{"note":"better"},"unset":["temp_c"]}}'::jsonb)$$,
