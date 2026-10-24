@@ -98,6 +98,57 @@ describe('agreeing to the Terms when signing in (P0.9)', () => {
   });
 });
 
+describe('when the Terms change (P1.4)', () => {
+  it('asks again on the next open, with the disclaimer, and syncs nothing until agreed', async () => {
+    const pushes: unknown[] = [];
+    h.prefs.set('terms', { userId: USER_ID, version: '2026-01-01' });
+    h.repo.insert({ type: 'diaper', occurredAt: NOW - 60_000, payload: { kind: 'wet' } });
+    const server = await signedIn({
+      termsEvents: () => [],
+      pushEvents: (ops) => (pushes.push(ops), new Response('[]', { status: 200 })),
+    });
+
+    expect(await screen.findByText('We updated our Terms')).toBeOnTheScreen();
+    expect(screen.getByTestId('terms-disclaimer')).toHaveTextContent(
+      'Moraki is a notebook, not medical advice. If you’re worried about your baby, contact your doctor.',
+    );
+    expect(screen.getByRole('checkbox', { name: AGREE })).not.toBeChecked();
+    expect(pushes).toEqual([]);
+
+    await press('Continue');
+    expect(screen.getByText('Error: Tick the box to agree to the Terms of Use.')).toBeOnTheScreen();
+    expect(server.calls.some((c) => c.path === '/rest/v1/rpc/record_consent')).toBe(false);
+
+    await fireEvent.press(screen.getByRole('checkbox', { name: AGREE }));
+    await press('Continue');
+
+    await waitFor(() => expect(h.prefs.get('terms')?.version).toBe(TERMS_VERSION));
+    await waitFor(() => expect(screen.queryByTestId('terms-agreement')).toBeNull());
+    await waitFor(() => expect(pushes).toHaveLength(1));
+  });
+
+  it('says why nothing syncs if they close it', async () => {
+    h.repo.insert({ type: 'diaper', occurredAt: NOW - 60_000, payload: { kind: 'wet' } });
+    await signedIn({ termsEvents: () => [] });
+    await screen.findByTestId('terms-agreement');
+    await press('Not now');
+
+    await press(/Settings/);
+    expect(
+      within(await screen.findByTestId('settings-sync')).getByText(
+        'Sharing is paused until you agree to the Terms of Use.',
+      ),
+    ).toBeOnTheScreen();
+  });
+
+  it('is not asked when the server has this account agreeing, from another phone', async () => {
+    await signedIn({ termsEvents: () => [{ id: 1 }] });
+
+    await waitFor(() => expect(h.prefs.get('terms')?.version).toBe(TERMS_VERSION));
+    expect(screen.queryByTestId('terms-agreement')).toBeNull();
+  });
+});
+
 describe('the Terms from Settings (P0.9)', () => {
   it('opens them with both links and the disclaimer, and records agreeing', async () => {
     const server = await signedIn();
@@ -122,6 +173,9 @@ describe('the Terms from Settings (P0.9)', () => {
 
   it('are needed before setting up a household', async () => {
     const server = await signedIn({ termsEvents: () => [], memberships: [], babies: [] });
+    // Asked on opening (P1.4), and put off.
+    await screen.findByTestId('terms-agreement');
+    await press('Not now');
     await press(/Settings/);
     await press('Set up household');
     await fireEvent.changeText(screen.getByLabelText('Your name'), 'Maria');
