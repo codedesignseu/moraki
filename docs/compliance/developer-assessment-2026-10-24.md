@@ -659,7 +659,7 @@ Answer:
 - **App code:** no logging of codes or emails. Auth errors map to reason codes with no address or code (`auth.ts:8-16`). Sentry never receives a user and drops request breadcrumbs.
 - **Edge Function:** logs only a failure code.
 - **Database:** `invite_attempts` records user ID and time of invite-code attempts. Retention: it is pruned within the function; see `20260927120000_invite_rate_limit.sql`.
-- **Supabase Auth** (`auth.audit_log_entries`, `auth.sessions` with IP and user agent; API, auth and Edge logs with IPs): retention and contents are Unknown — NOT DETERMINABLE FROM CODE (Supabase → Logs; plan-dependent retention; currently Free plan, moving to Pro, owner-confirmed). On Pro, Supabase's plan documentation gives 7 days of log retention for API, auth and Edge logs. Confirm in Supabase → Logs after the upgrade.
+- **Supabase Auth** (`auth.audit_log_entries`, `auth.sessions` with IP and user agent; API, auth and Edge logs with IPs): retention and contents are Unknown — NOT DETERMINABLE FROM CODE (Supabase → Logs; plan-dependent retention; Pro from launch, owner decision 2026-10-24). On Pro, Supabase's plan documentation gives 7 days of log retention for API, auth and Edge logs. Confirm in Supabase → Logs after the upgrade.
 
 Evidence:
 - `src/sync/auth.ts:8-64`
