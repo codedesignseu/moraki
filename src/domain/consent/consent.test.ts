@@ -1,4 +1,4 @@
-import { agreedToCurrent, CONSENT_VERSION } from './consent';
+import { agreedToCurrent, CONSENT_VERSION, consentLocale } from './consent';
 
 const USER = '0190a0b0-0000-7000-8000-000000000001';
 
@@ -16,5 +16,18 @@ describe('agreedToCurrent', () => {
     expect(agreedToCurrent(record, '0190a0b0-0000-7000-8000-000000000002')).toBe(false);
     expect(agreedToCurrent(record, null)).toBe(false);
     expect(agreedToCurrent(null, USER)).toBe(false);
+  });
+});
+
+describe('consentLocale', () => {
+  it('names the language the text was shown in', () => {
+    expect(consentLocale('el')).toBe('el');
+    expect(consentLocale('el-CY')).toBe('el');
+    expect(consentLocale('en')).toBe('en');
+  });
+
+  it('falls back to English, as the app does, for a language with no text', () => {
+    expect(consentLocale('fr')).toBe('en');
+    expect(consentLocale('')).toBe('en');
   });
 });
