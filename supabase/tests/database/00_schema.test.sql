@@ -6,8 +6,8 @@ select plan(36);
 select tables_are(
   'public',
   array['households', 'memberships', 'babies', 'events', 'invites', 'consents', 'push_tokens',
-        'feedback', 'invite_attempts'],
-  'public has exactly the SDD 4.2 tables, plus feedback (P4-13) and invite_attempts (P2-F7)'
+        'feedback', 'invite_attempts', 'inactivity_warning_emails'],
+  'public has exactly the SDD 4.2 tables, plus feedback (P4-13), invite_attempts (P2-F7) and inactivity_warning_emails'
 );
 select enum_has_labels('public', 'member_role', array['owner', 'caregiver', 'viewer'], 'member_role values');
 
@@ -34,8 +34,9 @@ select has_sequence('public', 'event_seq', 'event_seq exists');
 select has_trigger('public', 'events', 'events_stamp_seq', 'events get seq from a trigger');
 
 select columns_are('public', 'households', array[
-  'id', 'name', 'reminder_interval_min', 'second_reminder_min', 'created_by', 'created_at'
-], 'households has the SDD columns');
+  'id', 'name', 'reminder_interval_min', 'second_reminder_min', 'created_by', 'created_at',
+  'inactivity_warned_at'
+], 'households has the SDD columns, plus the inactivity warning');
 select col_default_is('public', 'households', 'reminder_interval_min', 180, 'reminder interval defaults to 180');
 select col_is_pk('public', 'memberships', array['household_id', 'user_id'], 'one membership per user per household');
 select col_type_is('public', 'memberships', 'role', 'member_role', 'role is member_role');

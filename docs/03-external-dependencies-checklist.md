@@ -17,6 +17,15 @@ This is the current list. The sections further down are the original plan from S
   - `supabase secrets set APPLE_TEAM_ID=285GZCH8W4 APPLE_CLIENT_ID=eu.codedesigns.moraki APPLE_KEY_ID=… APPLE_PRIVATE_KEY="$(cat AuthKey_XXX.p8)"`
   - `supabase functions deploy apple-revoke`
   - Test on TestFlight: delete an Apple-linked test account and check Moraki disappears from the Apple ID's "Sign in with Apple" list.
+- [ ] **Inactivity warning emails (Brevo)** (added 2026-10-24). Without them no warning is sent, and so no inactive household is ever deleted. Steps in `docs/10-release-runbook.md`, "Inactivity warning emails (Brevo)":
+  - Brevo account with the company, DPA accepted, an API key. (secret)
+  - Verify `moraki.app` in Brevo: its SPF, DKIM and DMARC records at GoDaddy. Add the sender `hello@moraki.app` ("Moraki").
+  - Apple Developer → Services → Sign in with Apple for Email Communication: register `moraki.app` and `hello@moraki.app`, so hidden Apple relay addresses get the email.
+  - `supabase secrets set BREVO_API_KEY=… INACTIVITY_WARNINGS_CRON_SECRET=…` (a random string, e.g. `openssl rand -hex 32`). (secret)
+  - `supabase functions deploy send-inactivity-warnings`
+  - In the SQL Editor, store the function URL and the same secret in Vault (two `vault.create_secret` lines in the runbook).
+  - Test with a throwaway household you own.
+  - The privacy policy must mention the warning email and Brevo: part of the lawyer review below.
 - [ ] **Lawyer review** of the privacy policy, terms and DPIA (SDD 12.1).
   - The pages are `public/privacy/`, `public/terms/` and `/el/...` on moraki.app, still marked as drafts in an HTML comment. The DPIA is in `docs/compliance/`.
   - When the lawyer is done, send the changes. Claude Code updates the pages and removes the draft marks.
