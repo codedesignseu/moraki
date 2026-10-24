@@ -1,4 +1,5 @@
 import type { CaregiversRepository } from '@/db/repositories/caregivers';
+import type { HouseholdAccess } from '@/domain/consent/consent';
 import type { DevicePrefsRepository } from '@/db/repositories/devicePrefs';
 import type { EventsRepository } from '@/db/repositories/events';
 import type { OutboxRepository } from '@/db/repositories/outbox';
@@ -81,6 +82,13 @@ function applyHousehold(
   });
 }
 
+/** Why reading stops, for each answer that isn't `granted` (P0.2, P0.3). */
+const ACCESS_BLOCK = {
+  needs_consent: 'no_consent',
+  needs_agreement: 'no_agreement',
+  frozen: 'frozen',
+} as const satisfies Record<Exclude<HouseholdAccess, 'granted'>, PushBlock>;
+
 export function createPullEngine(deps: Deps) {
   const fetchPage = deps.fetchPage ?? pullPage;
   let failures = 0;
@@ -118,10 +126,7 @@ export function createPullEngine(deps: Deps) {
           deps.devicePrefs?.set('householdAccess', record);
         }
         if (status.access !== 'granted') {
-          return {
-            kind: 'blocked',
-            by: status.access === 'needs_consent' ? 'no_consent' : 'no_agreement',
-          };
+          return { kind: 'blocked', by: ACCESS_BLOCK[status.access] };
         }
       }
     }

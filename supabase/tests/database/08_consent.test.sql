@@ -51,8 +51,8 @@ $$;
 
 set local role authenticated;
 
-select is(public.consent_version(), '2026-10-24',
-  'the version in force is the guardian''s text of 2026-10-24, so every guardian is asked again');
+select is(public.consent_version(), '2026-10-25',
+  'the version in force is the guardian''s text of 2026-10-25, so every guardian is asked again');
 
 -- The helper itself --------------------------------------------------------
 select pg_temp.login(1);
