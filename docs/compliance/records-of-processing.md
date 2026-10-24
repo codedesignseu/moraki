@@ -177,7 +177,9 @@ identity data in §3.1 comes back. Nothing about the household goes to them.
 ## 6. Retention
 
 See [`retention.md`](./retention.md). A household with no activity for 24
-months is deleted by a daily sweep, without a warning email (2026-10-18).
+months is deleted by a daily sweep (2026-10-18), once every member has been
+emailed a warning at least 30 days before (2026-10-24). The email goes through
+Brevo: the address, the language and the deletion date, nothing else.
 
 ## 7. Security measures
 
