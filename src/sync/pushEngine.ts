@@ -17,10 +17,11 @@ import { pushOps, PushTransportError, type PushResult } from './pushEvents';
  * try. Reading is not blocked, there or here: what is already in the
  * household stays readable, to export or delete. `no_guardian` is P0.1: an
  * owner's entries wait until the server has said their guardian declaration
- * is on record, and one without it is asked for it.
+ * is on record, and one without it is asked for it. `no_terms` is P0.9: an
+ * account that hasn't agreed to the Terms of Use in force syncs nothing.
  */
 export type PushBlock =
-  'signed_out' | 'not_linked' | 'other_account' | 'no_consent' | 'no_guardian';
+  'signed_out' | 'not_linked' | 'other_account' | 'no_consent' | 'no_terms' | 'no_guardian';
 
 export type PushOutcome =
   | { kind: 'blocked'; by: PushBlock }
@@ -44,11 +45,13 @@ export function pushBlock(
   state: AuthState,
   consented = true,
   guardianMissing = false,
+  termsAgreed = true,
 ): PushBlock | null {
   if (!auth || state.status !== 'signedIn') return 'signed_out';
   if (!linked) return 'not_linked';
   if (linked.userId !== state.user.id) return 'other_account';
   if (!consented) return 'no_consent';
+  if (!termsAgreed) return 'no_terms';
   return guardianMissing ? 'no_guardian' : null;
 }
 
@@ -63,6 +66,8 @@ type Deps = {
   consented?: () => boolean;
   /** Whether this owner's guardian declaration is known to be missing (P0.1). */
   guardianMissing?: () => boolean;
+  /** Whether this account has agreed to the Terms of Use in force (P0.9). */
+  termsAgreed?: () => boolean;
   /** Swapped in tests; the real one calls push_events. */
   send?: (auth: Auth, rows: readonly OutboxRow[]) => Promise<PushResult[]>;
 };
@@ -88,6 +93,7 @@ export function createPushEngine(deps: Deps) {
       deps.state,
       deps.consented?.() ?? true,
       deps.guardianMissing?.() ?? false,
+      deps.termsAgreed?.() ?? true,
     );
     if (blocked) return { kind: 'blocked', by: blocked };
 
@@ -160,6 +166,7 @@ export function createPushEngine(deps: Deps) {
           deps.state,
           deps.consented?.() ?? true,
           deps.guardianMissing?.() ?? false,
+          deps.termsAgreed?.() ?? true,
         ),
         lastPushAt,
         failures,

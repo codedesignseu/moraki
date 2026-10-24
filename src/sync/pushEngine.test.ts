@@ -116,6 +116,17 @@ describe('pushing the outbox', () => {
     ).toEqual({ kind: 'blocked', by: 'no_consent' });
   });
 
+  it('sends nothing until the account has agreed to the Terms in force (P0.9)', async () => {
+    const h = await harness();
+    bottle(h.events);
+    h.link();
+    const fake = server(allApplied);
+    const engine = h.engine({ send: fake.send, termsAgreed: () => false });
+    expect(await engine.push()).toEqual({ kind: 'blocked', by: 'no_terms' });
+    expect(engine.status().blocked).toBe('no_terms');
+    expect(fake.batches).toEqual([]);
+  });
+
   it('drains the outbox once the phone is linked', async () => {
     const h = await harness();
     bottle(h.events);

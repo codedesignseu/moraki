@@ -5,6 +5,7 @@ import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GuardianGate } from '@/features/privacy/GuardianGate';
+import { TermsGate } from '@/features/privacy/TermsGate';
 import type { IconName } from '@/ui/icons';
 import { Icon } from '@/ui/primitives';
 import { useTheme } from '@/ui/theme';
@@ -47,11 +48,14 @@ export default function TabsLayout() {
   const inset = (size.navBar - size.navButton) / 2;
   const router = useRouter();
   const askGuardian = useCallback(() => router.push('/onboarding/guardian'), [router]);
+  const askTerms = useCallback(() => router.push('/onboarding/terms'), [router]);
 
   return (
     <>
       {/* P0.1: an owner with no guardian declaration on record is asked once. */}
       <GuardianGate onMissing={askGuardian} />
+      {/* P0.9: an account that hasn't agreed to the Terms in force is asked once. */}
+      <TermsGate onMissing={askTerms} />
       <Tabs
         screenOptions={{
           headerShown: false,
