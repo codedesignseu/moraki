@@ -659,7 +659,7 @@ Answer:
 - **App code:** no logging of codes or emails. Auth errors map to reason codes with no address or code (`auth.ts:8-16`). Sentry never receives a user and drops request breadcrumbs.
 - **Edge Function:** logs only a failure code.
 - **Database:** `invite_attempts` records user ID and time of invite-code attempts. Retention: it is pruned within the function; see `20260927120000_invite_rate_limit.sql`.
-- **Supabase Auth** (`auth.audit_log_entries`, `auth.sessions` with IP and user agent; API, auth and Edge logs with IPs): retention and contents are Unknown — NOT DETERMINABLE FROM CODE (Supabase → Logs; plan-dependent retention; currently Free plan, moving to Pro, owner-confirmed).
+- **Supabase Auth** (`auth.audit_log_entries`, `auth.sessions` with IP and user agent; API, auth and Edge logs with IPs): retention and contents are Unknown — NOT DETERMINABLE FROM CODE (Supabase → Logs; plan-dependent retention; currently Free plan, moving to Pro, owner-confirmed). On Pro, Supabase's plan documentation gives 7 days of log retention for API, auth and Edge logs. Confirm in Supabase → Logs after the upgrade.
 
 Evidence:
 - `src/sync/auth.ts:8-64`
@@ -1864,7 +1864,7 @@ Website claim check: Privacy §9 and the support page say the export holds "name
 
 **115. What backups does Supabase keep for our plan?**
 
-- **Status:** Unknown — NOT DETERMINABLE FROM CODE (Supabase → Database → Backups).
+- **Status:** Planned: Supabase Pro from launch (owner decision 2026-10-24). Confirm the exact settings in Supabase → Database → Backups after the upgrade.
 - **Answer:**
   - Owner decision 2026-10-24: production runs on Supabase **Pro** before launch.
   - Per Supabase plan documentation, to be confirmed in the dashboard:
@@ -1875,8 +1875,8 @@ Website claim check: Privacy §9 and the support page say the export holds "name
 
 **116. How long are backups kept? Can one customer's data be removed from them?**
 
-- **Status:** Unknown — NOT DETERMINABLE FROM CODE (Supabase dashboard and plan).
-- **Answer:** Retention is as per Q115. Supabase backups are whole-database snapshots; no code or tooling exists to remove one person's data from them.
+- **Status:** Planned: Pro from launch. Confirm in the dashboard.
+- **Answer:** Daily backups kept 7 days on Pro (Q115). Deleted data therefore leaves the backups at most 7 days after deletion. Supabase backups are whole-database snapshots; no code or tooling exists to remove one person's data from them.
 
 **117. Do other backups, exports, snapshots or logs exist outside Supabase?**
 
@@ -3102,7 +3102,7 @@ The other findings in that audit still hold unless an answer below says otherwis
 | EAS build | `65a8ec0a-19c0-4ced-9482-6041633d04e7`, commit `89b169fc`, 2026-10-18 |
 | Update channel | `production`; runtime version policy `appVersion` |
 | Domain | moraki.app (universal links `applinks:moraki.app`; Android `https://moraki.app/join*`) |
-| Supabase | Region eu-central-1 Frankfurt. Project ref recorded at `docs/compliance/processors.md:20`; plan Free (owner-confirmed) |
+| Supabase | Region eu-central-1 Frankfurt. Project ref recorded at `docs/compliance/processors.md:20`; plan Pro from launch (owner decision 2026-10-24; Free during TestFlight) |
 | Sentry | org `ce-code-designs-ltd`, project `moraki`, DSN host `*.ingest.de.sentry.io` |
 | Sentry environment | `EXPO_PUBLIC_SENTRY_ENV`: value NOT DETERMINABLE FROM CODE (EAS → Environment variables) |
 
