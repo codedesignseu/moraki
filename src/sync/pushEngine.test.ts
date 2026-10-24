@@ -127,6 +127,30 @@ describe('pushing the outbox', () => {
     expect(fake.batches).toEqual([]);
   });
 
+  it('sends nothing until the server says this account may (P0.2)', async () => {
+    const h = await harness();
+    bottle(h.events);
+    h.link();
+    const fake = server(allApplied);
+    const blockedBy = async (access: 'needs_agreement' | 'needs_consent' | 'unknown') =>
+      (await h.engine({ send: fake.send, access: () => access }).push()).kind === 'blocked' &&
+      h.engine({ send: fake.send, access: () => access }).status().blocked;
+
+    // A caregiver without the agreement, a guardian without consent, and the
+    // moment before the server has said: a refused write would only end up
+    // in the sync errors list.
+    expect(await blockedBy('needs_agreement')).toBe('no_agreement');
+    expect(await blockedBy('needs_consent')).toBe('no_consent');
+    expect(await blockedBy('unknown')).toBe('checking');
+    expect(fake.batches).toEqual([]);
+    expect(h.outbox.errors()).toEqual([]);
+
+    expect(await h.engine({ send: fake.send, access: () => 'granted' }).push()).toMatchObject({
+      kind: 'pushed',
+      applied: 1,
+    });
+  });
+
   it('drains the outbox once the phone is linked', async () => {
     const h = await harness();
     bottle(h.events);

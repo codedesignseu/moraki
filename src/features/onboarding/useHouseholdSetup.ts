@@ -7,6 +7,7 @@ import { newId } from '@/domain/ids';
 import { localTimeDaysAgo } from '@/domain/time/zoned';
 import { dateLocale } from '@/i18n';
 import { useDevicePref } from '@/db/react';
+import { useConsent } from '@/privacy/useConsent';
 import { useTerms } from '@/privacy/useTerms';
 import { useAuth } from '@/sync/AuthProvider';
 import { createHousehold, HouseholdError, type Relation } from '@/sync/household';
@@ -27,6 +28,7 @@ export type SetupProblem =
   | 'baby_name'
   | 'birth_weight'
   | 'guardian'
+  | 'consent'
   | 'terms'
   | 'offline'
   | 'signed_out'
@@ -42,7 +44,9 @@ export function useHouseholdSetup(onDone: () => void) {
   const { auth, state } = useAuth();
   const { household, remember } = useAccountHousehold();
   const [, setGuardian] = useDevicePref('guardianDeclaration');
+  const [, setConsentRecord] = useDevicePref('consent');
   const terms = useTerms();
+  const consent = useConsent();
   const { i18n } = useTranslation();
   const [displayName, setDisplayName] = useState('');
   const [relation, setRelation] = useState<Relation | null>(null);
@@ -80,6 +84,9 @@ export function useHouseholdSetup(onDone: () => void) {
       return setProblem('birth_weight');
     }
     if (!guardianDeclared) return setProblem('guardian');
+    // P0.2: the guardian's consent comes before the baby's details leave the
+    // phone. It has its own screen; the server refuses without it too.
+    if (!consent.granted) return setProblem('consent');
     setBusy(true);
     setProblem(null);
     try {
@@ -101,7 +108,11 @@ export function useHouseholdSetup(onDone: () => void) {
       setGuardian({ userId: created.userId, householdId: created.householdId, onRecord: true });
       remember(created);
     } catch (error) {
-      setProblem(error instanceof HouseholdError ? error.reason : 'unknown');
+      const reason = error instanceof HouseholdError ? error.reason : 'unknown';
+      // The server has no consent in force for this account (MK003): this
+      // phone's copy is out of date, so consent is asked again.
+      if (reason === 'consent') setConsentRecord(null);
+      setProblem(reason);
     } finally {
       setBusy(false);
     }
@@ -127,8 +138,10 @@ export function useHouseholdSetup(onDone: () => void) {
     setBirthWeight: (value: string) => setBirthWeight(value.replace(/\D/g, '')),
     guardianDeclared,
     setGuardianDeclared,
+    consentGranted: consent.granted,
     busy,
-    problem,
+    // Agreed on the consent screen since: that problem is answered.
+    problem: problem === 'consent' && consent.granted ? null : problem,
     save: () => void save(),
   };
 }

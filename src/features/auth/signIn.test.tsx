@@ -58,9 +58,8 @@ async function signInThroughTheApp(code = '123456') {
   ).toBeOnTheScreen();
   await type('Code', code);
   await press('Sign in');
-  // Signing in leads to the consent screen (P3-09). These tests are about
-  // signing in, so they take the same way out a person has: Not now.
-  await press('Not now');
+  // Back where signing in started: consent is the guardian's, asked when
+  // they set up a household (P0.2), not on signing in.
 }
 
 describe('sign in with an emailed code', () => {
@@ -154,7 +153,6 @@ describe('sign in with an emailed code', () => {
     await press('Send code');
     await type('Code', '12345678');
     await press('Sign in');
-    await press('Not now'); // the consent screen, as above
 
     expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(server.calls.filter((c) => c.path === '/auth/v1/verify')).toEqual([
@@ -206,7 +204,7 @@ describe('Sign in with Apple (P5-04)', () => {
     expect(screen.queryByRole('button', { name: 'Continue with Apple' })).toBeNull();
   });
 
-  it('signs in with the native identity token, straight to the consent screen', async () => {
+  it('signs in with the native identity token', async () => {
     mockAppleAvailable.mockResolvedValue(true);
     mockSignInWithApple.mockResolvedValue({
       identityToken: 'the-identity-token',
@@ -220,7 +218,6 @@ describe('Sign in with Apple (P5-04)', () => {
     await screen.findByRole('button', { name: 'Continue with Apple' });
     await agreeToTerms();
     await press('Continue with Apple');
-    await press('Not now'); // the consent screen (P3-09)
 
     expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(server.calls.find((c) => c.path === '/auth/v1/token')).toEqual({
@@ -276,7 +273,7 @@ describe('Sign in with Google (P5-04)', () => {
     expect(screen.queryByRole('button', { name: 'Continue with Google' })).toBeNull();
   });
 
-  it('signs in with the native ID token, straight to the consent screen', async () => {
+  it('signs in with the native ID token', async () => {
     mockGoogleWebClientId.mockReturnValue('web-client-id.apps.googleusercontent.com');
     mockSignInWithGoogle.mockResolvedValue('the-google-token');
     const server = authServer();
@@ -285,7 +282,6 @@ describe('Sign in with Google (P5-04)', () => {
     await press('Sign in');
     await agreeToTerms();
     await press('Continue with Google');
-    await press('Not now'); // the consent screen (P3-09)
 
     expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(mockSignInWithGoogle).toHaveBeenCalledWith(
