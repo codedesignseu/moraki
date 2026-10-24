@@ -36,6 +36,8 @@ const WARM_UP_MS = 20_000;
         birthWeightG: null,
         displayName: 'Maria',
         relation: 'mother',
+        guardianDeclared: true,
+        locale: 'en',
       },
       newUuid,
     );

@@ -31,6 +31,9 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
+const GUARDIAN =
+  'I confirm that I am the parent or legal guardian of this child, or otherwise have lawful authority to provide and manage the child’s information in Moraki.';
+
 const press = (name: string | RegExp) => fireEvent.press(screen.getByRole('button', { name }));
 const type = (label: string, text: string) =>
   fireEvent.changeText(screen.getByLabelText(label), text);
@@ -64,6 +67,7 @@ async function fillIn() {
     });
   }
   await type('Birth weight (optional)', '3400');
+  await fireEvent.press(screen.getByRole('checkbox', { name: GUARDIAN }));
 }
 
 describe('household setup', () => {
@@ -92,6 +96,10 @@ describe('household setup', () => {
       display_name: 'Maria',
       relation: 'mother',
       birth_weight_g: 3400,
+      // P0.1: the declaration, the version of its text and its language.
+      guardian_declared: true,
+      guardian_version: '2026-10-24',
+      locale: 'en',
     });
     expect(h.prefs.get('accountHousehold')).toEqual({
       userId: USER_ID,
@@ -175,6 +183,26 @@ describe('household setup', () => {
     ).toBeOnTheScreen();
 
     expect(server.calls.some((c) => c.path === '/rest/v1/rpc/create_household')).toBe(false);
+  });
+
+  it('needs the guardian declaration, which is never ticked for them (P0.1)', async () => {
+    const server = await signedIn();
+    await press('Set up household');
+    expect(screen.getByRole('checkbox', { name: GUARDIAN })).not.toBeChecked();
+    await type('Your name', 'Maria');
+    await type('Name', 'Ella');
+
+    await press('Create household');
+
+    expect(
+      screen.getByText('Error: Tick the box to confirm you’re the parent or legal guardian.'),
+    ).toBeOnTheScreen();
+    expect(server.calls.some((c) => c.path === '/rest/v1/rpc/create_household')).toBe(false);
+
+    await fireEvent.press(screen.getByRole('checkbox', { name: GUARDIAN }));
+    expect(screen.getByRole('checkbox', { name: GUARDIAN })).toBeChecked();
+    await press('Create household');
+    expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
   });
 
   it('says a household needs a connection, and records nothing', async () => {

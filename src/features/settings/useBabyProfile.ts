@@ -107,7 +107,9 @@ export function useBabyProfile(): BabyProfile {
         setHousehold({ ...household, babyName: name.trim(), bornAt, birthWeightG });
         setSaved(true);
       } catch (error) {
-        setProblem(error instanceof HouseholdError ? error.reason : 'unknown');
+        // Only creating a household can miss the guardian declaration.
+        const reason = error instanceof HouseholdError ? error.reason : 'unknown';
+        setProblem(reason === 'guardian' ? 'unknown' : reason);
       } finally {
         setBusy(false);
       }
