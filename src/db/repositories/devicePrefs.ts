@@ -99,6 +99,16 @@ export const DEVICE_PREFS = {
     default: null,
   },
   /**
+   * The consent version this phone last offered to someone whose agreement
+   * to the previous version still counts (the grace, 20261026090000): the
+   * new text is offered once per version, and "Not now" is an answer.
+   */
+  consentPromptSeen: {
+    key: 'pref.consent_prompt_seen',
+    schema: z.string().min(1).nullable(),
+    default: null,
+  },
+  /**
    * This account agreeing to the Terms of Use (P0.9), by version: the server
    * holds the record (consent_events); this copy says whether to ask again.
    */

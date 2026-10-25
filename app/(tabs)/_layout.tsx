@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RemovedGate } from '@/features/household/RemovedNotice';
 import { AccessGate } from '@/features/privacy/AccessGate';
+import { ConsentUpdateGate } from '@/features/privacy/ConsentUpdateGate';
 import { GuardianGate } from '@/features/privacy/GuardianGate';
 import { TermsGate } from '@/features/privacy/TermsGate';
 import type { IconName } from '@/ui/icons';
@@ -65,6 +66,8 @@ export default function TabsLayout() {
       {/* P0.2: a member the server says can't see the household yet is asked once. */}
       {/* P0.5: a phone cleared of a household it no longer belongs to says why, once. */}
       <RemovedGate onShow={showRemoved} />
+      {/* A new consent text, while the previous agreement still counts: offered once. */}
+      <ConsentUpdateGate onAsk={askConsent} />
       <AccessGate
         onNeedsAgreement={askAgreement}
         onNeedsConsent={askConsent}

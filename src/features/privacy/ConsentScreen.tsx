@@ -39,7 +39,7 @@ export function ConsentScreen({
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
-  const { granted, problem, busy, agree, withdraw } = useConsent();
+  const { granted, standing, problem, busy, agree, withdraw } = useConsent();
 
   return (
     <Page
@@ -62,13 +62,23 @@ export function ConsentScreen({
               <Text style={s.hint}>{t('consent.withdrawHint')}</Text>
             </>
           ) : (
-            <Button
-              label={t(busy ? 'consent.working' : 'consent.agree')}
-              busy={busy}
-              // Only leaves the screen once the server has it: a failure has to
-              // stay visible, or someone thinks they agreed when they didn't.
-              onPress={() => void agree().then((saved) => saved && onDone())}
-            />
+            <>
+              <Button
+                label={t(busy ? 'consent.working' : 'consent.agree')}
+                busy={busy}
+                // Only leaves the screen once the server has it: a failure has to
+                // stay visible, or someone thinks they agreed when they didn't.
+                onPress={() => void agree().then((saved) => saved && onDone())}
+              />
+              {/* The earlier agreement still counts, so it can still be withdrawn. */}
+              {standing === 'grace' ? (
+                <TextButton
+                  label={t('consent.withdraw')}
+                  align="center"
+                  onPress={() => void withdraw()}
+                />
+              ) : null}
+            </>
           )}
           <TextButton label={t('consent.notNow')} align="center" onPress={onDone} />
         </>
@@ -80,6 +90,11 @@ export function ConsentScreen({
             <IconCircle icon="check" tone="card" />
             <Text style={s.agreedText}>{t('consent.granted')}</Text>
           </View>
+        </Card>
+      ) : null}
+      {standing === 'grace' ? (
+        <Card tone="pump" testID="consent-updated">
+          <Text style={s.agreedText}>{t('consent.updated')}</Text>
         </Card>
       ) : null}
       <Card testID="consent-what">

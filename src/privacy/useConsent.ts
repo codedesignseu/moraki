@@ -2,8 +2,14 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDevicePref } from '@/db/react';
-import { agreedToCurrent, CONSENT_VERSION, consentLocale } from '@/domain/consent/consent';
+import {
+  agreedToCurrent,
+  CONSENT_VERSION,
+  consentLocale,
+  consentStanding,
+} from '@/domain/consent/consent';
 import { useAuth } from '@/sync/AuthProvider';
+import { useNow } from '@/ui/useNow';
 
 /** A request that never reached the server, however it was reported. */
 function offline(error: unknown): boolean {
@@ -16,6 +22,11 @@ export { CONSENT_VERSION };
 export type ConsentState = {
   /** Whether the signed-in account has agreed, as far as this phone knows. */
   granted: boolean;
+  /**
+   * `grace` while an agreement to the previous version still counts: sharing
+   * goes on, and the new text is offered once (ConsentUpdateGate).
+   */
+  standing: 'current' | 'grace' | 'none';
   /**
    * The same question asked about an account by id, for the moment just after
    * signing in: `granted` was worked out while nobody was signed in yet.
@@ -48,6 +59,8 @@ export function useConsent(): ConsentState {
   const { i18n } = useTranslation();
   const locale = consentLocale(i18n.language);
   const userId = state.status === 'signedIn' ? state.user.id : null;
+  // The grace ends on a clock, so it is checked again every hour.
+  const now = useNow(3_600_000);
 
   const call = useCallback(
     async (fn: 'grant_consent' | 'withdraw_consent'): Promise<boolean> => {
@@ -83,6 +96,7 @@ export function useConsent(): ConsentState {
   return {
     // An agreement to an older version is no agreement: the text changed.
     granted: agreedToCurrent(consent, userId),
+    standing: consentStanding(consent, userId, now),
     grantedBy: (who: string) => agreedToCurrent(consent, who),
     problem,
     busy,

@@ -27,13 +27,13 @@ export function PrivacyCard({
 }) {
   const { t } = useTranslation();
   const { state } = useAuth();
-  const { granted } = useConsent();
+  const { standing } = useConsent();
   const agreement = useCaregiverAgreement();
 
   if (state.status !== 'signedIn') return null;
   const value = agreement.forThisAccount
     ? t(agreement.accepted ? 'settings.privacy.accepted' : 'settings.privacy.notAccepted')
-    : t(granted ? 'settings.privacy.agreed' : 'settings.privacy.notAgreed');
+    : t(standing !== 'none' ? 'settings.privacy.agreed' : 'settings.privacy.notAgreed');
   return (
     <SettingsCard icon="private" title={t('settings.privacy.title')} testID="settings-privacy">
       {agreement.forThisAccount ? (

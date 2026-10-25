@@ -1,14 +1,65 @@
 /**
  * The consent policy this build asks about (SDD 12). It must match the
- * server's public.consent_version(). Bumping it asks everyone again: an
- * agreement to any other version counts as no agreement at all. Since P0.2
+ * server's public.consent_version(). Bumping it (and adding it to
+ * CONSENT_VERSIONS) asks everyone again, once: an agreement to the version
+ * before keeps counting for the grace below, and any older one counts as no
+ * agreement at all. Since P0.2
  * it is the parent's or guardian's consent, for the baby. 2026-10-25 says
- * what withdrawing does to the household (P0.3).
+ * what withdrawing does to the household (P0.3). 2026-10-26 says that, while
+ * paused, each person still sees and deletes the entries they made themselves.
  */
-export const CONSENT_VERSION = '2026-10-25';
+export const CONSENT_VERSION = '2026-10-26';
+
+/**
+ * Every consent version with when it came into force (UTC), oldest first,
+ * ending with CONSENT_VERSION. It must match the server's consent_versions.
+ */
+export const CONSENT_VERSIONS: readonly { version: string; effectiveAt: number }[] = [
+  { version: '2026-09-23', effectiveAt: Date.UTC(2026, 8, 23) },
+  { version: '2026-10-18', effectiveAt: Date.UTC(2026, 9, 18) },
+  { version: '2026-10-24', effectiveAt: Date.UTC(2026, 9, 24) },
+  { version: '2026-10-25', effectiveAt: Date.UTC(2026, 9, 25) },
+  // In force from its migration (20261026090000); the start of that day here,
+  // so this phone's grace never outlasts the server's.
+  { version: '2026-10-26', effectiveAt: Date.UTC(2026, 9, 26) },
+];
+
+/**
+ * How long an agreement to the version just before CONSENT_VERSION keeps
+ * counting, from the day CONSENT_VERSION came into force (owner decision
+ * 2026-10-26; the server's consent_grace()).
+ */
+export const CONSENT_GRACE_MS = 90 * 24 * 60 * 60 * 1000;
 
 /** What this phone remembers about an account's agreement. */
 export type ConsentRecord = { userId: string; version: string };
+
+/** When the grace for the previous version ends, or null if there is none. */
+export function consentGraceEndsAt(): number | null {
+  const at = CONSENT_VERSIONS.findIndex((v) => v.version === CONSENT_VERSION);
+  const current = CONSENT_VERSIONS[at];
+  if (at < 1 || !current) return null;
+  return current.effectiveAt + CONSENT_GRACE_MS;
+}
+
+/**
+ * Where `userId`'s agreement stands at `now`: to the version in force
+ * (`current`), to the one just before it while the grace runs (`grace`: it
+ * still counts, and the new text is offered once), or neither (`none`).
+ */
+export function consentStanding(
+  consent: ConsentRecord | null,
+  userId: string | null,
+  now: number,
+): 'current' | 'grace' | 'none' {
+  if (consent === null || userId === null || consent.userId !== userId) return 'none';
+  if (consent.version === CONSENT_VERSION) return 'current';
+  const at = CONSENT_VERSIONS.findIndex((v) => v.version === CONSENT_VERSION);
+  const previous = CONSENT_VERSIONS[at - 1];
+  const ends = consentGraceEndsAt();
+  if (!previous || ends === null) return 'none';
+  return consent.version === previous.version && now < ends ? 'grace' : 'none';
+}
 
 /** Whether `userId` has agreed to the version in force, as this phone knows it. */
 export function agreedToCurrent(consent: ConsentRecord | null, userId: string | null): boolean {
