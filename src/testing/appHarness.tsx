@@ -30,6 +30,7 @@ import Invite from '../../app/invite';
 import Join from '../../app/join/[code]';
 import HouseholdSetup from '../../app/onboarding/household';
 import Consent from '../../app/onboarding/consent';
+import Guardian from '../../app/onboarding/guardian';
 import JoinWithCode from '../../app/onboarding/join';
 import SignIn from '../../app/onboarding/sign-in';
 import {
@@ -175,6 +176,7 @@ export function renderApp(
       'onboarding/household': HouseholdSetup,
       'onboarding/join': JoinWithCode,
       'onboarding/consent': Consent,
+      'onboarding/guardian': Guardian,
       'join/[code]': Join,
       invite: Invite,
       about: About,

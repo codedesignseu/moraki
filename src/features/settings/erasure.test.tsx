@@ -43,21 +43,31 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-const member = (userId: string, role: string, display_name: string, minutesAgo: number) => ({
+const member = (
+  userId: string,
+  role: string,
+  display_name: string,
+  minutesAgo: number,
+  isGuardian = true,
+) => ({
   household_id: HOUSEHOLD,
   user_id: userId,
   role,
   display_name,
   relation: null,
   joined_at: new Date(NOW - minutesAgo * 60_000).toISOString(),
+  is_guardian: isGuardian,
 });
 
-const household = (myRole: 'owner' | 'caregiver', withNik = true) => ({
+/** Nik, the other member, has declared they are a parent or guardian unless `nikGuardian` is false. */
+const household = (myRole: 'owner' | 'caregiver', withNik = true, nikGuardian = true) => ({
   babies: [{ id: BABY_ID, name: 'Ella', household_id: HOUSEHOLD }],
   memberships: [{ household_id: HOUSEHOLD, role: myRole }],
   caregivers: [
     member(USER_ID, myRole, 'Maria', 120),
-    ...(withNik ? [member(NIK, myRole === 'owner' ? 'caregiver' : 'owner', 'Nik', 60)] : []),
+    ...(withNik
+      ? [member(NIK, myRole === 'owner' ? 'caregiver' : 'owner', 'Nik', 60, nikGuardian)]
+      : []),
   ],
 });
 
@@ -135,6 +145,35 @@ describe('leaving and deleting (P4-06)', () => {
     expect(screen.getByRole('button', { name: 'Yes, delete my account' })).toBeDisabled();
     await fireEvent.press(screen.getByRole('button', { name: 'Yes, delete my account' }));
     expect(calls).toEqual([]);
+  });
+
+  it('offers only members who have declared they are a parent or guardian (P0.1)', async () => {
+    await openLeaveOrDelete(household('owner'));
+    await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
+    expect(
+      screen.getByText(
+        'Only someone who has confirmed they’re the baby’s parent or guardian can become owner.',
+      ),
+    ).toBeTruthy();
+    expect(screen.getByRole('togglebutton', { name: 'Nik' })).toBeTruthy();
+  });
+
+  it('with nobody who has declared, offers no leaving and says why (P0.1)', async () => {
+    const calls: string[] = [];
+    await openLeaveOrDelete({
+      ...household('owner', true, false),
+      erasure: (rpc) => void calls.push(rpc),
+    });
+    expect(screen.queryByTestId('erasure-leave')).toBeNull();
+    expect(screen.getByTestId('erasure-leave-blocked')).toHaveTextContent(
+      /Delete the household, or ask the other parent to confirm it in Settings first/,
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
+    expect(screen.queryByRole('togglebutton', { name: 'Nik' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Yes, delete my account' })).toBeDisabled();
+    expect(calls).toEqual([]);
+    // Deleting the household stays open to them.
+    expect(screen.getByTestId('erasure-deleteHousehold')).toBeTruthy();
   });
 
   it('asks a caregiver no such question', async () => {

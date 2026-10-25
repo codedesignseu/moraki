@@ -43,6 +43,7 @@ export function ErasureScreen({ onDone, onBack }: { onDone: () => void; onBack: 
             <>
               {/* Read out: the chips below carry no group name of their own. */}
               <Text style={s.label}>{t('erasure.successor.question')}</Text>
+              <Text style={s.label}>{t('erasure.successor.hint')}</Text>
               <View style={s.chips}>
                 {erasure.candidates.map((person) => (
                   <Chip
@@ -106,6 +107,11 @@ export function ErasureScreen({ onDone, onBack }: { onDone: () => void; onBack: 
   return (
     <Page {...page}>
       {erasure.canLeave && section('leave')}
+      {erasure.noGuardian && (
+        <Card testID="erasure-leave-blocked">
+          <Text style={s.what}>{t('erasure.successor.none')}</Text>
+        </Card>
+      )}
       {erasure.canDeleteHousehold && section('deleteHousehold')}
       {section('deleteAccount')}
       {erasure.problem && (
