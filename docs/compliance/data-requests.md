@@ -210,8 +210,8 @@ reply. Deleting a shared household needs its owner, and is a separate request.
   the last backup at most 7 days later. Backups are whole-database snapshots;
   one person cannot be removed from one. Say so in erasure replies.
 - If a backup is ever **restored**, every erasure since that backup's date
-  must be **re-applied** before the app is reopened, using the erasure log
-  (below). Erasures done on an email request are in the log too (reason
+  must be **re-applied** before the app is reopened, using the erasure
+  journal emails and the erasure log (below). Erasures done on an email request are in the log too (reason
   `admin_request`); the register's `erasures_to_replay` ids are the check
   that none is missed. Log the replay in the register.
 - Owner check (after upgrading): Database → Backups shows daily backups and
@@ -219,59 +219,120 @@ reply. Deleting a shared household needs its owner, and is a separate request.
 
 ### The erasure log, and re-applying erasures after a restore
 
-Every deleted account and household is written to `public.erasure_log`
-(`supabase/migrations/20261025200000_erasure_log.sql`), whatever deleted it:
-the app (delete household, delete account), the inactivity and
+Every deleted account, household and entry is written to `public.erasure_log`
+(`supabase/migrations/20261025200000_erasure_log.sql`, entries since
+`20261026100000_erasure_journal.sql`), whatever deleted it: the app (delete
+an entry, delete household, delete account), the inactivity and
 frozen-household sweeps, `erase_user.sql`, or the dashboard. Triggers on
-`public.households` and `auth.users` write it, so no path can skip it.
+`public.events`, `public.households` and `auth.users` write it, so no path can
+skip it.
 
-- **What a row holds:** `kind` (`account` or `household`), `subject_id` (the
-  uuid), `erased_at`, and `reason` (`user_request`,
-  `household_deleted_by_owner`, `inactivity`, `frozen`, `admin_request`). No
-  content, no name, no email.
+- **What a row holds:** `kind` (`account`, `household` or `entry`),
+  `subject_id` (the uuid), `erased_at`, `reason` (`user_request`,
+  `household_deleted_by_owner`, `inactivity`, `frozen`, `admin_request`) and
+  `logged_at`. No content, no name, no email. For an entry, `erased_at` is
+  its `deleted_at` (the phone's time, which can be days old if the phone was
+  offline) and `logged_at` is when the deletion reached the server; for an
+  account or a household they are the same. An entry that goes with its
+  household is not logged on its own: the household row covers it.
 - **Who can read it:** the service role only (SQL Editor, signed in with MFA).
   No policy, no grant: not readable through the app or the API.
-- **How long:** 35 days (`erasure_log_retention()`), longer than the 7-day
-  backups with a margin, then the daily job `purge-erasure-log` (03:53 UTC)
-  deletes the row.
+- **How long:** 35 days after `logged_at` (`erasure_log_retention()`), longer
+  than the 7-day backups with a margin, then the daily job
+  `purge-erasure-log` (03:53 UTC) deletes the row.
 
 Other evidence the database keeps: a deleted account's `consent_events` rows
 (3 years, with `account_deleted_at`), a `caregiver_agreement` withdrawal when
 someone leaves a household, and a deleted entry's tombstone in `events`.
 
-The log is part of the database, so a restore rolls it back too: the restored
-copy only lists erasures up to the backup. **Read it from production before
-restoring.** Method:
+### The erasure journal (email, outside the database)
 
-1. Before restoring, in the SQL Editor on production:
+The log is part of the database, so a restore rolls it back too. Since
+2026-10-26 (owner decision, answering the lawyer) a copy leaves the database
+every night: at **04:05 UTC** the job `send-erasure-journal` has the Edge
+Function of the same name email each whole UTC day not yet sent to the
+owner's mailbox (the secret `ERASURE_JOURNAL_TO`, e.g. `hello@moraki.app`),
+from `hello@moraki.app`, through Brevo:
+
+- subject `Moraki erasure journal YYYY-MM-DD`, the day (UTC) the rows were
+  logged; the body gives counts only;
+- attached `moraki-erasure-journal-YYYY-MM-DD.csv`, columns
+  `kind,subject_id,erased_at_utc,reason`, nothing else;
+- a day with nothing logged sends no email. A day Brevo refuses is retried
+  the next night, and no later day is sent before it, so the emails always
+  cover every day up to the last one sent.
+
+**Keep the journal emails for at least 35 days** (longer if the lawyer
+advises), in a folder of their own, and delete them after. They hold uuids
+only, but they are the only record that survives a restore. Don't forward
+them. Setup: `docs/10-release-runbook.md`, "Erasure journal email".
+
+### After any restore
+
+Re-apply every erasure made since the backup **before the app is reopened**.
+
+1. **Before restoring**, if production still answers, save the log from it
+   too (it holds today's rows, which no journal email has carried yet), in
+   the SQL Editor:
 
    ```sql
-   select kind, subject_id, erased_at, reason from public.erasure_log order by erased_at;
+   select kind, subject_id, erased_at, reason, logged_at
+   from public.erasure_log order by logged_at;
    ```
 
    Save the result into an encrypted file as in section 5 (ids only, no
    content).
 
-2. Restore.
-3. For every row with `erased_at` after the backup was taken, delete it again,
-   **households first**, then accounts (so `erase_user.sql` doesn't hand a
-   deleted household over):
-   - household: `delete from public.households where id = '<subject_id>';`
+2. Restore. Note the time the backup was taken.
+3. Collect the erasures to re-apply: every row of every **journal email dated
+   on or after the day of the backup** (that day included: the email covers
+   the whole day, and re-applying an erasure already in the backup does
+   nothing), plus, from the file of step 1, every row with `logged_at` after
+   the backup. The register's `erasures_to_replay` ids are the check that no
+   erasure on request is missed.
+4. Re-apply them in this order, in the SQL Editor (signed in with MFA):
+   - **entry** (`kind = entry`), first, so nothing is left of it whatever
+     happens to its household:
+
+     ```sql
+     update public.events
+     set deleted_at = '<erased_at_utc>'
+     where id = '<subject_id>' and deleted_at is null;
+     select public.purge_deleted_event_content();
+     ```
+
+     The update makes it a tombstone again, with a new `seq`, so every phone
+     pulls it and drops its copy. The purge empties it at once if it was
+     deleted more than 30 days ago; otherwise the nightly purge does, 30 days
+     after `erased_at`, as it would have. No row: it is already gone (its
+     household too, most likely); skip it.
+
+   - **household**, then accounts (so `erase_user.sql` doesn't hand a
+     deleted household over):
+
+     ```sql
+     delete from public.households where id = '<subject_id>';
+     ```
+
      (what `delete_household` does; that function only runs for a signed-in
      owner). Nothing to do if the row is already gone.
-   - account: `erase_user.sql` for `<subject_id>`. A missing account is
+
+   - **account**: `erase_user.sql` for `<subject_id>`. A missing account is
      already gone; skip it.
 
-   Each re-applied erasure is logged again (reason `admin_request`). Note
+   Each re-applied erasure is logged again (an entry as `user_request`,
+   the others as `admin_request`) and so goes out in the next journal. Note
    the replay in the register.
 
-4. Delete the saved file, and note it.
+5. Delete the saved file of step 1, and note it.
 
-Limits: if production can't be read before the restore (the reason for
-restoring may be that it is broken), the log can't be read either. Then fall
-back to the register for erasures on request, and tell the people who deleted
-in the app in that window, if they can be identified. An entry soft-deleted
-after the backup is not in the log, which holds accounts and households only.
+Limits: rows logged on the day of the restore, after the last journal email,
+are only in production's own log. If production can't be read before the
+restore (the reason for restoring may be that it is broken), they are lost:
+fall back to the register for erasures on request, and tell the people who
+deleted in the app that day, if they can be identified. Check after any
+missed night (Edge Functions → send-erasure-journal → Logs) that the journal
+caught up.
 
 ## 8. The in-app export (P0.10)
 
