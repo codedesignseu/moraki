@@ -345,8 +345,9 @@
               <td>Deleted entries</td>
               <td>
                 Marked as deleted rather than removed, so every phone in the household learns of the
-                deletion. A deleted entry is hidden but stays on our servers, with what it said,
-                for the life of the household. Removed when the household is deleted.
+                deletion. 30 days after you delete it, we erase what it said from our servers. Only
+                a small marker stays (its id, type and when it was deleted), so that a phone that was
+                offline can't bring it back. The marker goes when the household is deleted.
               </td>
             </tr>
             <tr>
@@ -375,6 +376,15 @@
                 When an account or household is deleted, we note its id, when and why, with no
                 content, for 35 days. We use it only to delete it again if we ever have to restore
                 a backup.
+              </td>
+            </tr>
+            <tr>
+              <td>Server backups</td>
+              <td>
+                Our database is backed up once a day, and each backup is kept for 7 days. Something
+                you delete leaves the backups within 7 days. We can't remove one person's data from a
+                backup, so if we ever restore one, we delete again everything that was deleted after
+                it was made.
               </td>
             </tr>
             <tr>
