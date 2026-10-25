@@ -26,10 +26,10 @@ insert into public.babies (id, household_id, name, born_at) values
 insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
     client_created_at) values
   ('eeeeeeee-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
-   'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(),
+   'bbbbbbbb-0000-0000-0000-000000000001', 'sleep', now(),
    '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', now()),
   ('eeeeeeee-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002',
-   'bbbbbbbb-0000-0000-0000-000000000002', 'diaper', now(),
+   'bbbbbbbb-0000-0000-0000-000000000002', 'sleep', now(),
    '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004', now());
 insert into public.invites (code, household_id, created_by, expires_at) values
   ('ABCDEFGH', 'aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', now() + interval '1 day');

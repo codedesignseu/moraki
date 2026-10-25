@@ -28,10 +28,10 @@ insert into public.memberships (household_id, user_id, role, display_name, is_gu
 insert into public.babies (id, household_id, name, born_at) values
   ('bbbbbbbb-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001', 'Ella', now()),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002', 'Leo', now());
-insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
+insert into public.events (id, household_id, baby_id, type, occurred_at, payload, created_by, updated_by,
     client_created_at) values
   ('eeeeeeee-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
-   'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(),
+   'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(), '{"kind": "wet"}',
    '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', now());
 insert into public.consents (user_id, policy_version) values
   ('00000000-0000-0000-0000-000000000001', public.consent_version()),
@@ -51,9 +51,9 @@ create function pg_temp.login(n int) returns void language sql as $$
 $$;
 create function pg_temp.an_event(n int) returns text language sql as $$
   select format($f$insert into public.events
-    (id, household_id, baby_id, type, occurred_at, created_by, updated_by, client_created_at)
+    (id, household_id, baby_id, type, occurred_at, payload, created_by, updated_by, client_created_at)
     values (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000001',
-            'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(), '%s', '%s', now())$f$,
+            'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(), '{"kind": "wet"}', '%s', '%s', now())$f$,
     ('00000000-0000-0000-0000-00000000000' || n)::uuid, ('00000000-0000-0000-0000-00000000000' || n)::uuid)
 $$;
 create function pg_temp.status(h int) returns text language sql as $$

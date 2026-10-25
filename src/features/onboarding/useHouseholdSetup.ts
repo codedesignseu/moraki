@@ -2,6 +2,7 @@ import { getRandomBytes } from 'expo-crypto';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { BABY_NAME_MAX } from '@/domain/babyName';
 import { consentLocale } from '@/domain/consent/consent';
 import { newId } from '@/domain/ids';
 import { localTimeDaysAgo } from '@/domain/time/zoned';
@@ -16,7 +17,7 @@ import { deviceTimeZone } from '@/ui/deviceTimeZone';
 
 export const LIMITS = {
   displayName: 40,
-  babyName: 60,
+  babyName: BABY_NAME_MAX,
   bornDaysAgo: { max: 365 },
   birthWeightG: { min: 500, max: 7000 },
 } as const;
