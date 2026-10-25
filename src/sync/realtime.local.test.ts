@@ -43,7 +43,7 @@ const WARM_UP_MS = 20_000;
     );
     const invite = await createInvite(a.auth, household.householdId, 'caregiver');
     const b = await phone('p2-10-carer');
-    await acceptInvite(b.auth, invite.code, 'Nik', 'father');
+    await acceptInvite(b.auth, invite.code, 'Nik', 'father', 'en');
 
     /** A bottle from phone A, as its outbox would send it. */
     const bottleFrom = (id: string): OutboxRow => ({

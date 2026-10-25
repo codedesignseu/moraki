@@ -128,7 +128,7 @@ describe('a phone holding another account’s entries (P5-F11)', () => {
     const mine = keptFromFirstAccount();
     await openAsSecondAccount(null, `/join/${CODE}`);
     await fireEvent.changeText(await screen.findByLabelText('Your name'), 'Nik');
-    await fireEvent.press(screen.getByRole('button', { name: 'Join' }));
+    await acceptAndJoin();
     await waitFor(() => expect(h.prefs.get('accountHousehold')).not.toBeNull());
 
     await fireEvent.press(await screen.findByRole('button', { name: /Settings/ }));
@@ -163,3 +163,12 @@ describe('a phone holding another account’s entries (P5-F11)', () => {
     expect(screen.queryByTestId('settings-other-account')).toBeNull();
   });
 });
+
+/** P0.2: past the code and name, the caregiver agreement, ticked and accepted. */
+async function acceptAndJoin() {
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  await fireEvent.press(
+    await screen.findByRole('checkbox', { name: /only to help care for the baby/ }),
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Accept and join' }));
+}

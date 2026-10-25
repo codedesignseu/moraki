@@ -1,9 +1,10 @@
 /**
  * The consent policy this build asks about (SDD 12). It must match the
  * server's public.consent_version(). Bumping it asks everyone again: an
- * agreement to any other version counts as no agreement at all.
+ * agreement to any other version counts as no agreement at all. Since P0.2
+ * it is the parent's or guardian's consent, for the baby.
  */
-export const CONSENT_VERSION = '2026-10-18';
+export const CONSENT_VERSION = '2026-10-24';
 
 /** What this phone remembers about an account's agreement. */
 export type ConsentRecord = { userId: string; version: string };
@@ -79,6 +80,42 @@ export function termsStatus(
 ): 'agreed' | 'outdated' | 'none' {
   if (!record || userId === null || record.userId !== userId) return 'none';
   return record.version === TERMS_VERSION ? 'agreed' : 'outdated';
+}
+
+/**
+ * The caregiver agreement this build shows (P0.2): what someone who isn't the
+ * baby's parent or guardian accepts before seeing a household. It must match
+ * the server's public.caregiver_agreement_version().
+ */
+export const CAREGIVER_AGREEMENT_VERSION = '2026-10-24';
+
+/**
+ * What the server says this account may do with its household's baby data
+ * (P0.2, `my_membership_status`): `granted`, or which agreement is missing.
+ * A guardian is asked for health-data consent; anyone else for the caregiver
+ * agreement.
+ */
+export type HouseholdAccess = 'granted' | 'needs_consent' | 'needs_agreement';
+
+/** The phone's copy of that answer, for one account and household. */
+export type AccessRecord = {
+  userId: string;
+  householdId: string;
+  access: HouseholdAccess;
+  isGuardian: boolean;
+};
+
+/**
+ * The answer for this account and household, or `unknown` before the server
+ * has given one (or for another account's record). Nothing is sent on a guess.
+ */
+export function accessStatus(
+  record: AccessRecord | null,
+  userId: string | null,
+  householdId: string | null,
+): HouseholdAccess | 'unknown' {
+  if (!record || record.userId !== userId || record.householdId !== householdId) return 'unknown';
+  return record.access;
 }
 
 /** The pages on moraki.app (P5-06), in Greek when the app is read in Greek. */

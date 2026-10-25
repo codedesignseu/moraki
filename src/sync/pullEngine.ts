@@ -10,6 +10,7 @@ import type { LinkedIdentity, PushBlock } from './pushEngine';
 import { pushBlock } from './pushEngine';
 import type { PulledEvent } from '@/domain/sync/pendingProtection';
 
+import type { MembershipStatus } from './membershipStatus';
 import { pullCaregivers } from './pullCaregivers';
 import { pullHousehold, type PulledHousehold } from './pullHousehold';
 import { pullPage, PULL_PAGE, PullTransportError } from './pullEvents';
@@ -37,6 +38,12 @@ type Deps = {
   ) => Promise<PulledEvent[]>;
   fetchCaregivers?: typeof pullCaregivers;
   fetchHousehold?: typeof pullHousehold;
+  /**
+   * Asks the server where this account stands with the household (P0.2,
+   * `my_membership_status`) before each pull. Without it, as in tests of the
+   * pull alone, access is taken as granted.
+   */
+  fetchStatus?: (auth: Auth, householdId: string) => Promise<MembershipStatus>;
 };
 
 /**
@@ -85,7 +92,39 @@ export function createPullEngine(deps: Deps) {
     // what is already there, to export or delete it.
     const blocked = pushBlock(deps.linked(), deps.auth, deps.state);
     if (blocked) return { kind: 'blocked', by: blocked };
-    const householdId = deps.linked()!.householdId;
+    const { householdId, userId } = deps.linked()!;
+
+    // P0.2: reading needs the caregiver agreement, or a guardian's consent.
+    // The server filters the rows either way; asking first is how the phone
+    // knows to stop and say what is missing, rather than seeing nothing new.
+    // Nothing here is cleared: what the phone has stays readable.
+    if (deps.fetchStatus) {
+      let status: MembershipStatus;
+      try {
+        status = await deps.fetchStatus(deps.auth!, householdId);
+      } catch {
+        failures += 1;
+        return { kind: 'failed', failures, retryInMs: backoffMs(failures) };
+      }
+      if (status.status === 'member') {
+        const record = {
+          userId,
+          householdId,
+          access: status.access,
+          isGuardian: status.isGuardian,
+        };
+        const known = deps.devicePrefs?.get('householdAccess');
+        if (JSON.stringify(known) !== JSON.stringify(record)) {
+          deps.devicePrefs?.set('householdAccess', record);
+        }
+        if (status.access !== 'granted') {
+          return {
+            kind: 'blocked',
+            by: status.access === 'needs_consent' ? 'no_consent' : 'no_agreement',
+          };
+        }
+      }
+    }
 
     let stored = 0;
     let skipped = 0;

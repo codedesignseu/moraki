@@ -4,6 +4,7 @@
 import { createAuth } from './auth';
 import { createHousehold, findHousehold } from './household';
 import { acceptInvite, createInvite, inviteLink, normaliseCode } from './invites';
+import { TERMS_VERSION } from '@/domain/consent/consent';
 import { newId } from '@/domain/ids';
 import { keychain } from '@/testing/fakeSupabaseAuth';
 import {
@@ -47,7 +48,14 @@ import {
     const member = await client.rpc('is_member', { h: crypto.randomUUID() });
     expect(member).toMatchObject({ data: false, error: null });
 
-    // P2-05: a new user creates their household and ends with an empty baby.
+    // P2-05: a new user creates their household and ends with an empty baby,
+    // once they agree to the Terms and to health data (P0.2).
+    await client.rpc('record_consent', {
+      purpose: 'terms',
+      version: TERMS_VERSION,
+      action: 'grant',
+    });
+    await client.rpc('grant_consent');
     const created = await createHousehold(
       reopened,
       user.id,
@@ -116,7 +124,7 @@ import {
     // Phone B: opens the link, reads the code from it, and joins.
     const b = await phone('carer');
     const fromLink = normaliseCode(inviteLink(invite.code).split('/join/')[1]!);
-    const joined = await acceptInvite(b.auth, fromLink, 'Nik', 'father');
+    const joined = await acceptInvite(b.auth, fromLink, 'Nik', 'father', 'en');
     expect(joined).toEqual({
       householdId: household.householdId,
       role: 'caregiver',
@@ -150,11 +158,13 @@ import {
 
     // The code is single use, and a viewer invite grants reading only.
     const c = await phone('viewer');
-    await expect(acceptInvite(c.auth, invite.code, 'Late', null)).rejects.toMatchObject({
+    await expect(acceptInvite(c.auth, invite.code, 'Late', null, 'en')).rejects.toMatchObject({
       reason: 'used',
     });
     const viewerInvite = await createInvite(a.auth, household.householdId, 'viewer');
-    expect(await acceptInvite(c.auth, viewerInvite.code, 'Yiayia', 'grandparent')).toMatchObject({
+    expect(
+      await acceptInvite(c.auth, viewerInvite.code, 'Yiayia', 'grandparent', 'en'),
+    ).toMatchObject({
       role: 'viewer',
     });
     const refused = await c.auth.client.from('events').insert({

@@ -193,7 +193,8 @@ describe('the Terms from Settings (P0.9)', () => {
 describe('the health-data consent screen (P0.9)', () => {
   it('links the Privacy Policy and the Terms', async () => {
     h.prefs.set('terms', { userId: USER_ID, version: TERMS_VERSION });
-    await signedIn();
+    // A guardian's consent (P0.2): the owner of the household.
+    await signedIn({ memberships: [{ household_id: HOUSEHOLD, role: 'owner' }] });
     await press(/Settings/);
     await fireEvent.press(await screen.findByRole('button', { name: 'Review consent' }));
 

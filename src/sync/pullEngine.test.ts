@@ -8,9 +8,11 @@ import { createOutboxRepository } from '@/db/repositories/outbox';
 import { meta, outbox } from '@/db/schema';
 import { createMemoryDb, testDeps } from '@/db/testing/memoryDb';
 import { readLinkedIdentity } from '@/db/identity';
+import type { HouseholdAccess } from '@/domain/consent/consent';
 import type { PulledEvent } from '@/domain/sync/pendingProtection';
 
 import type { Auth } from './auth';
+import { MembershipStatusError, type MembershipStatus } from './membershipStatus';
 import { createPullEngine } from './pullEngine';
 import { PULL_PAGE, PullTransportError } from './pullEvents';
 
@@ -320,5 +322,75 @@ describe('the household’s own row', () => {
     await h.engine.pull();
 
     expect(h.prefs.get('accountHousehold')).toBe(null);
+  });
+});
+
+describe('asking first whether this account may read (P0.2)', () => {
+  async function gated(status: () => Promise<MembershipStatus>) {
+    const h = await harness();
+    h.link();
+    const prefs = createDevicePrefsRepository(h.db);
+    const pages: number[] = [];
+    const engine = createPullEngine({
+      linked: () => readLinkedIdentity(h.db),
+      events: h.events,
+      outbox: h.outbox,
+      devicePrefs: prefs,
+      auth,
+      state: signedIn,
+      fetchStatus: status,
+      fetchPage: async (_auth, _household, cursor) => {
+        pages.push(cursor);
+        return [fromServer('00000000-0000-7000-8000-0000000000e1', 1)];
+      },
+      fetchCaregivers: async () => [],
+      fetchHousehold: async () => null,
+    });
+    return { ...h, prefs, pages, engine };
+  }
+  const member = (access: HouseholdAccess, isGuardian = false): MembershipStatus => ({
+    status: 'member',
+    role: 'caregiver',
+    isGuardian,
+    access,
+    baby: { id: BABY, name: 'Ella' },
+  });
+
+  it('reads once the server says so, and remembers the answer', async () => {
+    const { engine, pages, prefs } = await gated(async () => member('granted'));
+    expect(await engine.pull()).toMatchObject({ kind: 'pulled', stored: 1 });
+    expect(pages).toEqual([0]);
+    expect(prefs.get('householdAccess')).toEqual({
+      userId: USER,
+      householdId: HOUSEHOLD,
+      access: 'granted',
+      isGuardian: false,
+    });
+  });
+
+  it('stops before reading a member who hasn’t accepted the caregiver agreement', async () => {
+    const { engine, pages, prefs, events } = await gated(async () => member('needs_agreement'));
+    const mine = events.insert({ type: 'diaper', occurredAt: NOW, payload: { kind: 'wet' } });
+
+    expect(await engine.pull()).toEqual({ kind: 'blocked', by: 'no_agreement' });
+    expect(pages).toEqual([]);
+    expect(prefs.get('householdAccess')?.access).toBe('needs_agreement');
+    // Nothing on the phone is touched.
+    expect(events.get(mine.id)).not.toBeNull();
+  });
+
+  it('stops before reading a guardian without consent in force', async () => {
+    const { engine, pages } = await gated(async () => member('needs_consent', true));
+    expect(await engine.pull()).toEqual({ kind: 'blocked', by: 'no_consent' });
+    expect(pages).toEqual([]);
+  });
+
+  it('treats a server it couldn’t ask as a failed pull, to try again later', async () => {
+    const { engine, pages, prefs } = await gated(async () => {
+      throw new MembershipStatusError('request failed');
+    });
+    expect(await engine.pull()).toMatchObject({ kind: 'failed', failures: 1 });
+    expect(pages).toEqual([]);
+    expect(prefs.get('householdAccess')).toBeNull();
   });
 });

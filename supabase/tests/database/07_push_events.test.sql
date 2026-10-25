@@ -24,6 +24,13 @@ insert into public.babies (id, household_id, name, born_at) values
   ('bbbbbbbb-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001', 'Ella', now()),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002', 'Leo', now());
 
+-- P0.2: seeing and writing baby data needs the caregiver agreement (or a
+-- guardian's consent); every member here has accepted it.
+insert into public.consent_events (user_id, purpose, version, action, text_key, household_id)
+  select user_id, 'caregiver_agreement', public.caregiver_agreement_version(), 'grant', 'test',
+         household_id
+  from public.memberships;
+
 create function pg_temp.login(n int) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object(
     'sub', ('00000000-0000-0000-0000-00000000000' || n)::uuid, 'role', 'authenticated')::text, true)::void

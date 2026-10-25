@@ -19,9 +19,16 @@ import {
   useLinkedIdentity,
   useOutboxRepository,
 } from '@/db/react';
-import { agreedToCurrent, guardianStatus, termsStatus } from '@/domain/consent/consent';
+import {
+  accessStatus,
+  agreedToCurrent,
+  guardianStatus,
+  termsStatus,
+  type HouseholdAccess,
+} from '@/domain/consent/consent';
 
 import { useAuth } from './AuthProvider';
+import { fetchMembershipStatus } from './membershipStatus';
 import { createPullEngine, type PullEngine } from './pullEngine';
 import { pushBlock } from './pushEngine';
 import { watchHousehold } from './realtime';
@@ -65,35 +72,51 @@ export function SyncProvider({
   const devicePrefs = useSyncDevicePrefs();
   const linked = useLinkedIdentity();
   const { auth, state } = useAuth();
-  // P3-09: nothing syncs for an account that hasn't agreed to health data
-  // being processed, to the version in force. The server refuses it too; this
-  // stops the phone asking.
+  // P3-09, P0.2: nothing syncs for a guardian who hasn't agreed to health
+  // data being processed, to the version in force. The server refuses it
+  // too; this stops the phone asking. Since P0.2 consent is the guardian's:
+  // anyone else accepts the caregiver agreement instead (`access` below).
   const [consent] = useDevicePref('consent');
   const userId = state.status === 'signedIn' ? state.user.id : null;
-  const consented = useCallback(() => agreedToCurrent(consent, userId), [consent, userId]);
+  const [accountHousehold] = useDevicePref('accountHousehold');
+  const [accessRecord] = useDevicePref('householdAccess');
+  // The household this phone sends to and reads from, which is the one the
+  // pull asked the server about.
+  const householdId = linked()?.householdId ?? null;
+  const known = accessRecord?.userId === userId && accessRecord?.householdId === householdId;
+  const guardianHere = known ? accessRecord.isGuardian : accountHousehold?.role === 'owner';
+  const consentOk = !guardianHere || agreedToCurrent(consent, userId);
+  // P0.2: what the server last said this account may do in its household.
+  const access = accessStatus(accessRecord, userId, householdId);
   // P0.1: an owner waits until the server has said their guardian
   // declaration is on record: nothing of theirs syncs before it has.
   const [guardian] = useDevicePref('guardianDeclaration');
-  const [accountHousehold] = useDevicePref('accountHousehold');
   const missing =
     accountHousehold?.role === 'owner' &&
     guardianStatus(guardian, userId, accountHousehold.householdId) !== 'on_record';
   // P0.9: nothing syncs until this account has agreed to the Terms in force.
   const [terms] = useDevicePref('terms');
   const agreedTerms = termsStatus(terms, userId) === 'agreed';
-  // Both are read when the engine runs, from a map kept outside React's
+  // All of these are read when the engine runs, from a map kept outside React's
   // state: answering starts a cycle (below) rather than making a new engine,
   // which would drop and rejoin the realtime channel, and a pull rewriting
   // the household record changes nothing here.
   const [gates] = useState(
     () =>
-      new Map<'guardianMissing' | 'termsAgreed', boolean>([
+      new Map<
+        'consented' | 'guardianMissing' | 'termsAgreed' | 'access',
+        boolean | HouseholdAccess | 'unknown'
+      >([
+        ['consented', consentOk],
         ['guardianMissing', missing],
         ['termsAgreed', agreedTerms],
+        ['access', access],
       ]),
   );
+  const consented = useCallback(() => gates.get('consented') === true, [gates]);
   const guardianMissing = useCallback(() => gates.get('guardianMissing') === true, [gates]);
   const termsAgreed = useCallback(() => gates.get('termsAgreed') === true, [gates]);
+  const accessNow = useCallback(() => gates.get('access') as HouseholdAccess | 'unknown', [gates]);
   // Re-pushes after every committed write (the events repository's signal).
   const events = useEvents();
   // Links the phone once the account has a household, whichever screen is open.
@@ -120,8 +143,9 @@ export function SyncProvider({
         consented,
         guardianMissing,
         termsAgreed,
+        access: accessNow,
       }),
-    [linked, outbox, auth, state, consented, guardianMissing, termsAgreed],
+    [linked, outbox, auth, state, consented, guardianMissing, termsAgreed, accessNow],
   );
   const pull = useMemo(
     () =>
@@ -133,18 +157,21 @@ export function SyncProvider({
         devicePrefs,
         auth,
         state,
+        fetchStatus: fetchMembershipStatus,
       }),
     [linked, eventsRepository, outbox, caregivers, devicePrefs, auth, state],
   );
 
-  // The Terms agreed or the guardian declaration on record (P0.9, P0.1):
-  // what was waiting goes now. Declared before the cycle below, so it reads
-  // the new answer.
+  // The Terms agreed, the guardian declaration on record, or the server's
+  // answer about access (P0.9, P0.1, P0.2): what was waiting goes now.
+  // Declared before the cycle below, so it reads the new answer.
   useEffect(() => {
+    gates.set('consented', consentOk);
     gates.set('guardianMissing', missing);
     gates.set('termsAgreed', agreedTerms);
+    gates.set('access', access);
     cycle.current();
-  }, [gates, missing, agreedTerms]);
+  }, [gates, consentOk, missing, agreedTerms, access]);
 
   useEffect(() => {
     let active = true;

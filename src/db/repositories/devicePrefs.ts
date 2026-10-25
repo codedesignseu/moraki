@@ -117,6 +117,24 @@ export const DEVICE_PREFS = {
     schema: z.object({ userId: z.uuid(), householdId: z.uuid(), onRecord: z.boolean() }).nullable(),
     default: null,
   },
+  /**
+   * What the server last said this account may do with its household's baby
+   * data (P0.2, `my_membership_status`). Until it says `granted`, nothing is
+   * sent or read, and the screen for what is missing is shown. Null until the
+   * server has been asked.
+   */
+  householdAccess: {
+    key: 'pref.household_access',
+    schema: z
+      .object({
+        userId: z.string().min(1),
+        householdId: z.string().min(1),
+        access: z.enum(['granted', 'needs_consent', 'needs_agreement']),
+        isGuardian: z.boolean(),
+      })
+      .nullable(),
+    default: null,
+  },
 } as const;
 
 export type DevicePrefName = keyof typeof DEVICE_PREFS;

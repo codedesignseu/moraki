@@ -487,7 +487,8 @@
       },
       "noConsent": "Sharing is off until you agree to health data being processed.",
       "noGuardian": "Sharing is paused until you confirm you’re the baby’s parent or legal guardian.",
-      "noTerms": "Sharing is paused until you agree to the Terms of Use."
+      "noTerms": "Sharing is paused until you agree to the Terms of Use.",
+      "noAgreement": "Sharing is paused until you accept the caregiver agreement."
     },
     "report": {
       "title": "Report",
@@ -529,7 +530,12 @@
       "agreed": "Agreed",
       "notAgreed": "Not agreed",
       "review": "Review consent",
-      "terms": "Terms of Use"
+      "terms": "Terms of Use",
+      "agreement": "Caregiver agreement",
+      "agreementValue": "Caregiver agreement: {{value}}",
+      "accepted": "Accepted",
+      "notAccepted": "Not accepted",
+      "readAgreement": "Read the agreement"
     },
     "reminders": {
       "title": "Reminders",
@@ -714,7 +720,14 @@
       "signed_out": "Sign in first.",
       "unknown": "Couldn’t set up the household. Try again.",
       "guardian": "Tick the box to confirm you’re the parent or legal guardian.",
-      "terms": "Agree to the Terms of Use first, in Settings → Privacy."
+      "terms": "Agree to the Terms of Use first, in Settings → Privacy.",
+      "consent": "Agree to health data being processed first."
+    },
+    "consent": {
+      "title": "Health data",
+      "body": "Before you set up the household, agree to your baby’s health data being processed. It’s on its own screen.",
+      "button": "Read and agree",
+      "agreed": "You agreed to health data being processed."
     }
   },
   "invite": {
@@ -745,7 +758,9 @@
       "expired": "Couldn’t create an invite. Try again.",
       "rate_limited": "Couldn’t create an invite. Try again.",
       "already_in_household": "Couldn’t create an invite. Try again.",
-      "unknown": "Couldn’t create an invite. Try again."
+      "unknown": "Couldn’t create an invite. Try again.",
+      "terms": "Agree to the Terms of Use first.",
+      "agreement": "Accept the caregiver agreement first."
     },
     "openTitle": "Open invites",
     "revoke": "Revoke",
@@ -776,8 +791,11 @@
       "signed_out": "Sign in first.",
       "offline": "You’re offline. Joining needs a connection.",
       "unknown": "Couldn’t join. Try again.",
-      "terms": "Agree to the Terms of Use first, in Settings → Privacy."
-    }
+      "terms": "Agree to the Terms of Use first, in Settings → Privacy.",
+      "agreement": "Accept the caregiver agreement to join.",
+      "unticked": "Tick the box to accept the agreement."
+    },
+    "continue": "Continue"
   },
   "report": {
     "call": {
@@ -893,19 +911,19 @@
   },
   "consent": {
     "title": "Health data",
-    "what": "Moraki records what you log about your baby: feeds, diapers, sleep, pumping, weight, temperatures, notes, medication and appointments. That is health data, so we ask before your entries leave this phone.",
-    "where": "Your entries are stored on this phone, encrypted. Once you sign in and agree, they also sync to servers in the EU, so the people in your household see them. Until you agree, your entries stay on this phone and are not shared. You still see what others in the household share.",
-    "who": "Only people in your household see it. The baby’s details you enter when you set up a household, like name, birth time and weight, are shared with the household as soon as you set it up, even before you agree. Nothing is ever sold, used for advertising or used to train anything.",
+    "what": "Moraki records what your household logs about your baby: feeds, diapers, sleep, pumping, weight, temperatures, notes, medication and appointments. That is health data about your child, so you, as their parent or guardian, decide whether Moraki may process it.",
+    "where": "Entries are stored on each phone, encrypted. Once you agree, they sync to servers in the EU, so the people in your household see them. Until you agree, nothing about your baby leaves this phone, and you can’t set up a household.",
+    "who": "Only people in your household see it. Everyone you invite who isn’t a parent or guardian first accepts a caregiver agreement: they’ll see every entry, past and future, and keep it to the household. Nothing is ever sold, used for advertising or used to train anything.",
     "rights": "You can export your data at any time in Settings → Data export → Export my data. You can leave the household or delete your account in Settings → Leave or delete. The household’s owner can delete the whole household there too.",
-    "withdrawal": "If you withdraw, your new entries stay on this phone and stop syncing. What you already shared stays with the household, as part of the baby’s record, until the household is deleted. Deleting your account takes it with it only if nobody else is in the household.",
+    "withdrawal": "If you withdraw, your new entries stay on this phone and stop syncing, and this phone stops getting the household’s new entries. What was already shared stays with the household, as part of the baby’s record, until the household is deleted. Deleting your account takes it with it only if nobody else is in the household.",
     "version": "Policy version {{version}}",
-    "versionName": "2026-10-18",
+    "versionName": "2026-10-24",
     "agree": "I agree",
     "working": "Saving…",
     "notNow": "Not now",
     "granted": "You agreed to this on this account.",
     "withdraw": "Withdraw my agreement",
-    "withdrawHint": "New entries stay on this phone and stop syncing. What you already shared stays with the household.",
+    "withdrawHint": "New entries stay on this phone and stop syncing, and the household’s entries stop arriving. What you already shared stays with the household.",
     "problem": {
       "offline": "No connection. Try again when you have one.",
       "signed_out": "Sign in first, then agree.",
@@ -1038,6 +1056,34 @@
     "version": "Terms {{terms}} · Privacy Policy {{privacy}}",
     "problem": {
       "unticked": "Tick the box to agree to the Terms of Use.",
+      "offline": "No connection. Try again when you have one.",
+      "unknown": "That didn’t save. Try again."
+    }
+  },
+  "agreement": {
+    "title": "Caregiver agreement",
+    "introJoin": "Before you join, read what joining means.",
+    "introMember": "Moraki now asks everyone in a household who isn’t the baby’s parent or guardian to accept this. Until you do, this phone shows only what it already has, and nothing new is shared.",
+    "roleJoin": {
+      "caregiver": "You’ll join as a caregiver: you can log entries and edit them.",
+      "viewer": "You’ll join as a viewer: you can see everything but log nothing."
+    },
+    "roleMember": {
+      "caregiver": "You’re in {{name}}’s household as a caregiver: you can log entries and edit them.",
+      "viewer": "You’re in {{name}}’s household as a viewer: you can see everything but log nothing."
+    },
+    "history": "You’ll see every entry in the household: everything logged before you joined, and everything logged from now on, until you leave.",
+    "statement": "I’ll use what I see in this household only to help care for the baby, and I won’t share it with anyone outside the household.",
+    "leave": "You can leave at any time in Settings → Leave or delete. Leaving ends this agreement.",
+    "accept": "Accept",
+    "acceptJoin": "Accept and join",
+    "working": "Saving…",
+    "notNow": "Not now",
+    "accepted": "You accepted this agreement for this household.",
+    "version": "Agreement {{version}}",
+    "versionName": "2026-10-24",
+    "problem": {
+      "unticked": "Tick the box to accept the agreement.",
       "offline": "No connection. Try again when you have one.",
       "unknown": "That didn’t save. Try again."
     }

@@ -35,6 +35,22 @@ const press = (name: string | RegExp) => fireEvent.press(screen.getByRole('butto
 const type = (label: string, text: string) =>
   fireEvent.changeText(screen.getByLabelText(label), text);
 
+const STATEMENT =
+  'I’ll use what I see in this household only to help care for the baby, and I won’t share it with anyone outside the household.';
+
+/** P0.2: the code and name, then the caregiver agreement, ticked and accepted. */
+async function continueAndAccept() {
+  await press('Continue');
+  await fireEvent.press(await screen.findByRole('checkbox', { name: STATEMENT }));
+  await press('Accept and join');
+}
+
+const json = (value: unknown) =>
+  new Response(JSON.stringify(value), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+  });
+
 /** Renders the app already signed in, from the keychain, with no network needed. */
 async function signedIn(
   options: Parameters<typeof authServer>[0] = {},
@@ -230,7 +246,7 @@ describe('joining through the link', () => {
 
     await type('Your name', ' Nik ');
     await fireEvent.press(screen.getByRole('togglebutton', { name: 'Father' }));
-    await press('Join');
+    await continueAndAccept();
 
     // Home, with this phone's own entries still there and untouched.
     expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
@@ -243,6 +259,15 @@ describe('joining through the link', () => {
       code: CODE,
       display_name: 'Nik',
       relation: 'father',
+      agreement_version: '2026-10-24',
+      locale: 'en',
+    });
+    // The agreement went on record as part of joining (P0.2).
+    expect(h.prefs.get('householdAccess')).toEqual({
+      userId: USER_ID,
+      householdId: HOUSEHOLD_ID,
+      access: 'granted',
+      isGuardian: false,
     });
     expect(h.prefs.get('accountHousehold')).toEqual({
       userId: USER_ID,
@@ -269,7 +294,7 @@ describe('joining through the link', () => {
     await press('Join household');
     await type('Invite code', ' abcd-2345 ');
     await type('Your name', 'Nik');
-    await press('Join');
+    await continueAndAccept();
 
     expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
     expect(
@@ -282,10 +307,10 @@ describe('joining through the link', () => {
     await press(/Settings/);
     await press('Join household');
 
-    await press('Join');
+    await press('Continue');
     expect(screen.getByText('Error: The code is 8 characters.')).toBeOnTheScreen();
     await type('Invite code', CODE);
-    await press('Join');
+    await press('Continue');
     expect(screen.getByText('Error: Enter your name.')).toBeOnTheScreen();
     expect(server.calls.some((c) => c.path === '/rest/v1/rpc/accept_invite')).toBe(false);
   });
@@ -308,7 +333,7 @@ describe('joining through the link', () => {
       { initialUrl: `/join/${CODE}` },
     );
     await type('Your name', 'Nik');
-    await press('Join');
+    await continueAndAccept();
     expect(await screen.findByText(`Error: ${message}`)).toBeOnTheScreen();
     await waitFor(() => expect(h.prefs.get('accountHousehold')).toBeNull());
   });
@@ -325,7 +350,7 @@ describe('joining through the link', () => {
       { initialUrl: `/join/${CODE}` },
     );
     await type('Your name', 'Nik');
-    await press('Join');
+    await press('Continue');
     expect(
       await screen.findByText('Error: Too many attempts. Wait a while, then try again.'),
     ).toBeOnTheScreen();
@@ -336,15 +361,25 @@ describe('joining through the link', () => {
   it('calls record_invite_attempt before accept_invite, every time', async () => {
     const server = await signedIn({}, { initialUrl: `/join/${CODE}` });
     await type('Your name', 'Nik');
-    await press('Join');
+    await continueAndAccept();
     await screen.findByRole('button', { name: 'Log feed' });
 
     const paths = server.calls
       .map((c) => c.path)
-      .filter(
-        (p) => p === '/rest/v1/rpc/record_invite_attempt' || p === '/rest/v1/rpc/accept_invite',
+      .filter((p) =>
+        [
+          '/rest/v1/rpc/record_invite_attempt',
+          '/rest/v1/rpc/invite_preview',
+          '/rest/v1/rpc/accept_invite',
+        ].includes(p),
       );
-    expect(paths).toEqual(['/rest/v1/rpc/record_invite_attempt', '/rest/v1/rpc/accept_invite']);
+    // Looking at the code (P0.2) counts as an attempt too.
+    expect(paths).toEqual([
+      '/rest/v1/rpc/record_invite_attempt',
+      '/rest/v1/rpc/invite_preview',
+      '/rest/v1/rpc/record_invite_attempt',
+      '/rest/v1/rpc/accept_invite',
+    ]);
   });
 
   it('says joining needs a connection', async () => {
@@ -364,11 +399,39 @@ describe('joining through the link', () => {
     });
     await type('Your name', 'Nik');
     online = false;
-    await press('Join');
+    await press('Continue');
 
     expect(
       await screen.findByText('Error: You’re offline. Joining needs a connection.'),
     ).toBeOnTheScreen();
+  });
+
+  it('shows the role and what joining means, and joins only once the agreement is ticked (P0.2)', async () => {
+    const server = await signedIn(
+      { previewInvite: () => json({ role: 'viewer' }) },
+      { initialUrl: `/join/${CODE}` },
+    );
+    await type('Your name', 'Nik');
+    await press('Continue');
+
+    const card = within(await screen.findByTestId('join-agreement'));
+    expect(
+      card.getByText('You’ll join as a viewer: you can see everything but log nothing.'),
+    ).toBeOnTheScreen();
+    expect(card.getByText(/You’ll see every entry in the household/)).toBeOnTheScreen();
+    expect(screen.getByRole('checkbox', { name: STATEMENT })).not.toBeChecked();
+    // Nothing about the household or its baby before joining.
+    expect(screen.queryByText(/Ella/)).toBeNull();
+
+    await press('Accept and join');
+    expect(screen.getByText('Error: Tick the box to accept the agreement.')).toBeOnTheScreen();
+    expect(server.calls.some((c) => c.path === '/rest/v1/rpc/accept_invite')).toBe(false);
+
+    // Back to the code and name, and forward again.
+    await press('Back');
+    expect(screen.getByLabelText('Your name')).toHaveProp('value', 'Nik');
+    await continueAndAccept();
+    expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
   });
 
   it('says so when this account is already in a household', async () => {
