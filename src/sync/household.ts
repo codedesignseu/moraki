@@ -1,3 +1,5 @@
+import { GUARDIAN_DECLARATION_VERSION, type ConsentLocale } from '@/domain/consent/consent';
+
 import type { Auth } from './auth';
 import type { MemberRole } from './invites';
 
@@ -11,6 +13,12 @@ export type NewHousehold = {
   birthWeightG: number | null;
   displayName: string;
   relation: Relation | null;
+  /**
+   * The person ticked the guardian declaration (P0.1). The server refuses a
+   * household without it and records it with its version and language.
+   */
+  guardianDeclared: boolean;
+  locale: ConsentLocale;
 };
 
 export type AccountHousehold = {
@@ -27,7 +35,7 @@ export type AccountHousehold = {
 
 export class HouseholdError extends Error {
   override name = 'HouseholdError';
-  constructor(readonly reason: 'offline' | 'signed_out' | 'unknown') {
+  constructor(readonly reason: 'offline' | 'signed_out' | 'guardian' | 'unknown') {
     super(`Household setup failed: ${reason}`);
   }
 }
@@ -37,6 +45,8 @@ function failure(error: { message?: string; code?: string }): HouseholdError {
   if (!error.code && /fetch|network/i.test(error.message ?? ''))
     return new HouseholdError('offline');
   if (error.code === '42501') return new HouseholdError('signed_out');
+  // MK001: the guardian declaration is missing (P0.1).
+  if (error.code === 'MK001') return new HouseholdError('guardian');
   return new HouseholdError('unknown');
 }
 
@@ -61,6 +71,9 @@ export async function createHousehold(
     display_name: input.displayName.trim(),
     relation: input.relation,
     birth_weight_g: input.birthWeightG,
+    guardian_declared: input.guardianDeclared,
+    guardian_version: GUARDIAN_DECLARATION_VERSION,
+    locale: input.locale,
   });
   if (error) throw failure(error);
   return {

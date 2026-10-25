@@ -2,6 +2,7 @@ import { getRandomBytes } from 'expo-crypto';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { consentLocale } from '@/domain/consent/consent';
 import { newId } from '@/domain/ids';
 import { localTimeDaysAgo } from '@/domain/time/zoned';
 import { dateLocale } from '@/i18n';
@@ -20,7 +21,13 @@ export const LIMITS = {
 const BORN_HOUR = 12;
 
 export type SetupProblem =
-  'display_name' | 'baby_name' | 'birth_weight' | 'offline' | 'signed_out' | 'unknown';
+  | 'display_name'
+  | 'baby_name'
+  | 'birth_weight'
+  | 'guardian'
+  | 'offline'
+  | 'signed_out'
+  | 'unknown';
 
 /**
  * Creates the account's household with its baby (P2-05). Only the server
@@ -37,6 +44,8 @@ export function useHouseholdSetup(onDone: () => void) {
   const [babyName, setBabyName] = useState('');
   const [bornDaysAgo, setBornDaysAgo] = useState(0);
   const [birthWeight, setBirthWeight] = useState('');
+  // P0.1: never ticked for them.
+  const [guardianDeclared, setGuardianDeclared] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<SetupProblem | null>(null);
   const [openedAt] = useState(Date.now);
@@ -63,13 +72,22 @@ export function useHouseholdSetup(onDone: () => void) {
     ) {
       return setProblem('birth_weight');
     }
+    if (!guardianDeclared) return setProblem('guardian');
     setBusy(true);
     setProblem(null);
     try {
       const created = await createHousehold(
         auth,
         state.user.id,
-        { babyName, bornAt, birthWeightG: weight, displayName, relation },
+        {
+          babyName,
+          bornAt,
+          birthWeightG: weight,
+          displayName,
+          relation,
+          guardianDeclared,
+          locale: consentLocale(i18n.language),
+        },
         () => newId(Date.now(), () => getRandomBytes(16)),
       );
       remember(created);
@@ -98,6 +116,8 @@ export function useHouseholdSetup(onDone: () => void) {
     }).format(bornAt),
     birthWeight,
     setBirthWeight: (value: string) => setBirthWeight(value.replace(/\D/g, '')),
+    guardianDeclared,
+    setGuardianDeclared,
     busy,
     problem,
     save: () => void save(),

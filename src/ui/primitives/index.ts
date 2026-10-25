@@ -5,6 +5,7 @@ export { BarChart } from './BarChart';
 export { Button } from './Button';
 export type { CardTone } from './Card';
 export { Card } from './Card';
+export { Checkbox } from './Checkbox';
 export type { ChoiceOption } from './ChoiceButtons';
 export { ChoiceButtons } from './ChoiceButtons';
 export { Chip } from './Chip';
