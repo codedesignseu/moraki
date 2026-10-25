@@ -23,7 +23,8 @@ import { SyncProvider } from '@/sync/SyncProvider';
 import { DEFAULT_NIGHT_MODE } from '@/domain/time/night';
 import { startCrashReporting } from '@/observability/sentry';
 import { Notice } from '@/ui/primitives';
-import { useTheme } from '@/ui/theme';
+import { PAGE_OPTIONS, PUSHED_PAGE_OPTIONS } from '@/ui/pageOptions';
+import { useSheetOptions, useTheme } from '@/ui/theme';
 import { fonts, type } from '@/ui/tokens';
 
 // Before anything else, so a crash while the database opens is still reported.
@@ -74,8 +75,43 @@ export default function RootLayout() {
   );
 }
 
+const SHEET_ROUTES = [
+  'log/feed',
+  'log/diaper',
+  'log/sleep',
+  'log/pump',
+  'log/health',
+  'log/medication',
+  'log/weight',
+  'log/stock',
+  'log/appointment',
+  'entry/[id]',
+] as const;
+const MODAL_PAGE_ROUTES = [
+  'feedback',
+  'invite',
+  'join/[code]',
+  'onboarding/agreement',
+  'onboarding/consent',
+  'onboarding/guardian',
+  'onboarding/household',
+  'onboarding/join',
+  'onboarding/paused',
+  'onboarding/removed',
+  'onboarding/sign-in',
+  'onboarding/terms',
+] as const;
+const PUSHED_PAGE_ROUTES = [
+  'about',
+  'baby',
+  'leave-or-delete',
+  'report/[range]',
+  'report/call',
+] as const;
+
 function ThemedStack() {
   const theme = useTheme();
+  const sheet = useSheetOptions();
   const { t } = useTranslation();
   return (
     <View style={styles.fill}>
@@ -92,6 +128,22 @@ function ThemedStack() {
       >
         {/* The tabs draw their own headers (SDD 7). */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        {/*
+          Sheets and pages draw their own headers. Their options are declared
+          here, not only inside each screen: an option set from inside the
+          screen arrives after the screen is presented, so the native header
+          (with the raw route name) and the default push showed instead of the
+          form sheet (build 7).
+        */}
+        {SHEET_ROUTES.map((name) => (
+          <Stack.Screen key={name} name={name} options={sheet} />
+        ))}
+        {MODAL_PAGE_ROUTES.map((name) => (
+          <Stack.Screen key={name} name={name} options={PAGE_OPTIONS} />
+        ))}
+        {PUSHED_PAGE_ROUTES.map((name) => (
+          <Stack.Screen key={name} name={name} options={PUSHED_PAGE_OPTIONS} />
+        ))}
       </Stack>
     </View>
   );

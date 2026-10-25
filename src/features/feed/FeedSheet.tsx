@@ -98,9 +98,8 @@ export function FeedSheet({ onDone, entryId }: { onDone: () => void; entryId?: s
             maximumDate={new Date()}
             testID="feed-when"
           />
-          <StatusPill
-            label={'at' in when ? t('log.time', { time: when.at }) : t('log.feed.range', when)}
-          />
+          {/* A single time is already in the field above; a breastfeed's range isn't. */}
+          {!('at' in when) && <StatusPill label={t('log.feed.range', when)} />}
         </View>
       )}
       {hasBreast && (
