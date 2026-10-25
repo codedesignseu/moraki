@@ -129,7 +129,7 @@ export const DEVICE_PREFS = {
       .object({
         userId: z.string().min(1),
         householdId: z.string().min(1),
-        access: z.enum(['granted', 'needs_consent', 'needs_agreement']),
+        access: z.enum(['granted', 'needs_consent', 'needs_agreement', 'frozen']),
         isGuardian: z.boolean(),
       })
       .nullable(),

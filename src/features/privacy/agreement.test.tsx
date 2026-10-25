@@ -77,7 +77,7 @@ async function existingCaregiver(options: Parameters<typeof authServer>[0] = {})
     householdId: HOUSEHOLD,
     babyId: BABY,
     babyName: 'Ella',
-    role: 'caregiver',
+    role: options.memberships?.[0]?.role ?? 'caregiver',
   });
   for (const [key, value] of [
     [META_KEYS.householdId, HOUSEHOLD],
@@ -180,5 +180,74 @@ describe('the caregiver agreement for a member from before it existed (P0.2)', (
     expect(await screen.findByText(/^Error: /)).toBeOnTheScreen();
     expect(screen.getByTestId('caregiver-agreement')).toBeOnTheScreen();
     expect(accepted()).toBe(false);
+  });
+});
+
+describe('withdrawing the agreement (P0.3)', () => {
+  it('is leaving the household, confirmed on the leave screen', async () => {
+    await existingCaregiver({
+      membershipStatus: () => ({
+        status: 'member',
+        role: 'caregiver',
+        is_guardian: false,
+        access: 'granted',
+        baby_id: BABY,
+        baby_name: 'Ella',
+      }),
+    });
+    await press(/Settings/);
+    await press('Read the agreement');
+    expect(
+      await screen.findByText('You accepted this agreement for this household.'),
+    ).toBeOnTheScreen();
+    expect(screen.queryByRole('checkbox', { name: STATEMENT })).toBeNull();
+
+    await press('Withdraw and leave the household');
+    expect(await screen.findByText('Leave this household')).toBeOnTheScreen();
+  });
+});
+
+describe('a frozen household (P0.3)', () => {
+  const frozen = (role: 'owner' | 'caregiver') => ({
+    memberships: [{ household_id: HOUSEHOLD, role }],
+    membershipStatus: () => ({
+      status: 'member',
+      role,
+      is_guardian: role === 'owner',
+      access: 'frozen',
+      baby_id: BABY,
+      baby_name: 'Ella',
+    }),
+  });
+
+  it('tells a caregiver it is paused, sends nothing but their own deletions, and offers a way on', async () => {
+    const { pushes, server } = await existingCaregiver(frozen('caregiver'));
+    const card = within(await screen.findByTestId('household-paused'));
+    expect(card.getByText(/so it’s paused: nothing new is shared or shown here/)).toBeOnTheScreen();
+    expect(card.getByText('You can still see and delete your own entries.')).toBeOnTheScreen();
+    expect(
+      screen.getByRole('button', { name: 'I’m the baby’s parent or guardian' }),
+    ).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Leave the household' })).toBeOnTheScreen();
+    expect(pushes).toEqual([]);
+    expect(server.calls.some((c) => c.path === '/rest/v1/events')).toBe(false);
+
+    await press('Close');
+    await press(/Settings/);
+    expect(
+      within(screen.getByTestId('settings-sync')).getByText(
+        'Sharing is paused: no parent or guardian in this household agrees to health data being processed right now.',
+      ),
+    ).toBeOnTheScreen();
+  });
+
+  it('offers the guardian who withdrew to agree again, or to delete it', async () => {
+    await existingCaregiver(frozen('owner'));
+    const card = within(await screen.findByTestId('household-paused'));
+    expect(card.getByText(/the household is paused for everyone/)).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Delete the household' })).toBeOnTheScreen();
+
+    await press('Agree to health data');
+    expect(await screen.findByTestId('consent-what')).toBeOnTheScreen();
   });
 });

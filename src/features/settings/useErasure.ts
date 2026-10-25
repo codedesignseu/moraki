@@ -1,7 +1,9 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform } from 'react-native';
 
 import { useResetPhone } from '@/db/react';
+import { consentLocale } from '@/domain/consent/consent';
 import { useAuth } from '@/sync/AuthProvider';
 import {
   deleteAccount,
@@ -29,6 +31,7 @@ export function useErasure(onDone: () => void) {
   const { household } = useAccountHousehold();
   const caregivers = useCaregivers();
   const resetPhone = useResetPhone();
+  const { i18n } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<ErasureFailure | null>(null);
 
@@ -70,7 +73,8 @@ export function useErasure(onDone: () => void) {
           // effort. It never stops a deletion (Google doesn't require it).
           if (providers.includes('google')) await revokeGoogleAccess();
         } else if (!household) return;
-        else if (action === 'leave') await leaveHousehold(auth, household.householdId, next);
+        else if (action === 'leave')
+          await leaveHousehold(auth, household.householdId, next, consentLocale(i18n.language));
         else await deleteHousehold(auth, household.householdId);
         resetPhone({ forgetAccount: action === 'deleteAccount' });
         onDone();
@@ -80,7 +84,7 @@ export function useErasure(onDone: () => void) {
         setBusy(false);
       }
     },
-    [auth, state.status, household, needsSuccessor, successor, resetPhone, onDone],
+    [auth, state.status, household, needsSuccessor, successor, resetPhone, onDone, i18n.language],
   );
 
   return {

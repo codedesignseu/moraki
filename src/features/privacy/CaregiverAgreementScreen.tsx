@@ -13,7 +13,14 @@ import { useTheme, type Theme } from '@/ui/theme';
  * from before it existed, and readable later from Settings. Never pre-ticked;
  * closes only once the server has it.
  */
-export function CaregiverAgreementScreen({ onDone }: { onDone: () => void }) {
+export function CaregiverAgreementScreen({
+  onDone,
+  onWithdraw = () => {},
+}: {
+  onDone: () => void;
+  /** P0.3: withdrawing the agreement is leaving, confirmed on its own screen. */
+  onWithdraw?: () => void;
+}) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
@@ -33,7 +40,12 @@ export function CaregiverAgreementScreen({ onDone }: { onDone: () => void }) {
       onBack={onDone}
       backLabel={t('common.close')}
       footer={
-        agreement.accepted ? undefined : (
+        agreement.accepted ? (
+          <>
+            <TextButton label={t('agreement.withdraw')} align="center" onPress={onWithdraw} />
+            <Text style={s.hint}>{t('agreement.withdrawHint')}</Text>
+          </>
+        ) : (
           <>
             {general ? <InlineError message={general} prefix={t('common.error')} /> : null}
             <Button
@@ -81,4 +93,5 @@ const styles = (theme: Theme) =>
     lead: { ...theme.type.lead, color: theme.palette.ink },
     body: { ...theme.type.body, color: theme.palette.ink },
     small: { ...theme.type.small, color: theme.palette.textSoft },
+    hint: { ...theme.type.small, color: theme.palette.textSoft, textAlign: 'center' },
   });

@@ -30,6 +30,7 @@ import Invite from '../../app/invite';
 import Join from '../../app/join/[code]';
 import HouseholdSetup from '../../app/onboarding/household';
 import Agreement from '../../app/onboarding/agreement';
+import Paused from '../../app/onboarding/paused';
 import Consent from '../../app/onboarding/consent';
 import Guardian from '../../app/onboarding/guardian';
 import Terms from '../../app/onboarding/terms';
@@ -179,6 +180,7 @@ export function renderApp(
       'onboarding/join': JoinWithCode,
       'onboarding/consent': Consent,
       'onboarding/agreement': Agreement,
+      'onboarding/paused': Paused,
       'onboarding/guardian': Guardian,
       'onboarding/terms': Terms,
       'join/[code]': Join,

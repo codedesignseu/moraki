@@ -86,7 +86,9 @@ describe('asking for consent', () => {
     // The app cannot delete from the servers yet (P4-06), so the screen does
     // not say it can.
     expect(card.queryByText(/delete it at any time/)).toBeNull();
-    expect(screen.getByText('Policy version 2026-10-24')).toBeOnTheScreen();
+    expect(screen.getByText('Policy version 2026-10-25')).toBeOnTheScreen();
+    // P0.3: what withdrawing does to the household.
+    expect(card.getByText(/the household is paused for everyone/)).toBeOnTheScreen();
     // Nothing is agreed by opening the screen.
     expect(screen.getByRole('button', { name: 'I agree' })).toBeOnTheScreen();
     expect(screen.queryByTestId('consent-granted')).toBeNull();

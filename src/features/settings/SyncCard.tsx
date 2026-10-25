@@ -41,6 +41,8 @@ export function SyncCard() {
     <SettingsCard icon="time" title={t('settings.sync.title')} testID="settings-sync">
       {sync.blocked === 'no_consent' ? (
         <Text style={[theme.type.detail, s.soft]}>{t('settings.sync.noConsent')}</Text>
+      ) : sync.blocked === 'frozen' ? (
+        <Text style={[theme.type.detail, s.soft]}>{t('settings.sync.frozen')}</Text>
       ) : sync.blocked === 'no_agreement' ? (
         <Text style={[theme.type.detail, s.soft]}>{t('settings.sync.noAgreement')}</Text>
       ) : sync.blocked === 'no_terms' ? (

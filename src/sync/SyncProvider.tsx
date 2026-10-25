@@ -19,6 +19,7 @@ import {
   useLinkedIdentity,
   useOutboxRepository,
 } from '@/db/react';
+import type { OutboxRow } from '@/db/repositories/outbox';
 import {
   accessStatus,
   agreedToCurrent,
@@ -117,6 +118,13 @@ export function SyncProvider({
   const guardianMissing = useCallback(() => gates.get('guardianMissing') === true, [gates]);
   const termsAgreed = useCallback(() => gates.get('termsAgreed') === true, [gates]);
   const accessNow = useCallback(() => gates.get('access') as HouseholdAccess | 'unknown', [gates]);
+  // P0.3: while this account's other writes wait, deleting its own entries
+  // still goes; the server accepts that whatever its access.
+  const erasable = useCallback(
+    (row: OutboxRow) =>
+      row.op === 'delete' && eventsRepository.get(row.entityId)?.createdBy === linked()?.userId,
+    [eventsRepository, linked],
+  );
   // Re-pushes after every committed write (the events repository's signal).
   const events = useEvents();
   // Links the phone once the account has a household, whichever screen is open.
@@ -144,8 +152,9 @@ export function SyncProvider({
         guardianMissing,
         termsAgreed,
         access: accessNow,
+        erasable,
       }),
-    [linked, outbox, auth, state, consented, guardianMissing, termsAgreed, accessNow],
+    [linked, outbox, auth, state, consented, guardianMissing, termsAgreed, accessNow, erasable],
   );
   const pull = useMemo(
     () =>

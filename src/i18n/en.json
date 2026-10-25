@@ -488,7 +488,8 @@
       "noConsent": "Sharing is off until you agree to health data being processed.",
       "noGuardian": "Sharing is paused until you confirm you’re the baby’s parent or legal guardian.",
       "noTerms": "Sharing is paused until you agree to the Terms of Use.",
-      "noAgreement": "Sharing is paused until you accept the caregiver agreement."
+      "noAgreement": "Sharing is paused until you accept the caregiver agreement.",
+      "frozen": "Sharing is paused: no parent or guardian in this household agrees to health data being processed right now."
     },
     "report": {
       "title": "Report",
@@ -760,7 +761,8 @@
       "already_in_household": "Couldn’t create an invite. Try again.",
       "unknown": "Couldn’t create an invite. Try again.",
       "terms": "Agree to the Terms of Use first.",
-      "agreement": "Accept the caregiver agreement first."
+      "agreement": "Accept the caregiver agreement first.",
+      "paused": "This household is paused, so nobody can join it until a parent or guardian agrees again."
     },
     "openTitle": "Open invites",
     "revoke": "Revoke",
@@ -793,7 +795,8 @@
       "unknown": "Couldn’t join. Try again.",
       "terms": "Agree to the Terms of Use first, in Settings → Privacy.",
       "agreement": "Accept the caregiver agreement to join.",
-      "unticked": "Tick the box to accept the agreement."
+      "unticked": "Tick the box to accept the agreement.",
+      "paused": "This household is paused for now. Ask whoever invited you."
     },
     "continue": "Continue"
   },
@@ -915,15 +918,15 @@
     "where": "Entries are stored on each phone, encrypted. Once you agree, they sync to servers in the EU, so the people in your household see them. Until you agree, nothing about your baby leaves this phone, and you can’t set up a household.",
     "who": "Only people in your household see it. Everyone you invite who isn’t a parent or guardian first accepts a caregiver agreement: they’ll see every entry, past and future, and keep it to the household. Nothing is ever sold, used for advertising or used to train anything.",
     "rights": "You can export your data at any time in Settings → Data export → Export my data. You can leave the household or delete your account in Settings → Leave or delete. The household’s owner can delete the whole household there too.",
-    "withdrawal": "If you withdraw, your new entries stay on this phone and stop syncing, and this phone stops getting the household’s new entries. What was already shared stays with the household, as part of the baby’s record, until the household is deleted. Deleting your account takes it with it only if nobody else is in the household.",
+    "withdrawal": "If you withdraw, your new entries stay on this phone and stop syncing, and you stop seeing the household’s entries. If no other parent or guardian in the household still agrees, the household is paused for everyone: nothing new is shared, and nobody else sees it, until a parent or guardian agrees again or the household is deleted. You can always delete your own entries. What was already shared stays with the household until it is deleted.",
     "version": "Policy version {{version}}",
-    "versionName": "2026-10-24",
+    "versionName": "2026-10-25",
     "agree": "I agree",
     "working": "Saving…",
     "notNow": "Not now",
     "granted": "You agreed to this on this account.",
     "withdraw": "Withdraw my agreement",
-    "withdrawHint": "New entries stay on this phone and stop syncing, and the household’s entries stop arriving. What you already shared stays with the household.",
+    "withdrawHint": "If you’re the only parent or guardian who agrees, this pauses the household for everyone.",
     "problem": {
       "offline": "No connection. Try again when you have one.",
       "signed_out": "Sign in first, then agree.",
@@ -1086,6 +1089,19 @@
       "unticked": "Tick the box to accept the agreement.",
       "offline": "No connection. Try again when you have one.",
       "unknown": "That didn’t save. Try again."
-    }
+    },
+    "withdraw": "Withdraw and leave the household",
+    "withdrawHint": "Withdrawing the agreement means leaving. You’ll confirm on the next screen."
+  },
+  "paused": {
+    "title": "Household paused",
+    "guardian": "No parent or guardian in this household agrees to health data being processed right now, so the household is paused for everyone: nothing new is shared, and the others can’t see it.",
+    "member": "No parent or guardian in this household agrees to health data being processed right now, so it’s paused: nothing new is shared or shown here until one does.",
+    "resume": "Another parent or guardian in the household can resume it by confirming and agreeing on their phone.",
+    "own": "You can still see and delete your own entries.",
+    "agree": "Agree to health data",
+    "confirmGuardian": "I’m the baby’s parent or guardian",
+    "delete": "Delete the household",
+    "leave": "Leave the household"
   }
 }

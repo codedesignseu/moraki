@@ -219,7 +219,9 @@ describe('leaving and deleting (P4-06)', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Yes, leave' }));
 
     await waitFor(() =>
-      expect(calls).toEqual([['leave_household', { household_id: HOUSEHOLD, successor: null }]]),
+      expect(calls).toEqual([
+        ['leave_household', { household_id: HOUSEHOLD, successor: null, locale: 'en' }],
+      ]),
     );
     await waitFor(() => expect(h.repo.list()).toEqual([]));
     expect(readLinkedIdentity(h.mem.db)).toBeNull();

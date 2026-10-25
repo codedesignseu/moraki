@@ -45,7 +45,13 @@ insert into public.push_tokens (user_id, device_id, token, platform) values
 
 -- Signs in as user n for the rest of the transaction, or until the next call.
 -- P0.2: seeing and writing baby data needs the caregiver agreement (or a
--- guardian's consent); every member here has accepted it.
+-- guardian's consent); every member here has accepted it. P0.3: and a
+-- household needs a guardian whose consent is in force, or it is frozen:
+-- each owner here is one.
+update public.memberships set is_guardian = true where role = 'owner';
+insert into public.consents (user_id, policy_version)
+  select user_id, public.consent_version() from public.memberships where role = 'owner'
+  on conflict do nothing;
 insert into public.consent_events (user_id, purpose, version, action, text_key, household_id)
   select user_id, 'caregiver_agreement', public.caregiver_agreement_version(), 'grant', 'test',
          household_id

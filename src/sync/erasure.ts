@@ -1,3 +1,5 @@
+import type { ConsentLocale } from '@/domain/consent/consent';
+
 import type { Auth } from './auth';
 
 /**
@@ -53,8 +55,11 @@ export function leaveHousehold(
   auth: Auth,
   householdId: string,
   successor: string | null,
+  locale: ConsentLocale,
 ): Promise<void> {
-  return call(auth, 'leave_household', { household_id: householdId, successor });
+  // Leaving ends a caregiver agreement; the server records that, in the
+  // language of the screen that confirmed it (P0.3).
+  return call(auth, 'leave_household', { household_id: householdId, successor, locale });
 }
 
 /** Deletes the household for everyone: baby, entries, invites. Owner only. */

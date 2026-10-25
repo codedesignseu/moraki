@@ -385,6 +385,13 @@ describe('asking first whether this account may read (P0.2)', () => {
     expect(pages).toEqual([]);
   });
 
+  it('stops before reading a frozen household, for everyone (P0.3)', async () => {
+    const { engine, pages, prefs } = await gated(async () => member('frozen'));
+    expect(await engine.pull()).toEqual({ kind: 'blocked', by: 'frozen' });
+    expect(pages).toEqual([]);
+    expect(prefs.get('householdAccess')?.access).toBe('frozen');
+  });
+
   it('treats a server it couldn’t ask as a failed pull, to try again later', async () => {
     const { engine, pages, prefs } = await gated(async () => {
       throw new MembershipStatusError('request failed');
