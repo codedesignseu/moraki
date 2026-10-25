@@ -163,7 +163,10 @@ alter table public.events enable trigger events_stamp_seq;
 select is(public.purge_deleted_event_content(), 1, 'its old deleted entry is purged today');
 select is((select server_updated_at from public.events where id = 'eeeeeeee-0000-0000-0000-000000000005'),
   now(), 'which stamps the row as written today');
-select is(public.sweep_inactive_households(), 1, 'yet the household is still swept as unused');
+-- Since the warning email (#207), the sweep only deletes after a warning; what
+-- matters here is that the purge does not count as activity.
+select ok(public.household_last_active_at('aaaaaaaa-0000-0000-0000-000000000002') < now() - interval '24 months',
+  'yet the household still counts as unused');
 select is((select count(*)::int from public.households where id = 'aaaaaaaa-0000-0000-0000-000000000001'),
   1, 'and the household in use is not');
 
