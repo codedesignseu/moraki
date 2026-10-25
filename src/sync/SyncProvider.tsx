@@ -23,7 +23,7 @@ import {
 import type { OutboxRow } from '@/db/repositories/outbox';
 import {
   accessStatus,
-  agreedToCurrent,
+  consentStanding,
   guardianStatus,
   termsStatus,
   type HouseholdAccess,
@@ -87,7 +87,10 @@ export function SyncProvider({
   const householdId = linked()?.householdId ?? null;
   const known = accessRecord?.userId === userId && accessRecord?.householdId === householdId;
   const guardianHere = known ? accessRecord.isGuardian : accountHousehold?.role === 'owner';
-  const consentOk = !guardianHere || agreedToCurrent(consent, userId);
+  // An agreement to the previous version counts through its grace, as of
+  // this app open; the server enforces its end in any case.
+  const [openedAt] = useState(Date.now);
+  const consentOk = !guardianHere || consentStanding(consent, userId, openedAt) !== 'none';
   // P0.2: what the server last said this account may do in its household.
   const access = accessStatus(accessRecord, userId, householdId);
   // P0.1: an owner waits until the server has said their guardian

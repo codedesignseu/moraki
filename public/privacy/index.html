@@ -219,6 +219,12 @@
         you shared only if nobody else is in the household. See section 9.
       </p>
       <p>
+        When we update the consent text, the app asks you once. Your previous agreement keeps
+        working for 90 days; after that, sharing pauses until you agree to the new text. A
+        household is only ever deleted for lack of consent after a parent or guardian explicitly
+        withdraws, never because the text was updated.
+      </p>
+      <p>
         Moraki does not interpret your entries. It adds them up and shows them, with no ranges,
         warnings or scores, and no decision about you is made automatically.
       </p>
@@ -366,18 +372,20 @@
               <td>
                 While a household is paused, nothing new is shared, nobody can join, and each member
                 sees only their own entries, which they can still delete.
-                If no parent or guardian in a household has agreed to health data being processed
-                for 90 days, every member gets an email saying the household will be deleted on a
-                date at least 30 days later. Unless a parent or guardian agrees again by then, it is
+                If the last parent or guardian in a household withdraws their agreement to health
+                data being processed and nobody agrees again for 90 days, every member gets an
+                email saying the household will be deleted on a date at least 30 days later.
+                An updated consent text never starts this. Unless a parent or guardian agrees again by then, it is
                 deleted with everything in it.
               </td>
             </tr>
             <tr>
               <td>Deletion log</td>
               <td>
-                When an account or household is deleted, we note its id, when and why, with no
-                content, for 35 days. We use it only to delete it again if we ever have to restore
-                a backup.
+                When an account, a household or an entry is deleted, we note its id, when and why,
+                with no content, for 35 days. Each night we also email the day's list of ids to our
+                own mailbox, so it survives even if the database has to be restored. We use it only
+                to delete those again if we ever restore a backup.
               </td>
             </tr>
             <tr>
