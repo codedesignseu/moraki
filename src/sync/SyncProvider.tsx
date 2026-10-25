@@ -18,11 +18,20 @@ import {
   useEventsRepository,
   useLinkedIdentity,
   useOutboxRepository,
+  useResetPhone,
 } from '@/db/react';
-import { agreedToCurrent } from '@/domain/consent/consent';
+import type { OutboxRow } from '@/db/repositories/outbox';
+import {
+  accessStatus,
+  agreedToCurrent,
+  guardianStatus,
+  termsStatus,
+  type HouseholdAccess,
+} from '@/domain/consent/consent';
 
 import { useAuth } from './AuthProvider';
-import { createPullEngine, type PullEngine } from './pullEngine';
+import { fetchMembershipStatus } from './membershipStatus';
+import { createPullEngine, type PullEngine, type Revocation } from './pullEngine';
 import { pushBlock } from './pushEngine';
 import { watchHousehold } from './realtime';
 import { createPushEngine, type PushEngine, type PushStatus } from './pushEngine';
@@ -65,14 +74,72 @@ export function SyncProvider({
   const devicePrefs = useSyncDevicePrefs();
   const linked = useLinkedIdentity();
   const { auth, state } = useAuth();
-  // P3-09: nothing syncs for an account that hasn't agreed to health data
-  // being processed, to the version in force. The server refuses it too; this
-  // stops the phone asking.
+  // P3-09, P0.2: nothing syncs for a guardian who hasn't agreed to health
+  // data being processed, to the version in force. The server refuses it
+  // too; this stops the phone asking. Since P0.2 consent is the guardian's:
+  // anyone else accepts the caregiver agreement instead (`access` below).
   const [consent] = useDevicePref('consent');
   const userId = state.status === 'signedIn' ? state.user.id : null;
-  const consented = useCallback(
-    () => agreedToCurrent(consent, userId),
-    [consent, userId],
+  const [accountHousehold] = useDevicePref('accountHousehold');
+  const [accessRecord] = useDevicePref('householdAccess');
+  // The household this phone sends to and reads from, which is the one the
+  // pull asked the server about.
+  const householdId = linked()?.householdId ?? null;
+  const known = accessRecord?.userId === userId && accessRecord?.householdId === householdId;
+  const guardianHere = known ? accessRecord.isGuardian : accountHousehold?.role === 'owner';
+  const consentOk = !guardianHere || agreedToCurrent(consent, userId);
+  // P0.2: what the server last said this account may do in its household.
+  const access = accessStatus(accessRecord, userId, householdId);
+  // P0.1: an owner waits until the server has said their guardian
+  // declaration is on record: nothing of theirs syncs before it has.
+  const [guardian] = useDevicePref('guardianDeclaration');
+  const missing =
+    accountHousehold?.role === 'owner' &&
+    guardianStatus(guardian, userId, accountHousehold.householdId) !== 'on_record';
+  // P0.9: nothing syncs until this account has agreed to the Terms in force.
+  const [terms] = useDevicePref('terms');
+  const agreedTerms = termsStatus(terms, userId) === 'agreed';
+  // All of these are read when the engine runs, from a map kept outside React's
+  // state: answering starts a cycle (below) rather than making a new engine,
+  // which would drop and rejoin the realtime channel, and a pull rewriting
+  // the household record changes nothing here.
+  const [gates] = useState(
+    () =>
+      new Map<
+        'consented' | 'guardianMissing' | 'termsAgreed' | 'access',
+        boolean | HouseholdAccess | 'unknown'
+      >([
+        ['consented', consentOk],
+        ['guardianMissing', missing],
+        ['termsAgreed', agreedTerms],
+        ['access', access],
+      ]),
+  );
+  const consented = useCallback(() => gates.get('consented') === true, [gates]);
+  const guardianMissing = useCallback(() => gates.get('guardianMissing') === true, [gates]);
+  const termsAgreed = useCallback(() => gates.get('termsAgreed') === true, [gates]);
+  const accessNow = useCallback(() => gates.get('access') as HouseholdAccess | 'unknown', [gates]);
+  // P0.3: while this account's other writes wait, deleting its own entries
+  // still goes; the server accepts that whatever its access.
+  const erasable = useCallback(
+    (row: OutboxRow) =>
+      row.op === 'delete' && eventsRepository.get(row.entityId)?.createdBy === linked()?.userId,
+    [eventsRepository, linked],
+  );
+  // P0.5: the server says this account is no longer in its household, or the
+  // household is gone. Everything of it leaves the phone (entries, the
+  // outbox, so nothing stale is sent, and with the entries every reminder
+  // computed from them); the account stays signed in unless it was deleted
+  // too. A notice says why, once.
+  const resetPhone = useResetPhone();
+  const onRevoked = useCallback(
+    async (reason: Revocation) => {
+      const gone = auth ? (await auth.accountExists()) === false : false;
+      resetPhone({ forgetAccount: gone });
+      devicePrefs.set('revokedNotice', gone ? 'account_gone' : reason);
+      if (gone) await auth?.signOut();
+    },
+    [auth, resetPhone, devicePrefs],
   );
   // Re-pushes after every committed write (the events repository's signal).
   const events = useEvents();
@@ -90,8 +157,20 @@ export function SyncProvider({
   const cycle = useRef<() => void>(() => {});
 
   const engine = useMemo(
-    () => createPushEngine({ linked, outbox, auth, state, now: Date.now, consented }),
-    [linked, outbox, auth, state, consented],
+    () =>
+      createPushEngine({
+        linked,
+        outbox,
+        auth,
+        state,
+        now: Date.now,
+        consented,
+        guardianMissing,
+        termsAgreed,
+        access: accessNow,
+        erasable,
+      }),
+    [linked, outbox, auth, state, consented, guardianMissing, termsAgreed, accessNow, erasable],
   );
   const pull = useMemo(
     () =>
@@ -103,9 +182,22 @@ export function SyncProvider({
         devicePrefs,
         auth,
         state,
+        fetchStatus: fetchMembershipStatus,
+        onRevoked,
       }),
-    [linked, eventsRepository, outbox, caregivers, devicePrefs, auth, state],
+    [linked, eventsRepository, outbox, caregivers, devicePrefs, auth, state, onRevoked],
   );
+
+  // The Terms agreed, the guardian declaration on record, or the server's
+  // answer about access (P0.9, P0.1, P0.2): what was waiting goes now.
+  // Declared before the cycle below, so it reads the new answer.
+  useEffect(() => {
+    gates.set('consented', consentOk);
+    gates.set('guardianMissing', missing);
+    gates.set('termsAgreed', agreedTerms);
+    gates.set('access', access);
+    cycle.current();
+  }, [gates, consentOk, missing, agreedTerms, access]);
 
   useEffect(() => {
     let active = true;

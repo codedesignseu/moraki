@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { legalLink } from '@/domain/consent/consent';
 import type { AuthUser } from '@/sync/auth';
-import { Button, Card, Page, TextButton, TextField } from '@/ui/primitives';
+import { Button, Card, Checkbox, Page, TextButton, TextField } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
 
 import { CODE_LENGTH, useSignIn } from './useSignIn';
@@ -16,22 +17,35 @@ type Pressed = 'send' | 'apple' | 'google' | 'verify' | 'resend';
  * -code, code-expired): address, then the emailed code. One code field, as
  * the app takes 6 to 10 digits; a wrong and an expired code share one message,
  * as the auth layer reports them.
+ *
+ * P0.9: before any way of signing in goes ahead, the Terms of Use and the
+ * Privacy Policy are linked and "I agree to the Terms of Use" is ticked,
+ * never for them. The route records it once there is an account.
  */
 export function SignInScreen({
   onDone,
   onClose,
+  onOpenLink = () => {},
 }: {
   onDone: (user: AuthUser) => void;
   onClose: () => void;
+  onOpenLink?: (url: string) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   const signIn = useSignIn(onDone);
   const [pressed, setPressed] = useState<Pressed | null>(null);
   const problem = signIn.problem ? t(`signIn.problem.${signIn.problem}`) : undefined;
   const busyOn = (button: Pressed) => signIn.busy && pressed === button;
+  const [terms, setTerms] = useState(false);
+  const [termsAsked, setTermsAsked] = useState(false);
   const press = (button: Pressed, action: () => unknown) => () => {
+    // Every way in waits for the Terms; the code step follows one that did.
+    if (!terms) {
+      setTermsAsked(true);
+      return;
+    }
     setPressed(button);
     void action();
   };
@@ -53,6 +67,23 @@ export function SignInScreen({
             invalid={problem !== undefined}
             message={problem}
             errorPrefix={t('common.error')}
+          />
+          <TextButton
+            label={t('terms.termsLink')}
+            onPress={() => onOpenLink(legalLink('terms', i18n.language))}
+          />
+          <TextButton
+            label={t('terms.privacyLink')}
+            onPress={() => onOpenLink(legalLink('privacy', i18n.language))}
+          />
+          <Checkbox
+            label={t('terms.agree')}
+            checked={terms}
+            onChange={setTerms}
+            invalid={termsAsked && !terms}
+            message={termsAsked && !terms ? t('terms.problem.unticked') : undefined}
+            errorPrefix={t('common.error')}
+            testID="sign-in-terms"
           />
           <Button
             label={t('signIn.sendCode')}

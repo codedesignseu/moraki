@@ -15,11 +15,12 @@ insert into auth.users (id, email) values
 insert into public.households (id, name, created_by) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'A', '00000000-0000-0000-0000-000000000001'),
   ('aaaaaaaa-0000-0000-0000-000000000002', 'B', '00000000-0000-0000-0000-000000000004');
-insert into public.memberships (household_id, user_id, role, display_name, joined_at) values
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', 'Owner', now() - interval '3 days'),
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 'viewer', 'Viewer', now() - interval '2 days'),
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'caregiver', 'Carer', now() - interval '1 day'),
-  ('aaaaaaaa-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000004', 'owner', 'Alone', now());
+-- P0.1: everyone in A has declared, so any of them may take over.
+insert into public.memberships (household_id, user_id, role, display_name, joined_at, is_guardian) values
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', 'Owner', now() - interval '3 days', true),
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 'viewer', 'Viewer', now() - interval '2 days', true),
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'caregiver', 'Carer', now() - interval '1 day', true),
+  ('aaaaaaaa-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000004', 'owner', 'Alone', now(), true);
 insert into public.babies (id, household_id, name, born_at) values
   ('bbbbbbbb-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001', 'a', now()),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002', 'b', now());
@@ -28,13 +29,13 @@ insert into public.consents (user_id, policy_version)
 insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
     client_created_at) values
   ('eeeeeeee-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
-   'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(),
+   'bbbbbbbb-0000-0000-0000-000000000001', 'sleep', now(),
    '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', now()),
   ('eeeeeeee-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000001',
-   'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(),
+   'bbbbbbbb-0000-0000-0000-000000000001', 'sleep', now(),
    '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', now()),
   ('eeeeeeee-0000-0000-0000-000000000003', 'aaaaaaaa-0000-0000-0000-000000000002',
-   'bbbbbbbb-0000-0000-0000-000000000002', 'diaper', now(),
+   'bbbbbbbb-0000-0000-0000-000000000002', 'sleep', now(),
    '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004', now());
 insert into public.invites (code, household_id, created_by, expires_at) values
   ('ABCDEFGH', 'aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001',
@@ -45,7 +46,7 @@ create function pg_temp.login(n int) returns void language sql as $$
     'sub', ('00000000-0000-0000-0000-00000000000' || n)::uuid, 'role', 'authenticated')::text, true)::void
 $$;
 
-select has_function('public', 'leave_household', array['uuid', 'uuid'], 'leave_household exists');
+select has_function('public', 'leave_household', array['uuid', 'uuid', 'text'], 'leave_household exists');
 select has_function('public', 'delete_household', array['uuid'], 'delete_household exists');
 select has_function('public', 'delete_account', array['uuid'], 'delete_account exists');
 select ok(not has_function_privilege('authenticated', 'public.hand_over_and_leave(uuid, uuid, uuid)', 'execute'),

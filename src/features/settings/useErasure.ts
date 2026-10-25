@@ -1,7 +1,9 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform } from 'react-native';
 
 import { useResetPhone } from '@/db/react';
+import { consentLocale } from '@/domain/consent/consent';
 import { useAuth } from '@/sync/AuthProvider';
 import {
   deleteAccount,
@@ -29,6 +31,7 @@ export function useErasure(onDone: () => void) {
   const { household } = useAccountHousehold();
   const caregivers = useCaregivers();
   const resetPhone = useResetPhone();
+  const { i18n } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<ErasureFailure | null>(null);
 
@@ -40,7 +43,12 @@ export function useErasure(onDone: () => void) {
    */
   const needsSuccessor =
     owner && others && !caregivers.some((person) => !person.you && person.role === 'owner');
-  const candidates = needsSuccessor ? caregivers.filter((person) => !person.you) : [];
+  // P0.1: only someone who has declared they are a parent or guardian.
+  const candidates = needsSuccessor
+    ? caregivers.filter((person) => !person.you && person.isGuardian)
+    : [];
+  /** Nobody can take over, so the household can only be deleted (P0.1). */
+  const noGuardian = needsSuccessor && candidates.length === 0;
   const [successor, setSuccessor] = useState<string | null>(null);
 
   const run = useCallback(
@@ -65,7 +73,8 @@ export function useErasure(onDone: () => void) {
           // effort. It never stops a deletion (Google doesn't require it).
           if (providers.includes('google')) await revokeGoogleAccess();
         } else if (!household) return;
-        else if (action === 'leave') await leaveHousehold(auth, household.householdId, next);
+        else if (action === 'leave')
+          await leaveHousehold(auth, household.householdId, next, consentLocale(i18n.language));
         else await deleteHousehold(auth, household.householdId);
         resetPhone({ forgetAccount: action === 'deleteAccount' });
         onDone();
@@ -75,24 +84,25 @@ export function useErasure(onDone: () => void) {
         setBusy(false);
       }
     },
-    [auth, state.status, household, needsSuccessor, successor, resetPhone, onDone],
+    [auth, state.status, household, needsSuccessor, successor, resetPhone, onDone, i18n.language],
   );
 
   return {
     signedIn: state.status === 'signedIn',
     /** Which household actions this account has. */
-    canLeave: household != null && (!owner || others),
+    canLeave: household != null && (!owner || others) && !noGuardian,
     canDeleteHousehold: household != null && owner,
     /** Deleting the account also deletes a household nobody else is in. */
     soleMember: household != null && !others,
     babyName: household?.babyName ?? '',
     /** Who may take over, when this account holds the last owner seat (D3). */
     candidates,
+    noGuardian,
     successor,
     setSuccessor,
     /** Leaving or deleting the account waits for a successor to be chosen. */
     ready: (action: ErasureAction) =>
-      action === 'deleteHousehold' || !needsSuccessor || successor !== null,
+      action === 'deleteHousehold' || !needsSuccessor || (!noGuardian && successor !== null),
     busy,
     problem,
     run,

@@ -224,6 +224,124 @@ on Supabase.
 5. Logs: Supabase dashboard → Edge Functions → apple-revoke → Logs show only
    a failure code, if anything.
 
+## Inactivity warning emails (Brevo)
+
+A household nobody has used for 24 months is deleted
+(`docs/compliance/retention.md`). Since 2026-10-24 every member is emailed a
+warning first, and nothing is deleted until that email has gone out:
+
+1. **02:47 UTC**, `warn-inactive-households`: a household unused for 23 months
+   gets `inactivity_warned_at` and one queued email per member. A household
+   used again after its warning has the warning cleared.
+2. **02:53 UTC**, `send-inactivity-warnings`: `request_inactivity_warnings()`
+   posts to the `send-inactivity-warnings` Edge Function through `pg_net`,
+   with a shared secret header. The function claims the queue
+   (`claim_inactivity_warnings`, service role only) and sends each email
+   through Brevo from `hello@moraki.app`, in English and Greek, naming the
+   deletion date: 31 days after sending.
+3. **03:31 UTC**, `sweep-inactive-households`: deletes a household only if it
+   has been unused for 24 months, its warning is at least 30 days old, nobody
+   used it since, and every member's email was sent with a date that has come.
+
+Each email is claimed before it is sent and never handed out again, so nobody
+gets the same warning twice. One Brevo refused is retried the next day, and
+its household is kept until it goes. The function logs counts and error codes
+(`brevo_rejected`, `brevo_unauthorized`, `brevo_rate_limited`,
+`brevo_unavailable`, `brevo_unreachable`), never an address or the text.
+Source: `supabase/functions/send-inactivity-warnings/` (`warning.ts` is the
+tested logic, `index.ts` the Deno entry) and
+`supabase/migrations/20261024180000_inactivity_warning.sql`.
+
+**Until the steps below are done, no email is sent and so no household is
+deleted.** Warnings still queue up and go out once they are.
+
+### Owner steps, once
+
+1. **Brevo account and API key.** Sign up at brevo.com with the company
+   (C.E. CODE DESIGNS LTD), accept the DPA, then SMTP & API → API keys →
+   Generate a new API key, e.g. "moraki-supabase". Copy it once into your
+   password manager. (secret)
+2. **Verify the sender domain.** Brevo → Senders, Domains & Dedicated IPs →
+   Domains → Add `moraki.app`. Brevo shows DNS records: a TXT `brevo-code`, a
+   DKIM record, and an SPF include (`include:spf.brevo.com`) plus a DMARC
+   record if there is none. Add them at GoDaddy (DNS for `moraki.app`). If an
+   SPF TXT already exists (Google Workspace), add the include to that one
+   record rather than creating a second. Then Senders → add
+   `hello@moraki.app`, name "Moraki", and confirm it.
+3. **Apple private relay.** People who signed in with Apple and hid their
+   address only get mail from registered senders. Apple Developer →
+   Certificates, Identifiers & Profiles → Services → **Sign in with Apple for
+   Email Communication** → Configure → add the domain `moraki.app` and the
+   address `hello@moraki.app`. It must pass SPF (step 2 first).
+4. **Secrets on the hosted project** (repo root, after `supabase login` and
+   `supabase link`). Make the cron secret a long random string, e.g.
+   `openssl rand -hex 32`, and keep it for step 6:
+
+   ```sh
+   supabase secrets set \
+     BREVO_API_KEY=<the key from step 1> \
+     INACTIVITY_WARNINGS_CRON_SECRET=<the random string>
+   ```
+
+5. **Deploy the function:**
+
+   ```sh
+   supabase db push   # the migration, if not pushed yet
+   supabase functions deploy send-inactivity-warnings
+   ```
+
+   `supabase/config.toml` turns the gateway's JWT check off for this one
+   function; it checks the shared secret itself and refuses anything else.
+
+6. **Tell pg_cron where the function is.** Supabase dashboard → SQL Editor,
+   once (Supabase's documented pattern for cron calling an Edge Function:
+   the URL and secret live in Vault, not in a migration):
+
+   ```sql
+   select vault.create_secret(
+     'https://tjcahnjpbkgrjytrazfs.supabase.co/functions/v1/send-inactivity-warnings',
+     'inactivity_warnings_function_url');
+   select vault.create_secret('<the same random string as step 4>',
+     'inactivity_warnings_cron_secret');
+   ```
+
+   To change either later: `select vault.update_secret(id, '<new value>')`
+   with the id from `select id, name from vault.secrets`.
+
+7. **Check the jobs.** Dashboard → Integrations → Cron:
+   `warn-inactive-households` (02:47) and `send-inactivity-warnings` (02:53)
+   are listed next to the three sweeps.
+
+### How to test
+
+Never on a real family's household. On a staging project, or on prod with a
+throwaway household whose only member is an account you own:
+
+1. Without the secret the function refuses:
+   `curl -i -X POST https://tjcahnjpbkgrjytrazfs.supabase.co/functions/v1/send-inactivity-warnings`
+   answers 401.
+2. Make the test household look idle and warn it (SQL Editor; `<id>` is the
+   household id from `select id, name from households where name = '…'`):
+
+   ```sql
+   -- Only a test household: this is what a household unused for 23 months looks like.
+   insert into public.inactivity_warning_emails (household_id, user_id, warned_at)
+   select household_id, user_id, now() from public.memberships where household_id = '<id>';
+   update public.households set inactivity_warned_at = now() where id = '<id>';
+   select public.request_inactivity_warnings();
+   ```
+
+   (Don't call `warn_inactive_households()` for this: it would warn every
+   household that really is idle.)
+
+3. Within a minute the test account's inbox has the email, in English and
+   Greek, from Moraki `<hello@moraki.app>`, with a date 31 days away. Brevo →
+   Transactional → Logs shows it delivered.
+4. Edge Functions → send-inactivity-warnings → Logs shows
+   `{"sent":1,"failed":0,...}` and no address.
+5. Open the app with the test account. The next 02:47 run clears the warning
+   (`inactivity_warned_at` back to null). Or delete the test household.
+
 ## Submitting for review
 
 1. Store listing and privacy answers: `docs/store/` (P5-06).

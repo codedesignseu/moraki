@@ -13,11 +13,12 @@ insert into auth.users (id, email) values
 insert into public.households (id, name, created_by) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'A', '00000000-0000-0000-0000-000000000001'),
   ('aaaaaaaa-0000-0000-0000-000000000002', 'B', '00000000-0000-0000-0000-000000000004');
-insert into public.memberships (household_id, user_id, role, display_name, joined_at) values
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', 'Owner', now() - interval '3 days'),
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'caregiver', 'Carer', now() - interval '2 days'),
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 'viewer', 'Viewer', now() - interval '1 day'),
-  ('aaaaaaaa-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000004', 'owner', 'Else', now());
+-- P0.1: everyone in A has declared, so any of them may take over.
+insert into public.memberships (household_id, user_id, role, display_name, joined_at, is_guardian) values
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', 'Owner', now() - interval '3 days', true),
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'caregiver', 'Carer', now() - interval '2 days', true),
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 'viewer', 'Viewer', now() - interval '1 day', true),
+  ('aaaaaaaa-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000004', 'owner', 'Else', now(), true);
 
 create function pg_temp.login(n int) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object(
