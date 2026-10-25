@@ -12,7 +12,7 @@ import { useTheme, type Theme } from '@/ui/theme';
  * (P0.9): never agreed in the app, or agreed before they changed ("We
  * updated our Terms", P1.4). Links to both documents, a box never ticked for
  * them, and the one-line medical disclaimer. Closes only once the server has
- * it.
+ * it; until then this account's entries don't sync.
  */
 export function TermsScreen({
   onDone,

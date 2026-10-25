@@ -10,7 +10,9 @@ export type TermsProblem = 'unticked' | 'offline' | 'unknown';
 
 /**
  * The Terms of Use (P0.9): agreed at sign in, recorded on the server with
- * their version. Household setup and joining need it.
+ * their version, and asked again when the version changes (P1.4). Household
+ * setup and joining need it, and until this account has agreed to the
+ * version in force, its entries don't sync.
  */
 export function useTerms() {
   const { auth, state } = useAuth();

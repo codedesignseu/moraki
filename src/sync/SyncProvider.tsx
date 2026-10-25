@@ -19,7 +19,7 @@ import {
   useLinkedIdentity,
   useOutboxRepository,
 } from '@/db/react';
-import { agreedToCurrent, guardianStatus } from '@/domain/consent/consent';
+import { agreedToCurrent, guardianStatus, termsStatus } from '@/domain/consent/consent';
 
 import { useAuth } from './AuthProvider';
 import { createPullEngine, type PullEngine } from './pullEngine';
@@ -75,12 +75,25 @@ export function SyncProvider({
   // declaration is on record: nothing of theirs syncs before it has.
   const [guardian] = useDevicePref('guardianDeclaration');
   const [accountHousehold] = useDevicePref('accountHousehold');
-  // Reduced to one boolean first: a pull rewrites the household record, and
-  // a new callback for an unchanged answer would start another cycle.
   const missing =
     accountHousehold?.role === 'owner' &&
     guardianStatus(guardian, userId, accountHousehold.householdId) !== 'on_record';
-  const guardianMissing = useCallback(() => missing, [missing]);
+  // P0.9: nothing syncs until this account has agreed to the Terms in force.
+  const [terms] = useDevicePref('terms');
+  const agreedTerms = termsStatus(terms, userId) === 'agreed';
+  // Both are read when the engine runs, from a map kept outside React's
+  // state: answering starts a cycle (below) rather than making a new engine,
+  // which would drop and rejoin the realtime channel, and a pull rewriting
+  // the household record changes nothing here.
+  const [gates] = useState(
+    () =>
+      new Map<'guardianMissing' | 'termsAgreed', boolean>([
+        ['guardianMissing', missing],
+        ['termsAgreed', agreedTerms],
+      ]),
+  );
+  const guardianMissing = useCallback(() => gates.get('guardianMissing') === true, [gates]);
+  const termsAgreed = useCallback(() => gates.get('termsAgreed') === true, [gates]);
   // Re-pushes after every committed write (the events repository's signal).
   const events = useEvents();
   // Links the phone once the account has a household, whichever screen is open.
@@ -98,8 +111,17 @@ export function SyncProvider({
 
   const engine = useMemo(
     () =>
-      createPushEngine({ linked, outbox, auth, state, now: Date.now, consented, guardianMissing }),
-    [linked, outbox, auth, state, consented, guardianMissing],
+      createPushEngine({
+        linked,
+        outbox,
+        auth,
+        state,
+        now: Date.now,
+        consented,
+        guardianMissing,
+        termsAgreed,
+      }),
+    [linked, outbox, auth, state, consented, guardianMissing, termsAgreed],
   );
   const pull = useMemo(
     () =>
@@ -114,6 +136,15 @@ export function SyncProvider({
       }),
     [linked, eventsRepository, outbox, caregivers, devicePrefs, auth, state],
   );
+
+  // The Terms agreed or the guardian declaration on record (P0.9, P0.1):
+  // what was waiting goes now. Declared before the cycle below, so it reads
+  // the new answer.
+  useEffect(() => {
+    gates.set('guardianMissing', missing);
+    gates.set('termsAgreed', agreedTerms);
+    cycle.current();
+  }, [gates, missing, agreedTerms]);
 
   useEffect(() => {
     let active = true;

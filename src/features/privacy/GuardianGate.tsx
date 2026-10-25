@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useGuardianDeclaration } from '@/privacy/useGuardianDeclaration';
+import { useTerms } from '@/privacy/useTerms';
 import { useAuth } from '@/sync/AuthProvider';
 import { guardianOnRecord } from '@/sync/guardian';
 import { useAccountHousehold } from '@/sync/useAccountHousehold';
@@ -17,6 +18,8 @@ export function GuardianGate({ onMissing }: { onMissing: () => void }) {
   const { household } = useAccountHousehold();
   const guardian = useGuardianDeclaration();
   const { remember } = guardian;
+  // The Terms come first: one screen at a time.
+  const { agreed: termsAgreed } = useTerms();
   const shown = useRef(false);
   const userId = state.status === 'signedIn' ? state.user.id : null;
   const householdId = household?.householdId ?? null;
@@ -34,11 +37,11 @@ export function GuardianGate({ onMissing }: { onMissing: () => void }) {
   }, [auth, userId, householdId, ask, remember]);
 
   useEffect(() => {
-    if (guardian.owner && guardian.status === 'missing' && !shown.current) {
+    if (guardian.owner && guardian.status === 'missing' && termsAgreed && !shown.current) {
       shown.current = true;
       onMissing();
     }
-  }, [guardian.owner, guardian.status, onMissing]);
+  }, [guardian.owner, guardian.status, termsAgreed, onMissing]);
 
   return null;
 }

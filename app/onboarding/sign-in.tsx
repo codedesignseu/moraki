@@ -23,8 +23,8 @@ export default function SignIn() {
         // just signed in, which is why it is asked about by id.
         onDone={(user) => {
           // P0.9: ticked on the sign-in screen, recorded now there is an
-          // account. If it doesn't reach the server, setting up or joining a
-          // household asks for it again (Settings → Privacy → Terms of Use).
+          // account. If it doesn't reach the server, the Terms are asked
+          // again on the next open, and nothing syncs until then.
           void agree(true, user.id);
           if (grantedBy(user.id)) router.back();
           else router.replace('/onboarding/consent');
