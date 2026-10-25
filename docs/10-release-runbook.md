@@ -264,9 +264,11 @@ deleted.** Warnings still queue up and go out once they are.
 2. **Verify the sender domain.** Brevo → Senders, Domains & Dedicated IPs →
    Domains → Add `moraki.app`. Brevo shows DNS records: a TXT `brevo-code`, a
    DKIM record, and an SPF include (`include:spf.brevo.com`) plus a DMARC
-   record if there is none. Add them at GoDaddy (DNS for `moraki.app`). If an
-   SPF TXT already exists (Google Workspace), add the include to that one
-   record rather than creating a second. Then Senders → add
+   record if there is none. Add them at Cloudflare (DNS for `moraki.app`),
+   with the DKIM CNAMEs set to **DNS only** (grey cloud), never proxied. An SPF
+   TXT already exists: `v=spf1 mx ip4:185.146.22.242 include:spf.a2hosting.com include:spf.brevo.com ~all`.
+   If `include:spf.brevo.com` is ever missing, add it to that one record
+   rather than creating a second. Then Senders → add
    `hello@moraki.app`, name "Moraki", and confirm it.
 3. **Apple private relay.** People who signed in with Apple and hid their
    address only get mail from registered senders. Apple Developer →

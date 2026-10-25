@@ -153,18 +153,22 @@ Scripts: [`supabase/scripts/dsar/`](../../supabase/scripts/dsar/README.md).
   (which households are deleted, which are left); then run with
   `dry_run := false`. It calls the same `delete_account` the app calls, so it
   does exactly what the in-app deletion does and nothing else.
+  Either way the person's consent records (`consent_events`) stay for 3 years
+  after the deletion, without email or sign-in details, then a daily job erases
+  them (`docs/compliance/retention.md`). Don't delete them by hand: they are the
+  evidence of what was agreed (Art. 7(1), Art. 17(3)(e)).
 
 ### What each request type means here
 
-| Type                    | Action                                                                                                                                                                                  |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Access (Art. 15)        | `export_user.sql`. If they are a member of a household, `export_household.sql` for it too. Add the standard information (purposes, recipients, retention) by linking the privacy policy |
-| Portability (Art. 20)   | The same JSON. Point to the in-app export, which also gives the CSV                                                                                                                     |
-| Rectification (Art. 16) | Entries and baby details: in the app. Display name or email: the owner changes it in the SQL editor / Auth dashboard, logs the old and new value's field name (not the values)          |
-| Erasure (Art. 17)       | `erase_user.sql`. Their entries in a **shared** household stay as the other members' record (as in the app); erasing those too is a separate decision for the lawyer, logged            |
-| Restriction (Art. 18)   | Withdrawing consent in the app stops new entries syncing. Anything wider: log it, mark the account in the register, and hand to the lawyer before changing any data                     |
-| Objection (Art. 21)     | There is no profiling or marketing. Reply explaining that, and offer withdrawal or erasure                                                                                              |
-| Guardian dispute        | Section 4                                                                                                                                                                               |
+| Type                    | Action                                                                                                                                                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Access (Art. 15)        | `export_user.sql`. If they are a member of a household, `export_household.sql` for it too. Add the standard information (purposes, recipients, retention) by linking the privacy policy                                              |
+| Portability (Art. 20)   | The same JSON. Point to the in-app export, which also gives the CSV                                                                                                                                                                  |
+| Rectification (Art. 16) | Entries and baby details: in the app. Display name or email: the owner changes it in the SQL editor / Auth dashboard, logs the old and new value's field name (not the values)                                                       |
+| Erasure (Art. 17)       | `erase_user.sql`. Their entries in a **shared** household stay as the other members' record (as in the app); erasing those too is a separate decision for the lawyer, logged. Consent records stay 3 years, pseudonymous (see above) |
+| Restriction (Art. 18)   | Withdrawing consent in the app stops new entries syncing. Anything wider: log it, mark the account in the register, and hand to the lawyer before changing any data                                                                  |
+| Objection (Art. 21)     | There is no profiling or marketing. Reply explaining that, and offer withdrawal or erasure                                                                                                                                           |
+| Guardian dispute        | Section 4                                                                                                                                                                                                                            |
 
 ### Shared households and personal erasure
 
@@ -230,11 +234,11 @@ DESIGNS LTD.
 
 **Erasure done (EN).**
 
-> Your Moraki account has been deleted (ref DSR-…). [A household only you were in was deleted with it. / Households you shared stay with the other caregivers; your name is removed, the entries you logged stay as part of their record.] Our backups are kept for 7 days, so the data leaves them by [date]. Copies on phones aren't reached: sign out and clear the phone, or uninstall. You can also remove Moraki under Sign in with Apple / your Google account's third-party connections.
+> Your Moraki account has been deleted (ref DSR-…). [A household only you were in was deleted with it. / Households you shared stay with the other caregivers; your name is removed, the entries you logged stay as part of their record.] We keep a record of what you agreed to and when, without your email or sign-in details, for 3 years, then it is erased. Our backups are kept for 7 days, so the data leaves them by [date]. Copies on phones aren't reached: sign out and clear the phone, or uninstall. You can also remove Moraki under Sign in with Apple / your Google account's third-party connections.
 
 **Erasure done (EL).**
 
-> Ο λογαριασμός σου στο Moraki διαγράφηκε (αρ. DSR-…). [Ένα νοικοκυριό όπου ήσουν μόνο εσύ διαγράφηκε μαζί του. / Τα κοινά νοικοκυριά μένουν στους άλλους φροντιστές· το όνομά σου αφαιρείται, οι καταχωρήσεις σου μένουν ως μέρος του δικού τους αρχείου.] Τα αντίγραφα ασφαλείας κρατιούνται 7 ημέρες, άρα τα δεδομένα φεύγουν από αυτά έως [ημερομηνία]. Αντίγραφα σε κινητά δεν τα φτάνουμε: αποσυνδέσου και καθάρισε το κινητό ή απεγκατάστησε την εφαρμογή.
+> Ο λογαριασμός σου στο Moraki διαγράφηκε (αρ. DSR-…). [Ένα νοικοκυριό όπου ήσουν μόνο εσύ διαγράφηκε μαζί του. / Τα κοινά νοικοκυριά μένουν στους άλλους φροντιστές· το όνομά σου αφαιρείται, οι καταχωρήσεις σου μένουν ως μέρος του δικού τους αρχείου.] Κρατάμε ένα αρχείο του τι συμφώνησες και πότε, χωρίς το email ή τα στοιχεία σύνδεσής σου, για 3 χρόνια, και μετά διαγράφεται. Τα αντίγραφα ασφαλείας κρατιούνται 7 ημέρες, άρα τα δεδομένα φεύγουν από αυτά έως [ημερομηνία]. Αντίγραφα σε κινητά δεν τα φτάνουμε: αποσυνδέσου και καθάρισε το κινητό ή απεγκατάστησε την εφαρμογή.
 
 **Guardian outside the household (EN).**
 

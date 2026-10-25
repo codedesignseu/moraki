@@ -1001,8 +1001,8 @@
     },
     "deleteAccount": {
       "title": "Delete your account",
-      "what": "Deletes your account, your name and your consent record. You leave {{name}}'s household; its entries stay with the other caregivers, and if you are the only owner, you choose who becomes owner. This phone is cleared and signed out.",
-      "whatAlone": "Deletes your account, your name and your consent record, and {{name}}'s household with every entry, since no one else is in it. This phone is cleared and signed out. Export your data first if you want a copy.",
+      "what": "Deletes your account and your name. A record of what you agreed to is kept for 3 years, without your email, then deleted. You leave {{name}}'s household; its entries stay with the other caregivers, and if you are the only owner, you choose who becomes owner. This phone is cleared and signed out.",
+      "whatAlone": "Deletes your account and your name, and {{name}}'s household with every entry, since no one else is in it. A record of what you agreed to is kept for 3 years, without your email, then deleted. This phone is cleared and signed out. Export your data first if you want a copy.",
       "button": "Delete account",
       "confirm": "Yes, delete my account"
     },
