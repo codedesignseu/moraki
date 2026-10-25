@@ -291,6 +291,8 @@ export const size = {
   circleControl: 48,
   circleTile: 58,
   circleEmpty: 64,
+  /** The box of a checkbox (declarations and agreements); the row is the 48 target. */
+  checkbox: 26,
   /** G: a chart legend dot (tabs/trends) and the ring of a hollow one. */
   legendDot: 12,
   legendRing: 2.5,

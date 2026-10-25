@@ -6,16 +6,17 @@ select plan(36);
 select tables_are(
   'public',
   array['households', 'memberships', 'babies', 'events', 'invites', 'consents', 'push_tokens',
-        'feedback', 'invite_attempts'],
-  'public has exactly the SDD 4.2 tables, plus feedback (P4-13) and invite_attempts (P2-F7)'
+        'feedback', 'invite_attempts', 'consent_events', 'inactivity_warning_emails'],
+  'public has exactly the SDD 4.2 tables, plus feedback (P4-13), invite_attempts (P2-F7), consent_events (P0.4) and inactivity_warning_emails'
 );
 select enum_has_labels('public', 'member_role', array['owner', 'caregiver', 'viewer'], 'member_role values');
 
 -- events: every column, its type and nullability, as sync depends on them.
 select columns_are('public', 'events', array[
   'id', 'household_id', 'baby_id', 'type', 'occurred_at', 'ended_at', 'payload', 'group_id',
-  'created_by', 'updated_by', 'client_created_at', 'server_updated_at', 'deleted_at', 'seq'
-], 'events has the SDD columns');
+  'created_by', 'updated_by', 'client_created_at', 'server_updated_at', 'deleted_at', 'seq',
+  'purged_at'
+], 'events has the SDD columns, plus purged_at (P0.6)');
 select col_type_is('public', 'events', 'id', 'uuid', 'events.id is uuid');
 select col_type_is('public', 'events', 'occurred_at', 'timestamp with time zone', 'occurred_at is timestamptz');
 select col_type_is('public', 'events', 'payload', 'jsonb', 'payload is jsonb');
@@ -34,8 +35,9 @@ select has_sequence('public', 'event_seq', 'event_seq exists');
 select has_trigger('public', 'events', 'events_stamp_seq', 'events get seq from a trigger');
 
 select columns_are('public', 'households', array[
-  'id', 'name', 'reminder_interval_min', 'second_reminder_min', 'created_by', 'created_at'
-], 'households has the SDD columns');
+  'id', 'name', 'reminder_interval_min', 'second_reminder_min', 'created_by', 'created_at',
+  'inactivity_warned_at'
+], 'households has the SDD columns, plus the inactivity warning');
 select col_default_is('public', 'households', 'reminder_interval_min', 180, 'reminder interval defaults to 180');
 select col_is_pk('public', 'memberships', array['household_id', 'user_id'], 'one membership per user per household');
 select col_type_is('public', 'memberships', 'role', 'member_role', 'role is member_role');

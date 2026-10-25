@@ -1,6 +1,7 @@
 /// <reference types="node" />
 // Test-only, for `npm run test:local`: signing in against a running local
 // Supabase with the real emailed code, read from the local mail catcher.
+import { TERMS_VERSION } from '@/domain/consent/consent';
 import { newId } from '@/domain/ids';
 import { createAuth } from '@/sync/auth';
 
@@ -33,7 +34,7 @@ export async function codeSentTo(email: string): Promise<string> {
 
 /**
  * A phone: its own keychain and client, signed in as its own new user, with
- * consent given. Nothing writes health data without it (P3-09), so a phone
+ * consent given and the Terms agreed (P0.9, P0.2). Nothing writes health data without it (P3-09), so a phone
  * that skipped this step would have every push rejected by the database.
  */
 export async function phone(label: string) {
@@ -44,5 +45,12 @@ export async function phone(label: string) {
   auth.setForeground(false);
   const { error } = await auth.client.rpc('grant_consent');
   if (error) throw new Error(`grant_consent failed: ${error.code ?? 'no code'}`);
+  // P0.2: creating or joining a household needs the Terms on record.
+  const terms = await auth.client.rpc('record_consent', {
+    purpose: 'terms',
+    version: TERMS_VERSION,
+    action: 'grant',
+  });
+  if (terms.error) throw new Error(`record_consent failed: ${terms.error.code ?? 'no code'}`);
   return { auth, user };
 }

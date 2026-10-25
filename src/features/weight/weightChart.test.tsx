@@ -52,16 +52,16 @@ async function openInsights() {
 }
 
 describe('the weight card', () => {
-  it('says nothing has been weighed yet, and still points at the pediatrician', async () => {
+  it('says nothing has been weighed yet', async () => {
     knowsTheBaby();
     const card = await openInsights();
 
     expect(card.getByText('No weights yet')).toBeOnTheScreen();
-    expect(card.getByText('Your pediatrician tracks this at check-ups.')).toBeOnTheScreen();
+    expect(card.queryByText(/pediatrician/i)).toBeNull();
     expect(card.queryByTestId('weight-chart')).toBeNull();
   });
 
-  it('plots every weighing, with the 90% and 100% lines and the day 10 and 14 marks', async () => {
+  it('plots every weighing, with no reference lines and no marked days (P0.7)', async () => {
     knowsTheBaby();
     const first = weighed(0, 3400, 'clinic');
     weighed(4, 3105);
@@ -72,15 +72,11 @@ describe('the weight card', () => {
 
     expect(chart.getByTestId(`point-${first.occurredAt}`)).toBeOnTheScreen();
     expect(chart.getByTestId(`point-${last.occurredAt}`)).toBeOnTheScreen();
-    // The two lines a clinician reads against, and nothing else.
-    expect(chart.getByTestId('line-pct-90')).toBeOnTheScreen();
-    expect(chart.getByTestId('line-pct-100')).toBeOnTheScreen();
-    expect(card.getByText('90%')).toBeOnTheScreen();
-    expect(card.getByText('100%')).toBeOnTheScreen();
-    expect(chart.getByTestId('mark-day-10')).toBeOnTheScreen();
-    expect(chart.getByTestId('mark-day-14')).toBeOnTheScreen();
-    expect(card.getByText('Day 10')).toBeOnTheScreen();
-    expect(card.getByText('Day 14')).toBeOnTheScreen();
+    // Nothing to read the points against: a line or a marked day is a verdict.
+    expect(chart.queryByTestId(/^line-/)).toBeNull();
+    expect(chart.queryByTestId(/^mark-/)).toBeNull();
+    expect(card.queryByText(/%/)).toBeNull();
+    expect(card.queryByText(/^Day \d+$/)).toBeNull();
   });
 
   it('reads each point by day and grams for a screen reader', async () => {
@@ -174,13 +170,12 @@ describe('the weight card', () => {
     expect(card.queryByText(/Day \d/)).toBeNull();
   });
 
-  it('drops the percentage lines when no birth weight was recorded', async () => {
+  it('still plots, without a change from birth, when no birth weight was recorded', async () => {
     knowsTheBaby(null);
     weighed(3, 3200);
 
     const card = await openInsights();
     expect(card.getByTestId('weight-chart')).toBeOnTheScreen();
-    expect(card.queryByTestId('line-pct-90')).toBeNull();
     expect(card.queryByText(/birth weight/)).toBeNull();
   });
 });

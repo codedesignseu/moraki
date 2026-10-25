@@ -20,7 +20,17 @@ Status on 2026-10-18:
   3. Note the Key ID.
 - [ ] **Set the secrets:** `supabase secrets set APPLE_TEAM_ID=285GZCH8W4 APPLE_CLIENT_ID=eu.codedesigns.moraki APPLE_KEY_ID=<id> APPLE_PRIVATE_KEY="$(cat AuthKey_<id>.p8)"`
 - [ ] **Deploy the function:** `supabase functions deploy apple-revoke`. If deleting an account later fails with "Invalid JWT", redeploy with `--no-verify-jwt`. The function checks the session itself.
+- [ ] **Inactivity warning emails (Brevo).** Steps in `docs/10-release-runbook.md`, "Inactivity warning emails (Brevo)". Until they are done no warning goes out, and so no inactive household is deleted.
+  1. Brevo account, DPA, and an API key.
+  2. Verify `moraki.app` in Brevo (SPF, DKIM, DMARC records at Cloudflare) and add the sender `hello@moraki.app`.
+  3. Apple Developer → Sign in with Apple for Email Communication: register `moraki.app` and `hello@moraki.app`.
+  4. `supabase secrets set BREVO_API_KEY=… INACTIVITY_WARNINGS_CRON_SECRET=…`
+  5. `supabase functions deploy send-inactivity-warnings`
+  6. The two `vault.create_secret` lines in the SQL Editor.
+  7. Test with a throwaway household; check the cron jobs `warn-inactive-households` and `send-inactivity-warnings`.
 - [ ] **Upgrade Supabase to the Pro plan before launch** (owner decision 2026-10-24). On Pro the project never pauses, so sync and the cleanup jobs keep running, and daily backups are kept for 7 days. Point-in-time recovery is a paid add-on and is not enabled. After upgrading, check Database → Backups.
+
+- [ ] **Sentry server-side scrubbing.** In Sentry, under Settings → Security & Privacy, turn on **Data Scrubber** and **Use Default Scrubbers**. IP storage is already off. Native crash reports skip the app's own scrubber, so these settings are the only filter they pass (`docs/compliance/processors.md`, Sentry section).
 
 Until the Apple steps are done, an account signed in with Apple can't be deleted on iOS. That would fail App Review.
 
@@ -74,7 +84,7 @@ Until the Apple steps are done, an account signed in with Apple can't be deleted
 - [ ] **Ask about:**
   - the consent wording;
   - entries kept in shared households after an account is deleted;
-  - no warning email before the 24-month deletion;
+  - the warning email before the 24-month deletion: the privacy policy must mention it and add Brevo as a processor;
   - the weight chart's 90% line and Day 10/14 markers (the medical-device boundary);
   - export compliance answered as "exempt";
   - the Comfortaa Reserved Font Name on the subset web font.
@@ -112,6 +122,5 @@ Until the Apple steps are done, an account signed in with Apple can't be deleted
 - Push notifications.
 - Live Activity and widgets.
 - Payments.
-- A warning email before the 24-month deletion.
 - Purging old deleted entries.
 - An open-source licences screen.

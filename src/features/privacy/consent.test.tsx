@@ -65,21 +65,30 @@ describe('asking for consent', () => {
     await openConsent();
 
     const card = within(screen.getByTestId('consent-what'));
+    // P0.2: the parent or guardian decides, for the baby.
     expect(
-      card.getByText(/That is health data, so we ask before your entries leave this phone\./),
+      card.getByText(/so you, as their parent or guardian, decide whether Moraki may process it\./),
     ).toBeOnTheScreen();
     expect(card.getByText(/servers in the EU/)).toBeOnTheScreen();
-    expect(card.getByText(/Nothing is ever sold, used for advertising or used to train anything/)).toBeOnTheScreen();
-    expect(card.getByText(/Until you agree, your entries stay on this phone/)).toBeOnTheScreen();
-    expect(card.getByText(/shared with the household as soon as you set it up/)).toBeOnTheScreen();
+    expect(
+      card.getByText(/Nothing is ever sold, used for advertising or used to train anything/),
+    ).toBeOnTheScreen();
+    expect(
+      card.getByText(
+        /Until you agree, nothing about your baby leaves this phone, and you can’t set up a household/,
+      ),
+    ).toBeOnTheScreen();
+    expect(card.getByText(/first accepts a caregiver agreement/)).toBeOnTheScreen();
     expect(
       card.getByText(/Settings → Data export → Export my data\. .*Settings → Leave or delete/),
     ).toBeOnTheScreen();
-    expect(card.getByText(/What you already shared stays with the household/)).toBeOnTheScreen();
+    expect(card.getByText(/What was already shared stays with the household/)).toBeOnTheScreen();
     // The app cannot delete from the servers yet (P4-06), so the screen does
     // not say it can.
     expect(card.queryByText(/delete it at any time/)).toBeNull();
-    expect(screen.getByText('Policy version 2026-10-18')).toBeOnTheScreen();
+    expect(screen.getByText('Policy version 2026-10-25')).toBeOnTheScreen();
+    // P0.3: what withdrawing does to the household.
+    expect(card.getByText(/the household is paused for everyone/)).toBeOnTheScreen();
     // Nothing is agreed by opening the screen.
     expect(screen.getByRole('button', { name: 'I agree' })).toBeOnTheScreen();
     expect(screen.queryByTestId('consent-granted')).toBeNull();
@@ -87,7 +96,7 @@ describe('asking for consent', () => {
 
   it('records the agreement with the server and remembers it on this phone', async () => {
     const calls: string[] = [];
-    await signedIn({
+    const server = await signedIn({
       consent: (path) => (calls.push(path), new Response('null', { status: 200 })),
     });
     await openConsent();
@@ -95,6 +104,10 @@ describe('asking for consent', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'I agree' }));
 
     await waitFor(() => expect(calls).toEqual(['/rest/v1/rpc/grant_consent']));
+    // The record names the text: its version on the server, its language from here (P0.4).
+    expect(server.calls.find((call) => call.path === '/rest/v1/rpc/grant_consent')?.body).toEqual({
+      locale: 'en',
+    });
     expect(h.prefs.get('consent')).toMatchObject({ userId: USER_ID, version: CONSENT_VERSION });
   });
 
@@ -139,7 +152,7 @@ describe('asking for consent', () => {
 });
 
 describe('when it is asked', () => {
-  it('comes up straight after signing in, before anything can sync', async () => {
+  it('is not asked on signing in: it is the guardian’s, asked when they set up a household (P0.2)', async () => {
     const server = authServer({ events: () => [] });
     const { store } = keychain();
     await renderApp(h.repo, { auth: createAuth(TEST_SUPABASE_ENV, store, server.fetchImpl) });
@@ -147,12 +160,41 @@ describe('when it is asked', () => {
     await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
     await fireEvent.changeText(screen.getByLabelText('Email'), EMAIL);
+    await agreeToTerms();
     await fireEvent.press(screen.getByRole('button', { name: 'Send code' }));
     await fireEvent.changeText(screen.getByLabelText('Code'), '123456');
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
 
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(screen.queryByTestId('consent-what')).toBeNull();
+  });
+
+  it('comes up on its own for a guardian the server says has no consent in force (P0.2)', async () => {
+    const logged = h.repo.insert({ type: 'diaper', occurredAt: NOW, payload: { kind: 'wet' } });
+    link(logged.babyId);
+    h.prefs.set('accountHousehold', {
+      userId: USER_ID,
+      householdId: HOUSEHOLD,
+      babyId: logged.babyId,
+      babyName: 'Ella',
+      role: 'owner',
+    });
+    const server = await signedIn({
+      membershipStatus: () => ({
+        status: 'member',
+        role: 'owner',
+        is_guardian: true,
+        access: 'needs_consent',
+        baby_id: logged.babyId,
+        baby_name: 'Ella',
+      }),
+    });
+
     // Nobody has to go looking for it in Settings.
     expect(await screen.findByTestId('consent-what')).toBeOnTheScreen();
+    // Until then nothing is read or sent: the pull stopped at the question.
+    expect(server.calls.some((c) => c.path === '/rest/v1/events')).toBe(false);
+    expect(server.calls.some((c) => c.path === '/rest/v1/rpc/push_events')).toBe(false);
   });
 
   it('is not asked again once this account has answered', async () => {
@@ -164,6 +206,7 @@ describe('when it is asked', () => {
     await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
     await fireEvent.changeText(screen.getByLabelText('Email'), EMAIL);
+    await agreeToTerms();
     await fireEvent.press(screen.getByRole('button', { name: 'Send code' }));
     await fireEvent.changeText(screen.getByLabelText('Code'), '123456');
     await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
@@ -174,20 +217,11 @@ describe('when it is asked', () => {
 });
 
 describe('a new version of the text', () => {
-  it('asks again after signing in when this account agreed to an older version', async () => {
-    h.prefs.set('consent', { userId: USER_ID, version: '2026-09-23', grantedAt: NOW });
-    const server = authServer({ events: () => [] });
-    const { store } = keychain();
-    await renderApp(h.repo, { auth: createAuth(TEST_SUPABASE_ENV, store, server.fetchImpl) });
+  it('shows an agreement to an older version as no agreement', async () => {
+    h.prefs.set('consent', { userId: USER_ID, version: '2026-10-18', grantedAt: NOW });
+    await signedIn();
+    await openConsent();
 
-    await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
-    await fireEvent.changeText(screen.getByLabelText('Email'), EMAIL);
-    await fireEvent.press(screen.getByRole('button', { name: 'Send code' }));
-    await fireEvent.changeText(screen.getByLabelText('Code'), '123456');
-    await fireEvent.press(screen.getByRole('button', { name: 'Sign in' }));
-
-    expect(await screen.findByTestId('consent-what')).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: 'I agree' })).toBeOnTheScreen();
     expect(screen.queryByTestId('consent-granted')).toBeNull();
   });
@@ -268,3 +302,9 @@ describe('what happens until someone agrees', () => {
     );
   });
 });
+
+/** Ticks "I agree to the Terms of Use" on the sign-in screen, unless it is already (P0.9). */
+async function agreeToTerms() {
+  const box = screen.getByRole('checkbox', { name: 'I agree to the Terms of Use' });
+  if (!box.props.accessibilityState?.checked) await fireEvent.press(box);
+}

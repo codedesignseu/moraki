@@ -32,6 +32,17 @@ than forgotten.
 | Legal             | Google Workspace DPA, accepted with the Workspace agreement                                                                 |
 | Status            | live. It carries no health data — an address and a six-digit code                                                           |
 
+### Brevo — inactivity warning emails
+
+|                   |                                                                                                                                                                                                                                                                |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What it processes | a member's email address (possibly an Apple private relay), the email's language (English and Greek together today) and the household's deletion date. Nothing else: no name, no baby, no entry, no health data                                                |
+| Why               | warning a household 30 days before the 24-month inactivity deletion (owner decision 2026-10-24, `retention.md`)                                                                                                                                                |
+| Region            | **EU, France** (Brevo SAS, Paris)                                                                                                                                                                                                                              |
+| Sub-processors    | Brevo's own list, published on its site; check it when signing                                                                                                                                                                                                 |
+| Legal             | Brevo's DPA, accepted with its terms. Keep a dated copy                                                                                                                                                                                                        |
+| Status            | built 2026-10-24 (`supabase/functions/send-inactivity-warnings/`), live once the owner steps in `docs/10-release-runbook.md` are done. Sends from `hello@moraki.app`, plain text, no tracking. The function logs counts and error codes only, never an address |
+
 ### Sentry — crash reporting
 
 |                   |                                                                                         |
@@ -40,6 +51,16 @@ than forgotten.
 | Region            | EU organisation, `*.ingest.de.sentry.io`. The app refuses any other DSN at startup      |
 | Legal             | Sentry's DPA. Error retention is set to **30 days**                                     |
 | Status            | live from P4-08, and inert in any build without a DSN                                   |
+
+What the app does, and what it can't (P1.1, assessment Q148–150, Q155):
+
+- **Scrubbed in the app.** JS errors and JS breadcrumbs go through an allow-list scrubber (`src/observability/scrub.ts`). Sessions, client reports, screenshots, view hierarchies, replays, logs, profiles and tracing are off. Native breadcrumbs (iOS network requests with their URLs, Android lifecycle and system events) are off. iOS app hangs and watchdog terminations are off.
+- **Not scrubbed in the app.** Native crashes, and on Android the ANRs that come with them, are captured by the native SDKs, which never run the JS scrubber. They carry a stack trace, device and OS context (model, OS version, memory, free storage, locale, time zone) and the JS breadcrumbs and tags, which are scrubbed already. Crash reporting stays on for these, by choice.
+- **Owner, in the Sentry dashboard** (Settings → Security & Privacy, organisation and project):
+  - [ ] **Data Scrubber** on.
+  - [ ] **Use Default Scrubbers** on.
+  - [x] **Prevent Storing of IP Addresses** on (owner-confirmed).
+  - [ ] Optional: add `note`, `title`, `doctor`, `questions` and `name` to **Additional Sensitive Fields**.
 
 ### Expo — build service and update delivery
 

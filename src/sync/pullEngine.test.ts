@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm';
+
 import { META_KEYS } from '@/db/meta';
 import {
   createDevicePrefsRepository,
@@ -5,13 +7,16 @@ import {
 } from '@/db/repositories/devicePrefs';
 import { createEventsRepository } from '@/db/repositories/events';
 import { createOutboxRepository } from '@/db/repositories/outbox';
-import { meta, outbox } from '@/db/schema';
+import { events, meta, outbox } from '@/db/schema';
 import { createMemoryDb, testDeps } from '@/db/testing/memoryDb';
 import { readLinkedIdentity } from '@/db/identity';
+import type { HouseholdAccess } from '@/domain/consent/consent';
 import type { PulledEvent } from '@/domain/sync/pendingProtection';
 
 import type { Auth } from './auth';
+import { MembershipStatusError, type MembershipStatus } from './membershipStatus';
 import { createPullEngine } from './pullEngine';
+import { createPushEngine } from './pushEngine';
 import { PULL_PAGE, PullTransportError } from './pullEvents';
 
 const NOW = Date.UTC(2026, 9, 28, 12, 0);
@@ -320,5 +325,187 @@ describe('the household’s own row', () => {
     await h.engine.pull();
 
     expect(h.prefs.get('accountHousehold')).toBe(null);
+  });
+});
+
+describe('entries purged 30 days after deletion (P0.6)', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+
+  it('drops an offline edit to an entry purged on the server, and keeps the tombstone', async () => {
+    const h = await harness();
+    h.link();
+    await h.engine([[fromServer('e1', 4)]]).pull();
+    // Offline: this phone edits the bottle. Meanwhile another phone deleted
+    // it, and 30 days later the server emptied it.
+    h.events.patch('e1', { payload: { ml: 150 } });
+    const deletedAt = NOW - 31 * DAY;
+    const tombstone = fromServer('e1', 40, {
+      payload: {},
+      occurredAt: deletedAt,
+      deletedAt,
+    });
+
+    const outcome = await h.engine([[tombstone]]).pull();
+
+    expect(outcome).toMatchObject({ kind: 'pulled', stored: 1, skipped: 0 });
+    const stored = h.db.select().from(events).where(eq(events.id, 'e1')).get();
+    expect(stored).toMatchObject({ payload: {}, deletedAt, occurredAt: deletedAt });
+    expect(h.events.list()).toEqual([]);
+
+    // The edit goes up and the server ignores it (delete wins): it leaves the
+    // outbox without a sync error, and nothing comes back to life.
+    const push = createPushEngine({
+      linked: () => readLinkedIdentity(h.db),
+      outbox: h.outbox,
+      auth,
+      state: signedIn,
+      now: h.deps.now,
+      send: async (_auth, rows) =>
+        rows.map((row) => ({
+          id: row.entityId,
+          op: row.op,
+          status: 'ignored' as const,
+          reason: 'deleted',
+        })),
+    });
+    expect(await push.push()).toMatchObject({ kind: 'pushed', ignored: 1 });
+    expect(h.outbox.pending()).toBe(0);
+    expect(h.outbox.errors()).toEqual([]);
+    expect(h.db.select().from(events).where(eq(events.id, 'e1')).get()?.payload).toEqual({});
+  });
+
+  it("empties this phone's own old tombstones on every pull", async () => {
+    const h = await harness();
+    h.link();
+    await h.engine([[fromServer('e1', 4)]]).pull();
+    h.events.softDelete('e1');
+    h.db.delete(outbox).run(); // the delete was sent
+    h.deps.advance(31 * DAY);
+
+    await h.engine([[]]).pull();
+
+    expect(h.db.select().from(events).where(eq(events.id, 'e1')).get()?.payload).toEqual({});
+  });
+});
+
+describe('asking first whether this account may read (P0.2)', () => {
+  async function gated(
+    status: () => Promise<MembershipStatus>,
+    onRevoked?: (reason: 'not_member' | 'household_gone') => void,
+  ) {
+    const h = await harness();
+    h.link();
+    const prefs = createDevicePrefsRepository(h.db);
+    const pages: number[] = [];
+    const engine = createPullEngine({
+      linked: () => readLinkedIdentity(h.db),
+      events: h.events,
+      outbox: h.outbox,
+      devicePrefs: prefs,
+      auth,
+      state: signedIn,
+      fetchStatus: status,
+      ...(onRevoked && { onRevoked }),
+      fetchPage: async (_auth, _household, cursor) => {
+        pages.push(cursor);
+        return [fromServer('00000000-0000-7000-8000-0000000000e1', 1)];
+      },
+      fetchCaregivers: async () => [],
+      fetchHousehold: async () => null,
+    });
+    return { ...h, prefs, pages, engine };
+  }
+  const member = (access: HouseholdAccess, isGuardian = false): MembershipStatus => ({
+    status: 'member',
+    role: 'caregiver',
+    isGuardian,
+    access,
+    baby: { id: BABY, name: 'Ella' },
+  });
+
+  it('reads once the server says so, and remembers the answer', async () => {
+    const { engine, pages, prefs } = await gated(async () => member('granted'));
+    expect(await engine.pull()).toMatchObject({ kind: 'pulled', stored: 1 });
+    expect(pages).toEqual([0]);
+    expect(prefs.get('householdAccess')).toEqual({
+      userId: USER,
+      householdId: HOUSEHOLD,
+      access: 'granted',
+      isGuardian: false,
+    });
+  });
+
+  it('stops before reading a member who hasn’t accepted the caregiver agreement', async () => {
+    const { engine, pages, prefs, events } = await gated(async () => member('needs_agreement'));
+    const mine = events.insert({ type: 'diaper', occurredAt: NOW, payload: { kind: 'wet' } });
+
+    expect(await engine.pull()).toEqual({ kind: 'blocked', by: 'no_agreement' });
+    expect(pages).toEqual([]);
+    expect(prefs.get('householdAccess')?.access).toBe('needs_agreement');
+    // Nothing on the phone is touched.
+    expect(events.get(mine.id)).not.toBeNull();
+  });
+
+  it('stops before reading a guardian without consent in force', async () => {
+    const { engine, pages } = await gated(async () => member('needs_consent', true));
+    expect(await engine.pull()).toEqual({ kind: 'blocked', by: 'no_consent' });
+    expect(pages).toEqual([]);
+  });
+
+  it('stops before reading a frozen household, for everyone (P0.3)', async () => {
+    const { engine, pages, prefs } = await gated(async () => member('frozen'));
+    expect(await engine.pull()).toEqual({ kind: 'blocked', by: 'frozen' });
+    expect(pages).toEqual([]);
+    expect(prefs.get('householdAccess')?.access).toBe('frozen');
+  });
+
+  it('treats a server it couldn’t ask as a failed pull, to try again later', async () => {
+    const { engine, pages, prefs } = await gated(async () => {
+      throw new MembershipStatusError('request failed');
+    });
+    expect(await engine.pull()).toMatchObject({ kind: 'failed', failures: 1 });
+    expect(pages).toEqual([]);
+    expect(prefs.get('householdAccess')).toBeNull();
+  });
+
+  it('hands a plain "no longer a member" or "gone" on, without reading (P0.5)', async () => {
+    for (const status of ['not_member', 'household_gone'] as const) {
+      const revoked: string[] = [];
+      const { engine, pages } = await gated(
+        async () => ({ status }),
+        (reason) => void revoked.push(reason),
+      );
+      expect(await engine.pull()).toEqual({ kind: 'revoked', reason: status });
+      expect(revoked).toEqual([status]);
+      expect(pages).toEqual([]);
+    }
+  });
+
+  it('never calls it for a server it couldn’t ask (P0.5)', async () => {
+    const revoked: string[] = [];
+    const { engine } = await gated(
+      async () => {
+        throw new MembershipStatusError('request failed');
+      },
+      (reason) => void revoked.push(reason),
+    );
+    expect(await engine.pull()).toMatchObject({ kind: 'failed' });
+    expect(revoked).toEqual([]);
+  });
+
+  it('never calls it when the phone was linked elsewhere while it asked (P0.5)', async () => {
+    const revoked: string[] = [];
+    let unlink = () => {};
+    const { engine, db } = await gated(
+      async () => {
+        unlink();
+        return { status: 'not_member' };
+      },
+      (reason) => void revoked.push(reason),
+    );
+    unlink = () =>
+      db.update(meta).set({ value: OTHER_USER }).where(eq(meta.key, META_KEYS.userId)).run();
+    expect(await engine.pull()).toEqual({ kind: 'blocked', by: 'not_linked' });
+    expect(revoked).toEqual([]);
   });
 });
