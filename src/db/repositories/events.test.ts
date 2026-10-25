@@ -558,3 +558,114 @@ describe('undo support (P1-12)', () => {
     expect(allOutbox()).toHaveLength(count);
   });
 });
+
+describe('purging deleted content (P0.6)', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  const row = (id: string) => mem.db.select().from(events).where(eq(events.id, id)).get();
+  /** The outbox emptied, as after a push the server took. */
+  const sent = () => mem.sqlite.run('delete from outbox');
+
+  it('empties an entry deleted more than 30 days ago, and only that', () => {
+    const old = repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    const recent = repo.insert({ ...bottle, payload: { ml: 60, milk: 'formula' } });
+    const live = repo.insert({ ...bottle, payload: { ml: 30, milk: 'formula' } });
+    repo.softDelete(old.id);
+    const deletedAt = deps.now();
+    deps.advance(2 * DAY);
+    repo.softDelete(recent.id);
+    sent();
+    deps.advance(29 * DAY);
+
+    expect(repo.purgeOldTombstones()).toBe(1);
+    expect(row(old.id)).toMatchObject({
+      payload: {},
+      endedAt: null,
+      groupId: null,
+      occurredAt: deletedAt,
+      deletedAt,
+      type: 'feed_bottle',
+    });
+    expect(row(recent.id)?.payload).toEqual({ ml: 60, milk: 'formula' });
+    expect(row(live.id)?.payload).toEqual({ ml: 30, milk: 'formula' });
+    expect(repo.list().map((e) => e.id)).toEqual([live.id]);
+    expect(count('outbox')).toBe(0); // the server purges its own copy
+  });
+
+  it('does nothing the second time', () => {
+    const { id } = repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    repo.softDelete(id);
+    sent();
+    deps.advance(31 * DAY);
+    expect(repo.purgeOldTombstones()).toBe(1);
+    expect(repo.purgeOldTombstones()).toBe(0);
+  });
+
+  it('waits while a write for the entry is still unsent', () => {
+    const { id } = repo.insert({ ...bottle, payload: { ml: 90, milk: 'formula' } });
+    repo.softDelete(id);
+    deps.advance(31 * DAY);
+    expect(repo.purgeOldTombstones()).toBe(0);
+    expect(row(id)?.payload).toEqual({ ml: 90, milk: 'formula' });
+    sent();
+    expect(repo.purgeOldTombstones()).toBe(1);
+  });
+
+  it('stores a purged tombstone from the server over the content held here', () => {
+    const { id, householdId, babyId, createdBy } = repo.insert({
+      ...bottle,
+      payload: { ml: 90, milk: 'formula' },
+    });
+    sent();
+    const deletedAt = deps.now() + 1_000;
+    const result = repo.applyFromServer([
+      {
+        id,
+        householdId,
+        babyId,
+        type: 'feed_bottle',
+        occurredAt: deletedAt,
+        endedAt: null,
+        payload: {},
+        groupId: null,
+        createdBy,
+        updatedBy: createdBy,
+        clientCreatedAt: deps.now(),
+        serverUpdatedAt: deps.now() + 31 * DAY,
+        seq: 9,
+        deletedAt,
+      },
+    ]);
+    expect(result).toEqual({ stored: 1, skipped: 0 });
+    expect(row(id)).toMatchObject({ payload: {}, deletedAt, occurredAt: deletedAt });
+    expect(repo.list()).toEqual([]);
+  });
+
+  it('still skips an empty payload on a live entry: only a tombstone may be empty', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const { id, householdId, babyId, createdBy } = repo.insert({
+      ...bottle,
+      payload: { ml: 90, milk: 'formula' },
+    });
+    const result = repo.applyFromServer([
+      {
+        id: `${id}-other`,
+        householdId,
+        babyId,
+        type: 'feed_bottle',
+        occurredAt: deps.now(),
+        endedAt: null,
+        payload: {},
+        groupId: null,
+        createdBy,
+        updatedBy: createdBy,
+        clientCreatedAt: deps.now(),
+        serverUpdatedAt: deps.now(),
+        seq: 9,
+        deletedAt: null,
+      },
+    ]);
+    expect(result).toEqual({ stored: 0, skipped: 1 });
+    expect(warn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
+  });
+});

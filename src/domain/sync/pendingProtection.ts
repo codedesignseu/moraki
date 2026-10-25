@@ -8,6 +8,8 @@
  * the server's value, which is newer for those fields.
  */
 
+import { isPurgedTombstone } from './purge';
+
 /** An event as the server keeps it (SDD 4.2), in local column names. */
 export type PulledEvent = {
   id: string;
@@ -52,6 +54,10 @@ export function protectPending(
   local: PulledEvent | null,
   pending: readonly PendingOp[],
 ): PulledEvent | null {
+  // A purged tombstone (P0.6) beats everything waiting here: the server
+  // ignores every op on it, so keeping a local field would keep content the
+  // household deleted more than 30 days ago.
+  if (isPurgedTombstone(server)) return server;
   if (pending.some((op) => op.op === 'insert')) return null;
   if (pending.length === 0 || local === null) return server;
 

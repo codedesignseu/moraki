@@ -52,7 +52,7 @@ Purposes, lawful bases, categories, recipients and security are set out in
 | Is health data necessary?                    | Yes, and it is the point. A parent asked to describe a feeding pattern on the phone to a clinic cannot do it from memory at 4am                                                                                                                                                                                                                                                                           |
 | Is the amount minimised?                     | No location, no contacts, no photos, no advertising identifier, no analytics, no third-party SDK but the crash reporter. Display names rather than legal names. The baby's name is whatever the family types, usually a nickname                                                                                                                                                                          |
 | Could it be less identifiable?               | The household's data could be end-to-end encrypted, which would prevent the controller reading it at all. Rejected for the POC: it breaks server-side validation (the consent gate and the immutable-column trigger both read rows), and key recovery for a sleep-deprived parent who reinstalls is a worse risk than the one it removes. Revisit at v1 — recorded as a design decision, not an oversight |
-| Is consent freely given?                     | Yes. It is asked on its own screen, unbundled, with no pre-ticked box, and refusing leaves the app working locally. Withdrawal is one button and does not delete anything. Since 2026-10-18 the consent text says exactly what is shared before agreeing (the baby's details at household setup) and what withdrawal does not undo                                                                                                                                                                                                                                 |
+| Is consent freely given?                     | Yes. It is asked on its own screen, unbundled, with no pre-ticked box, and refusing leaves the app working locally. Withdrawal is one button and does not delete anything. Since 2026-10-18 the consent text says exactly what is shared before agreeing (the baby's details at household setup) and what withdrawal does not undo                                                                        |
 | Is the retention justified?                  | A family's record of their newborn is what they came for, so entries are not trimmed on a schedule. Everything else has a period in `retention.md`                                                                                                                                                                                                                                                        |
 
 ---
@@ -201,11 +201,12 @@ remembered.
 
 _Medium × Low._ Entries are kept for the life of the household. Since
 2026-10-18 a daily `pg_cron` sweep deletes a household with no activity for 24
-months (`sweep_inactive_households`). The warning email before it is not built,
-so a household is deleted without notice.
+months (`sweep_inactive_households`). Since 2026-10-24 every member is emailed
+a warning at 23 months (through Brevo), and the household goes only once that
+email has been sent and the date it names, at least 30 days later, has come.
 
 _Residual: Low._ The sweep stops while the Supabase project is paused, which the
-free tier does to an idle project; `retention.md` records both gaps.
+free tier does to an idle project; `retention.md` records it.
 
 ---
 

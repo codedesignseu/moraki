@@ -20,7 +20,7 @@ create function pg_temp.new_event(id uuid, household uuid, baby uuid, seq bigint
 returns void language sql as $$
   insert into public.events (id, household_id, baby_id, type, occurred_at, created_by,
     updated_by, client_created_at, server_updated_at, seq)
-  values (id, household, baby, 'diaper', now(), '00000000-0000-0000-0000-00000000000a',
+  values (id, household, baby, 'sleep', now(), '00000000-0000-0000-0000-00000000000a',
     '00000000-0000-0000-0000-00000000000a', now(), '2000-01-01', seq)
 $$;
 create function pg_temp.seq_of(event uuid) returns bigint language sql as $$

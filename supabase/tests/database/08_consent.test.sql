@@ -33,7 +33,7 @@ update public.consents set withdrawn_at = now()
 insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
     client_created_at) values
   ('eeeeeeee-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
-   'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(),
+   'bbbbbbbb-0000-0000-0000-000000000001', 'sleep', now(),
    '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', now());
 
 create function pg_temp.login(n int) returns void language sql as $$
@@ -44,7 +44,7 @@ create function pg_temp.an_event(n int) returns text language sql as $$
   select format($f$insert into public.events
     (id, household_id, baby_id, type, occurred_at, created_by, updated_by, client_created_at)
     values ('eeeeeeee-0000-0000-0000-00000000000%s', 'aaaaaaaa-0000-0000-0000-000000000001',
-            'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(), '%s', '%s', now())$f$,
+            'bbbbbbbb-0000-0000-0000-000000000001', 'sleep', now(), '%s', '%s', now())$f$,
     n + 4, ('00000000-0000-0000-0000-00000000000' || n)::uuid,
     ('00000000-0000-0000-0000-00000000000' || n)::uuid)
 $$;

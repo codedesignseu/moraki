@@ -7,8 +7,11 @@ import {
   exportCsv,
   exportFileName,
   exportJson,
+  type ExportAccount,
   type ExportSubject,
 } from '@/domain/export/exportHousehold';
+import { fetchAccountRecords } from '@/sync/accountRecords';
+import { useAuth } from '@/sync/AuthProvider';
 
 import { removeQuietly } from './removeQuietly';
 
@@ -27,10 +30,18 @@ export type ExportState = {
  * uploaded to make an export, and where the copy goes is the share sheet's
  * business, not ours. Each file is deleted once its share sheet closes, or
  * once anything fails, so no copy is left behind in the cache.
+ *
+ * Signed in, the JSON also carries the person's own account (legal review
+ * P0.10): id, email and sign-in methods from the session on this phone, and
+ * their consent records and feedback, read from the server as them at the
+ * moment they tap. Offline, those server records are marked unavailable and
+ * the export still goes ahead. Signed out, there is no account section.
  */
 export function useExport(): ExportState {
   const events = useEvents();
   const caregivers = useCaregiversRepository();
+  const { auth, state } = useAuth();
+  const user = state.status === 'signedIn' ? state.user : null;
   const [household] = useDevicePref('accountHousehold');
   const [problem, setProblem] = useState<ExportState['problem']>(null);
   const [busy, setBusy] = useState(false);
@@ -43,6 +54,15 @@ export function useExport(): ExportState {
         setProblem('unavailable');
         return;
       }
+      const account: ExportAccount | null =
+        auth && user
+          ? {
+              userId: user.id,
+              email: user.email,
+              providers: await auth.providers(),
+              records: await fetchAccountRecords(auth, user.id),
+            }
+          : null;
       const at = Date.now();
       const subject: ExportSubject = {
         householdId: household?.householdId ?? null,
@@ -58,6 +78,7 @@ export function useExport(): ExportState {
           displayName: row.displayName,
           role: row.role,
         })),
+        account,
       };
       const name = household?.babyName ?? '';
 
@@ -83,7 +104,7 @@ export function useExport(): ExportState {
     } finally {
       setBusy(false);
     }
-  }, [events, caregivers, household]);
+  }, [events, caregivers, household, auth, user]);
 
   return { problem, busy, exportAll };
 }
