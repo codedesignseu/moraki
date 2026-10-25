@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { legalLink } from '@/domain/consent/consent';
 import type { IconName } from '@/ui/icons';
 import { Card, ListGroup, ListRow, Page } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
@@ -11,14 +12,10 @@ import { useTheme, type Theme } from '@/ui/theme';
  * it is not a medical device. The disclaimer is a screen of its own so it can
  * be read, rather than a line nobody sees at sign-up.
  */
-const SITE = 'https://moraki.app';
 const CONTACT = 'hello@moraki.app';
 const PAGES = ['privacy', 'terms', 'support'] as const;
 
-/** The pages on moraki.app (P5-06), in Greek when the app is read in Greek. */
-export function legalLink(page: (typeof PAGES)[number], language: string): string {
-  return `${SITE}${language.startsWith('el') ? '/el' : ''}/${page}/`;
-}
+export { legalLink };
 
 const ROW_ICONS = {
   privacy: 'private',

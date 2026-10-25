@@ -1,4 +1,6 @@
--- P3-09: explicit consent gates writing health data (SDD 12).
+-- P3-09: explicit consent gates writing health data (SDD 12). Since P0.2
+-- it is the parent's or guardian's consent, and it gates reading too: every
+-- member here has declared they are a guardian.
 --
 -- User 1 owns the household and has consented. User 2 is a caregiver who has
 -- not. User 3 consented and then withdrew. User 4 consented to an older
@@ -14,11 +16,11 @@ insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-000000000004', 'oldversion@example.test');
 insert into public.households (id, name, created_by) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'one', '00000000-0000-0000-0000-000000000001');
-insert into public.memberships (household_id, user_id, role, display_name) values
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', 'Owner'),
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'caregiver', 'No'),
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 'caregiver', 'Gone'),
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000004', 'caregiver', 'Old');
+insert into public.memberships (household_id, user_id, role, display_name, is_guardian) values
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', 'Owner', true),
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'caregiver', 'No', true),
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 'caregiver', 'Gone', true),
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000004', 'caregiver', 'Old', true);
 insert into public.babies (id, household_id, name, born_at) values
   ('bbbbbbbb-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001', 'b1', now());
 insert into public.consents (user_id, policy_version) values
@@ -49,8 +51,8 @@ $$;
 
 set local role authenticated;
 
-select is(public.consent_version(), '2026-10-18',
-  'the version in force is the rewritten text of 2026-10-18, so everyone is asked again');
+select is(public.consent_version(), '2026-10-25',
+  'the version in force is the guardian''s text of 2026-10-25, so every guardian is asked again');
 
 -- The helper itself --------------------------------------------------------
 select pg_temp.login(1);
@@ -86,11 +88,11 @@ select results_eq(
   array[0], 'soft delete: no effect without consent');
 
 -- Reading ------------------------------------------------------------------
-select isnt_empty($$select 1 from public.events where id = 'eeeeeeee-0000-0000-0000-000000000001'$$,
-  'select: a caregiver without consent still reads the household');
+select is_empty($$select 1 from public.events where id = 'eeeeeeee-0000-0000-0000-000000000001'$$,
+  'select: a guardian without consent reads nothing of the household (P0.2)');
 select pg_temp.login(3);
-select isnt_empty($$select 1 from public.events where id = 'eeeeeeee-0000-0000-0000-000000000001'$$,
-  'select: withdrawing keeps what is already there readable, for export and deletion');
+select is_empty($$select 1 from public.events where id = 'eeeeeeee-0000-0000-0000-000000000001'$$,
+  'select: nor after withdrawing; the phone keeps its copy, to export');
 
 -- grant_consent ------------------------------------------------------------
 select pg_temp.login(2);

@@ -26,6 +26,10 @@ insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-000000000001', 'guesser@example.test'),
   ('00000000-0000-0000-0000-000000000002', 'other@example.test');
 
+-- P0.2: joining needs the Terms on record.
+insert into public.consent_events (user_id, purpose, version, action, text_key)
+  select id, 'terms', public.terms_version(), 'grant', 'test' from auth.users;
+
 create function pg_temp.login(n int) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object(
     'sub', ('00000000-0000-0000-0000-00000000000' || n)::uuid, 'role', 'authenticated')::text, true)::void
@@ -51,12 +55,12 @@ select throws_ok($$select public.record_invite_attempt()$$, '42501', null,
 
 -- accept_invite refuses with no recent attempt on record ---------------------
 select pg_temp.login(1);
-select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Guesser')$$, 'MKI05', null,
+select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Guesser', agreement_version => public.caregiver_agreement_version())$$, 'MKI05', null,
   'a guess with no record_invite_attempt() call first is refused, before the code is even looked up');
 
 -- A recorded attempt lets the real lookup run --------------------------------
 select lives_ok($$select public.record_invite_attempt()$$, 'recording an attempt itself always succeeds');
-select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Guesser')$$, 'MKI01', null,
+select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Guesser', agreement_version => public.caregiver_agreement_version())$$, 'MKI01', null,
   'with a fresh attempt on record, the guess reaches the real check and is refused for being wrong, not MKI05');
 
 -- The count survives every failed guess ---------------------------------------
@@ -100,7 +104,7 @@ update public.invite_attempts set attempted_at = now() - interval '1 minute'
   where user_id = '00000000-0000-0000-0000-000000000001';
 set local role authenticated;
 select pg_temp.login(1);
-select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Guesser')$$, 'MKI05', null,
+select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Guesser', agreement_version => public.caregiver_agreement_version())$$, 'MKI05', null,
   'a minute-old attempt is too stale for accept_invite to honour (the freshness window is 5 seconds)');
 
 -- The window slides: attempts outside the hour stop counting toward the cap --

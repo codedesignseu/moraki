@@ -2,9 +2,13 @@ import { getRandomBytes } from 'expo-crypto';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { consentLocale } from '@/domain/consent/consent';
 import { newId } from '@/domain/ids';
 import { localTimeDaysAgo } from '@/domain/time/zoned';
 import { dateLocale } from '@/i18n';
+import { useDevicePref } from '@/db/react';
+import { useConsent } from '@/privacy/useConsent';
+import { useTerms } from '@/privacy/useTerms';
 import { useAuth } from '@/sync/AuthProvider';
 import { createHousehold, HouseholdError, type Relation } from '@/sync/household';
 import { useAccountHousehold } from '@/sync/useAccountHousehold';
@@ -20,7 +24,15 @@ export const LIMITS = {
 const BORN_HOUR = 12;
 
 export type SetupProblem =
-  'display_name' | 'baby_name' | 'birth_weight' | 'offline' | 'signed_out' | 'unknown';
+  | 'display_name'
+  | 'baby_name'
+  | 'birth_weight'
+  | 'guardian'
+  | 'consent'
+  | 'terms'
+  | 'offline'
+  | 'signed_out'
+  | 'unknown';
 
 /**
  * Creates the account's household with its baby (P2-05). Only the server
@@ -31,12 +43,18 @@ export type SetupProblem =
 export function useHouseholdSetup(onDone: () => void) {
   const { auth, state } = useAuth();
   const { household, remember } = useAccountHousehold();
+  const [, setGuardian] = useDevicePref('guardianDeclaration');
+  const [, setConsentRecord] = useDevicePref('consent');
+  const terms = useTerms();
+  const consent = useConsent();
   const { i18n } = useTranslation();
   const [displayName, setDisplayName] = useState('');
   const [relation, setRelation] = useState<Relation | null>(null);
   const [babyName, setBabyName] = useState('');
   const [bornDaysAgo, setBornDaysAgo] = useState(0);
   const [birthWeight, setBirthWeight] = useState('');
+  // P0.1: never ticked for them.
+  const [guardianDeclared, setGuardianDeclared] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<SetupProblem | null>(null);
   const [openedAt] = useState(Date.now);
@@ -50,6 +68,8 @@ export function useHouseholdSetup(onDone: () => void) {
 
   async function save() {
     if (!auth || state.status !== 'signedIn') return setProblem('signed_out');
+    // P0.9: a household is made only by someone who agreed to the Terms.
+    if (!(await terms.ensure())) return setProblem('terms');
     const weight = birthWeight.trim() === '' ? null : Number(birthWeight);
     if (displayName.trim() === '') return setProblem('display_name');
     if (babyName.trim() === '') return setProblem('baby_name');
@@ -63,18 +83,36 @@ export function useHouseholdSetup(onDone: () => void) {
     ) {
       return setProblem('birth_weight');
     }
+    if (!guardianDeclared) return setProblem('guardian');
+    // P0.2: the guardian's consent comes before the baby's details leave the
+    // phone. It has its own screen; the server refuses without it too.
+    if (!consent.granted) return setProblem('consent');
     setBusy(true);
     setProblem(null);
     try {
       const created = await createHousehold(
         auth,
         state.user.id,
-        { babyName, bornAt, birthWeightG: weight, displayName, relation },
+        {
+          babyName,
+          bornAt,
+          birthWeightG: weight,
+          displayName,
+          relation,
+          guardianDeclared,
+          locale: consentLocale(i18n.language),
+        },
         () => newId(Date.now(), () => getRandomBytes(16)),
       );
+      // The declaration went on record with the household (P0.1).
+      setGuardian({ userId: created.userId, householdId: created.householdId, onRecord: true });
       remember(created);
     } catch (error) {
-      setProblem(error instanceof HouseholdError ? error.reason : 'unknown');
+      const reason = error instanceof HouseholdError ? error.reason : 'unknown';
+      // The server has no consent in force for this account (MK003): this
+      // phone's copy is out of date, so consent is asked again.
+      if (reason === 'consent') setConsentRecord(null);
+      setProblem(reason);
     } finally {
       setBusy(false);
     }
@@ -98,8 +136,12 @@ export function useHouseholdSetup(onDone: () => void) {
     }).format(bornAt),
     birthWeight,
     setBirthWeight: (value: string) => setBirthWeight(value.replace(/\D/g, '')),
+    guardianDeclared,
+    setGuardianDeclared,
+    consentGranted: consent.granted,
     busy,
-    problem,
+    // Agreed on the consent screen since: that problem is answered.
+    problem: problem === 'consent' && consent.granted ? null : problem,
     save: () => void save(),
   };
 }

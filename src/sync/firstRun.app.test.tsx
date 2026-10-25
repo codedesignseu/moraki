@@ -97,12 +97,33 @@ describe('a phone that gets its household while the app is open', () => {
     expect(readLinkedIdentity(h.mem.db)).toEqual({ householdId: HOUSEHOLD_ID, userId: USER_ID });
   });
 
-  it('shows home and history after consent is given on its screen', async () => {
-    await openSignedIn(server('caregiver'));
-    await fireEvent.press(screen.getByRole('button', { name: /Settings/ }));
-    await fireEvent.press(await screen.findByRole('button', { name: 'Review consent' }));
-    await fireEvent.press(await screen.findByRole('button', { name: 'I agree' }));
-    await waitFor(() => expect(h.prefs.get('consent')).not.toBeNull());
+  it('shows home and history after the caregiver agreement is accepted on its screen (P0.2)', async () => {
+    let accepted = false;
+    const fake = authServer({
+      babies: [{ id: BABY_ID, name: 'Ella', household_id: HOUSEHOLD_ID }],
+      memberships: [{ household_id: HOUSEHOLD_ID, role: 'caregiver' }],
+      events: () => [theirBottle],
+      membershipStatus: () => ({
+        status: 'member',
+        role: 'caregiver',
+        is_guardian: false,
+        access: accepted ? 'granted' : 'needs_agreement',
+        baby_id: BABY_ID,
+        baby_name: 'Ella',
+      }),
+      recordConsent: (body) => {
+        if (body.purpose === 'caregiver_agreement') accepted = true;
+        return undefined;
+      },
+    });
+    await openSignedIn(fake);
+    // Asked on its own, once the server has said; nothing read before.
+    await fireEvent.press(
+      await screen.findByRole('checkbox', { name: /only to help care for the baby/ }),
+    );
+    expect(fake.calls.some((c) => c.path === '/rest/v1/events')).toBe(false);
+    await fireEvent.press(screen.getByRole('button', { name: 'Accept' }));
+    await waitFor(() => expect(accepted).toBe(true));
 
     await fireEvent.press(screen.getByRole('button', { name: /Home/ }));
     expect(await screen.findByText(/120 ml formula/)).toBeOnTheScreen();
@@ -157,10 +178,19 @@ describe('a phone that gets its household while the app is open', () => {
   it('a second caregiver accepting an invite sees the household on home', async () => {
     await openSignedIn(server(null), `/join/${CODE}`);
     await fireEvent.changeText(await screen.findByLabelText('Your name'), 'Nik');
-    await fireEvent.press(screen.getByRole('button', { name: 'Join' }));
+    await acceptAndJoin();
     await grantConsent();
 
     expect(await screen.findByText(/120 ml formula/)).toBeOnTheScreen();
     expect(readLinkedIdentity(h.mem.db)).toEqual({ householdId: HOUSEHOLD_ID, userId: USER_ID });
   });
 });
+
+/** P0.2: past the code and name, the caregiver agreement, ticked and accepted. */
+async function acceptAndJoin() {
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  await fireEvent.press(
+    await screen.findByRole('checkbox', { name: /only to help care for the baby/ }),
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Accept and join' }));
+}

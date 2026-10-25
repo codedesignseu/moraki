@@ -29,6 +29,13 @@
       "when": 1790103942120,
       "tag": "0003_sync_errors",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1792843294630,
+      "tag": "0004_memberships_is_guardian",
+      "breakpoints": true
     }
   ]
 }

@@ -9,6 +9,8 @@ export type CaregiverRow = {
   name: string;
   role: 'owner' | 'caregiver' | 'viewer';
   you: boolean;
+  /** Declared they are the baby's parent or guardian, so may take over (P0.1). */
+  isGuardian: boolean;
 };
 
 /** Everyone in the household, oldest member first (P2-12). */
@@ -25,6 +27,7 @@ export function useCaregivers(): CaregiverRow[] {
         name: row.displayName,
         role: row.role,
         you: row.userId === me,
+        isGuardian: row.isGuardian,
       })),
     // `version` is the change signal: re-read after the household changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps

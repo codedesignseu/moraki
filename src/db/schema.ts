@@ -28,6 +28,8 @@ export const memberships = sqliteTable(
       enum: ['mother', 'father', 'grandparent', 'caregiver', 'other'],
     }),
     joinedAt: integer('joined_at').notNull(),
+    /** Declared they are the baby's parent or legal guardian (P0.1). */
+    isGuardian: integer('is_guardian', { mode: 'boolean' }).notNull().default(false),
   },
   (t) => [primaryKey({ columns: [t.householdId, t.userId] })],
 );

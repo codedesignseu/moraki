@@ -8,10 +8,11 @@ import { useTheme, type Theme } from '@/ui/theme';
 import { useWeightLog } from './useWeightLog';
 
 /**
- * Weight over time against the birth weight (SDD 6.4, G tabs/trends). The
- * copy says what was weighed and when, and the only sentence about it points
- * at the pediatrician: nothing here judges a number (rule 10). The change
- * since birth is a signed figure in ink, read out as a plain sentence.
+ * Weight over time (SDD 6.4, G tabs/trends). The copy says what was weighed
+ * and when; the chart has the points and nothing to read them against — no
+ * reference lines, no marked days (P0.7). Nothing here judges a number
+ * (rule 10). The change since birth is plain arithmetic: a signed figure in
+ * ink, read out as a plain sentence.
  */
 export function WeightCard({ onAddWeight }: { onAddWeight?: () => void }) {
   const { t, i18n } = useTranslation();
@@ -64,16 +65,6 @@ export function WeightCard({ onAddWeight }: { onAddWeight?: () => void }) {
               hollow: p.source === 'home',
               accessibilityLabel: t('insights.weight.point', { day: p.day, grams: p.grams }),
             }))}
-            lines={view.references.map((r) => ({
-              key: r.key,
-              y: r.grams,
-              label: t('insights.weight.line', { percent: r.percent }),
-            }))}
-            marks={view.markerDays.map((day) => ({
-              key: `day-${day}`,
-              x: day,
-              label: t('insights.weight.mark', { day }),
-            }))}
           />
           <Legend
             items={[
@@ -109,7 +100,6 @@ export function WeightCard({ onAddWeight }: { onAddWeight?: () => void }) {
         <Text style={[theme.type.rowLabel, s.soft]}>{t('insights.weight.empty')}</Text>
       )}
 
-      <Text style={[theme.type.small, s.soft]}>{t('insights.weight.note')}</Text>
       {onAddWeight && (
         <Button label={t('insights.weight.add')} variant="secondary" onPress={onAddWeight} />
       )}
