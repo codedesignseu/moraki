@@ -27,6 +27,8 @@
 - [Support](https://moraki.app/support/): Help with common questions, and how to email us.
 - [Legal notice](https://moraki.app/legal/): Who runs Moraki: C.E. CODE DESIGNS LTD in Cyprus, its registration and VAT numbers, address, contact, data protection authority and website hosting.
 - [Cookie policy](https://moraki.app/cookies/): The website sets no cookies and runs no trackers. It only keeps your light or dark choice in your own browser.
+- [Medical disclaimer](https://moraki.app/disclaimer/): Moraki is a notebook, not medical advice. It doesn’t diagnose or interpret values, its reminders can fail, and in an emergency you call 112.
+- [Data and account deletion](https://moraki.app/data-deletion/): How to delete an entry, a household or your account, what is kept afterwards and for how long, and how to ask by email.
 
 ## Pages in Greek
 
@@ -40,6 +42,8 @@
 - [Υποστήριξη](https://moraki.app/el/support/): Support, in Greek. Help with common questions, and how to email us.
 - [Στοιχεία εταιρείας](https://moraki.app/el/legal/): Legal notice, in Greek. Who runs Moraki: C.E. CODE DESIGNS LTD in Cyprus, its registration and VAT numbers, address, contact, data protection authority and website hosting.
 - [Πολιτική cookies](https://moraki.app/el/cookies/): Cookie policy, in Greek. The website sets no cookies and runs no trackers. It only keeps your light or dark choice in your own browser.
+- [Όχι ιατρική συμβουλή](https://moraki.app/el/disclaimer/): Medical disclaimer, in Greek. Moraki is a notebook, not medical advice. It doesn’t diagnose or interpret values, its reminders can fail, and in an emergency you call 112.
+- [Διαγραφή δεδομένων και λογαριασμού](https://moraki.app/el/data-deletion/): Data and account deletion, in Greek. How to delete an entry, a household or your account, what is kept afterwards and for how long, and how to ask by email.
 
 ## More
 

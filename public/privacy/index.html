@@ -214,8 +214,8 @@
         You can withdraw consent at any time in Settings → Privacy → “Review consent” → “Withdraw
         my agreement”. Your new entries then stay on your phone and stop syncing. What you already
         shared stays with the household, as part of the baby's record, until the household is
-        deleted. While your consent is withdrawn, you can't change or delete the entries you
-        already shared. Withdrawing does not close your account. Deleting your account removes what
+        deleted. While your consent is withdrawn, you can't change the entries you
+        already shared, but you can still see and delete your own. Withdrawing does not close your account. Deleting your account removes what
         you shared only if nobody else is in the household. See section 9.
       </p>
       <p>
@@ -345,8 +345,9 @@
               <td>Deleted entries</td>
               <td>
                 Marked as deleted rather than removed, so every phone in the household learns of the
-                deletion. A deleted entry is hidden but stays on our servers, with what it said,
-                for the life of the household. Removed when the household is deleted.
+                deletion. 30 days after you delete it, we erase what it said from our servers. Only
+                a small marker stays (its id, type and when it was deleted), so that a phone that was
+                offline can't bring it back. The marker goes when the household is deleted.
               </td>
             </tr>
             <tr>
@@ -363,6 +364,8 @@
             <tr>
               <td>Paused households</td>
               <td>
+                While a household is paused, nothing new is shared, nobody can join, and each member
+                sees only their own entries, which they can still delete.
                 If no parent or guardian in a household has agreed to health data being processed
                 for 90 days, every member gets an email saying the household will be deleted on a
                 date at least 30 days later. Unless a parent or guardian agrees again by then, it is
@@ -375,6 +378,15 @@
                 When an account or household is deleted, we note its id, when and why, with no
                 content, for 35 days. We use it only to delete it again if we ever have to restore
                 a backup.
+              </td>
+            </tr>
+            <tr>
+              <td>Server backups</td>
+              <td>
+                Our database is backed up once a day, and each backup is kept for 7 days. Something
+                you delete leaves the backups within 7 days. We can't remove one person's data from a
+                backup, so if we ever restore one, we delete again everything that was deleted after
+                it was made.
               </td>
             </tr>
             <tr>
@@ -448,7 +460,8 @@
             </li>
           </ul>
           Deletion removes the data from our servers. Copies already on someone's phone, and files
-          anyone exported, stay where they are until removed there.
+          anyone exported, stay where they are until removed there. Every step is on the
+          <a href="/data-deletion/">data and account deletion</a> page.
         </li>
         <li>
           <strong>Restrict or object.</strong> Withdraw consent in Settings → Privacy → “Review
@@ -517,6 +530,8 @@
 <li><a href="/support/">Support</a></li>
 <li><a href="/legal/">Legal notice</a></li>
 <li><a href="/cookies/">Cookies</a></li>
+<li><a href="/disclaimer/">Medical disclaimer</a></li>
+<li><a href="/data-deletion/">Data deletion</a></li>
 <li><a href="/privacy/" lang="en" hreflang="en">English</a></li>
 <li><a href="/el/privacy/" lang="el" hreflang="el">Ελληνικά</a></li>
 </ul></nav>
