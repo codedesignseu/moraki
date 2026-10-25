@@ -1,24 +1,20 @@
 import { useTheme } from './ThemeProvider';
 
 /**
- * Screen options for a log or edit sheet (decision G1): the native form
- * sheet of react-native-screens, with G's 32 top corners, on the card
- * colour, swiped down to close. The native header and grabber are off; each
- * sheet draws SheetHandle and SheetHeader itself, as every G sheet does.
+ * Screen options for a log or edit sheet: the iOS page sheet (`modal`), a card
+ * that slides up over Home with Home peeking above it and swipe-down to close;
+ * on Android a full-screen slide-up. The native header is off: each sheet
+ * draws SheetHandle and SheetHeader itself, as every G sheet does.
  *
- * One detent, the full height ([1]), for every sheet. `fitToContents` would
- * suit the short diaper and sleep sheets, but their bodies scroll
- * (ScrollView), and a scrolling body has no fixed height for the sheet to
- * fit to. Revisit when those bodies are restyled (MAPPING_G steps 10, 11).
+ * Not the native `formSheet` (decision G1, built in #157): on device (build 8)
+ * it laid the sheet's header and body on top of each other, while a page sheet
+ * lays out its content like any screen.
  */
 export function useSheetOptions() {
-  const { palette, radius } = useTheme();
+  const { palette } = useTheme();
   return {
-    presentation: 'formSheet' as const,
+    presentation: 'modal' as const,
     headerShown: false,
-    sheetAllowedDetents: [1],
-    sheetCornerRadius: radius.sheet,
-    sheetGrabberVisible: false,
     contentStyle: { backgroundColor: palette.card },
   };
 }
