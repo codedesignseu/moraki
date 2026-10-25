@@ -1095,8 +1095,8 @@
   },
   "paused": {
     "title": "Household paused",
-    "guardian": "No parent or guardian in this household agrees to health data being processed right now, so the household is paused for everyone: nothing new is shared, and the others can’t see it.",
-    "member": "No parent or guardian in this household agrees to health data being processed right now, so it’s paused: nothing new is shared or shown here until one does.",
+    "guardian": "No parent or guardian in this household agrees to health data being processed right now, so the household is paused for everyone: nothing new is shared, and the others see only their own entries.",
+    "member": "No parent or guardian in this household agrees to health data being processed right now, so it’s paused: nothing new is shared, and you see only your own entries, until one does.",
     "resume": "Another parent or guardian in the household can resume it by confirming and agreeing on their phone.",
     "own": "You can still see and delete your own entries.",
     "agree": "Agree to health data",

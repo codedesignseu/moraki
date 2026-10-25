@@ -223,7 +223,7 @@ describe('a frozen household (P0.3)', () => {
   it('tells a caregiver it is paused, sends nothing but their own deletions, and offers a way on', async () => {
     const { pushes, server } = await existingCaregiver(frozen('caregiver'));
     const card = within(await screen.findByTestId('household-paused'));
-    expect(card.getByText(/so it’s paused: nothing new is shared or shown here/)).toBeOnTheScreen();
+    expect(card.getByText(/so it’s paused: nothing new is shared, and you see only your own entries/)).toBeOnTheScreen();
     expect(card.getByText('You can still see and delete your own entries.')).toBeOnTheScreen();
     expect(
       screen.getByRole('button', { name: 'I’m the baby’s parent or guardian' }),
