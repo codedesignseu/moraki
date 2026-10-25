@@ -1,4 +1,12 @@
-import { agreedToCurrent, CONSENT_VERSION, consentLocale, guardianStatus } from './consent';
+import {
+  agreedToCurrent,
+  CONSENT_VERSION,
+  consentLocale,
+  guardianStatus,
+  legalLink,
+  TERMS_VERSION,
+  termsStatus,
+} from './consent';
 
 const USER = '0190a0b0-0000-7000-8000-000000000001';
 
@@ -52,5 +60,29 @@ describe('guardianStatus', () => {
     );
     expect(guardianStatus(record, USER, '0190a0b0-0000-7000-8000-0000000000a2')).toBe('unknown');
     expect(guardianStatus(record, null, null)).toBe('unknown');
+  });
+});
+
+describe('termsStatus', () => {
+  it('is agreed for this account agreeing to the Terms in force', () => {
+    expect(termsStatus({ userId: USER, version: TERMS_VERSION }, USER)).toBe('agreed');
+  });
+
+  it('is outdated after the Terms changed, so they are asked again', () => {
+    expect(termsStatus({ userId: USER, version: '2026-01-01' }, USER)).toBe('outdated');
+  });
+
+  it('is none for another account, nobody signed in, or no agreement', () => {
+    const record = { userId: USER, version: TERMS_VERSION };
+    expect(termsStatus(record, '0190a0b0-0000-7000-8000-000000000002')).toBe('none');
+    expect(termsStatus(record, null)).toBe('none');
+    expect(termsStatus(null, USER)).toBe('none');
+  });
+});
+
+describe('legalLink', () => {
+  it('links the Greek page when the app is read in Greek', () => {
+    expect(legalLink('terms', 'el')).toBe('https://moraki.app/el/terms/');
+    expect(legalLink('privacy', 'en')).toBe('https://moraki.app/privacy/');
   });
 });

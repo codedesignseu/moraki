@@ -7,6 +7,7 @@ import { newId } from '@/domain/ids';
 import { localTimeDaysAgo } from '@/domain/time/zoned';
 import { dateLocale } from '@/i18n';
 import { useDevicePref } from '@/db/react';
+import { useTerms } from '@/privacy/useTerms';
 import { useAuth } from '@/sync/AuthProvider';
 import { createHousehold, HouseholdError, type Relation } from '@/sync/household';
 import { useAccountHousehold } from '@/sync/useAccountHousehold';
@@ -22,7 +23,14 @@ export const LIMITS = {
 const BORN_HOUR = 12;
 
 export type SetupProblem =
-  'display_name' | 'baby_name' | 'birth_weight' | 'guardian' | 'offline' | 'signed_out' | 'unknown';
+  | 'display_name'
+  | 'baby_name'
+  | 'birth_weight'
+  | 'guardian'
+  | 'terms'
+  | 'offline'
+  | 'signed_out'
+  | 'unknown';
 
 /**
  * Creates the account's household with its baby (P2-05). Only the server
@@ -34,6 +42,7 @@ export function useHouseholdSetup(onDone: () => void) {
   const { auth, state } = useAuth();
   const { household, remember } = useAccountHousehold();
   const [, setGuardian] = useDevicePref('guardianDeclaration');
+  const terms = useTerms();
   const { i18n } = useTranslation();
   const [displayName, setDisplayName] = useState('');
   const [relation, setRelation] = useState<Relation | null>(null);
@@ -55,6 +64,8 @@ export function useHouseholdSetup(onDone: () => void) {
 
   async function save() {
     if (!auth || state.status !== 'signedIn') return setProblem('signed_out');
+    // P0.9: a household is made only by someone who agreed to the Terms.
+    if (!(await terms.ensure())) return setProblem('terms');
     const weight = birthWeight.trim() === '' ? null : Number(birthWeight);
     if (displayName.trim() === '') return setProblem('display_name');
     if (babyName.trim() === '') return setProblem('baby_name');

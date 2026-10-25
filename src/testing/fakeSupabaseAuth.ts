@@ -112,6 +112,10 @@ export function authServer(
      * Defaults to one, on record; a Response answers instead (an outage).
      */
     guardianEvents?: () => unknown[] | Response;
+    /** The account's Terms rows in consent_events (P0.9). Defaults to one, agreed. */
+    termsEvents?: () => unknown[] | Response;
+    /** record_consent (P0.4): called with the body; a Response refuses it. */
+    recordConsent?: (body: Record<string, unknown>) => Response | undefined;
     /** declare_guardian (P0.1): called with the body; a Response refuses it. */
     declareGuardian?: (body: Record<string, unknown>) => Response | undefined;
     /** grant_consent and withdraw_consent (P3-09). */
@@ -285,9 +289,12 @@ export function authServer(
           )
         );
       case '/rest/v1/consent_events': {
-        const rows = options.guardianEvents?.() ?? [{ id: 1 }];
+        const terms = url.searchParams.get('purpose') === 'eq.terms';
+        const rows = (terms ? options.termsEvents : options.guardianEvents)?.() ?? [{ id: 1 }];
         return rows instanceof Response ? rows : json(200, rows);
       }
+      case '/rest/v1/rpc/record_consent':
+        return options.recordConsent?.(body) ?? json(200, new Date().toISOString());
       case '/rest/v1/rpc/declare_guardian':
         return options.declareGuardian?.(body) ?? json(200, new Date().toISOString());
       case '/rest/v1/rpc/grant_consent':

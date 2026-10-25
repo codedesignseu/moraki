@@ -57,3 +57,31 @@ export function guardianStatus(
   if (!record || record.userId !== userId || record.householdId !== householdId) return 'unknown';
   return record.onRecord ? 'on_record' : 'missing';
 }
+
+/**
+ * The Terms of Use and Privacy Policy this build shows (P0.9), as dated on
+ * moraki.app. Bumping TERMS_VERSION asks every signed-in account to agree
+ * again before their entries sync (P1.4).
+ */
+export const TERMS_VERSION = '2026-10-24';
+export const PRIVACY_VERSION = '2026-10-24';
+
+/** What this phone remembers about an account agreeing to the Terms. */
+export type TermsRecord = { userId: string; version: string };
+
+/**
+ * Where `userId` stands with the Terms in force, as this phone knows it:
+ * agreed, agreed to an older version (so "We updated our Terms"), or never.
+ */
+export function termsStatus(
+  record: TermsRecord | null,
+  userId: string | null,
+): 'agreed' | 'outdated' | 'none' {
+  if (!record || userId === null || record.userId !== userId) return 'none';
+  return record.version === TERMS_VERSION ? 'agreed' : 'outdated';
+}
+
+/** The pages on moraki.app (P5-06), in Greek when the app is read in Greek. */
+export function legalLink(page: 'privacy' | 'terms' | 'support', language: string): string {
+  return `https://moraki.app${language.startsWith('el') ? '/el' : ''}/${page}/`;
+}

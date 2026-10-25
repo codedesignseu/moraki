@@ -11,7 +11,14 @@ import { SettingsCard, ValueRow } from './SettingsCard';
  * and "Review consent", which opens the consent screen. Signed in only, and
  * no date, version or Withdraw here (G3).
  */
-export function PrivacyCard({ onConsent }: { onConsent: () => void }) {
+export function PrivacyCard({
+  onConsent,
+  onTerms = () => {},
+}: {
+  onConsent: () => void;
+  /** Opens the Terms of Use, to read and agree to (P0.9). */
+  onTerms?: () => void;
+}) {
   const { t } = useTranslation();
   const { state } = useAuth();
   const { granted } = useConsent();
@@ -26,6 +33,7 @@ export function PrivacyCard({ onConsent }: { onConsent: () => void }) {
         accessibilityLabel={t('settings.privacy.consentValue', { value })}
       />
       <TextButton label={t('settings.privacy.review')} onPress={onConsent} />
+      <TextButton label={t('settings.privacy.terms')} onPress={onTerms} />
     </SettingsCard>
   );
 }

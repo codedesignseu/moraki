@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useTerms } from '@/privacy/useTerms';
 import { useAuth } from '@/sync/AuthProvider';
 import type { Relation } from '@/sync/household';
 import {
@@ -12,7 +13,7 @@ import {
 } from '@/sync/invites';
 import { useAccountHousehold } from '@/sync/useAccountHousehold';
 
-export type JoinProblem = InviteFailure | 'short_code' | 'display_name';
+export type JoinProblem = InviteFailure | 'short_code' | 'display_name' | 'terms';
 
 /**
  * Joins a household with a code, from the invite link or typed in. Nothing on
@@ -27,11 +28,14 @@ export function useJoin(initialCode: string, onDone: () => void) {
   const [relation, setRelation] = useState<Relation | null>(null);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<JoinProblem | null>(null);
+  const terms = useTerms();
 
   async function join() {
     if (!auth || state.status !== 'signedIn') return setProblem('signed_out');
     if (code.length !== CODE_LENGTH) return setProblem('short_code');
     if (displayName.trim() === '') return setProblem('display_name');
+    // P0.9: joining is for someone who agreed to the Terms.
+    if (!(await terms.ensure())) return setProblem('terms');
     setBusy(true);
     setProblem(null);
     try {

@@ -3,6 +3,7 @@ import { Share } from 'react-native';
 
 import { outbox } from '@/db/schema';
 import { readIdentity } from '@/db/identity';
+import { TERMS_VERSION } from '@/domain/consent/consent';
 import { createAuth } from '@/sync/auth';
 import { createHarness, renderApp, type Harness } from '@/testing/appHarness';
 import {
@@ -355,6 +356,8 @@ describe('joining through the link', () => {
     const signingIn = createAuth(TEST_SUPABASE_ENV, store, flaky);
     await signingIn.verifyCode(EMAIL, '123456');
     signingIn.setForeground(false);
+    // Agreed to the Terms already (P0.9), so the only thing missing is the network.
+    h.prefs.set('terms', { userId: USER_ID, version: TERMS_VERSION });
     await renderApp(h.repo, {
       auth: createAuth(TEST_SUPABASE_ENV, store, flaky),
       initialUrl: `/join/${CODE}`,
