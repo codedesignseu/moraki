@@ -47,8 +47,9 @@ create function pg_temp.logged(kind text, n int, prefix text default 'aaaaaaaa')
 $$;
 
 -- Shape and access ------------------------------------------------------------
-select columns_are('public', 'erasure_log', array['id', 'kind', 'subject_id', 'erased_at', 'reason'],
-  'the log holds a kind, an id, a time and a reason, nothing else');
+select columns_are('public', 'erasure_log',
+  array['id', 'kind', 'subject_id', 'erased_at', 'reason', 'logged_at'],
+  'the log holds a kind, an id, two times and a reason, nothing else (logged_at: 20261026100000)');
 select ok((select relrowsecurity from pg_class where oid = 'public.erasure_log'::regclass),
   'row level security is on');
 select is((select count(*)::int from pg_policies where tablename = 'erasure_log'), 0,
@@ -102,11 +103,14 @@ select is(public.sweep_inactive_households(), 1, 'the inactivity sweep deletes E
 select is(pg_temp.logged('household', 5), 'inactivity', 'logged as inactivity');
 
 -- Retention ------------------------------------------------------------------------
-insert into public.erasure_log (kind, subject_id, erased_at, reason) values
-  ('account', gen_random_uuid(), now() - interval '36 days', 'user_request'),
-  ('account', gen_random_uuid(), now() - interval '34 days', 'user_request');
-select is(public.purge_erasure_log(), 1, 'the purge removes only the row older than 35 days');
-select is((select count(*)::int from public.erasure_log), 9, 'and leaves the rest');
+-- By logged_at since 20261026100000_erasure_journal.sql.
+insert into public.erasure_log (kind, subject_id, erased_at, reason, logged_at) values
+  ('account', gen_random_uuid(), now() - interval '36 days', 'user_request', now() - interval '36 days'),
+  ('account', gen_random_uuid(), now() - interval '34 days', 'user_request', now() - interval '34 days'),
+  ('entry', gen_random_uuid(), now() - interval '40 days', 'user_request', now() - interval '2 days');
+select is(public.purge_erasure_log(), 1, 'the purge removes only the row logged over 35 days ago');
+select is((select count(*)::int from public.erasure_log), 10,
+  'and leaves the rest, a delete synced late included');
 
 select * from finish();
 rollback;
