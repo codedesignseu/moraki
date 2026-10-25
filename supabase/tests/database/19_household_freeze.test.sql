@@ -67,7 +67,7 @@ create function pg_temp.push(op text, body jsonb) returns text language sql as $
   from public.push_events(jsonb_build_array(jsonb_build_object('op', op, 'body', body)))
 $$;
 
-select is(public.consent_version(), '2026-10-25', 'the consent text in force says what withdrawing does');
+select is(public.consent_version(), '2026-10-26', 'the consent text in force says what withdrawing does (2026-10-26: own entries stay readable)');
 select ok(not has_function_privilege('anon', 'public.household_frozen(uuid)', 'execute'),
   'anon can''t ask whether a household is frozen');
 

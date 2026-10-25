@@ -6,8 +6,9 @@ select plan(36);
 select tables_are(
   'public',
   array['households', 'memberships', 'babies', 'events', 'invites', 'consents', 'push_tokens',
-        'feedback', 'invite_attempts', 'consent_events', 'inactivity_warning_emails', 'erasure_log'],
-  'public has exactly the SDD 4.2 tables, plus feedback (P4-13), invite_attempts (P2-F7), consent_events (P0.4), inactivity_warning_emails and erasure_log'
+        'feedback', 'invite_attempts', 'consent_events', 'inactivity_warning_emails', 'erasure_log',
+        'consent_versions'],
+  'public has exactly the SDD 4.2 tables, plus feedback (P4-13), invite_attempts (P2-F7), consent_events (P0.4), inactivity_warning_emails, erasure_log and consent_versions'
 );
 select enum_has_labels('public', 'member_role', array['owner', 'caregiver', 'viewer'], 'member_role values');
 

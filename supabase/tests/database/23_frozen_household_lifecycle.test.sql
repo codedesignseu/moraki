@@ -24,8 +24,10 @@ create function pg_temp.id(prefix text, n int) returns uuid language sql as $$
   select (prefix || '-0000-0000-0000-' || lpad(n::text, 12, '0'))::uuid
 $$;
 
--- A household whose only member is its owner, a guardian; frozen unless
--- `consenting`. Everyone signed in just now, so inactivity never applies.
+-- A household whose only member is its owner, a guardian; frozen, by the
+-- owner withdrawing, unless `consenting` (20261026090000: only an explicit
+-- withdrawal starts the clock). Everyone signed in just now, so inactivity
+-- never applies.
 create function pg_temp.household(n int, consenting boolean default false, email text default 'set')
 returns void language plpgsql as $$
 declare
@@ -40,6 +42,11 @@ begin
   insert into public.babies (id, household_id, name, born_at) values (gen_random_uuid(), h, 'b', now());
   if consenting then
     insert into public.consents (user_id, policy_version) values (u, public.consent_version());
+  else
+    insert into public.consents (user_id, policy_version, withdrawn_at)
+      values (u, public.consent_version(), now());
+    insert into public.consent_events (user_id, purpose, version, action, text_key)
+      values (u, 'health_data', public.consent_version(), 'withdraw', 'consent');
   end if;
 end
 $$;
@@ -183,7 +190,7 @@ select pg_temp.clock(15, interval '121 days', interval '31 days');
 select pg_temp.household(16);
 select pg_temp.clock(16, interval '121 days', interval '31 days');
 select pg_temp.queue(16, interval '31 days', true, pg_temp.today());
-insert into public.consents (user_id, policy_version) values (pg_temp.id('00000000', 16), public.consent_version());
+update public.consents set withdrawn_at = null where user_id = pg_temp.id('00000000', 16);
 
 select is(public.sweep_frozen_households(), 2, 'two households are deleted: 11 and 15');
 select is(pg_temp.left(11), 0, 'frozen, warned 31 days ago, told, date come: deleted');
