@@ -8,7 +8,10 @@ export default function Guardian() {
   return (
     <>
       <Stack.Screen options={PAGE_OPTIONS} />
-      <GuardianScreen onDone={() => router.back()} />
+      <GuardianScreen
+        onDone={() => router.back()}
+        onNeedsConsent={() => router.replace('/onboarding/consent')}
+      />
     </>
   );
 }
