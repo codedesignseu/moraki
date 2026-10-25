@@ -453,3 +453,8 @@ enabled = true
 # itself (INACTIVITY_WARNINGS_CRON_SECRET); there is no user session to verify.
 [functions.send-inactivity-warnings]
 verify_jwt = false
+
+# Called only by pg_cron, with a shared secret header the function checks
+# itself (ERASURE_JOURNAL_CRON_SECRET); there is no user session to verify.
+[functions.send-erasure-journal]
+verify_jwt = false

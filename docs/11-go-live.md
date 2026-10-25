@@ -15,6 +15,7 @@ Status on 2026-10-18:
   - `sweep-old-invites`
   - `sweep-inactive-households`
   - and, since build 7: `warn-inactive-households` (02:47), `warn-frozen-households` (02:50), `send-inactivity-warnings` (02:53), `sweep-frozen-households` (03:35), `purge-deleted-event-content` (03:41), `purge-old-consent-records` (03:47), `purge-erasure-log` (03:53)
+  - and, since the erasure journal (2026-10-26): `send-erasure-journal` (04:05)
 - [ ] **Create the Sign in with Apple key.** Apple Developer → Keys → **+**:
   1. Enable Sign in with Apple for `eu.codedesigns.moraki`.
   2. Download the `.p8` file (you can download it only once).
@@ -30,6 +31,11 @@ Status on 2026-10-18:
   6. The two `vault.create_secret` lines in the SQL Editor.
   7. Test with a throwaway household; check the cron jobs `warn-inactive-households`, `warn-frozen-households` and `send-inactivity-warnings`.
   8. After the frozen-household change (2026-10-25): `supabase db push`, then `supabase functions deploy send-inactivity-warnings` again, in that order.
+- [ ] **Erasure journal email** (owner decision 2026-10-26). Steps in `docs/10-release-runbook.md`, "Erasure journal email". Until they are done no journal is sent.
+  1. `supabase secrets set ERASURE_JOURNAL_TO=hello@moraki.app ERASURE_JOURNAL_CRON_SECRET=…`
+  2. `supabase db push`, then `supabase functions deploy send-erasure-journal`
+  3. The two `vault.create_secret` lines (`erasure_journal_function_url`, `erasure_journal_cron_secret`) in the SQL Editor.
+  4. Check the cron job `send-erasure-journal` (04:05), and keep the journal emails in their own folder for at least 35 days.
 - [ ] **Upgrade Supabase to the Pro plan before launch** (owner decision 2026-10-24). On Pro the project never pauses, so sync and the cleanup jobs keep running, and daily backups are kept for 7 days. Point-in-time recovery is a paid add-on and is not enabled. After upgrading, check Database → Backups.
 
 - [ ] **Sentry server-side scrubbing.** In Sentry, under Settings → Security & Privacy, turn on **Data Scrubber** and **Use Default Scrubbers**. IP storage is already off. Native crash reports skip the app's own scrubber, so these settings are the only filter they pass (`docs/compliance/processors.md`, Sentry section).

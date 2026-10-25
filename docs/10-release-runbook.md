@@ -337,7 +337,8 @@ deleted.** Warnings still queue up and go out once they are.
 7. **Check the jobs.** Dashboard → Integrations → Cron:
    `warn-inactive-households` (02:47), `warn-frozen-households` (02:50),
    `send-inactivity-warnings` (02:53), `sweep-frozen-households` (03:35) and
-   `purge-erasure-log` (03:53) are listed next to the other sweeps.
+   `purge-erasure-log` (03:53) are listed next to the other sweeps
+   (`send-erasure-journal`, 04:05, has its own steps below).
 
 **After the frozen-household change (2026-10-25),** once: `supabase db push`
 first, then `supabase functions deploy send-inactivity-warnings`. In that
@@ -373,6 +374,94 @@ throwaway household whose only member is an account you own:
    `{"sent":1,"failed":0,...}` and no address.
 5. Open the app with the test account. The next 02:47 run clears the warning
    (`inactivity_warned_at` back to null). Or delete the test household.
+
+## Erasure journal email
+
+Owner decision 2026-10-26: the record of erasures must survive a database
+restore. `public.erasure_log` lists every deleted account, household and
+(since this change) entry, but it is in the database, so a restore rolls it
+back. So every night at **04:05 UTC** the job `send-erasure-journal` calls
+`request_erasure_journal()`, which posts through `pg_net`, with its own
+shared secret header, to the `send-erasure-journal` Edge Function. The
+function takes the journal (`claim_erasure_journal`, service role only), and
+for each whole UTC day not yet sent, oldest first:
+
+- nothing logged that day: marks it done, sends nothing;
+- otherwise: one email to `ERASURE_JOURNAL_TO` from `hello@moraki.app`,
+  subject `Moraki erasure journal YYYY-MM-DD`, counts in the body and
+  `moraki-erasure-journal-YYYY-MM-DD.csv` attached
+  (`kind,subject_id,erased_at_utc,reason`, nothing else), then marks it done
+  (`erasure_journal.sent_until`). If Brevo refuses it, the run stops there and
+  the next night starts again from that day.
+
+It is a separate function with a separate cron secret, not a route of
+`send-inactivity-warnings`: the two can be deployed, rotated and turned off
+apart, and a leaked secret of one can't trigger the other. Both use the same
+`BREVO_API_KEY`. The function logs counts and an error code only, never an
+id or the recipient. Source: `supabase/functions/send-erasure-journal/`
+(`journal.ts` is the tested logic, `index.ts` the Deno entry) and
+`supabase/migrations/20261026100000_erasure_journal.sql`. What to do with the
+emails after a restore: `docs/compliance/data-requests.md`, section 7.
+
+**Until the steps below are done no journal is sent.** Days wait, and the
+first run sends every day still in the log (up to 35), one email each.
+
+### Owner steps, once
+
+Needs the Brevo account and the verified sender of "Inactivity warning
+emails (Brevo)", steps 1 and 2.
+
+1. **Secrets** (repo root, linked project). A new long random string for the
+   cron secret, e.g. `openssl rand -hex 32`, kept for step 3:
+
+   ```sh
+   supabase secrets set \
+     ERASURE_JOURNAL_TO=hello@moraki.app \
+     ERASURE_JOURNAL_CRON_SECRET=<a new random string>
+   ```
+
+   `ERASURE_JOURNAL_TO` is one address, the mailbox that keeps the journal.
+   `BREVO_API_KEY` is already set; set it too if it isn't.
+
+2. **Push and deploy:**
+
+   ```sh
+   supabase db push   # 20261026100000_erasure_journal, if not pushed yet
+   supabase functions deploy send-erasure-journal
+   ```
+
+   `supabase/config.toml` turns the gateway's JWT check off for this
+   function; it checks the shared secret itself.
+
+3. **Tell pg_cron where the function is.** Supabase dashboard → SQL Editor,
+   once:
+
+   ```sql
+   select vault.create_secret(
+     'https://tjcahnjpbkgrjytrazfs.supabase.co/functions/v1/send-erasure-journal',
+     'erasure_journal_function_url');
+   select vault.create_secret('<the same random string as step 1>',
+     'erasure_journal_cron_secret');
+   ```
+
+4. **Check the job.** Dashboard → Integrations → Cron: `send-erasure-journal`
+   at 04:05 (`5 4 * * *`). After the first night, Edge Functions →
+   send-erasure-journal → Logs shows `{"sent":…,"skipped":…,"entries":…}`.
+5. **Mailbox.** A folder (or rule) for "Moraki erasure journal" emails, kept
+   at least 35 days and then deleted (`docs/compliance/retention.md`).
+
+### How to test
+
+1. Without the secret the function refuses:
+   `curl -i -X POST https://tjcahnjpbkgrjytrazfs.supabase.co/functions/v1/send-erasure-journal`
+   answers 401.
+2. With a throwaway household on an account you own, delete an entry in the
+   app. The next morning, after 04:05 UTC, the journal email for that day is
+   in the `ERASURE_JOURNAL_TO` mailbox, with one `entry` row in the CSV.
+   Or, to see it the same day, after any day with an erasure is due, in the
+   SQL Editor: `select public.request_erasure_journal();`. A second call sends
+   nothing more: each day goes once.
+3. Brevo → Transactional → Logs shows it delivered.
 
 ## Submitting for review
 
