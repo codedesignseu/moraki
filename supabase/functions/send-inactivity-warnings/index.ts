@@ -1,5 +1,6 @@
-// Supabase Edge Function (Deno): emails the inactivity warnings queued by
-// warn_inactive_households(), through Brevo.
+// Supabase Edge Function (Deno): emails the warnings queued by
+// warn_inactive_households() and warn_frozen_households(), through Brevo.
+// Each claimed row says its kind; warning.ts writes the matching email.
 //
 // Called once a day by pg_cron (request_inactivity_warnings(), via pg_net)
 // with the shared secret in the x-moraki-cron-secret header; deployed with
@@ -50,7 +51,7 @@ Deno.serve(async (request) => {
   try {
     const summary = await runWarnings({
       claim: async (max) => {
-        const { data, error } = await supabase.rpc('claim_inactivity_warnings', { max_rows: max });
+        const { data, error } = await supabase.rpc('claim_household_warnings', { max_rows: max });
         if (error) throw new Error('claim_failed');
         return (data ?? []) as ClaimedWarning[];
       },
@@ -62,7 +63,8 @@ Deno.serve(async (request) => {
         if (error) throw new Error('finish_failed');
       },
       // No account stores a language yet, so every email is English and Greek.
-      send: (row) => sendWarning(fetch, config.brevoApiKey, row.email, row.delete_on, null),
+      send: (row) =>
+        sendWarning(fetch, config.brevoApiKey, row.email, row.delete_on, null, row.kind),
     });
     console.log(`send-inactivity-warnings: ${JSON.stringify(summary)}`);
     return json(200, summary);

@@ -7,9 +7,15 @@
  * run. Nothing here logs, and nothing it returns carries an address or a
  * body: only counts and failure codes leave these functions.
  *
+ * Two kinds of warning go through the same queue and the same sender: the
+ * inactivity warning, and since 2026-10-25 the frozen-household warning (a
+ * household paused for 90 days because no parent or guardian agrees). Each
+ * claimed row says which, and only the text differs.
+ *
  * The copy is here, not in src/i18n, because the Edge Function is deployed on
  * its own and cannot import the app's bundle. It names no baby and no health
- * data (rules 8 and 10): only that the household is unused and the date.
+ * data (rules 8 and 10): only that the household is unused or paused, and the
+ * date.
  */
 
 export const BREVO_URL = 'https://api.brevo.com/v3/smtp/email';
@@ -21,6 +27,9 @@ export const BATCH_SIZE = 50;
 export const MAX_BATCHES = 10;
 
 export type Locale = 'en' | 'el';
+
+/** Which warning a queued email is: `inactivity_warning_emails.kind`. */
+export type WarningKind = 'inactivity' | 'frozen';
 
 export type WarningConfig = {
   brevoApiKey: string;
@@ -88,50 +97,106 @@ export function formatDate(isoDate: string, locale: Locale): string | null {
   return `${dayNumber} ${name} ${year}`;
 }
 
-const COPY: Record<Locale, { subject: string; body: (date: string) => string }> = {
-  en: {
-    subject: 'Your Moraki household will be deleted in 30 days',
-    body: (date) =>
-      [
-        'No one has used your Moraki household for almost two years.',
-        '',
-        `To keep your data, open Moraki on any phone in the household before ${date}. If you do nothing, the household and its entries will be deleted on that date.`,
-        '',
-        'You can also export your data first in Settings → Data export.',
-        '',
-        '— Moraki, a product of C.E. CODE DESIGNS LTD · moraki.app/privacy',
-      ].join('\n'),
+type Copy = { subject: string; body: (date: string) => string };
+
+const FOOTER: Record<Locale, string> = {
+  en: '— Moraki, a product of C.E. CODE DESIGNS LTD · moraki.app/privacy',
+  el: '— Moraki, ένα προϊόν της C.E. CODE DESIGNS LTD · moraki.app/el/privacy',
+};
+
+const EXPORT_HINT: Record<Locale, string> = {
+  en: 'You can also export your data first in Settings → Data export.',
+  el: 'Μπορείς επίσης να εξάγεις πρώτα τα δεδομένα σου από τις Ρυθμίσεις → Εξαγωγή δεδομένων.',
+};
+
+const COPY: Record<WarningKind, Record<Locale, Copy>> = {
+  inactivity: {
+    en: {
+      subject: 'Your Moraki household will be deleted in 30 days',
+      body: (date) =>
+        [
+          'No one has used your Moraki household for almost two years.',
+          '',
+          `To keep your data, open Moraki on any phone in the household before ${date}. If you do nothing, the household and its entries will be deleted on that date.`,
+          '',
+          EXPORT_HINT.en,
+          '',
+          FOOTER.en,
+        ].join('\n'),
+    },
+    el: {
+      subject: 'Το νοικοκυριό σου στο Moraki θα διαγραφεί σε 30 ημέρες',
+      body: (date) =>
+        [
+          'Κανείς δεν έχει χρησιμοποιήσει το νοικοκυριό σου στο Moraki εδώ και σχεδόν δύο χρόνια.',
+          '',
+          `Για να κρατήσεις τα δεδομένα σου, άνοιξε το Moraki σε οποιοδήποτε κινητό του νοικοκυριού πριν από τις ${date}. Αν δεν κάνεις τίποτα, το νοικοκυριό και οι καταχωρίσεις του θα διαγραφούν εκείνη την ημέρα.`,
+          '',
+          EXPORT_HINT.el,
+          '',
+          FOOTER.el,
+        ].join('\n'),
+    },
   },
-  el: {
-    subject: 'Το νοικοκυριό σου στο Moraki θα διαγραφεί σε 30 ημέρες',
-    body: (date) =>
-      [
-        'Κανείς δεν έχει χρησιμοποιήσει το νοικοκυριό σου στο Moraki εδώ και σχεδόν δύο χρόνια.',
-        '',
-        `Για να κρατήσεις τα δεδομένα σου, άνοιξε το Moraki σε οποιοδήποτε κινητό του νοικοκυριού πριν από τις ${date}. Αν δεν κάνεις τίποτα, το νοικοκυριό και οι καταχωρίσεις του θα διαγραφούν εκείνη την ημέρα.`,
-        '',
-        'Μπορείς επίσης να εξάγεις πρώτα τα δεδομένα σου από τις Ρυθμίσεις → Εξαγωγή δεδομένων.',
-        '',
-        '— Moraki, ένα προϊόν της C.E. CODE DESIGNS LTD · moraki.app/el/privacy',
-      ].join('\n'),
+  frozen: {
+    en: {
+      subject: 'Your paused Moraki household will be deleted in 30 days',
+      body: (date) =>
+        [
+          'Your Moraki household has been paused for 90 days because no parent or guardian has agreed to keep sharing.',
+          '',
+          `It will be deleted on ${date} unless a guardian opens Moraki and agrees again.`,
+          '',
+          EXPORT_HINT.en,
+          '',
+          FOOTER.en,
+        ].join('\n'),
+    },
+    el: {
+      subject: 'Το νοικοκυριό σου στο Moraki έχει σταματήσει και θα διαγραφεί σε 30 ημέρες',
+      body: (date) =>
+        [
+          'Το νοικοκυριό σου στο Moraki έχει σταματήσει εδώ και 90 ημέρες, επειδή κανένας γονέας ή κηδεμόνας δεν έχει συμφωνήσει να συνεχιστεί η κοινή χρήση.',
+          '',
+          `Θα διαγραφεί στις ${date}, εκτός αν ένας γονέας ή κηδεμόνας ανοίξει το Moraki και συμφωνήσει ξανά.`,
+          '',
+          EXPORT_HINT.el,
+          '',
+          FOOTER.el,
+        ].join('\n'),
+    },
   },
 };
 
-export type WarningEmail = { subject: string; text: string };
+/** Brevo's tag for each kind, so its logs tell them apart. */
+const TAGS: Record<WarningKind, string> = {
+  inactivity: 'inactivity-warning',
+  frozen: 'frozen-household-warning',
+};
+
+export type WarningEmail = { subject: string; text: string; tag?: string };
 
 /**
- * The email for one member. With a known locale, in that language; without
- * one (no account stores a language today), English then Greek in one email.
+ * The email of `kind` for one member. With a known locale, in that language;
+ * without one (no account stores a language today), English then Greek in
+ * one email.
  */
-export function composeWarning(deleteOn: string, locale: Locale | null): WarningEmail | null {
+export function composeWarning(
+  deleteOn: string,
+  locale: Locale | null,
+  kind: WarningKind = 'inactivity',
+): WarningEmail | null {
+  const copy = COPY[kind];
   const en = formatDate(deleteOn, 'en');
   const el = formatDate(deleteOn, 'el');
-  if (!en || !el) return null;
-  if (locale === 'en') return { subject: COPY.en.subject, text: COPY.en.body(en) };
-  if (locale === 'el') return { subject: COPY.el.subject, text: COPY.el.body(el) };
+  if (!copy || !en || !el) return null;
+  const tag = TAGS[kind];
+  if (locale === 'en') return { subject: copy.en.subject, text: copy.en.body(en), tag };
+  if (locale === 'el') return { subject: copy.el.subject, text: copy.el.body(el), tag };
   return {
-    subject: `${COPY.en.subject} · ${COPY.el.subject}`,
-    text: `${COPY.en.body(en)}\n\n— — —\n\n${COPY.el.body(el)}`,
+    subject: `${copy.en.subject} · ${copy.el.subject}`,
+    text: `${copy.en.body(en)}\n\n— — —\n\n${copy.el.body(el)}`,
+    tag,
   };
 }
 
@@ -155,7 +220,7 @@ export function buildBrevoRequest(
         to: [{ email: to }],
         subject: email.subject,
         textContent: email.text,
-        tags: ['inactivity-warning'],
+        tags: [email.tag ?? TAGS.inactivity],
       }),
     },
   };
@@ -178,8 +243,9 @@ export async function sendWarning(
   to: string,
   deleteOn: string,
   locale: Locale | null,
+  kind: WarningKind = 'inactivity',
 ): Promise<SendResult> {
-  const email = composeWarning(deleteOn, locale);
+  const email = composeWarning(deleteOn, locale, kind);
   if (!email || !to.includes('@')) return { sent: false, error: 'bad_row' };
   const { url, init } = buildBrevoRequest(apiKey, to, email);
   let response: Response;
@@ -197,8 +263,13 @@ export async function sendWarning(
   return { sent: false, error: 'brevo_rejected' };
 }
 
-/** One row from `claim_inactivity_warnings`. */
-export type ClaimedWarning = { warning_id: number; email: string; delete_on: string };
+/** One row from `claim_household_warnings` (or the older `claim_inactivity_warnings`, without a kind). */
+export type ClaimedWarning = {
+  warning_id: number;
+  kind?: WarningKind;
+  email: string;
+  delete_on: string;
+};
 
 export type RunDeps = {
   claim: (max: number) => Promise<ClaimedWarning[]>;

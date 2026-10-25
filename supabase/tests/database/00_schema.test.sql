@@ -36,8 +36,8 @@ select has_trigger('public', 'events', 'events_stamp_seq', 'events get seq from 
 
 select columns_are('public', 'households', array[
   'id', 'name', 'reminder_interval_min', 'second_reminder_min', 'created_by', 'created_at',
-  'inactivity_warned_at'
-], 'households has the SDD columns, plus the inactivity warning');
+  'inactivity_warned_at', 'frozen_since', 'frozen_warned_at'
+], 'households has the SDD columns, plus the inactivity warning and the frozen clock');
 select col_default_is('public', 'households', 'reminder_interval_min', 180, 'reminder interval defaults to 180');
 select col_is_pk('public', 'memberships', array['household_id', 'user_id'], 'one membership per user per household');
 select col_type_is('public', 'memberships', 'role', 'member_role', 'role is member_role');

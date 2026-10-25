@@ -10,10 +10,11 @@ Status on 2026-10-18:
 ## A. Backend (owner, now)
 
 - [ ] **Run `supabase db push` against prod.** It makes the consent version 2026-10-18 and the 24-month inactive-household sweep live (#185). After this, every user is asked to agree again.
-- [ ] **Check the cron jobs.** In the Supabase dashboard → Integrations → Cron, these three jobs must exist and succeed:
+- [ ] **Check the cron jobs.** In the Supabase dashboard → Integrations → Cron, these jobs must exist and succeed:
   - `sweep-old-feedback`
   - `sweep-old-invites`
   - `sweep-inactive-households`
+  - and, since build 7: `warn-inactive-households` (02:47), `warn-frozen-households` (02:50), `send-inactivity-warnings` (02:53), `sweep-frozen-households` (03:35), `purge-deleted-event-content` (03:41), `purge-old-consent-records` (03:47), `purge-erasure-log` (03:53)
 - [ ] **Create the Sign in with Apple key.** Apple Developer → Keys → **+**:
   1. Enable Sign in with Apple for `eu.codedesigns.moraki`.
   2. Download the `.p8` file (you can download it only once).
@@ -27,7 +28,8 @@ Status on 2026-10-18:
   4. `supabase secrets set BREVO_API_KEY=… INACTIVITY_WARNINGS_CRON_SECRET=…`
   5. `supabase functions deploy send-inactivity-warnings`
   6. The two `vault.create_secret` lines in the SQL Editor.
-  7. Test with a throwaway household; check the cron jobs `warn-inactive-households` and `send-inactivity-warnings`.
+  7. Test with a throwaway household; check the cron jobs `warn-inactive-households`, `warn-frozen-households` and `send-inactivity-warnings`.
+  8. After the frozen-household change (2026-10-25): `supabase db push`, then `supabase functions deploy send-inactivity-warnings` again, in that order.
 - [ ] **Upgrade Supabase to the Pro plan before launch** (owner decision 2026-10-24). On Pro the project never pauses, so sync and the cleanup jobs keep running, and daily backups are kept for 7 days. Point-in-time recovery is a paid add-on and is not enabled. After upgrading, check Database → Backups.
 
 - [ ] **Sentry server-side scrubbing.** In Sentry, under Settings → Security & Privacy, turn on **Data Scrubber** and **Use Default Scrubbers**. IP storage is already off. Native crash reports skip the app's own scrubber, so these settings are the only filter they pass (`docs/compliance/processors.md`, Sentry section).

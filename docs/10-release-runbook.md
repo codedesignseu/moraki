@@ -243,6 +243,30 @@ warning first, and nothing is deleted until that email has gone out:
    has been unused for 24 months, its warning is at least 30 days old, nobody
    used it since, and every member's email was sent with a date that has come.
 
+Since 2026-10-25 the same queue and function also carry the **frozen-household
+warning** (`20261025210000_frozen_household_lifecycle.sql`): a household where
+no parent or guardian has consent in force.
+
+- **02:50 UTC**, `warn-frozen-households`: starts the clock
+  (`households.frozen_since`) on a household found frozen, clears it on one
+  that is not, and warns one frozen for 90 days (`frozen_warned_at`, one
+  queued email per member, `kind = 'frozen'`). The 02:53 run sends it: "Your
+  Moraki household has been paused for 90 days…", with the date.
+- **03:35 UTC**, `sweep-frozen-households`: deletes a household still frozen
+  whose warning is at least 30 days old and whose emails all went out with a
+  date that has come. A guardian agreeing again voids the warning at once.
+
+The function claims both kinds with `claim_household_warnings` (service role
+only). `claim_inactivity_warnings` still exists for a function deployed
+before this change and hands out inactivity emails only, so an old function
+never sends a frozen-household email with the wrong text; those wait, and
+their households are kept, until the new function is deployed.
+
+Every deleted account and household is written to `public.erasure_log`
+(kind, uuid, time, reason; no content), kept 35 days and purged by
+`purge-erasure-log` at **03:53 UTC**. It is what a backup restore replays
+(`docs/compliance/data-requests.md`, section 7).
+
 Each email is claimed before it is sent and never handed out again, so nobody
 gets the same warning twice. One Brevo refused is retried the next day, and
 its household is kept until it goes. The function logs counts and error codes
@@ -311,8 +335,14 @@ deleted.** Warnings still queue up and go out once they are.
    with the id from `select id, name from vault.secrets`.
 
 7. **Check the jobs.** Dashboard → Integrations → Cron:
-   `warn-inactive-households` (02:47) and `send-inactivity-warnings` (02:53)
-   are listed next to the three sweeps.
+   `warn-inactive-households` (02:47), `warn-frozen-households` (02:50),
+   `send-inactivity-warnings` (02:53), `sweep-frozen-households` (03:35) and
+   `purge-erasure-log` (03:53) are listed next to the other sweeps.
+
+**After the frozen-household change (2026-10-25),** once: `supabase db push`
+first, then `supabase functions deploy send-inactivity-warnings`. In that
+order the old function keeps sending inactivity emails until the new one is
+up; the other way round, the new function's claim fails until the push.
 
 ### How to test
 
