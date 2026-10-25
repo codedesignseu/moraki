@@ -40,9 +40,9 @@
 --    device. Tell them to remove Moraki under Apple ID → Sign in with Apple,
 --    or Google Account → Third-party connections;
 --  * clear any phone: copies on their own or other members' phones stay;
---  * reach backups: they age out within 7 days (Supabase Pro). If a backup is
---    ever restored, re-run this for every erasure in the register since the
---    backup was taken;
+--  * reach backups: they age out within 7 days (Supabase Pro). The account
+--    and any household deleted are written to public.erasure_log (reason
+--    admin_request), which data-requests.md section 7 replays after a restore;
 --  * erase their entries in a shared household. That is the other members'
 --    record too: a separate decision, logged in the register (see runbook).
 
@@ -82,6 +82,10 @@ begin
         h.household_id, h.others, h.role;
     end if;
   end loop;
+
+  -- The erasure log (public.erasure_log) records this as a request to us,
+  -- not as the person's own deletion in the app.
+  perform set_config('moraki.erasure_reason', 'admin_request', true);
 
   -- Act as the person for this transaction only, as the app's call would.
   perform set_config('request.jwt.claims',

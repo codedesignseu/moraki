@@ -209,55 +209,69 @@ reply. Deleting a shared household needs its owner, and is a separate request.
 - Supabase Pro keeps **daily backups for 7 days**. Data deleted today leaves
   the last backup at most 7 days later. Backups are whole-database snapshots;
   one person cannot be removed from one. Say so in erasure replies.
-- If a backup is ever **restored**, every erasure logged since that backup's
-  date must be **re-applied** before the app is reopened: run `erase_user.sql`
-  for each `erasures_to_replay` id (a missing account is already gone; skip
-  it), and redo any household deletion done on request. Log the replay.
+- If a backup is ever **restored**, every erasure since that backup's date
+  must be **re-applied** before the app is reopened, using the erasure log
+  (below). Erasures done on an email request are in the log too (reason
+  `admin_request`); the register's `erasures_to_replay` ids are the check
+  that none is missed. Log the replay in the register.
 - Owner check (after upgrading): Database → Backups shows daily backups and
   their dates. Record the confirmation date here: _not yet confirmed_.
 
-### In-app erasure and restores
+### The erasure log, and re-applying erasures after a restore
 
-Self-service deletions (Settings → Leave or delete, deleting entries) are not
-in the register, because the person acted on their own data. What the
-database keeps as evidence that they happened:
+Every deleted account and household is written to `public.erasure_log`
+(`supabase/migrations/20261025200000_erasure_log.sql`), whatever deleted it:
+the app (delete household, delete account), the inactivity and
+frozen-household sweeps, `erase_user.sql`, or the dashboard. Triggers on
+`public.households` and `auth.users` write it, so no path can skip it.
 
-- **Deleted account:** the person's `consent_events` rows, with
-  `account_deleted_at` set by the trigger on `auth.users`, for 3 years. An
-  account that never recorded any agreement has no rows, so leaves no trace.
-- **Deleted household:** nothing. The `households` row and everything under
-  it are gone. `consent_events` rows may still name its `household_id`, but
-  they don't say it was deleted, or when.
-- **Leaving a household:** a `caregiver_agreement` withdrawal in
-  `consent_events` (`text_key` `leaveHousehold`), when the person had agreed.
-- **Deleted entry:** its tombstone in `events` (`deleted_at`), content emptied
-  after 30 days.
+- **What a row holds:** `kind` (`account` or `household`), `subject_id` (the
+  uuid), `erased_at`, and `reason` (`user_request`,
+  `household_deleted_by_owner`, `inactivity`, `frozen`, `admin_request`). No
+  content, no name, no email.
+- **Who can read it:** the service role only (SQL Editor, signed in with MFA).
+  No policy, no grant: not readable through the app or the API.
+- **How long:** 35 days (`erasure_log_retention()`), longer than the 7-day
+  backups with a margin, then the daily job `purge-erasure-log` (03:53 UTC)
+  deletes the row.
 
-A restore puts the database back to the backup, and this evidence with it, so
-the restored database can't show what was deleted after the backup. The
-controller must re-apply those deletions before the app is reopened. Method:
+Other evidence the database keeps: a deleted account's `consent_events` rows
+(3 years, with `account_deleted_at`), a `caregiver_agreement` withdrawal when
+someone leaves a household, and a deleted entry's tombstone in `events`.
 
-1. Before restoring, if production can still be read, save the ids of every
-   account (`auth.users.id`) and household (`public.households.id`), ids only,
-   into an encrypted file as in section 5.
+The log is part of the database, so a restore rolls it back too: the restored
+copy only lists erasures up to the backup. **Read it from production before
+restoring.** Method:
+
+1. Before restoring, in the SQL Editor on production:
+
+   ```sql
+   select kind, subject_id, erased_at, reason from public.erasure_log order by erased_at;
+   ```
+
+   Save the result into an encrypted file as in section 5 (ids only, no
+   content).
+
 2. Restore.
-3. Any account or household in the restored database whose id is **not** in
-   the saved list was deleted after the backup: delete it again
-   (`erase_user.sql` for an account. For a household,
-   `delete from public.households where id = …`, which is what
-   `delete_household` does, as that function only runs for a signed-in owner)
-   and log it in the register. Do households before accounts, so
-   `erase_user.sql` doesn't hand a deleted household over. Then replay the `erasures_to_replay` ids as above.
+3. For every row with `erased_at` after the backup was taken, delete it again,
+   **households first**, then accounts (so `erase_user.sql` doesn't hand a
+   deleted household over):
+   - household: `delete from public.households where id = '<subject_id>';`
+     (what `delete_household` does; that function only runs for a signed-in
+     owner). Nothing to do if the row is already gone.
+   - account: `erase_user.sql` for `<subject_id>`. A missing account is
+     already gone; skip it.
+
+   Each re-applied erasure is logged again (reason `admin_request`). Note
+   the replay in the register.
+
 4. Delete the saved file, and note it.
 
-Limits: it relies on production still being readable before the restore. It
-can't tell an entry soft-deleted after the backup from one never deleted.
-
-**Open item (not built):** an erasure log table holding only ids and
-timestamps of in-app account and household deletions would make this
-reliable. It would itself be restored with the database, so it must be read
-(or copied out) before a restore. Decision for the owner and lawyer
-(`legal-update-2026-10-24.md`, round 2).
+Limits: if production can't be read before the restore (the reason for
+restoring may be that it is broken), the log can't be read either. Then fall
+back to the register for erasures on request, and tell the people who deleted
+in the app in that window, if they can be identified. An entry soft-deleted
+after the backup is not in the log, which holds accounts and households only.
 
 ## 8. The in-app export (P0.10)
 
