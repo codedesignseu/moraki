@@ -72,6 +72,97 @@ describe('the export someone asked for', () => {
   });
 });
 
+describe('the account section (P0.10)', () => {
+  const account = {
+    userId: 'maria',
+    email: 'maria@example.test',
+    providers: ['email', 'apple'],
+    records: {
+      consents: [{ policyVersion: '2026-10-18', grantedAt: NOW - HOUR, withdrawnAt: null }],
+      consentEvents: [
+        {
+          purpose: 'health_data',
+          version: '2026-10-18',
+          action: 'withdraw',
+          textKey: 'consent',
+          locale: 'el',
+          householdId: null,
+          babyId: null,
+          at: NOW - HOUR / 2,
+        },
+        {
+          purpose: 'health_data',
+          version: '2026-10-18',
+          action: 'grant',
+          textKey: 'consent',
+          locale: 'el',
+          householdId: null,
+          babyId: null,
+          at: NOW - HOUR,
+        },
+      ],
+      feedback: [
+        {
+          kind: 'idea',
+          message: 'Night mode please',
+          appVersion: '1.0.0',
+          platform: 'ios',
+          locale: 'en',
+          sentAt: NOW - 2 * HOUR,
+        },
+      ],
+    },
+  };
+
+  it('is left out when nobody is signed in', () => {
+    expect(JSON.parse(exportJson(events, subject, NOW))).not.toHaveProperty('account');
+    expect(JSON.parse(exportJson(events, { ...subject, account: null }, NOW))).not.toHaveProperty(
+      'account',
+    );
+  });
+
+  it('carries who the person is to the server and how they sign in', () => {
+    const out = JSON.parse(exportJson(events, { ...subject, account }, NOW));
+    expect(out.account).toMatchObject({
+      userId: 'maria',
+      email: 'maria@example.test',
+      signInProviders: ['apple', 'email'],
+    });
+  });
+
+  it('carries their consent records, history oldest first, and their feedback', () => {
+    const out = JSON.parse(exportJson(events, { ...subject, account }, NOW));
+    expect(out.account.serverRecords.consents).toEqual([
+      { policyVersion: '2026-10-18', grantedAt: '2026-10-28T11:00:00.000Z', withdrawnAt: '' },
+    ]);
+    expect(
+      out.account.serverRecords.consentHistory.map((e: { action: string }) => e.action),
+    ).toEqual(['grant', 'withdraw']);
+    expect(out.account.serverRecords.feedback).toEqual([
+      {
+        kind: 'idea',
+        message: 'Night mode please',
+        appVersion: '1.0.0',
+        platform: 'ios',
+        locale: 'en',
+        sentAt: '2026-10-28T10:00:00.000Z',
+      },
+    ]);
+  });
+
+  it('leaves the history out where the server keeps none', () => {
+    const without = { ...account, records: { ...account.records, consentEvents: null } };
+    const out = JSON.parse(exportJson(events, { ...subject, account: without }, NOW));
+    expect(out.account.serverRecords).not.toHaveProperty('consentHistory');
+  });
+
+  it('says the server records are unavailable, rather than empty, when they could not be read', () => {
+    const offline = { ...account, records: null };
+    const out = JSON.parse(exportJson(events, { ...subject, account: offline }, NOW));
+    expect(out.account).toMatchObject({ userId: 'maria', serverRecords: 'unavailable' });
+  });
+});
+
 describe('the spreadsheet copy', () => {
   it('starts with a header naming every column', () => {
     const [header] = exportCsv(events).split('\r\n');
