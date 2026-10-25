@@ -193,10 +193,19 @@ each checked against the code before it was written.
    - Email deletion: Apple and Google access can only be revoked from the person's phone. The EN and EL replies now tell the person how to remove Moraki from their Apple ID and Google account.
 4. **Support pages (EN, EL):** the "no longer have the app" part says the same as point 3, still marked as a draft.
 
-**Open decisions for the owner and you**
+**Decisions, implemented (owner, 2026-10-25)**
 
-1. **Frozen household lifecycle.** A frozen household stays frozen until a guardian consents again or the owner deletes it. Nothing erases it if nobody does. The inactivity rule may never reach it, as members signing in count as activity. Should a frozen household be erased after a set time, and with what notice?
-2. **Erasure log for backup restores.** The database keeps no record that a household was deleted in the app. A small table holding only ids and deletion times would make re-applying deletions after a restore reliable. It would be restored along with everything else, so it must be read before a restore. Not built.
+1. **Frozen household lifecycle.** Implemented in `20261025210000_frozen_household_lifecycle.sql`.
+   - After **90 days** frozen, every member with an email address gets a warning from `hello@moraki.app` through Brevo, in English and Greek: the household has been paused because no parent or guardian has agreed to keep sharing, and will be deleted on a named date unless a guardian opens Moraki and agrees again. It names no baby and no health data.
+   - **30 days or more** after the warning, if the household is still frozen and every email went out, it is deleted with everything in it, as `delete_household` does.
+   - A guardian agreeing again unfreezes it and voids the warning at once.
+   - The 90 days count from the first daily run that finds the household frozen. Households frozen when the migration is applied, including those frozen by the 2026-10-25 consent version, start their 90 days then.
+2. **Erasure log for backup restores.** Implemented in `20261025200000_erasure_log.sql`.
+   - `erasure_log` holds one row per deleted account or household: kind, uuid, time and reason (the person's request, the owner deleting the household, inactivity, frozen, or a request to us). No content, no name, no email.
+   - Written by triggers on the tables, so every way of deleting is covered. Readable by the service role only.
+   - Kept **35 days** (backups are kept 7), then purged by a daily job.
+   - `data-requests.md` section 7 now re-applies erasures from the log, read off production before a restore, instead of comparing ids.
+   - The privacy policy (EN, EL) has a short line on each, still marked as a draft.
 
 **Found while checking the code, for you and the owner**
 

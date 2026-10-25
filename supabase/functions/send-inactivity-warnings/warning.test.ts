@@ -89,6 +89,62 @@ describe('the email', () => {
   });
 });
 
+describe('the frozen-household email', () => {
+  it('says the household is paused and goes on the date unless a guardian agrees again', () => {
+    const email = composeWarning('2026-11-24', 'en', 'frozen');
+    expect(email?.subject).toBe('Your paused Moraki household will be deleted in 30 days');
+    expect(email?.text).toContain(
+      'Your Moraki household has been paused for 90 days because no parent or guardian has agreed to keep sharing.',
+    );
+    expect(email?.text).toContain(
+      'It will be deleted on 24 November 2026 unless a guardian opens Moraki and agrees again.',
+    );
+    expect(email?.text).toContain('Settings → Data export');
+    expect(email?.text).not.toContain('almost two years');
+    expect(email?.tag).toBe('frozen-household-warning');
+  });
+
+  it('and in Greek', () => {
+    const email = composeWarning('2026-11-24', 'el', 'frozen');
+    expect(email?.subject).toBe(
+      'Το νοικοκυριό σου στο Moraki έχει σταματήσει και θα διαγραφεί σε 30 ημέρες',
+    );
+    expect(email?.text).toContain('Θα διαγραφεί στις 24 Νοεμβρίου 2026');
+    expect(email?.text).toContain('συμφωνήσει ξανά');
+    expect(email?.text).toContain('moraki.app/el/privacy');
+  });
+
+  it('is both, English first, when the language is not known', () => {
+    const text = composeWarning('2026-11-24', null, 'frozen')?.text ?? '';
+    expect(text.indexOf('paused for 90 days')).toBeGreaterThan(-1);
+    expect(text.indexOf('εδώ και 90 ημέρες')).toBeGreaterThan(text.indexOf('paused for 90 days'));
+  });
+
+  it('carries nothing about the baby or its health', () => {
+    const text = composeWarning('2026-11-24', null, 'frozen')?.text ?? '';
+    expect(text).not.toMatch(/baby|feed|sleep|weight|diaper|μωρ|τάισμα|ύπνο|βάρος|πάνα/i);
+  });
+
+  it('is not built for a kind it does not know', () => {
+    expect(composeWarning('2026-11-24', null, 'other' as never)).toBeNull();
+  });
+
+  it('is tagged apart from the inactivity email in Brevo', async () => {
+    const bodies: string[] = [];
+    const fetchImpl = (async (_url: string, init: RequestInit) => {
+      bodies.push(init.body as string);
+      return new Response('{}', { status: 201 });
+    }) as unknown as typeof fetch;
+    await sendWarning(fetchImpl, 'KEY', 'a@example.test', '2026-11-24', null, 'frozen');
+    await sendWarning(fetchImpl, 'KEY', 'a@example.test', '2026-11-24', null);
+    const [frozen, inactivity] = bodies.map((b) => JSON.parse(b));
+    expect(frozen.tags).toEqual(['frozen-household-warning']);
+    expect(frozen.subject).toContain('paused');
+    expect(inactivity.tags).toEqual(['inactivity-warning']);
+    expect(inactivity.subject).toMatch(/^Your Moraki household will be deleted in 30 days/);
+  });
+});
+
 describe('the Brevo request', () => {
   it('posts plain text from hello@moraki.app to one address, with the key in api-key', () => {
     const { url, init } = buildBrevoRequest('KEY', 'a@example.test', { subject: 'S', text: 'T' });
