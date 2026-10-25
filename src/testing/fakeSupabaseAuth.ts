@@ -103,6 +103,8 @@ export function authServer(
     /** Rows a pull finds; `seq` is the PostgREST filter, e.g. "gt.7". */
     events?: (seq: string) => unknown[];
     acceptInvite?: () => Response;
+    /** GET /auth/v1/user (P0.5): whether the account still exists. Defaults to it does. */
+    user?: () => Response;
     /** invite_preview (P0.2): the role a code would give. Defaults to caregiver. */
     previewInvite?: () => Response;
     /**
@@ -164,6 +166,8 @@ export function authServer(
         // grant_type=id_token; email OTP's own refresh calls never reach a
         // fake that never expires a session within a test's lifetime.
         return options.idToken?.() ?? json(200, session(Math.floor(Date.now() / 1000) + HOUR_S));
+      case '/auth/v1/user':
+        return options.user?.() ?? json(200, session(Math.floor(Date.now() / 1000) + HOUR_S).user);
       case '/auth/v1/logout':
         return new Response(null, { status: 204 });
       case '/rest/v1/events': {

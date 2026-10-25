@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { RemovedGate } from '@/features/household/RemovedNotice';
 import { AccessGate } from '@/features/privacy/AccessGate';
 import { GuardianGate } from '@/features/privacy/GuardianGate';
 import { TermsGate } from '@/features/privacy/TermsGate';
@@ -53,6 +54,7 @@ export default function TabsLayout() {
   const askAgreement = useCallback(() => router.push('/onboarding/agreement'), [router]);
   const askConsent = useCallback(() => router.push('/onboarding/consent'), [router]);
   const showPaused = useCallback(() => router.push('/onboarding/paused'), [router]);
+  const showRemoved = useCallback(() => router.push('/onboarding/removed'), [router]);
 
   return (
     <>
@@ -61,6 +63,8 @@ export default function TabsLayout() {
       {/* P0.9: an account that hasn't agreed to the Terms in force is asked once. */}
       <TermsGate onMissing={askTerms} />
       {/* P0.2: a member the server says can't see the household yet is asked once. */}
+      {/* P0.5: a phone cleared of a household it no longer belongs to says why, once. */}
+      <RemovedGate onShow={showRemoved} />
       <AccessGate
         onNeedsAgreement={askAgreement}
         onNeedsConsent={askConsent}
