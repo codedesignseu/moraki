@@ -16,6 +16,7 @@ import {
 import { useAccountHousehold } from '@/sync/useAccountHousehold';
 
 import { confirmWithApple } from './appleConfirm';
+import { revokeGoogleAccess } from './googleRevoke';
 import { useCaregivers } from './useCaregivers';
 
 export type ErasureAction = 'leave' | 'deleteHousehold' | 'deleteAccount';
@@ -61,12 +62,16 @@ export function useErasure(onDone: () => void) {
           // App Store 5.1.1(v): an Apple-linked account's Apple tokens are
           // revoked first. Only iOS has Apple's native sheet; elsewhere the
           // account is deleted without it (see docs/10-release-runbook.md).
-          if (Platform.OS === 'ios' && (await auth.providers()).includes('apple')) {
+          const providers = await auth.providers();
+          if (Platform.OS === 'ios' && providers.includes('apple')) {
             const code = await confirmWithApple();
             if (code === null) throw new ErasureError('apple_cancelled');
             await revokeAppleTokens(auth, code);
           }
           await deleteAccount(auth, next);
+          // P0.10: Google's access is revoked after the delete succeeds, best
+          // effort. It never stops a deletion (Google doesn't require it).
+          if (providers.includes('google')) await revokeGoogleAccess();
         } else if (!household) return;
         else if (action === 'leave')
           await leaveHousehold(auth, household.householdId, next, consentLocale(i18n.language));

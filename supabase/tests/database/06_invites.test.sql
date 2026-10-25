@@ -28,6 +28,10 @@ update public.memberships set is_guardian = true where role = 'owner';
 insert into public.consent_events (user_id, purpose, version, action, text_key)
   select id, 'terms', public.terms_version(), 'grant', 'test' from auth.users;
 
+-- P0.2: joining needs the Terms on record.
+insert into public.consent_events (user_id, purpose, version, action, text_key)
+  select id, 'terms', public.terms_version(), 'grant', 'test' from auth.users;
+
 create function pg_temp.login(n int) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object(
     'sub', ('00000000-0000-0000-0000-00000000000' || n)::uuid, 'role', 'authenticated')::text, true)::void
