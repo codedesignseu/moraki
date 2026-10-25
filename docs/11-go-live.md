@@ -22,13 +22,13 @@ Status on 2026-10-18:
 - [ ] **Deploy the function:** `supabase functions deploy apple-revoke`. If deleting an account later fails with "Invalid JWT", redeploy with `--no-verify-jwt`. The function checks the session itself.
 - [ ] **Inactivity warning emails (Brevo).** Steps in `docs/10-release-runbook.md`, "Inactivity warning emails (Brevo)". Until they are done no warning goes out, and so no inactive household is deleted.
   1. Brevo account, DPA, and an API key.
-  2. Verify `moraki.app` in Brevo (SPF, DKIM, DMARC records at GoDaddy) and add the sender `hello@moraki.app`.
+  2. Verify `moraki.app` in Brevo (SPF, DKIM, DMARC records at Cloudflare) and add the sender `hello@moraki.app`.
   3. Apple Developer → Sign in with Apple for Email Communication: register `moraki.app` and `hello@moraki.app`.
   4. `supabase secrets set BREVO_API_KEY=… INACTIVITY_WARNINGS_CRON_SECRET=…`
   5. `supabase functions deploy send-inactivity-warnings`
   6. The two `vault.create_secret` lines in the SQL Editor.
   7. Test with a throwaway household; check the cron jobs `warn-inactive-households` and `send-inactivity-warnings`.
-- [ ] **Recommended: move Supabase to the Pro plan** before launch. Free projects pause when idle, and nothing syncs and no sweep runs while paused. The free plan also has no restorable backups.
+- [ ] **Upgrade Supabase to the Pro plan before launch** (owner decision 2026-10-24). On Pro the project never pauses, so sync and the cleanup jobs keep running, and daily backups are kept for 7 days. Point-in-time recovery is a paid add-on and is not enabled. After upgrading, check Database → Backups.
 
 - [ ] **Sentry server-side scrubbing.** In Sentry, under Settings → Security & Privacy, turn on **Data Scrubber** and **Use Default Scrubbers**. IP storage is already off. Native crash reports skip the app's own scrubber, so these settings are the only filter they pass (`docs/compliance/processors.md`, Sentry section).
 
