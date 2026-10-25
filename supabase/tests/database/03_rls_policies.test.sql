@@ -6,7 +6,7 @@
 -- the statement ran and changed nothing.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(89);
+select plan(85);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-000000000001', 'owner@example.test'),
@@ -45,6 +45,19 @@ insert into public.push_tokens (user_id, device_id, token, platform) values
   ('00000000-0000-0000-0000-000000000004', 'phone', 't4', 'ios');
 
 -- Signs in as user n for the rest of the transaction, or until the next call.
+-- P0.2: seeing and writing baby data needs the caregiver agreement (or a
+-- guardian's consent); every member here has accepted it. P0.3: and a
+-- household needs a guardian whose consent is in force, or it is frozen:
+-- each owner here is one.
+update public.memberships set is_guardian = true where role = 'owner';
+insert into public.consents (user_id, policy_version)
+  select user_id, public.consent_version() from public.memberships where role = 'owner'
+  on conflict do nothing;
+insert into public.consent_events (user_id, purpose, version, action, text_key, household_id)
+  select user_id, 'caregiver_agreement', public.caregiver_agreement_version(), 'grant', 'test',
+         household_id
+  from public.memberships;
+
 create function pg_temp.login(n int) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object(
     'sub', ('00000000-0000-0000-0000-00000000000' || n)::uuid, 'role', 'authenticated')::text, true)::void
@@ -297,25 +310,18 @@ select is_empty($$delete from public.invites returning code$$, 'invites delete: 
 select pg_temp.login(1);
 select isnt_empty($$delete from public.invites where code = 'JKMNPQRS' returning code$$, 'invites delete: the owner can revoke one');
 
--- consents: self ---------------------------------------------------------------------------------------
+-- consents: read your own; writes only through grant_consent/withdraw_consent (P0.4) ---------------
 select pg_temp.login(2);
 select results_eq(
   'select distinct user_id from public.consents',
   $$values ('00000000-0000-0000-0000-000000000002'::uuid)$$,
   'consents select: only your own, whichever versions you granted');
-select lives_ok($$insert into public.consents (user_id, policy_version) values ('00000000-0000-0000-0000-000000000002', 'v2')$$,
-  'consents insert: for yourself');
-select throws_ok($$insert into public.consents (user_id, policy_version) values ('00000000-0000-0000-0000-000000000004', 'v2')$$,
-  '42501', null, 'consents insert: refused for someone else');
-select isnt_empty($$update public.consents set withdrawn_at = now() where policy_version = 'v1' returning user_id$$,
-  'consents update: your own');
-select is_empty($$update public.consents set withdrawn_at = now() where user_id = '00000000-0000-0000-0000-000000000004' returning user_id$$,
-  'consents update: no effect on someone else''s');
-select throws_ok($$update public.consents set user_id = '00000000-0000-0000-0000-000000000004' where policy_version = 'v2'$$,
-  '42501', null, 'consents update: refused handing yours to someone else');
-select is_empty($$delete from public.consents where user_id = '00000000-0000-0000-0000-000000000004' returning user_id$$,
-  'consents delete: no effect on someone else''s');
-select isnt_empty($$delete from public.consents where policy_version = 'v2' returning user_id$$, 'consents delete: your own');
+select throws_ok($$insert into public.consents (user_id, policy_version) values ('00000000-0000-0000-0000-000000000002', 'v2')$$,
+  '42501', null, 'consents insert: refused even for yourself (RPC only)');
+select throws_ok($$update public.consents set granted_at = now() - interval '1 year' where policy_version = 'v1'$$,
+  '42501', null, 'consents update: refused even on your own row, so a timestamp can''t be rewritten');
+select throws_ok($$delete from public.consents where policy_version = 'v1'$$,
+  '42501', null, 'consents delete: refused even on your own row');
 
 -- push_tokens: self ---------------------------------------------------------------------------------------
 select pg_temp.login(2);

@@ -22,6 +22,8 @@ Status on 2026-10-18:
 - [ ] **Deploy the function:** `supabase functions deploy apple-revoke`. If deleting an account later fails with "Invalid JWT", redeploy with `--no-verify-jwt`. The function checks the session itself.
 - [ ] **Recommended: move Supabase to the Pro plan** before launch. Free projects pause when idle, and nothing syncs and no sweep runs while paused. The free plan also has no restorable backups.
 
+- [ ] **Sentry server-side scrubbing.** In Sentry, under Settings → Security & Privacy, turn on **Data Scrubber** and **Use Default Scrubbers**. IP storage is already off. Native crash reports skip the app's own scrubber, so these settings are the only filter they pass (`docs/compliance/processors.md`, Sentry section).
+
 Until the Apple steps are done, an account signed in with Apple can't be deleted on iOS. That would fail App Review.
 
 ## B. Website (owner)

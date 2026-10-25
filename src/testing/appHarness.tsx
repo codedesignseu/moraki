@@ -29,7 +29,12 @@ import LeaveOrDelete from '../../app/leave-or-delete';
 import Invite from '../../app/invite';
 import Join from '../../app/join/[code]';
 import HouseholdSetup from '../../app/onboarding/household';
+import Agreement from '../../app/onboarding/agreement';
+import Paused from '../../app/onboarding/paused';
+import Removed from '../../app/onboarding/removed';
 import Consent from '../../app/onboarding/consent';
+import Guardian from '../../app/onboarding/guardian';
+import Terms from '../../app/onboarding/terms';
 import JoinWithCode from '../../app/onboarding/join';
 import SignIn from '../../app/onboarding/sign-in';
 import {
@@ -175,6 +180,11 @@ export function renderApp(
       'onboarding/household': HouseholdSetup,
       'onboarding/join': JoinWithCode,
       'onboarding/consent': Consent,
+      'onboarding/agreement': Agreement,
+      'onboarding/paused': Paused,
+      'onboarding/removed': Removed,
+      'onboarding/guardian': Guardian,
+      'onboarding/terms': Terms,
       'join/[code]': Join,
       invite: Invite,
       about: About,

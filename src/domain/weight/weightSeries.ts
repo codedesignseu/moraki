@@ -9,44 +9,26 @@ export type WeightPoint = {
   grams: number;
   /** Where the number came from, which is the only thing said about it. */
   source: 'home' | 'clinic';
-  /** Of the birth weight, to one decimal place. Null without a birth weight. */
-  pctOfBirth: number | null;
   at: number;
-};
-
-export type WeightReference = {
-  /** The birth weight itself and 90% of it, the two lines a clinician uses. */
-  grams: number;
-  pctOfBirth: number;
 };
 
 export type WeightView = {
   points: WeightPoint[];
   birthGrams: number | null;
-  /** Empty without a birth weight: a percentage of nothing says nothing. */
-  references: WeightReference[];
-  /** The days a clinician looks at, for markers on the chart. */
-  markerDays: number[];
   latest: WeightPoint | null;
   /** Latest minus birth weight, in grams. Null without one or the other. */
   changeG: number | null;
 };
 
-/** The days regain is usually looked at (SDD 6.4). */
-export const MARKER_DAYS = [10, 14];
-
-/** The reference lines: back to birth weight, and 90% of it (SDD 6.4). */
-const REFERENCE_PERCENTS = [90, 100];
-
-const round1 = (n: number) => Math.round(n * 10) / 10;
-
 /**
- * The weight regain view (SDD 6.4): every weight entry as a point, with the
- * reference lines and the days to mark. Pure — `tz` decides which day an
- * entry falls on, so an evening weighing doesn't land on the next day.
+ * The weight view (SDD 6.4): every weight entry as a point, the latest one,
+ * and the plain difference from the birth weight in grams. Pure — `tz`
+ * decides which day an entry falls on, so an evening weighing doesn't land on
+ * the next day.
  *
  * It says what was weighed and when, and nothing about whether that is good:
- * no judgement is computed here, because none belongs anywhere.
+ * no reference line, no day to look at, no percentage of anything. No
+ * judgement is computed here, because none belongs anywhere (rule 10).
  */
 export function selectWeightView(
   events: readonly Event<unknown>[],
@@ -54,8 +36,6 @@ export function selectWeightView(
   tz: string,
 ): WeightView {
   const bornDay = startOfLocalDay(birth.bornAt, tz);
-  const pct = (grams: number) =>
-    birth.birthGrams === null ? null : round1((grams / birth.birthGrams) * 100);
 
   const points = events
     .filter((e) => e.deletedAt === null)
@@ -65,7 +45,6 @@ export function selectWeightView(
       day: Math.round((startOfLocalDay(e.occurredAt, tz) - bornDay) / DAY_MS),
       grams: e.payload.grams,
       source: e.payload.source,
-      pctOfBirth: pct(e.payload.grams),
       at: e.occurredAt,
     }));
 
@@ -74,14 +53,6 @@ export function selectWeightView(
   return {
     points,
     birthGrams: birth.birthGrams,
-    references:
-      birth.birthGrams === null
-        ? []
-        : REFERENCE_PERCENTS.map((percent) => ({
-            grams: Math.round((birth.birthGrams as number) * (percent / 100)),
-            pctOfBirth: percent,
-          })),
-    markerDays: MARKER_DAYS,
     latest,
     changeG: latest && birth.birthGrams !== null ? latest.grams - birth.birthGrams : null,
   };

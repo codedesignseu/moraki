@@ -168,6 +168,21 @@ export function createAuth(env: SupabaseEnv, store: SecureKeyValueStore, fetchIm
       }
     },
 
+    /**
+     * Whether the server still has this account (P0.5): false only when it
+     * says plainly that the user is gone (deleted on another phone), null
+     * when it couldn't be asked or answered anything else.
+     */
+    async accountExists(): Promise<boolean | null> {
+      try {
+        const { data, error } = await client.auth.getUser();
+        if (!error) return data.user ? true : null;
+        return error.code === 'user_not_found' ? false : null;
+      } catch {
+        return null;
+      }
+    },
+
     /** Called on sign in, sign out and token refresh. Returns an unsubscribe function. */
     onChange(listener: (user: AuthUser | null) => void): () => void {
       const { data } = client.auth.onAuthStateChange((_event, session) =>

@@ -32,9 +32,8 @@ export type ReportBaby = {
 export type ReportWeight = {
   birthGrams: number | null;
   latest: { grams: number; at: number; day: number } | null;
-  /** Latest minus birth weight, and that as a percentage of it. */
+  /** Latest minus birth weight, in grams: plain arithmetic, no percentage. */
   changeG: number | null;
-  changePct: number | null;
 };
 
 export type ReportFeeds = {
@@ -180,10 +179,6 @@ export function buildReport(
       birthGrams: baby.birthWeightG,
       latest: latest ? { grams: latest.grams, at: latest.at, day: latest.day } : null,
       changeG: weightView.changeG,
-      changePct:
-        latest && baby.birthWeightG !== null && latest.pctOfBirth !== null
-          ? Math.round((latest.pctOfBirth - 100) * 10) / 10
-          : null,
     },
     last24h: { feeds: feedsIn(live, now - DAY_MS, now), ...diapersIn(live, now - DAY_MS, now) },
     window: { feeds: feedsIn(live, from, now), ...diapersIn(live, from, now), sleepMs },

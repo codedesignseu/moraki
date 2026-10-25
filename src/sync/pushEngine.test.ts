@@ -99,6 +99,87 @@ describe('pushing the outbox', () => {
     expect(fake.batches).toEqual([]);
   });
 
+  it('sends nothing for an owner whose guardian declaration isn’t on record (P0.1)', async () => {
+    const h = await harness();
+    bottle(h.events);
+    h.link();
+    const fake = server(allApplied);
+    const engine = h.engine({ send: fake.send, guardianMissing: () => true });
+    expect(await engine.push()).toEqual({ kind: 'blocked', by: 'no_guardian' });
+    expect(engine.status().blocked).toBe('no_guardian');
+    expect(fake.batches).toEqual([]);
+    // Consent is asked about first: it is the one every caregiver answers.
+    expect(
+      await h
+        .engine({ send: fake.send, guardianMissing: () => true, consented: () => false })
+        .push(),
+    ).toEqual({ kind: 'blocked', by: 'no_consent' });
+  });
+
+  it('sends nothing until the account has agreed to the Terms in force (P0.9)', async () => {
+    const h = await harness();
+    bottle(h.events);
+    h.link();
+    const fake = server(allApplied);
+    const engine = h.engine({ send: fake.send, termsAgreed: () => false });
+    expect(await engine.push()).toEqual({ kind: 'blocked', by: 'no_terms' });
+    expect(engine.status().blocked).toBe('no_terms');
+    expect(fake.batches).toEqual([]);
+  });
+
+  it('sends nothing until the server says this account may (P0.2)', async () => {
+    const h = await harness();
+    bottle(h.events);
+    h.link();
+    const fake = server(allApplied);
+    const blockedBy = async (access: 'needs_agreement' | 'needs_consent' | 'unknown') =>
+      (await h.engine({ send: fake.send, access: () => access }).push()).kind === 'blocked' &&
+      h.engine({ send: fake.send, access: () => access }).status().blocked;
+
+    // A caregiver without the agreement, a guardian without consent, and the
+    // moment before the server has said: a refused write would only end up
+    // in the sync errors list.
+    expect(await blockedBy('needs_agreement')).toBe('no_agreement');
+    expect(await blockedBy('needs_consent')).toBe('no_consent');
+    expect(await blockedBy('unknown')).toBe('checking');
+    expect(fake.batches).toEqual([]);
+    expect(h.outbox.errors()).toEqual([]);
+
+    expect(await h.engine({ send: fake.send, access: () => 'granted' }).push()).toMatchObject({
+      kind: 'pushed',
+      applied: 1,
+    });
+  });
+
+  it('still deletes this account’s own entries while its other writes wait (P0.3)', async () => {
+    const h = await harness();
+    const sent = bottle(h.events);
+    h.link();
+    const fake = server(allApplied);
+    // The first bottle reached the server before access stopped.
+    await h.engine({ send: fake.send }).push();
+    fake.batches.length = 0;
+
+    const neverSent = bottle(h.events, 60);
+    const theirs = bottle(h.events, 30);
+    h.events.softDelete([sent.id, neverSent.id, theirs.id]);
+    const mine = new Set([sent.id, neverSent.id]);
+    const engine = h.engine({
+      send: fake.send,
+      access: () => 'frozen',
+      // Past the undo window that holds a deletion back (P1-12).
+      now: () => NOW + 3_600_000,
+      erasable: (row) => row.op === 'delete' && mine.has(row.entityId),
+    });
+
+    expect(await engine.push()).toEqual({ kind: 'blocked', by: 'frozen' });
+    // Only the deletion of an entry of its own that the server has: one that
+    // was never sent waits behind its insert, and someone else's isn't tried.
+    expect(fake.batches.flat().map((row) => [row.op, row.entityId])).toEqual([['delete', sent.id]]);
+    expect(h.outbox.errors()).toEqual([]);
+    expect(h.outbox.due(NOW + 3_600_000).map((row) => row.entityId)).not.toContain(sent.id);
+  });
+
   it('drains the outbox once the phone is linked', async () => {
     const h = await harness();
     bottle(h.events);

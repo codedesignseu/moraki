@@ -1,4 +1,5 @@
 import type { CaregiversRepository } from '@/db/repositories/caregivers';
+import type { HouseholdAccess } from '@/domain/consent/consent';
 import type { DevicePrefsRepository } from '@/db/repositories/devicePrefs';
 import type { EventsRepository } from '@/db/repositories/events';
 import type { OutboxRepository } from '@/db/repositories/outbox';
@@ -10,12 +11,17 @@ import type { LinkedIdentity, PushBlock } from './pushEngine';
 import { pushBlock } from './pushEngine';
 import type { PulledEvent } from '@/domain/sync/pendingProtection';
 
+import type { MembershipStatus } from './membershipStatus';
 import { pullCaregivers } from './pullCaregivers';
 import { pullHousehold, type PulledHousehold } from './pullHousehold';
 import { pullPage, PULL_PAGE, PullTransportError } from './pullEvents';
 
+/** Why the server says this phone no longer belongs to its household (P0.5). */
+export type Revocation = 'not_member' | 'household_gone';
+
 export type PullOutcome =
   | { kind: 'blocked'; by: PushBlock }
+  | { kind: 'revoked'; reason: Revocation }
   | { kind: 'pulled'; stored: number; skipped: number; cursor: number }
   | { kind: 'failed'; failures: number; retryInMs: number };
 
@@ -37,6 +43,18 @@ type Deps = {
   ) => Promise<PulledEvent[]>;
   fetchCaregivers?: typeof pullCaregivers;
   fetchHousehold?: typeof pullHousehold;
+  /**
+   * Asks the server where this account stands with the household (P0.2,
+   * `my_membership_status`) before each pull. Without it, as in tests of the
+   * pull alone, access is taken as granted.
+   */
+  fetchStatus?: (auth: Auth, householdId: string) => Promise<MembershipStatus>;
+  /**
+   * The server said plainly that this account is no longer a member, or the
+   * household is gone (P0.5): clear the household from the phone. Never
+   * called for an error, a timeout or an answer that isn't clear.
+   */
+  onRevoked?: (reason: Revocation) => Promise<void> | void;
 };
 
 /**
@@ -74,6 +92,13 @@ function applyHousehold(
   });
 }
 
+/** Why reading stops, for each answer that isn't `granted` (P0.2, P0.3). */
+const ACCESS_BLOCK = {
+  needs_consent: 'no_consent',
+  needs_agreement: 'no_agreement',
+  frozen: 'frozen',
+} as const satisfies Record<Exclude<HouseholdAccess, 'granted'>, PushBlock>;
+
 export function createPullEngine(deps: Deps) {
   const fetchPage = deps.fetchPage ?? pullPage;
   let failures = 0;
@@ -85,7 +110,45 @@ export function createPullEngine(deps: Deps) {
     // what is already there, to export or delete it.
     const blocked = pushBlock(deps.linked(), deps.auth, deps.state);
     if (blocked) return { kind: 'blocked', by: blocked };
-    const householdId = deps.linked()!.householdId;
+    const { householdId, userId } = deps.linked()!;
+
+    // P0.2: reading needs the caregiver agreement, or a guardian's consent.
+    // The server filters the rows either way; asking first is how the phone
+    // knows to stop and say what is missing, rather than seeing nothing new.
+    // Nothing here is cleared: what the phone has stays readable.
+    if (deps.fetchStatus) {
+      let status: MembershipStatus;
+      try {
+        status = await deps.fetchStatus(deps.auth!, householdId);
+      } catch {
+        failures += 1;
+        return { kind: 'failed', failures, retryInMs: backoffMs(failures) };
+      }
+      if (status.status === 'member') {
+        const record = {
+          userId,
+          householdId,
+          access: status.access,
+          isGuardian: status.isGuardian,
+        };
+        const known = deps.devicePrefs?.get('householdAccess');
+        if (JSON.stringify(known) !== JSON.stringify(record)) {
+          deps.devicePrefs?.set('householdAccess', record);
+        }
+        if (status.access !== 'granted') {
+          return { kind: 'blocked', by: ACCESS_BLOCK[status.access] };
+        }
+      } else {
+        // Only about the household and account asked about: a phone that was
+        // linked elsewhere meanwhile is left alone.
+        const now = deps.linked();
+        if (now?.householdId !== householdId || now.userId !== userId) {
+          return { kind: 'blocked', by: 'not_linked' };
+        }
+        await deps.onRevoked?.(status.status);
+        return { kind: 'revoked', reason: status.status };
+      }
+    }
 
     let stored = 0;
     let skipped = 0;
