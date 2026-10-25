@@ -87,7 +87,7 @@ describe('asking for consent', () => {
 
   it('records the agreement with the server and remembers it on this phone', async () => {
     const calls: string[] = [];
-    await signedIn({
+    const server = await signedIn({
       consent: (path) => (calls.push(path), new Response('null', { status: 200 })),
     });
     await openConsent();
@@ -95,6 +95,10 @@ describe('asking for consent', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'I agree' }));
 
     await waitFor(() => expect(calls).toEqual(['/rest/v1/rpc/grant_consent']));
+    // The record names the text: its version on the server, its language from here (P0.4).
+    expect(server.calls.find((call) => call.path === '/rest/v1/rpc/grant_consent')?.body).toEqual({
+      locale: 'en',
+    });
     expect(h.prefs.get('consent')).toMatchObject({ userId: USER_ID, version: CONSENT_VERSION });
   });
 
