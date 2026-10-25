@@ -69,7 +69,8 @@ describe('logging a feed', () => {
 
   it('opens with the current time', async () => {
     await openSheet();
-    expect(screen.getByText('At 12:00')).toBeOnTheScreen();
+    // A single time shows once, in the field: no extra "At 12:00" chip.
+    expect(screen.queryByText('At 12:00')).toBeNull();
     // G: the header says when and who, the time field says today and now.
     expect(screen.getByRole('header', { name: 'Log a feed' })).toBeOnTheScreen();
     expect(screen.getByText('Now · 12:00')).toBeOnTheScreen();
