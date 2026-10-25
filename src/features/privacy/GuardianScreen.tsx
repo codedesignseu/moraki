@@ -11,8 +11,18 @@ import { useTheme, type Theme } from '@/ui/theme';
  * existing household: an owner from before it existed, asked once, or a
  * caregiver who wants to be able to take over. Never pre-ticked, and apart
  * from health-data consent. Closes only once the server has it.
+ *
+ * A member who declares rests on their own health-data consent from then on,
+ * not the caregiver agreement they joined with, so they go straight on to
+ * it (`onNeedsConsent`).
  */
-export function GuardianScreen({ onDone }: { onDone: () => void }) {
+export function GuardianScreen({
+  onDone,
+  onNeedsConsent = onDone,
+}: {
+  onDone: () => void;
+  onNeedsConsent?: () => void;
+}) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
@@ -36,7 +46,11 @@ export function GuardianScreen({ onDone }: { onDone: () => void }) {
           <Button
             label={t(guardian.busy ? 'guardian.working' : 'guardian.confirm')}
             busy={guardian.busy}
-            onPress={() => void guardian.declare(ticked).then((saved) => saved && onDone())}
+            onPress={() =>
+              void guardian.declare(ticked).then((saved) => {
+                if (saved) (guardian.owner ? onDone : onNeedsConsent)();
+              })
+            }
           />
           <TextButton label={t('guardian.notNow')} align="center" onPress={onDone} />
         </>

@@ -197,3 +197,31 @@ These are facts for you to put in your own wording. Items marked (after P0.2/0.3
   - Install the new TestFlight build.
   - Confirm you stay signed in when installing over the previous build.
   - Run the regression checks the lawyer listed: guardian creation, refusing consent, withdrawing consent, invitations, removing a caregiver, reconnecting after being offline, deleting an account, deleting a household, deleting entries, and export.
+
+## 5. Round 2 (25 October)
+
+Your corrections to `retention.md`, `data-requests.md` and this document,
+each checked against the code before it was written.
+
+**Corrections made**
+
+1. **`retention.md` matches build 7.**
+   - Inactive households: the warning email is sent (Brevo, after 23 months), and a household is deleted only 30 days or more after the warning, with nobody using it since. Every "no warning email" statement is gone.
+   - The rights table's Restriction row now describes withdrawal: a caregiver withdrawing the agreement leaves, a guardian withdrawing stops their own processing, and the last consenting guardian withdrawing freezes the household. While frozen, nobody writes, invites or joins, members read nothing, and authors can read and delete (not edit) their own entries.
+   - Also brought up to date: consent records kept 3 years after account deletion, the 30-day purge, the export's contents, Apple and Google revocation, and backups (Pro, 7 days).
+2. **`retention.md`, new section "Why consent records are kept for 3 years":** purpose (Art. 7(1), Art. 17(3)(e)), what is kept and why it is pseudonymous, who can see it, the erasure job, and that the period awaits your confirmation.
+3. **`data-requests.md`:**
+   - A guardian outside the household: each request is assessed on its own facts, weighing the other household members' rights and competing parental-responsibility claims. Disputed cases go to you before any disclosure or erasure.
+   - In-app erasure: what evidence the database keeps (consent records with `account_deleted_at` for a deleted account, nothing for a deleted household), and how to re-apply in-app deletions after a backup restore by comparing ids.
+   - Email deletion: Apple and Google access can only be revoked from the person's phone. The EN and EL replies now tell the person how to remove Moraki from their Apple ID and Google account.
+4. **Support pages (EN, EL):** the "no longer have the app" part says the same as point 3, still marked as a draft.
+
+**Open decisions for the owner and you**
+
+1. **Frozen household lifecycle.** A frozen household stays frozen until a guardian consents again or the owner deletes it. Nothing erases it if nobody does. The inactivity rule may never reach it, as members signing in count as activity. Should a frozen household be erased after a set time, and with what notice?
+2. **Erasure log for backup restores.** The database keeps no record that a household was deleted in the app. A small table holding only ids and deletion times would make re-applying deletions after a restore reliable. It would be restored along with everything else, so it must be read before a restore. Not built.
+
+**Found while checking the code, for you and the owner**
+
+- A guardian who joined by invite accepted the caregiver agreement. If they later withdraw health-data consent while another guardian still consents, the server still lets them read and write through that agreement (`has_access` in `20261024210000_household_freeze.sql`). The in-app withdrawal text says they stop seeing the household's entries.
+- The support pages still say account deletion removes "your consent records", and that only Apple access is revoked. Since build 7 consent records stay 3 years and Google access is revoked too. Not changed in this round, as you asked for no other changes there.
