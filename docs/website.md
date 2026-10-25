@@ -16,6 +16,8 @@ built from (brief: `docs/store/website-v2-brief.md`) and is never served.
 | `/privacy/`, `/el/privacy/`       | `privacy/index.html`, `el/privacy/index.html`               |
 | `/terms/`, `/el/terms/`           | `terms/index.html`, `el/terms/index.html`                   |
 | `/support/`, `/el/support/`       | `support/index.html`, `el/support/index.html`               |
+| `/legal/`, `/el/legal/`           | `legal/index.html`, `el/legal/index.html`                   |
+| `/cookies/`, `/el/cookies/`       | `cookies/index.html`, `el/cookies/index.html`               |
 | `/join/CODE`, `/join/?code=CODE`  | `join/index.html`, in both languages with an EN / ΕΛ switch |
 | any unknown URL                   | `404.html`, with a 404 status                               |
 
@@ -162,7 +164,7 @@ that script would change its hash.
   placeholders. Download Apple's official badges from
   https://developer.apple.com/app-store/marketing/guidelines/ and save them under
   the same names: black by day, white at night.
-- **Legal text.** Privacy and Terms carry the current drafts, word for word, with
+- **Legal text.** Privacy, Terms, Legal notice and Cookies carry the current drafts, word for word, with
   a visible draft note. Remove the note when the lawyer review is done.
 - **Mailbox.** The site gives `hello@moraki.app` as the contact address. It must
   exist and be read before the site goes live.
