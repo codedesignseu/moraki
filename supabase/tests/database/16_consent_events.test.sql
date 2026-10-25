@@ -111,9 +111,10 @@ reset role;
 select throws_ok($$update public.consent_events set action = 'withdraw'$$,
   '42501', null, 'update: refused by trigger even past row level security');
 
--- They go with the account ---------------------------------------------------
+-- They outlive the account (legal update Q1, 20_keep_consent_records) --------
 delete from auth.users where id = '00000000-0000-0000-0000-000000000002';
-select is(pg_temp.history(2), '{}'::text[], 'deleting the account takes its events with it');
+select is(pg_temp.history(2), array['terms:grant', 'caregiver_agreement:grant'],
+  'deleting the account keeps its events, for consent_record_retention()');
 
 select * from finish();
 rollback;
