@@ -12,6 +12,10 @@
 --   6 a session refreshed lately   -> kept (stays signed in, never signs in again)
 --   7 created last week            -> kept
 --   8 the baby's details changed   -> kept
+--
+-- Every household was also warned 31 days ago with no email to send, so the
+-- warning gate (16_inactivity_warning.test.sql) is open and only the activity
+-- signals decide here.
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(19);
@@ -76,6 +80,7 @@ select pg_temp.entry_written(5, now() - interval '24 months' - interval '1 minut
 insert into auth.sessions (id, user_id, created_at, updated_at) values
   (gen_random_uuid(), pg_temp.id('00000000', 6), now() - interval '25 months', now() - interval '2 days');
 update public.babies set updated_at = now() - interval '3 months' where id = pg_temp.id('bbbbbbbb', 8);
+update public.households set inactivity_warned_at = now() - interval '31 days';
 
 select is(public.sweep_inactive_households(), 2, 'two households are swept: 1 and 5');
 
