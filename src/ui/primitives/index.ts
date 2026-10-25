@@ -27,7 +27,7 @@ export { Logo } from './Logo';
 export { Notice } from './Notice';
 export { Page } from './Page';
 export { PillButton } from './PillButton';
-export type { ChartLine, ChartMark, ChartPoint } from './PointChart';
+export type { ChartPoint } from './PointChart';
 export { PointChart } from './PointChart';
 export { ScreenHeader } from './ScreenHeader';
 export { ScreenTitle } from './ScreenTitle';

@@ -131,7 +131,6 @@ exports[`the whole object matches the recorded 7d report 1`] = `
   "weight": {
     "birthGrams": 3400,
     "changeG": 110,
-    "changePct": 3.2,
     "latest": {
       "at": 1792573200000,
       "day": 12,
@@ -218,7 +217,6 @@ exports[`the whole object matches the recorded 24h report 1`] = `
   "weight": {
     "birthGrams": 3400,
     "changeG": 110,
-    "changePct": 3.2,
     "latest": {
       "at": 1792573200000,
       "day": 12,
