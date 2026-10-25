@@ -179,4 +179,17 @@ describe('a caregiver who hasn’t declared (P0.1)', () => {
     );
     await waitFor(() => expect(screen.queryByTestId('settings-guardian')).toBeNull());
   });
+
+  it('goes on to health-data consent, which their access rests on from then on', async () => {
+    const server = await open('caregiver');
+    await fireEvent.press(await screen.findByRole('button', { name: /Settings/ }));
+    const card = within(await screen.findByTestId('settings-guardian'));
+    await fireEvent.press(card.getByRole('button', { name: 'Confirm I’m a parent or guardian' }));
+    await fireEvent.press(await screen.findByRole('checkbox', { name: DECLARATION }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Confirm' }));
+
+    expect(await screen.findByTestId('consent-what')).toBeOnTheScreen();
+    expect(screen.queryByTestId('guardian-declaration')).toBeNull();
+    expect(server.calls.some((c) => c.path === '/rest/v1/rpc/declare_guardian')).toBe(true);
+  });
 });
