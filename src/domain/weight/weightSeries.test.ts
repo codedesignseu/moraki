@@ -1,5 +1,5 @@
 import type { Event, EventType } from '../activities';
-import { MARKER_DAYS, selectWeightView } from './weightSeries';
+import { selectWeightView } from './weightSeries';
 
 const TZ = 'Europe/Nicosia';
 const DAY = 86_400_000;
@@ -51,20 +51,16 @@ describe('the weight series over the first three weeks', () => {
     expect(view().points.map((p) => p.day)).toEqual([0, 2, 4, 6, 10, 12, 14, 18, 21]);
   });
 
-  it('gives each point its grams, where it came from, and the share of birth weight', () => {
+  it('gives each point its grams and where it came from', () => {
     const points = view().points;
-    expect(points[0]).toMatchObject({ day: 0, grams: 3400, source: 'clinic', pctOfBirth: 100 });
-    // The low point of the dip: 3105 of 3400.
-    expect(points[2]).toMatchObject({ day: 4, grams: 3105, source: 'home', pctOfBirth: 91.3 });
-    expect(points[8]).toMatchObject({ day: 21, grams: 3900, pctOfBirth: 114.7 });
+    expect(points[0]).toMatchObject({ day: 0, grams: 3400, source: 'clinic' });
+    expect(points[2]).toMatchObject({ day: 4, grams: 3105, source: 'home' });
+    expect(points[8]).toMatchObject({ day: 21, grams: 3900, source: 'clinic' });
   });
 
-  it('draws the two lines a clinician uses, and marks day 10 and day 14', () => {
-    expect(view().references).toEqual([
-      { grams: 3060, pctOfBirth: 90 },
-      { grams: 3400, pctOfBirth: 100 },
-    ]);
-    expect(view().markerDays).toEqual(MARKER_DAYS);
+  it('draws no reference lines and marks no days (P0.7)', () => {
+    // A line or a marked day is a reference value a parent reads as a verdict.
+    expect(Object.keys(view()).sort()).toEqual(['birthGrams', 'changeG', 'latest', 'points']);
   });
 
   it('reports the latest weighing and the change from birth', () => {
@@ -80,7 +76,6 @@ describe('the weight series over the first three weeks', () => {
       'at',
       'day',
       'grams',
-      'pctOfBirth',
       'source',
     ]);
   });
@@ -89,14 +84,11 @@ describe('the weight series over the first three weeks', () => {
 describe('the awkward cases', () => {
   it('has nothing to show before the first weighing', () => {
     expect(view([])).toMatchObject({ points: [], latest: null, changeG: null });
-    // The lines still stand: they come from the birth weight, not the entries.
-    expect(view([]).references).toHaveLength(2);
   });
 
-  it('leaves out the percentages when no birth weight was recorded', () => {
+  it('has no change from birth when no birth weight was recorded', () => {
     const noBirth = view(firstThreeWeeks, null);
-    expect(noBirth.points.every((p) => p.pctOfBirth === null)).toBe(true);
-    expect(noBirth.references).toEqual([]);
+    expect(noBirth.points).toHaveLength(9);
     expect(noBirth.changeG).toBe(null);
   });
 

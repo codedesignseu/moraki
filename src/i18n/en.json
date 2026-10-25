@@ -631,7 +631,6 @@
       "title": "Weight",
       "empty": "No weights yet",
       "add": "Add weight",
-      "note": "Your pediatrician tracks this at check-ups.",
       "birth": "Birth",
       "change": {
         "up": "{{grams}} g above birth weight",
@@ -639,8 +638,6 @@
         "same": "Same as birth weight"
       },
       "point": "Day {{day}}: {{grams}} g",
-      "line": "{{percent}}%",
-      "mark": "Day {{day}}",
       "latest": "Latest",
       "since": "Since birth",
       "grams": "{{grams}} g",
@@ -812,7 +809,7 @@
         "latest": "Latest weight",
         "latestValue": "{{grams}} g on day {{day}}",
         "change": "Change since birth",
-        "changeValue": "{{grams}} g ({{percent}}%)",
+        "changeValue": "{{grams}} g",
         "none": "Nothing weighed yet"
       },
       "feeds": {
