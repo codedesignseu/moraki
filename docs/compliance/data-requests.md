@@ -132,6 +132,12 @@ company does not decide custody or parental responsibility, ever.
      binding the company is followed as written.
   6. Record every step in the register as type `guardian dispute`.
 
+  Each such request is assessed on its own facts. Weigh the rights of the
+  other people in the household (the other guardian, caregivers whose names
+  and entries are in the record) and any competing claims of parental
+  responsibility. Where the facts or the authority are disputed, the case
+  goes to the lawyer **before** anything is disclosed or erased.
+
 ## 5. Running the scripts
 
 Scripts: [`supabase/scripts/dsar/`](../../supabase/scripts/dsar/README.md).
@@ -160,15 +166,15 @@ Scripts: [`supabase/scripts/dsar/`](../../supabase/scripts/dsar/README.md).
 
 ### What each request type means here
 
-| Type                    | Action                                                                                                                                                                                                                               |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Access (Art. 15)        | `export_user.sql`. If they are a member of a household, `export_household.sql` for it too. Add the standard information (purposes, recipients, retention) by linking the privacy policy                                              |
-| Portability (Art. 20)   | The same JSON. Point to the in-app export, which also gives the CSV                                                                                                                                                                  |
-| Rectification (Art. 16) | Entries and baby details: in the app. Display name or email: the owner changes it in the SQL editor / Auth dashboard, logs the old and new value's field name (not the values)                                                       |
-| Erasure (Art. 17)       | `erase_user.sql`. Their entries in a **shared** household stay as the other members' record (as in the app); erasing those too is a separate decision for the lawyer, logged. Consent records stay 3 years, pseudonymous (see above) |
-| Restriction (Art. 18)   | Withdrawing consent in the app stops new entries syncing. Anything wider: log it, mark the account in the register, and hand to the lawyer before changing any data                                                                  |
-| Objection (Art. 21)     | There is no profiling or marketing. Reply explaining that, and offer withdrawal or erasure                                                                                                                                           |
-| Guardian dispute        | Section 4                                                                                                                                                                                                                            |
+| Type                    | Action                                                                                                                                                                                                                                                                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Access (Art. 15)        | `export_user.sql`. If they are a member of a household, `export_household.sql` for it too. Add the standard information (purposes, recipients, retention) by linking the privacy policy                                                                                                                                                                       |
+| Portability (Art. 20)   | The same JSON. Point to the in-app export, which also gives the CSV                                                                                                                                                                                                                                                                                           |
+| Rectification (Art. 16) | Entries and baby details: in the app. Display name or email: the owner changes it in the SQL editor / Auth dashboard, logs the old and new value's field name (not the values)                                                                                                                                                                                |
+| Erasure (Art. 17)       | `erase_user.sql`. Their entries in a **shared** household stay as the other members' record (as in the app); erasing those too is a separate decision for the lawyer, logged. Consent records stay 3 years, pseudonymous (see above)                                                                                                                          |
+| Restriction (Art. 18)   | In the app: a caregiver withdrawing the agreement leaves the household. A guardian withdrawing health-data consent stops their own processing, and the last guardian with consent withdrawing freezes the household (`retention.md`, rights table). Anything wider: log it, mark the account in the register, and hand to the lawyer before changing any data |
+| Objection (Art. 21)     | There is no profiling or marketing. Reply explaining that, and offer withdrawal or erasure                                                                                                                                                                                                                                                                    |
+| Guardian dispute        | Section 4                                                                                                                                                                                                                                                                                                                                                     |
 
 ### Shared households and personal erasure
 
@@ -181,10 +187,19 @@ reply. Deleting a shared household needs its owner, and is a separate request.
 
 - **Phones.** Copies on the person's own or other members' phones stay. Tell
   them to use "Sign out and clear this phone" or uninstall.
-- **Identity providers.** Apple or Google access is revoked by the app only
-  on in-app deletion (Apple, on iOS). After an email erasure, tell them to
-  remove Moraki under Apple ID → Sign in with Apple, or Google Account →
-  Third-party connections.
+- **Identity providers.** Apple or Google access can only be revoked from the
+  person's own phone, during in-app deletion. Apple needs a fresh
+  authorization code, which the app gets by asking the person to confirm with
+  Apple (`appleConfirm.ts`, then the `apple-revoke` Edge Function, on iOS).
+  Google's revocation runs in the app through the Google sign-in SDK on the
+  phone where Google sign-in was used (`googleRevoke.ts`). `erase_user.sql`
+  can do neither. So after an email erasure the reply tells the person to
+  remove Moraki themselves:
+  - **Apple:** on the iPhone, Settings → [their name] → Sign-In & Security →
+    Sign in with Apple → Moraki → Stop using Apple ID.
+  - **Google:** myaccount.google.com → Security → third-party connections
+    (your connections to third-party apps and services) → Moraki → delete the
+    connection.
 - **Logs:** Supabase API/auth logs, Sentry (30 days), the mailbox. They age
   out on their own retention (see `retention.md`). The request email thread
   itself: keep it with the register entry, delete with it.
@@ -200,6 +215,49 @@ reply. Deleting a shared household needs its owner, and is a separate request.
   it), and redo any household deletion done on request. Log the replay.
 - Owner check (after upgrading): Database → Backups shows daily backups and
   their dates. Record the confirmation date here: _not yet confirmed_.
+
+### In-app erasure and restores
+
+Self-service deletions (Settings → Leave or delete, deleting entries) are not
+in the register, because the person acted on their own data. What the
+database keeps as evidence that they happened:
+
+- **Deleted account:** the person's `consent_events` rows, with
+  `account_deleted_at` set by the trigger on `auth.users`, for 3 years. An
+  account that never recorded any agreement has no rows, so leaves no trace.
+- **Deleted household:** nothing. The `households` row and everything under
+  it are gone. `consent_events` rows may still name its `household_id`, but
+  they don't say it was deleted, or when.
+- **Leaving a household:** a `caregiver_agreement` withdrawal in
+  `consent_events` (`text_key` `leaveHousehold`), when the person had agreed.
+- **Deleted entry:** its tombstone in `events` (`deleted_at`), content emptied
+  after 30 days.
+
+A restore puts the database back to the backup, and this evidence with it, so
+the restored database can't show what was deleted after the backup. The
+controller must re-apply those deletions before the app is reopened. Method:
+
+1. Before restoring, if production can still be read, save the ids of every
+   account (`auth.users.id`) and household (`public.households.id`), ids only,
+   into an encrypted file as in section 5.
+2. Restore.
+3. Any account or household in the restored database whose id is **not** in
+   the saved list was deleted after the backup: delete it again
+   (`erase_user.sql` for an account. For a household,
+   `delete from public.households where id = …`, which is what
+   `delete_household` does, as that function only runs for a signed-in owner)
+   and log it in the register. Do households before accounts, so
+   `erase_user.sql` doesn't hand a deleted household over. Then replay the `erasures_to_replay` ids as above.
+4. Delete the saved file, and note it.
+
+Limits: it relies on production still being readable before the restore. It
+can't tell an entry soft-deleted after the backup from one never deleted.
+
+**Open item (not built):** an erasure log table holding only ids and
+timestamps of in-app account and household deletions would make this
+reliable. It would itself be restored with the database, so it must be read
+(or copied out) before a restore. Decision for the owner and lawyer
+(`legal-update-2026-10-24.md`, round 2).
 
 ## 8. The in-app export (P0.10)
 
@@ -234,11 +292,11 @@ DESIGNS LTD.
 
 **Erasure done (EN).**
 
-> Your Moraki account has been deleted (ref DSR-…). [A household only you were in was deleted with it. / Households you shared stay with the other caregivers; your name is removed, the entries you logged stay as part of their record.] We keep a record of what you agreed to and when, without your email or sign-in details, for 3 years, then it is erased. Our backups are kept for 7 days, so the data leaves them by [date]. Copies on phones aren't reached: sign out and clear the phone, or uninstall. You can also remove Moraki under Sign in with Apple / your Google account's third-party connections.
+> Your Moraki account has been deleted (ref DSR-…). [A household only you were in was deleted with it. / Households you shared stay with the other caregivers; your name is removed, the entries you logged stay as part of their record.] We keep a record of what you agreed to and when, without your email or sign-in details, for 3 years, then it is erased. Our backups are kept for 7 days, so the data leaves them by [date]. Copies on phones aren't reached: sign out and clear the phone, or uninstall. [If you signed in with Apple or Google:] We can't remove Moraki's access from your Apple or Google account for you, only the app can do that, on your phone. To remove it yourself: for Apple, on your iPhone go to Settings → your name → Sign-In & Security → Sign in with Apple → Moraki → Stop using Apple ID. For Google, go to myaccount.google.com → Security → your connections to third-party apps and services → Moraki → delete the connection.
 
 **Erasure done (EL).**
 
-> Ο λογαριασμός σου στο Moraki διαγράφηκε (αρ. DSR-…). [Ένα νοικοκυριό όπου ήσουν μόνο εσύ διαγράφηκε μαζί του. / Τα κοινά νοικοκυριά μένουν στους άλλους φροντιστές· το όνομά σου αφαιρείται, οι καταχωρήσεις σου μένουν ως μέρος του δικού τους αρχείου.] Κρατάμε ένα αρχείο του τι συμφώνησες και πότε, χωρίς το email ή τα στοιχεία σύνδεσής σου, για 3 χρόνια, και μετά διαγράφεται. Τα αντίγραφα ασφαλείας κρατιούνται 7 ημέρες, άρα τα δεδομένα φεύγουν από αυτά έως [ημερομηνία]. Αντίγραφα σε κινητά δεν τα φτάνουμε: αποσυνδέσου και καθάρισε το κινητό ή απεγκατάστησε την εφαρμογή.
+> Ο λογαριασμός σου στο Moraki διαγράφηκε (αρ. DSR-…). [Ένα νοικοκυριό όπου ήσουν μόνο εσύ διαγράφηκε μαζί του. / Τα κοινά νοικοκυριά μένουν στους άλλους φροντιστές· το όνομά σου αφαιρείται, οι καταχωρήσεις σου μένουν ως μέρος του δικού τους αρχείου.] Κρατάμε ένα αρχείο του τι συμφώνησες και πότε, χωρίς το email ή τα στοιχεία σύνδεσής σου, για 3 χρόνια, και μετά διαγράφεται. Τα αντίγραφα ασφαλείας κρατιούνται 7 ημέρες, άρα τα δεδομένα φεύγουν από αυτά έως [ημερομηνία]. Αντίγραφα σε κινητά δεν τα φτάνουμε: αποσυνδέσου και καθάρισε το κινητό ή απεγκατάστησε την εφαρμογή. [Αν συνδεόσουν με Apple ή Google:] Δεν μπορούμε να αφαιρέσουμε εμείς την πρόσβαση του Moraki από τον λογαριασμό σου στην Apple ή στη Google, αυτό γίνεται μόνο από την εφαρμογή, στο κινητό σου. Για να την αφαιρέσεις εσύ: για Apple, στο iPhone πήγαινε Ρυθμίσεις → το όνομά σου → Σύνδεση και ασφάλεια → Σύνδεση μέσω Apple → Moraki → Διακοπή χρήσης Apple ID. Για Google, πήγαινε στο myaccount.google.com → Ασφάλεια → οι συνδέσεις σου με εφαρμογές και υπηρεσίες τρίτων → Moraki → διάγραψε τη σύνδεση.
 
 **Guardian outside the household (EN).**
 
