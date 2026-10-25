@@ -40,9 +40,9 @@ begin
   insert into public.memberships (household_id, user_id, role, display_name, joined_at)
     values (h, u, 'owner', 'Owner', at);
   insert into public.babies (id, household_id, name, born_at, updated_at) values (b, h, 'b', at, at);
-  insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
-      client_created_at)
-    values (pg_temp.id('eeeeeeee', n), h, b, 'diaper', at, u, u, at);
+  insert into public.events (id, household_id, baby_id, type, occurred_at, payload, created_by,
+      updated_by, client_created_at)
+    values (pg_temp.id('eeeeeeee', n), h, b, 'diaper', at, '{"kind": "wet"}', u, u, at);
   perform pg_temp.entry_written(n, at);
 end
 $$;
