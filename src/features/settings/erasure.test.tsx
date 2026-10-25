@@ -20,6 +20,15 @@ import {
 jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
 jest.mock('expo-apple-authentication', () => ({ signInAsync: jest.fn() }));
 const appleSignIn = AppleAuthentication.signInAsync as jest.Mock;
+const mockGoogle = {
+  configure: jest.fn(),
+  hasPreviousSignIn: jest.fn(() => true),
+  getCurrentUser: jest.fn(() => ({ user: { id: 'g' } })),
+  signInSilently: jest.fn(async () => ({ type: 'success' })),
+  revokeAccess: jest.fn(async (): Promise<null> => null),
+  signOut: jest.fn(async () => null),
+};
+jest.mock('@react-native-google-signin/google-signin', () => ({ GoogleSignin: mockGoogle }));
 
 const NOW = Date.parse('2026-10-28T12:00:00Z');
 const HOUSEHOLD = '0190a0b0-0000-7000-8000-0000000000a1';
@@ -331,5 +340,53 @@ describe('deleting an account signed in with Apple (App Store 5.1.1(v))', () => 
     await waitFor(() => expect(h.repo.list()).toEqual([]));
     expect(appleSignIn).not.toHaveBeenCalled();
     expect(paths(server)).toEqual(['/rest/v1/rpc/delete_account']);
+  });
+});
+
+describe('deleting an account signed in with Google (P0.10)', () => {
+  const env = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+  beforeEach(() => {
+    process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID = 'web-client.apps.googleusercontent.com';
+    for (const fn of Object.values(mockGoogle)) fn.mockClear();
+  });
+  afterEach(() => {
+    process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID = env;
+  });
+
+  async function deleteGoogleAccount(options: Parameters<typeof authServer>[0] = {}) {
+    const server = await openLeaveOrDelete({
+      ...household('owner', false),
+      providers: ['google'],
+      ...options,
+    });
+    await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Yes, delete my account' }));
+    return server;
+  }
+
+  it('deletes the account, then revokes Google access and signs Google out', async () => {
+    const server = await deleteGoogleAccount();
+
+    await waitFor(() => expect(h.repo.list()).toEqual([]));
+    expect(server.calls.map((call) => call.path)).toContain('/rest/v1/rpc/delete_account');
+    expect(mockGoogle.revokeAccess).toHaveBeenCalledTimes(1);
+    expect(mockGoogle.signOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('still deletes the account when Google refuses to revoke', async () => {
+    mockGoogle.revokeAccess.mockRejectedValueOnce(new Error('NETWORK_ERROR'));
+    await deleteGoogleAccount();
+
+    await waitFor(() => expect(h.repo.list()).toEqual([]));
+    expect(screen.queryByTestId('erasure-problem')).toBeNull();
+    expect(readLinkedIdentity(h.mem.db)).toBeNull();
+  });
+
+  it('leaves Google alone when the account never used it', async () => {
+    await deleteGoogleAccount({ providers: ['email'] });
+
+    await waitFor(() => expect(h.repo.list()).toEqual([]));
+    expect(mockGoogle.configure).not.toHaveBeenCalled();
+    expect(mockGoogle.revokeAccess).not.toHaveBeenCalled();
   });
 });

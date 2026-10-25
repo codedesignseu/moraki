@@ -10,6 +10,8 @@ import {
   type ExportSubject,
 } from '@/domain/export/exportHousehold';
 
+import { removeQuietly } from './removeQuietly';
+
 export type ExportState = {
   /** Null until something goes wrong; a reason key otherwise. */
   problem: 'unavailable' | 'failed' | null;
@@ -84,13 +86,4 @@ export function useExport(): ExportState {
   }, [events, caregivers, household]);
 
   return { problem, busy, exportAll };
-}
-
-/** Deleting is cleanup: a failure here must not hide the export's outcome. */
-function removeQuietly(file: File): void {
-  try {
-    if (file.exists) file.delete();
-  } catch {
-    // Nothing to report: the OS clears the cache directory in time anyway.
-  }
 }
