@@ -10,8 +10,8 @@ insert into public.consents (user_id, policy_version)
   select id, public.consent_version() from auth.users;
 insert into public.households (id, name, created_by) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'Ella', '00000000-0000-0000-0000-000000000001');
-insert into public.memberships (household_id, user_id, role, display_name) values
-  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', 'Maria');
+insert into public.memberships (household_id, user_id, role, display_name, is_guardian) values
+  ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'owner', 'Maria', true);
 insert into public.babies (id, household_id, name, born_at) values
   ('bbbbbbbb-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001', 'Ella', now());
 

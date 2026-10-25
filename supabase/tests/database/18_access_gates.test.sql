@@ -28,10 +28,10 @@ insert into public.memberships (household_id, user_id, role, display_name, is_gu
 insert into public.babies (id, household_id, name, born_at) values
   ('bbbbbbbb-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001', 'Ella', now()),
   ('bbbbbbbb-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002', 'Leo', now());
-insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
+insert into public.events (id, household_id, baby_id, type, occurred_at, payload, created_by, updated_by,
     client_created_at) values
   ('eeeeeeee-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
-   'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(),
+   'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(), '{"kind": "wet"}',
    '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', now());
 insert into public.consents (user_id, policy_version) values
   ('00000000-0000-0000-0000-000000000001', public.consent_version()),
