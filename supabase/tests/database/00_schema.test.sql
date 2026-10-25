@@ -14,8 +14,9 @@ select enum_has_labels('public', 'member_role', array['owner', 'caregiver', 'vie
 -- events: every column, its type and nullability, as sync depends on them.
 select columns_are('public', 'events', array[
   'id', 'household_id', 'baby_id', 'type', 'occurred_at', 'ended_at', 'payload', 'group_id',
-  'created_by', 'updated_by', 'client_created_at', 'server_updated_at', 'deleted_at', 'seq'
-], 'events has the SDD columns');
+  'created_by', 'updated_by', 'client_created_at', 'server_updated_at', 'deleted_at', 'seq',
+  'purged_at'
+], 'events has the SDD columns, plus purged_at (P0.6)');
 select col_type_is('public', 'events', 'id', 'uuid', 'events.id is uuid');
 select col_type_is('public', 'events', 'occurred_at', 'timestamp with time zone', 'occurred_at is timestamptz');
 select col_type_is('public', 'events', 'payload', 'jsonb', 'payload is jsonb');

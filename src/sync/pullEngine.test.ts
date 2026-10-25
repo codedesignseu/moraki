@@ -7,7 +7,7 @@ import {
 } from '@/db/repositories/devicePrefs';
 import { createEventsRepository } from '@/db/repositories/events';
 import { createOutboxRepository } from '@/db/repositories/outbox';
-import { meta, outbox } from '@/db/schema';
+import { events, meta, outbox } from '@/db/schema';
 import { createMemoryDb, testDeps } from '@/db/testing/memoryDb';
 import { readLinkedIdentity } from '@/db/identity';
 import type { HouseholdAccess } from '@/domain/consent/consent';
@@ -16,6 +16,7 @@ import type { PulledEvent } from '@/domain/sync/pendingProtection';
 import type { Auth } from './auth';
 import { MembershipStatusError, type MembershipStatus } from './membershipStatus';
 import { createPullEngine } from './pullEngine';
+import { createPushEngine } from './pushEngine';
 import { PULL_PAGE, PullTransportError } from './pullEvents';
 
 const NOW = Date.UTC(2026, 9, 28, 12, 0);
@@ -324,6 +325,66 @@ describe('the household’s own row', () => {
     await h.engine.pull();
 
     expect(h.prefs.get('accountHousehold')).toBe(null);
+  });
+});
+
+describe('entries purged 30 days after deletion (P0.6)', () => {
+  const DAY = 24 * 60 * 60 * 1000;
+
+  it('drops an offline edit to an entry purged on the server, and keeps the tombstone', async () => {
+    const h = await harness();
+    h.link();
+    await h.engine([[fromServer('e1', 4)]]).pull();
+    // Offline: this phone edits the bottle. Meanwhile another phone deleted
+    // it, and 30 days later the server emptied it.
+    h.events.patch('e1', { payload: { ml: 150 } });
+    const deletedAt = NOW - 31 * DAY;
+    const tombstone = fromServer('e1', 40, {
+      payload: {},
+      occurredAt: deletedAt,
+      deletedAt,
+    });
+
+    const outcome = await h.engine([[tombstone]]).pull();
+
+    expect(outcome).toMatchObject({ kind: 'pulled', stored: 1, skipped: 0 });
+    const stored = h.db.select().from(events).where(eq(events.id, 'e1')).get();
+    expect(stored).toMatchObject({ payload: {}, deletedAt, occurredAt: deletedAt });
+    expect(h.events.list()).toEqual([]);
+
+    // The edit goes up and the server ignores it (delete wins): it leaves the
+    // outbox without a sync error, and nothing comes back to life.
+    const push = createPushEngine({
+      linked: () => readLinkedIdentity(h.db),
+      outbox: h.outbox,
+      auth,
+      state: signedIn,
+      now: h.deps.now,
+      send: async (_auth, rows) =>
+        rows.map((row) => ({
+          id: row.entityId,
+          op: row.op,
+          status: 'ignored' as const,
+          reason: 'deleted',
+        })),
+    });
+    expect(await push.push()).toMatchObject({ kind: 'pushed', ignored: 1 });
+    expect(h.outbox.pending()).toBe(0);
+    expect(h.outbox.errors()).toEqual([]);
+    expect(h.db.select().from(events).where(eq(events.id, 'e1')).get()?.payload).toEqual({});
+  });
+
+  it("empties this phone's own old tombstones on every pull", async () => {
+    const h = await harness();
+    h.link();
+    await h.engine([[fromServer('e1', 4)]]).pull();
+    h.events.softDelete('e1');
+    h.db.delete(outbox).run(); // the delete was sent
+    h.deps.advance(31 * DAY);
+
+    await h.engine([[]]).pull();
+
+    expect(h.db.select().from(events).where(eq(events.id, 'e1')).get()?.payload).toEqual({});
   });
 });
 
