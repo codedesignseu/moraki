@@ -1,5 +1,8 @@
+import { GUARDIAN_DECLARATION_VERSION, type ConsentLocale } from '@/domain/consent/consent';
+
 import type { Auth } from './auth';
 import type { MemberRole } from './invites';
+import { fetchMembershipStatus } from './membershipStatus';
 
 export const RELATIONS = ['mother', 'father', 'grandparent', 'caregiver', 'other'] as const;
 export type Relation = (typeof RELATIONS)[number];
@@ -11,6 +14,12 @@ export type NewHousehold = {
   birthWeightG: number | null;
   displayName: string;
   relation: Relation | null;
+  /**
+   * The person ticked the guardian declaration (P0.1). The server refuses a
+   * household without it and records it with its version and language.
+   */
+  guardianDeclared: boolean;
+  locale: ConsentLocale;
 };
 
 export type AccountHousehold = {
@@ -27,7 +36,9 @@ export type AccountHousehold = {
 
 export class HouseholdError extends Error {
   override name = 'HouseholdError';
-  constructor(readonly reason: 'offline' | 'signed_out' | 'unknown') {
+  constructor(
+    readonly reason: 'offline' | 'signed_out' | 'guardian' | 'consent' | 'terms' | 'unknown',
+  ) {
     super(`Household setup failed: ${reason}`);
   }
 }
@@ -37,6 +48,11 @@ function failure(error: { message?: string; code?: string }): HouseholdError {
   if (!error.code && /fetch|network/i.test(error.message ?? ''))
     return new HouseholdError('offline');
   if (error.code === '42501') return new HouseholdError('signed_out');
+  // MK001: the guardian declaration is missing (P0.1).
+  if (error.code === 'MK001') return new HouseholdError('guardian');
+  // P0.2: health-data consent (MK003) and the Terms (MK004) come first.
+  if (error.code === 'MK003') return new HouseholdError('consent');
+  if (error.code === 'MK004') return new HouseholdError('terms');
   return new HouseholdError('unknown');
 }
 
@@ -61,6 +77,9 @@ export async function createHousehold(
     display_name: input.displayName.trim(),
     relation: input.relation,
     birth_weight_g: input.birthWeightG,
+    guardian_declared: input.guardianDeclared,
+    guardian_version: GUARDIAN_DECLARATION_VERSION,
+    locale: input.locale,
   });
   if (error) throw failure(error);
   return {
@@ -97,7 +116,7 @@ export async function findHousehold(auth: Auth, userId: string): Promise<Account
     .order('updated_at')
     .limit(1);
   if (babies.error) throw failure(babies.error);
-  const baby = (
+  const visible = (
     babies.data as {
       id: string;
       name: string;
@@ -105,6 +124,9 @@ export async function findHousehold(auth: Auth, userId: string): Promise<Account
       birth_weight_g?: number | null;
     }[]
   )[0];
+  // P0.2: a member who hasn't agreed yet can't read the baby's row, but is
+  // still in the household: its id and first name come from their status.
+  const baby = visible ?? (await babyFromStatus(auth, mine.household_id));
   if (!baby) return null;
   // A household made before these columns were read back has neither; the
   // weight view simply has no day to count from until the next pull.
@@ -118,6 +140,20 @@ export async function findHousehold(auth: Auth, userId: string): Promise<Account
     ...(baby.birth_weight_g !== undefined && { birthWeightG: baby.birth_weight_g }),
     role: mine.role,
   };
+}
+
+async function babyFromStatus(
+  auth: Auth,
+  householdId: string,
+): Promise<
+  { id: string; name: string; born_at?: string; birth_weight_g?: number | null } | undefined
+> {
+  try {
+    const status = await fetchMembershipStatus(auth, householdId);
+    return status.status === 'member' ? (status.baby ?? undefined) : undefined;
+  } catch {
+    throw new HouseholdError('offline');
+  }
 }
 
 export type BabyDetails = {

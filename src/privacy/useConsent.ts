@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useDevicePref } from '@/db/react';
-import { agreedToCurrent, CONSENT_VERSION } from '@/domain/consent/consent';
+import { agreedToCurrent, CONSENT_VERSION, consentLocale } from '@/domain/consent/consent';
 import { useAuth } from '@/sync/AuthProvider';
 
 /** A request that never reached the server, however it was reported. */
@@ -33,7 +34,9 @@ export type ConsentState = {
  * caregiver answers for themselves, on its own screen, never bundled with
  * anything else, and the answer is recorded with the policy version.
  *
- * The server is the record; this phone keeps a copy so it knows whether to
+ * The server is the record: each answer appends to its consent history with
+ * the version and the language the text was shown in (P0.4), and only these
+ * calls can write it. This phone keeps a copy so it knows whether to
  * ask without the network. Withdrawing stops this account syncing and deletes
  * nothing: what is already there stays readable, to export or delete.
  */
@@ -42,6 +45,8 @@ export function useConsent(): ConsentState {
   const [consent, setConsent] = useDevicePref('consent');
   const [problem, setProblem] = useState<ConsentState['problem']>(null);
   const [busy, setBusy] = useState(false);
+  const { i18n } = useTranslation();
+  const locale = consentLocale(i18n.language);
   const userId = state.status === 'signedIn' ? state.user.id : null;
 
   const call = useCallback(
@@ -53,7 +58,7 @@ export function useConsent(): ConsentState {
       setProblem(null);
       setBusy(true);
       try {
-        const { error } = await auth.client.rpc(fn);
+        const { error } = await auth.client.rpc(fn, { locale });
         if (error) {
           // postgrest-js reports a failed request with no code.
           setProblem(offline(error) ? 'offline' : 'unknown');
@@ -72,7 +77,7 @@ export function useConsent(): ConsentState {
         setBusy(false);
       }
     },
-    [auth, userId, setConsent],
+    [auth, userId, locale, setConsent],
   );
 
   return {

@@ -51,15 +51,15 @@ const type = (label: string, text: string) =>
 async function signInThroughTheApp(code = '123456') {
   await press('Sign in');
   await type('Email', ` ${EMAIL.toUpperCase()} `);
+  await agreeToTerms();
   await press('Send code');
   expect(
     await screen.findByText(`We sent a sign-in code to ${EMAIL.toUpperCase()}.`),
   ).toBeOnTheScreen();
   await type('Code', code);
   await press('Sign in');
-  // Signing in leads to the consent screen (P3-09). These tests are about
-  // signing in, so they take the same way out a person has: Not now.
-  await press('Not now');
+  // Back where signing in started: consent is the guardian's, asked when
+  // they set up a household (P0.2), not on signing in.
 }
 
 describe('sign in with an emailed code', () => {
@@ -117,11 +117,13 @@ describe('sign in with an emailed code', () => {
     await press('Sign in');
 
     await type('Email', 'parent@example');
+    await agreeToTerms();
     await press('Send code');
     expect(screen.getByText('Error: Check the email address.')).toBeOnTheScreen();
     expect(server.calls).toEqual([]);
 
     await type('Email', EMAIL);
+    await agreeToTerms();
     await press('Send code');
     await type('Code', '12a3');
     expect(screen.getByLabelText('Code').props.value).toBe('123');
@@ -147,10 +149,10 @@ describe('sign in with an emailed code', () => {
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
     await press('Sign in');
     await type('Email', EMAIL);
+    await agreeToTerms();
     await press('Send code');
     await type('Code', '12345678');
     await press('Sign in');
-    await press('Not now'); // the consent screen, as above
 
     expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(server.calls.filter((c) => c.path === '/auth/v1/verify')).toEqual([
@@ -163,6 +165,7 @@ describe('sign in with an emailed code', () => {
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
     await press('Sign in');
     await type('Email', EMAIL);
+    await agreeToTerms();
     await press('Send code');
     await type('Code', '1234');
     await press('Sign in');
@@ -175,6 +178,7 @@ describe('sign in with an emailed code', () => {
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, offline));
     await press('Sign in');
     await type('Email', EMAIL);
+    await agreeToTerms();
     await press('Send code');
     expect(
       await screen.findByText("Error: You're offline. Signing in needs a connection."),
@@ -200,7 +204,7 @@ describe('Sign in with Apple (P5-04)', () => {
     expect(screen.queryByRole('button', { name: 'Continue with Apple' })).toBeNull();
   });
 
-  it('signs in with the native identity token, straight to the consent screen', async () => {
+  it('signs in with the native identity token', async () => {
     mockAppleAvailable.mockResolvedValue(true);
     mockSignInWithApple.mockResolvedValue({
       identityToken: 'the-identity-token',
@@ -210,9 +214,10 @@ describe('Sign in with Apple (P5-04)', () => {
 
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
     await press('Sign in');
+    await agreeToTerms();
     await screen.findByRole('button', { name: 'Continue with Apple' });
+    await agreeToTerms();
     await press('Continue with Apple');
-    await press('Not now'); // the consent screen (P3-09)
 
     expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(server.calls.find((c) => c.path === '/auth/v1/token')).toEqual({
@@ -231,7 +236,9 @@ describe('Sign in with Apple (P5-04)', () => {
 
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
     await press('Sign in');
+    await agreeToTerms();
     await screen.findByRole('button', { name: 'Continue with Apple' });
+    await agreeToTerms();
     await press('Continue with Apple');
 
     expect(screen.getByRole('button', { name: 'Continue with Apple' })).toBeBusy();
@@ -244,7 +251,9 @@ describe('Sign in with Apple (P5-04)', () => {
 
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
     await press('Sign in');
+    await agreeToTerms();
     await screen.findByRole('button', { name: 'Continue with Apple' });
+    await agreeToTerms();
     await press('Continue with Apple');
 
     expect(await screen.findByRole('button', { name: 'Continue with Apple' })).toBeOnTheScreen();
@@ -264,15 +273,15 @@ describe('Sign in with Google (P5-04)', () => {
     expect(screen.queryByRole('button', { name: 'Continue with Google' })).toBeNull();
   });
 
-  it('signs in with the native ID token, straight to the consent screen', async () => {
+  it('signs in with the native ID token', async () => {
     mockGoogleWebClientId.mockReturnValue('web-client-id.apps.googleusercontent.com');
     mockSignInWithGoogle.mockResolvedValue('the-google-token');
     const server = authServer();
 
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
     await press('Sign in');
+    await agreeToTerms();
     await press('Continue with Google');
-    await press('Not now'); // the consent screen (P3-09)
 
     expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
     expect(mockSignInWithGoogle).toHaveBeenCalledWith(
@@ -291,9 +300,16 @@ describe('Sign in with Google (P5-04)', () => {
 
     await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl));
     await press('Sign in');
+    await agreeToTerms();
     await press('Continue with Google');
 
     expect(await screen.findByRole('button', { name: 'Continue with Google' })).toBeOnTheScreen();
     expect(screen.queryByText(/Couldn.t sign in/)).toBeNull();
   });
 });
+
+/** Ticks "I agree to the Terms of Use" on the sign-in screen, unless it is already (P0.9). */
+async function agreeToTerms() {
+  const box = screen.getByRole('checkbox', { name: 'I agree to the Terms of Use' });
+  if (!box.props.accessibilityState?.checked) await fireEvent.press(box);
+}

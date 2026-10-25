@@ -27,7 +27,7 @@ insert into public.babies (id, household_id, name, born_at)
 insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
     client_created_at)
   values ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000a1',
-    '00000000-0000-0000-0000-0000000000b1', 'diaper', now(), '00000000-0000-0000-0000-00000000000a',
+    '00000000-0000-0000-0000-0000000000b1', 'sleep', now(), '00000000-0000-0000-0000-00000000000a',
     '00000000-0000-0000-0000-00000000000a', now());
 
 set local role anon;

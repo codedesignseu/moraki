@@ -20,6 +20,15 @@ import {
 jest.mock('@/ui/deviceTimeZone', () => ({ deviceTimeZone: () => 'Europe/Nicosia' }));
 jest.mock('expo-apple-authentication', () => ({ signInAsync: jest.fn() }));
 const appleSignIn = AppleAuthentication.signInAsync as jest.Mock;
+const mockGoogle = {
+  configure: jest.fn(),
+  hasPreviousSignIn: jest.fn(() => true),
+  getCurrentUser: jest.fn(() => ({ user: { id: 'g' } })),
+  signInSilently: jest.fn(async () => ({ type: 'success' })),
+  revokeAccess: jest.fn(async (): Promise<null> => null),
+  signOut: jest.fn(async () => null),
+};
+jest.mock('@react-native-google-signin/google-signin', () => ({ GoogleSignin: mockGoogle }));
 
 const NOW = Date.parse('2026-10-28T12:00:00Z');
 const HOUSEHOLD = '0190a0b0-0000-7000-8000-0000000000a1';
@@ -34,21 +43,31 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-const member = (userId: string, role: string, display_name: string, minutesAgo: number) => ({
+const member = (
+  userId: string,
+  role: string,
+  display_name: string,
+  minutesAgo: number,
+  isGuardian = true,
+) => ({
   household_id: HOUSEHOLD,
   user_id: userId,
   role,
   display_name,
   relation: null,
   joined_at: new Date(NOW - minutesAgo * 60_000).toISOString(),
+  is_guardian: isGuardian,
 });
 
-const household = (myRole: 'owner' | 'caregiver', withNik = true) => ({
+/** Nik, the other member, has declared they are a parent or guardian unless `nikGuardian` is false. */
+const household = (myRole: 'owner' | 'caregiver', withNik = true, nikGuardian = true) => ({
   babies: [{ id: BABY_ID, name: 'Ella', household_id: HOUSEHOLD }],
   memberships: [{ household_id: HOUSEHOLD, role: myRole }],
   caregivers: [
     member(USER_ID, myRole, 'Maria', 120),
-    ...(withNik ? [member(NIK, myRole === 'owner' ? 'caregiver' : 'owner', 'Nik', 60)] : []),
+    ...(withNik
+      ? [member(NIK, myRole === 'owner' ? 'caregiver' : 'owner', 'Nik', 60, nikGuardian)]
+      : []),
   ],
 });
 
@@ -128,6 +147,35 @@ describe('leaving and deleting (P4-06)', () => {
     expect(calls).toEqual([]);
   });
 
+  it('offers only members who have declared they are a parent or guardian (P0.1)', async () => {
+    await openLeaveOrDelete(household('owner'));
+    await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
+    expect(
+      screen.getByText(
+        'Only someone who has confirmed they’re the baby’s parent or guardian can become owner.',
+      ),
+    ).toBeTruthy();
+    expect(screen.getByRole('togglebutton', { name: 'Nik' })).toBeTruthy();
+  });
+
+  it('with nobody who has declared, offers no leaving and says why (P0.1)', async () => {
+    const calls: string[] = [];
+    await openLeaveOrDelete({
+      ...household('owner', true, false),
+      erasure: (rpc) => void calls.push(rpc),
+    });
+    expect(screen.queryByTestId('erasure-leave')).toBeNull();
+    expect(screen.getByTestId('erasure-leave-blocked')).toHaveTextContent(
+      /Delete the household, or ask the other parent to confirm it in Settings first/,
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
+    expect(screen.queryByRole('togglebutton', { name: 'Nik' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Yes, delete my account' })).toBeDisabled();
+    expect(calls).toEqual([]);
+    // Deleting the household stays open to them.
+    expect(screen.getByTestId('erasure-deleteHousehold')).toBeTruthy();
+  });
+
   it('asks a caregiver no such question', async () => {
     await openLeaveOrDelete(household('caregiver'));
     await fireEvent.press(screen.getByRole('button', { name: 'Leave household' }));
@@ -171,7 +219,9 @@ describe('leaving and deleting (P4-06)', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Yes, leave' }));
 
     await waitFor(() =>
-      expect(calls).toEqual([['leave_household', { household_id: HOUSEHOLD, successor: null }]]),
+      expect(calls).toEqual([
+        ['leave_household', { household_id: HOUSEHOLD, successor: null, locale: 'en' }],
+      ]),
     );
     await waitFor(() => expect(h.repo.list()).toEqual([]));
     expect(readLinkedIdentity(h.mem.db)).toBeNull();
@@ -292,5 +342,53 @@ describe('deleting an account signed in with Apple (App Store 5.1.1(v))', () => 
     await waitFor(() => expect(h.repo.list()).toEqual([]));
     expect(appleSignIn).not.toHaveBeenCalled();
     expect(paths(server)).toEqual(['/rest/v1/rpc/delete_account']);
+  });
+});
+
+describe('deleting an account signed in with Google (P0.10)', () => {
+  const env = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+  beforeEach(() => {
+    process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID = 'web-client.apps.googleusercontent.com';
+    for (const fn of Object.values(mockGoogle)) fn.mockClear();
+  });
+  afterEach(() => {
+    process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID = env;
+  });
+
+  async function deleteGoogleAccount(options: Parameters<typeof authServer>[0] = {}) {
+    const server = await openLeaveOrDelete({
+      ...household('owner', false),
+      providers: ['google'],
+      ...options,
+    });
+    await fireEvent.press(screen.getByRole('button', { name: 'Delete account' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Yes, delete my account' }));
+    return server;
+  }
+
+  it('deletes the account, then revokes Google access and signs Google out', async () => {
+    const server = await deleteGoogleAccount();
+
+    await waitFor(() => expect(h.repo.list()).toEqual([]));
+    expect(server.calls.map((call) => call.path)).toContain('/rest/v1/rpc/delete_account');
+    expect(mockGoogle.revokeAccess).toHaveBeenCalledTimes(1);
+    expect(mockGoogle.signOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('still deletes the account when Google refuses to revoke', async () => {
+    mockGoogle.revokeAccess.mockRejectedValueOnce(new Error('NETWORK_ERROR'));
+    await deleteGoogleAccount();
+
+    await waitFor(() => expect(h.repo.list()).toEqual([]));
+    expect(screen.queryByTestId('erasure-problem')).toBeNull();
+    expect(readLinkedIdentity(h.mem.db)).toBeNull();
+  });
+
+  it('leaves Google alone when the account never used it', async () => {
+    await deleteGoogleAccount({ providers: ['email'] });
+
+    await waitFor(() => expect(h.repo.list()).toEqual([]));
+    expect(mockGoogle.configure).not.toHaveBeenCalled();
+    expect(mockGoogle.revokeAccess).not.toHaveBeenCalled();
   });
 });

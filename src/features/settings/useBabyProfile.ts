@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDevicePref } from '@/db/react';
+import { BABY_NAME_MAX } from '@/domain/babyName';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { localTimeDaysAgo, startOfLocalDay } from '@/domain/time/zoned';
 import { dateLocale } from '@/i18n';
@@ -15,7 +16,7 @@ const BORN_HOUR = 12;
 
 /** SDD 4.2's limits, the same ones onboarding and the server check. */
 export const BABY_LIMITS = {
-  name: 40,
+  name: BABY_NAME_MAX,
   birthWeightG: { step: 10, min: 500, max: 7000 },
   bornDaysAgo: { step: 1, min: 0, max: 365 },
 } as const;
@@ -107,7 +108,14 @@ export function useBabyProfile(): BabyProfile {
         setHousehold({ ...household, babyName: name.trim(), bornAt, birthWeightG });
         setSaved(true);
       } catch (error) {
-        setProblem(error instanceof HouseholdError ? error.reason : 'unknown');
+        // Only creating a household can miss the guardian declaration, the
+        // Terms or consent (P0.1, P0.2).
+        const reason = error instanceof HouseholdError ? error.reason : 'unknown';
+        setProblem(
+          reason === 'offline' || reason === 'signed_out' || reason === 'unknown'
+            ? reason
+            : 'unknown',
+        );
       } finally {
         setBusy(false);
       }

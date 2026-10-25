@@ -40,7 +40,7 @@ begin
     values (b, h, 'b', long_ago, long_ago);
   insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
       client_created_at)
-    values (pg_temp.id('eeeeeeee', n), h, b, 'diaper', long_ago, u, u, long_ago);
+    values (pg_temp.id('eeeeeeee', n), h, b, 'sleep', long_ago, u, u, long_ago);
   perform pg_temp.entry_written(n, long_ago);
 end
 $$;

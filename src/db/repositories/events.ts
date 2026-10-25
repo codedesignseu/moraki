@@ -1,8 +1,9 @@
-import { and, desc, eq, gt, inArray, isNull } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, isNull, lt } from 'drizzle-orm';
 
 import { getActivity, type Event, type EventType } from '@/domain/activities';
 
 import { protectPending, type PendingOp, type PulledEvent } from '@/domain/sync/pendingProtection';
+import { isPurgedTombstone, PURGE_AFTER_MS, purgeDue, toTombstone } from '@/domain/sync/purge';
 
 import { readIdentity, type Identity, type SyncDb } from '../identity';
 import { events, outbox } from '../schema';
@@ -446,6 +447,8 @@ export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
      * still waiting keeps the fields it touches (see protectPending), so an
      * unsent edit survives an older server copy. A payload this app can't
      * read is skipped rather than stored (rule 6), and never blocks the rest.
+     * The one payload stored without a schema is a purged tombstone's empty
+     * one (P0.6): it replaces the content here, whatever was waiting.
      */
     applyFromServer(pulled: readonly PulledEvent[]): { stored: number; skipped: number } {
       if (pulled.length === 0) return { stored: 0, skipped: 0 };
@@ -455,7 +458,8 @@ export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
       db.transaction((tx) => {
         for (const server of pulled) {
           const module = getActivity(server.type as EventType);
-          if (!module || !module.schema.safeParse(server.payload).success) {
+          const readable = module?.schema.safeParse(server.payload).success ?? false;
+          if (!readable && !isPurgedTombstone(server)) {
             console.warn(`[moraki] Pulled event ${server.id} skipped: unreadable payload`);
             skipped += 1;
             continue;
@@ -485,6 +489,48 @@ export function createEventsRepository(db: SyncDb, deps: EventsRepositoryDeps) {
 
       if (stored > 0) changed();
       return { stored, skipped };
+    },
+
+    /**
+     * Empties this phone's entries deleted more than 30 days ago (P0.6), the
+     * same way the server does, and returns how many. Writes no outbox op:
+     * the server purges its own copy. An entry with a write still waiting is
+     * left for a later run, once that write has gone, so nothing unsent is
+     * changed under it.
+     */
+    purgeOldTombstones(): number {
+      const now = deps.now();
+      const waiting = new Set(
+        db
+          .select({ id: outbox.entityId })
+          .from(outbox)
+          .where(eq(outbox.entity, 'event'))
+          .all()
+          .map((row) => row.id),
+      );
+      const due = db
+        .select()
+        .from(events)
+        .where(lt(events.deletedAt, now - PURGE_AFTER_MS))
+        .all()
+        .filter((row) => purgeDue(row, now) && !waiting.has(row.id));
+      if (due.length === 0) return 0;
+      db.transaction((tx) => {
+        for (const row of due) {
+          const empty = toTombstone({ ...row, deletedAt: row.deletedAt as number });
+          tx.update(events)
+            .set({
+              payload: empty.payload,
+              endedAt: empty.endedAt,
+              groupId: empty.groupId,
+              occurredAt: empty.occurredAt,
+            })
+            .where(eq(events.id, row.id))
+            .run();
+        }
+      });
+      changed();
+      return due.length;
     },
 
     /**

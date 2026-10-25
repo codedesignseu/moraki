@@ -1,3 +1,5 @@
+import { CAREGIVER_AGREEMENT_VERSION, type ConsentLocale } from '@/domain/consent/consent';
+
 import type { Auth } from './auth';
 import type { Relation } from './household';
 
@@ -23,6 +25,9 @@ export type InviteFailure =
   | 'already_in_household'
   | 'signed_out'
   | 'rate_limited'
+  | 'terms'
+  | 'agreement'
+  | 'paused'
   | 'offline'
   | 'unknown';
 
@@ -42,6 +47,12 @@ const REASONS: Record<string, InviteFailure> = {
   // is over invite_attempt_limit(), and by accept_invite when there is no
   // attempt on record recent enough to trust.
   MKI05: 'rate_limited',
+  // P0.2: joining needs the Terms, and the caregiver agreement in force.
+  MKI06: 'terms',
+  MKI07: 'agreement',
+  // P0.3: a frozen household takes no invites (MK005) and no joins (MKI08).
+  MKI08: 'paused',
+  MK005: 'paused',
   '42501': 'signed_out',
 };
 
@@ -131,7 +142,25 @@ export async function revokeInvite(auth: Auth, code: string): Promise<void> {
 }
 
 /**
- * Redeems a code: joins the household with the invite's role.
+ * What a code would make this account, before deciding to join (P0.2): the
+ * role only, nothing about the household or its baby. Counted as an attempt,
+ * like joining (P2-F7).
+ */
+export async function previewInvite(auth: Auth, code: string): Promise<InviteRole> {
+  const attempt = await auth.client.rpc('record_invite_attempt');
+  if (attempt.error) throw failure(attempt.error);
+
+  const { data, error } = await auth.client
+    .rpc('invite_preview', { code: normaliseCode(code) })
+    .select('role')
+    .single();
+  if (error) throw failure(error);
+  return (data as { role: InviteRole }).role;
+}
+
+/**
+ * Redeems a code: joins the household with the invite's role, accepting the
+ * caregiver agreement in force (P0.2) in the same call.
  *
  * Records the attempt first (P2-F7). `accept_invite` refuses outright unless
  * a very recent attempt is on record, which is what makes the count durable:
@@ -145,6 +174,7 @@ export async function acceptInvite(
   code: string,
   displayName: string,
   relation: Relation | null,
+  locale: ConsentLocale,
 ): Promise<Joined> {
   const attempt = await auth.client.rpc('record_invite_attempt');
   if (attempt.error) throw failure(attempt.error);
@@ -154,6 +184,8 @@ export async function acceptInvite(
       code: normaliseCode(code),
       display_name: displayName.trim(),
       relation,
+      agreement_version: CAREGIVER_AGREEMENT_VERSION,
+      locale,
     })
     .select('household_id, role, baby_id, baby_name')
     .single();

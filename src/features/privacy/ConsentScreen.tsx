@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { legalLink } from '@/domain/consent/consent';
 import type { IconName } from '@/ui/icons';
 import { Button, Card, IconCircle, InlineError, Page, TextButton } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
@@ -28,8 +29,14 @@ const PARAGRAPHS: readonly {
  * fifth (what withdrawing does) added with the 2026-10-18 text. No titles,
  * intro or date (decision G3).
  */
-export function ConsentScreen({ onDone }: { onDone: () => void }) {
-  const { t } = useTranslation();
+export function ConsentScreen({
+  onDone,
+  onOpenLink = () => {},
+}: {
+  onDone: () => void;
+  onOpenLink?: (url: string) => void;
+}) {
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   const { granted, problem, busy, agree, withdraw } = useConsent();
@@ -86,6 +93,17 @@ export function ConsentScreen({ onDone }: { onDone: () => void }) {
           </Fragment>
         ))}
       </Card>
+      {/* P0.9: the documents this consent sits alongside, one tap away. */}
+      <View style={s.links} testID="consent-links">
+        <TextButton
+          label={t('terms.privacyLink')}
+          onPress={() => onOpenLink(legalLink('privacy', i18n.language))}
+        />
+        <TextButton
+          label={t('terms.termsLink')}
+          onPress={() => onOpenLink(legalLink('terms', i18n.language))}
+        />
+      </View>
       <Text style={s.version}>{t('consent.version', { version: t('consent.versionName') })}</Text>
     </Page>
   );
@@ -100,5 +118,6 @@ const styles = (theme: Theme) =>
     agreed: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
     agreedText: { ...theme.type.lead, flex: 1, color: theme.palette.ink },
     version: { ...theme.type.small, color: theme.palette.textSoft },
+    links: { gap: theme.spacing.xs },
     hint: { ...theme.type.small, color: theme.palette.textSoft, textAlign: 'center' },
   });

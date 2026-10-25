@@ -82,7 +82,10 @@ create function public.household_last_active_at(household uuid) returns timestam
 language sql stable security definer set search_path = '' as $$
   select greatest(
     (select h.created_at from public.households h where h.id = household),
-    (select max(e.server_updated_at) from public.events e where e.household_id = household),
+    -- A purged row counts as activity at the time it was deleted, not when the
+    -- purge rewrote it (as in 20261024140000_purge_deleted_event_content.sql).
+    (select max(case when e.purged_at is null then e.server_updated_at else e.deleted_at end)
+       from public.events e where e.household_id = household),
     (select max(b.updated_at) from public.babies b where b.household_id = household),
     (select max(m.joined_at) from public.memberships m where m.household_id = household),
     (select max(u.last_sign_in_at) from public.memberships m

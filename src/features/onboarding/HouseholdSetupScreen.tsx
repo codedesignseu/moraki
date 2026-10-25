@@ -5,11 +5,13 @@ import { RELATIONS } from '@/sync/household';
 import {
   Button,
   Card,
+  Checkbox,
   Chip,
   FieldLabel,
   InlineError,
   Page,
   Stepper,
+  TextButton,
   TextField,
 } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
@@ -24,18 +26,23 @@ import { LIMITS, useHouseholdSetup } from './useHouseholdSetup';
 export function HouseholdSetupScreen({
   onDone,
   onClose,
+  onConsent = () => {},
 }: {
   onDone: () => void;
   onClose: () => void;
+  /** Opens the health-data consent screen (P0.2). */
+  onConsent?: () => void;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);
   const setup = useHouseholdSetup(onDone);
-  const problem = (field: 'display_name' | 'baby_name' | 'birth_weight') =>
-    setup.problem === field ? t(`householdSetup.problem.${field}`) : undefined;
+  const problem = (
+    field: 'display_name' | 'baby_name' | 'birth_weight' | 'guardian' | 'consent',
+  ) => (setup.problem === field ? t(`householdSetup.problem.${field}`) : undefined);
   const general =
-    setup.problem && !['display_name', 'baby_name', 'birth_weight'].includes(setup.problem)
+    setup.problem &&
+    !['display_name', 'baby_name', 'birth_weight', 'guardian', 'consent'].includes(setup.problem)
       ? t(`householdSetup.problem.${setup.problem}` as 'householdSetup.problem.offline')
       : null;
 
@@ -118,6 +125,41 @@ export function HouseholdSetupScreen({
           message={problem('birth_weight')}
           errorPrefix={t('common.error')}
         />
+      </Card>
+
+      {/* P0.1: its own statement, apart from health-data consent, never pre-ticked. */}
+      <Card testID="setup-guardian">
+        <Text style={s.title} accessibilityRole="header">
+          {t('householdSetup.guardian.title')}
+        </Text>
+        <Checkbox
+          label={t('householdSetup.guardian.declaration')}
+          checked={setup.guardianDeclared}
+          onChange={setup.setGuardianDeclared}
+          invalid={problem('guardian') !== undefined}
+          message={problem('guardian')}
+          errorPrefix={t('common.error')}
+          testID="setup-guardian-declaration"
+        />
+        <Text style={s.label}>{t('householdSetup.guardian.hint')}</Text>
+      </Card>
+
+      {/* P0.2: the guardian's health-data consent, on its own screen, first. */}
+      <Card testID="setup-consent">
+        <Text style={s.title} accessibilityRole="header">
+          {t('householdSetup.consent.title')}
+        </Text>
+        {setup.consentGranted ? (
+          <Text style={s.label}>{t('householdSetup.consent.agreed')}</Text>
+        ) : (
+          <>
+            <Text style={s.label}>{t('householdSetup.consent.body')}</Text>
+            {problem('consent') ? (
+              <InlineError message={problem('consent')!} prefix={t('common.error')} />
+            ) : null}
+            <TextButton label={t('householdSetup.consent.button')} onPress={onConsent} />
+          </>
+        )}
       </Card>
     </Page>
   );

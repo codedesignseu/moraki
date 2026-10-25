@@ -80,8 +80,11 @@
         Settings → Data export → Export my data. Moraki makes two files on your phone, one for a
         spreadsheet (CSV) with your baby's entries, and a fuller one (JSON) that also has the baby's
         details and the names and roles of the people in your household. It opens the share sheet
-        so you can save or send them. Deleted entries and email addresses are not included.
+        so you can save or send them. If you're signed in, the JSON also has your own account: your
+        email address, how you sign in, your consent records and the feedback you sent. Deleted
+        entries and other people's email addresses are not included.
       </p>
+      <!-- DRAFT for legal review (P0.10): export now includes the signed-in account's own records. -->
 </section>
 <section class="card" id="s5" aria-labelledby="delete"><h2 id="delete">How do I leave a household or delete my account?</h2>
 <p>Both are in Settings → Leave or delete.</p>
@@ -108,12 +111,16 @@
       <p>
         No longer have the app? Email
         <a href="mailto:hello@moraki.app">hello@moraki.app</a> from the address you signed in
-        with and ask us to delete your account. We will do it and confirm, within one month.
+        with and ask us to delete your account, or for a copy of your data. We'll ask you to confirm
+        from that address, then do it and tell you, within one month.
       </p>
+      <!-- DRAFT for legal review (P0.10, P1.3): verification per docs/compliance/data-requests.md. -->
       <p>
-        If you signed in with Apple and chose Hide My Email, we can't match your address. The quickest way
-        is to install Moraki again, sign in with Apple and delete your account in the app. Or write
-        to us from any address and tell us the date you signed up.
+        If you signed in with Apple and chose Hide My Email, the quickest way is to install Moraki
+        again, sign in with Apple and delete your account in the app. Or write to us from any address
+        with the hidden address Apple made for Moraki (on your iPhone: Settings → your name → Sign in
+        with Apple → Moraki). We'll send a code to that address, which Apple forwards to you; reply
+        with the code to confirm.
       </p>
 </section>
 <section class="card" id="s6" aria-labelledby="q6"><h2 id="q6">Reminders aren't appearing</h2>

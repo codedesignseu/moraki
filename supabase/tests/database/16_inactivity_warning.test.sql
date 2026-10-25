@@ -19,7 +19,7 @@
 --   17 warned 31 days ago, no member address        -> deleted
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(40);
+select plan(41);
 
 create function pg_temp.id(prefix text, n int) returns uuid language sql as $$
   select (prefix || '-0000-0000-0000-' || lpad(n::text, 12, '0'))::uuid
@@ -189,6 +189,23 @@ select is(pg_temp.left(1) + pg_temp.left(2) + pg_temp.left(6), 3,
   'households warned today are not deleted today');
 
 select is(public.sweep_inactive_households(), 0, 'running it again deletes nothing more');
+
+-- A purged entry counts as activity when it was deleted, not when the nightly
+-- purge rewrote it (20261024140000). Triggers are off for this setup only.
+set local session_replication_role = replica;
+insert into public.households (id, name, created_by, created_at) values
+  ('aaaaaaaa-0000-0000-0000-0000000000f1', 'Purged', '00000000-0000-0000-0000-000000000001',
+   now() - interval '30 months');
+insert into public.events (id, household_id, baby_id, type, occurred_at, payload, created_by,
+    updated_by, client_created_at, deleted_at, purged_at, server_updated_at, seq) values
+  ('eeeeeeee-0000-0000-0000-0000000000f1', 'aaaaaaaa-0000-0000-0000-0000000000f1',
+   'bbbbbbbb-0000-0000-0000-0000000000f1', 'diaper',
+   now() - interval '26 months', '{}', '00000000-0000-0000-0000-000000000001',
+   '00000000-0000-0000-0000-000000000001', now() - interval '26 months',
+   now() - interval '25 months', now(), now(), 999999);
+set local session_replication_role = origin;
+select ok(public.household_last_active_at('aaaaaaaa-0000-0000-0000-0000000000f1') < now() - interval '24 months',
+  'a purge does not count as activity: the deletion time does');
 
 select * from finish();
 rollback;

@@ -52,6 +52,16 @@ than forgotten.
 | Legal             | Sentry's DPA. Error retention is set to **30 days**                                     |
 | Status            | live from P4-08, and inert in any build without a DSN                                   |
 
+What the app does, and what it can't (P1.1, assessment Q148–150, Q155):
+
+- **Scrubbed in the app.** JS errors and JS breadcrumbs go through an allow-list scrubber (`src/observability/scrub.ts`). Sessions, client reports, screenshots, view hierarchies, replays, logs, profiles and tracing are off. Native breadcrumbs (iOS network requests with their URLs, Android lifecycle and system events) are off. iOS app hangs and watchdog terminations are off.
+- **Not scrubbed in the app.** Native crashes, and on Android the ANRs that come with them, are captured by the native SDKs, which never run the JS scrubber. They carry a stack trace, device and OS context (model, OS version, memory, free storage, locale, time zone) and the JS breadcrumbs and tags, which are scrubbed already. Crash reporting stays on for these, by choice.
+- **Owner, in the Sentry dashboard** (Settings → Security & Privacy, organisation and project):
+  - [ ] **Data Scrubber** on.
+  - [ ] **Use Default Scrubbers** on.
+  - [x] **Prevent Storing of IP Addresses** on (owner-confirmed).
+  - [ ] Optional: add `note`, `title`, `doctor`, `questions` and `name` to **Additional Sensitive Fields**.
+
 ### Expo — build service and update delivery
 
 |                   |                                                                                                                                                                                                                                                                                                                                                              |
