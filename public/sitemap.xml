@@ -140,4 +140,32 @@
     <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/cookies/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/cookies/"/>
   </url>
+  <url>
+    <loc>https://moraki.app/disclaimer/</loc>
+    <lastmod>2026-10-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/disclaimer/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/disclaimer/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/disclaimer/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/el/disclaimer/</loc>
+    <lastmod>2026-10-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/disclaimer/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/disclaimer/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/disclaimer/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/data-deletion/</loc>
+    <lastmod>2026-10-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/data-deletion/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/data-deletion/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/data-deletion/"/>
+  </url>
+  <url>
+    <loc>https://moraki.app/el/data-deletion/</loc>
+    <lastmod>2026-10-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://moraki.app/data-deletion/"/>
+    <xhtml:link rel="alternate" hreflang="el" href="https://moraki.app/el/data-deletion/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://moraki.app/data-deletion/"/>
+  </url>
 </urlset>
