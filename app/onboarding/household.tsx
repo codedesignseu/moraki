@@ -15,7 +15,11 @@ export default function HouseholdSetup() {
   return (
     <>
       <Stack.Screen options={PAGE_OPTIONS} />
-      <HouseholdSetupScreen onDone={toHome} onClose={() => router.back()} />
+      <HouseholdSetupScreen
+        onDone={toHome}
+        onClose={() => router.back()}
+        onConsent={() => router.push('/onboarding/consent')}
+      />
     </>
   );
 }

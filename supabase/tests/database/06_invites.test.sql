@@ -20,6 +20,17 @@ insert into public.memberships (household_id, user_id, role, display_name) value
   ('aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'caregiver', 'Nik');
 insert into public.babies (id, household_id, name, born_at) values
   ('bbbbbbbb-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001', 'Ella', now());
+-- P0.3: the owner is a guardian with consent in force (every user consented
+-- above), so the household isn't frozen and takes new members.
+update public.memberships set is_guardian = true where role = 'owner';
+
+-- P0.2: joining needs the Terms on record.
+insert into public.consent_events (user_id, purpose, version, action, text_key)
+  select id, 'terms', public.terms_version(), 'grant', 'test' from auth.users;
+
+-- P0.2: joining needs the Terms on record.
+insert into public.consent_events (user_id, purpose, version, action, text_key)
+  select id, 'terms', public.terms_version(), 'grant', 'test' from auth.users;
 
 create function pg_temp.login(n int) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object(
@@ -29,7 +40,7 @@ $$;
 -- Who may call what.
 select ok(not has_function_privilege('anon', 'public.create_invite(uuid, public.member_role)', 'execute'),
   'anon can''t create an invite');
-select ok(not has_function_privilege('anon', 'public.accept_invite(text, text, text)', 'execute'),
+select ok(not has_function_privilege('anon', 'public.accept_invite(text, text, text, text, text)', 'execute'),
   'anon can''t accept an invite');
 select ok(not has_function_privilege('authenticated', 'public.joined_household(uuid, uuid)', 'execute'),
   'joined_household is internal to accept_invite');
@@ -79,7 +90,7 @@ select is((select count(distinct code)::int from (
 select pg_temp.login(3);
 select public.record_invite_attempt();
 select results_eq(
-  format($$select household_id, role::text, baby_id, baby_name from public.accept_invite(%L, ' Yiayia ', 'grandparent')$$,
+  format($$select household_id, role::text, baby_id, baby_name from public.accept_invite(%L, ' Yiayia ', 'grandparent', agreement_version => public.caregiver_agreement_version())$$,
     (select code from made)),
   $$values ('aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'caregiver',
     'bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'Ella')$$,
@@ -103,14 +114,14 @@ select pg_temp.login(3);
 
 -- Retrying the same accept is harmless; anyone else is refused.
 select public.record_invite_attempt();
-select lives_ok(format($$select public.accept_invite(%L, 'Yiayia')$$, (select code from made)),
+select lives_ok(format($$select public.accept_invite(%L, 'Yiayia', agreement_version => public.caregiver_agreement_version())$$, (select code from made)),
   'the same person retrying gets the same answer');
 reset role;
 select is((select count(*)::int from public.memberships), 3, 'and joins only once');
 set local role authenticated;
 select pg_temp.login(4);
 select public.record_invite_attempt();
-select throws_ok(format($$select public.accept_invite(%L, 'Nobody')$$, (select code from made)),
+select throws_ok(format($$select public.accept_invite(%L, 'Nobody', agreement_version => public.caregiver_agreement_version())$$, (select code from made)),
   'MKI02', null, 'a used code is refused');
 reset role;
 select is((select count(*)::int from public.memberships), 3, 'and nobody else is added');
@@ -118,7 +129,7 @@ set local role authenticated;
 
 -- Codes that don't work. Still user 4, still recently attempted.
 select public.record_invite_attempt();
-select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Nobody')$$, 'MKI01', null,
+select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Nobody', agreement_version => public.caregiver_agreement_version())$$, 'MKI01', null,
   'an unknown code is refused');
 reset role; -- an expired invite, made before it ran out
 insert into public.invites (code, household_id, created_by, expires_at) values
@@ -127,7 +138,7 @@ insert into public.invites (code, household_id, created_by, expires_at) values
 set local role authenticated;
 select pg_temp.login(4);
 select public.record_invite_attempt();
-select throws_ok($$select public.accept_invite('EXPRDAB2', 'Nobody')$$, 'MKI03', null,
+select throws_ok($$select public.accept_invite('EXPRDAB2', 'Nobody', agreement_version => public.caregiver_agreement_version())$$, 'MKI03', null,
   'an expired code is refused');
 
 -- One household per account for now.
@@ -135,14 +146,14 @@ select pg_temp.login(1);
 create temp table fresh as select * from public.create_invite('aaaaaaaa-0000-0000-0000-000000000001', 'viewer');
 select pg_temp.login(2);
 select public.record_invite_attempt();
-select throws_ok(format($$select public.accept_invite(%L, 'Nik')$$, (select code from fresh)),
+select throws_ok(format($$select public.accept_invite(%L, 'Nik', agreement_version => public.caregiver_agreement_version())$$, (select code from fresh)),
   'MKI04', null, 'someone already in a household is refused');
 
 -- A viewer invite makes a viewer.
 select pg_temp.login(4);
 select public.record_invite_attempt();
 select results_eq(
-  format($$select role::text from public.accept_invite(%L, 'Watcher')$$, (select code from fresh)),
+  format($$select role::text from public.accept_invite(%L, 'Watcher', agreement_version => public.caregiver_agreement_version())$$, (select code from fresh)),
   $$values ('viewer')$$, 'a viewer invite makes a viewer');
 select ok(public.is_member('aaaaaaaa-0000-0000-0000-000000000001')
   and not public.can_write('aaaaaaaa-0000-0000-0000-000000000001'),
@@ -151,7 +162,7 @@ select throws_ok(
   $$insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
       client_created_at)
     values (gen_random_uuid(), 'aaaaaaaa-0000-0000-0000-000000000001',
-      'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(),
+      'bbbbbbbb-0000-0000-0000-000000000001', 'sleep', now(),
       '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004', now())$$,
   '42501', null, 'and still can''t log anything');
 
@@ -160,18 +171,20 @@ select pg_temp.login(1);
 create temp table loose as select * from public.create_invite('aaaaaaaa-0000-0000-0000-000000000001');
 reset role;
 insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000005', 'five@example.test');
+insert into public.consent_events (user_id, purpose, version, action, text_key)
+  values ('00000000-0000-0000-0000-000000000005', 'terms', public.terms_version(), 'grant', 'test');
 set local role authenticated;
 select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-000000000005","role":"authenticated"}', true);
 select public.record_invite_attempt();
 select lives_ok(
-  format($$select public.accept_invite(%L, 'Five')$$,
+  format($$select public.accept_invite(%L, 'Five', agreement_version => public.caregiver_agreement_version())$$,
     lower(substr((select code from loose), 1, 4)) || '-' || lower(substr((select code from loose), 5, 4))),
   'lower case with a dash is the same code');
 
 -- Signed out, nothing happens.
 select set_config('request.jwt.claims', '{"role":"authenticated"}', true);
-select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Nobody')$$, '42501', null,
+select throws_ok($$select public.accept_invite('ZZZZZZZZ', 'Nobody', agreement_version => public.caregiver_agreement_version())$$, '42501', null,
   'without a user, accepting is refused');
 select throws_ok($$select public.create_invite('aaaaaaaa-0000-0000-0000-000000000001')$$, '42501', null,
   'without a user, creating an invite is refused');

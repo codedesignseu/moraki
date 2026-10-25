@@ -18,9 +18,7 @@ export type WeightLogView = {
   /** Newest first, the way the log reads. */
   rows: WeightLogRow[];
   points: WeightPoint[];
-  references: { key: string; grams: number; percent: number }[];
-  markerDays: number[];
-  /** The x axis: day 0 to the later of day 14 and the last weighing. */
+  /** The x axis: day 0 to the later of two weeks and the last weighing. */
   days: { min: number; max: number };
   birthGrams: number | null;
   latest: WeightPoint | null;
@@ -60,12 +58,6 @@ export function useWeightLog(): WeightLogView {
         source: p.source,
       })),
       points: view.points,
-      references: view.references.map((r) => ({
-        key: `pct-${r.pctOfBirth}`,
-        grams: r.grams,
-        percent: r.pctOfBirth,
-      })),
-      markerDays: view.markerDays,
       days: { min: 0, max: Math.max(MIN_DAYS, lastDay) },
       birthGrams,
       latest: view.latest,

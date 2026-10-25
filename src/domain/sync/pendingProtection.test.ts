@@ -95,3 +95,31 @@ describe('what a pull may overwrite', () => {
     expect(merged?.seq).toBe(11); // the server's place in the order is still taken
   });
 });
+
+describe('a purged tombstone (P0.6)', () => {
+  const tombstone: PulledEvent = {
+    ...SERVER,
+    payload: {},
+    groupId: null,
+    occurredAt: 3_000,
+    deletedAt: 3_000,
+    seq: 20,
+  };
+
+  it('replaces an unsent edit: the server ignores it, so the content must go', () => {
+    const mine = local({ payload: { ml: 150, milk: 'formula' } });
+    const waiting: PendingOp[] = [{ op: 'patch', payload: { ml: 150 }, occurredAt: 1_000 }];
+    expect(protectPending(tombstone, mine, waiting)).toEqual(tombstone);
+  });
+
+  it('replaces a local copy whose insert is still waiting to be answered', () => {
+    expect(protectPending(tombstone, local({}), [{ op: 'insert' }])).toEqual(tombstone);
+  });
+
+  it('replaces a local copy with its own unsent delete', () => {
+    const mine = local({ deletedAt: 2_500 });
+    expect(protectPending(tombstone, mine, [{ op: 'delete', deletedAt: 2_500 }])).toEqual(
+      tombstone,
+    );
+  });
+});

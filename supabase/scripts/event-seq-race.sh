@@ -18,7 +18,7 @@ H2=00000000-0000-0000-0000-0000000000a2 B2=00000000-0000-0000-0000-0000000000b2
 q() { psql "$DB" -qAt -v ON_ERROR_STOP=1 -c "$1"; }
 ins() {
   echo "insert into public.events (id, household_id, baby_id, type, occurred_at, created_by,
-    updated_by, client_created_at) values ('$1', '$2', '$3', 'diaper', now(), '$U', '$U', now());"
+    updated_by, client_created_at) values ('$1', '$2', '$3', 'sleep', now(), '$U', '$U', now());"
 }
 now_ms() { python3 -c 'import time; print(int(time.time() * 1000))'; }
 cleanup() { q "delete from public.households where id in ('$H1', '$H2'); delete from auth.users where id = '$U';"; }

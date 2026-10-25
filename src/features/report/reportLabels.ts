@@ -9,6 +9,10 @@ import type { ReportLabels, ReportSection, ReportStat } from './reportHtml';
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
 
+/** A change in grams with its sign, "+110 g" or "−295 g": arithmetic, not a verdict. */
+export const signedGrams = (grams: number) =>
+  grams > 0 ? `+${grams}` : grams < 0 ? `\u2212${-grams}` : `${grams}`;
+
 /** A row is left out when there is nothing to say, rather than reading zero. */
 const rows = (entries: ({ label: string; value: string } | null)[]) =>
   entries.filter((entry): entry is { label: string; value: string } => entry !== null);
@@ -76,13 +80,12 @@ export function reportLabels(
                 day: report.weight.latest.day,
               }),
             },
-        report.weight.changeG === null || report.weight.changePct === null
+        report.weight.changeG === null
           ? null
           : {
               label: t('report.call.weight.change'),
               value: t('report.call.weight.changeValue', {
-                grams: report.weight.changeG,
-                percent: report.weight.changePct,
+                grams: signedGrams(report.weight.changeG),
               }),
             },
       ]),

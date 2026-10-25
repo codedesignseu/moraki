@@ -26,10 +26,10 @@ insert into public.babies (id, household_id, name, born_at) values
 insert into public.events (id, household_id, baby_id, type, occurred_at, created_by, updated_by,
     client_created_at) values
   ('eeeeeeee-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000001',
-   'bbbbbbbb-0000-0000-0000-000000000001', 'diaper', now(),
+   'bbbbbbbb-0000-0000-0000-000000000001', 'sleep', now(),
    '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', now()),
   ('eeeeeeee-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000002',
-   'bbbbbbbb-0000-0000-0000-000000000002', 'diaper', now(),
+   'bbbbbbbb-0000-0000-0000-000000000002', 'sleep', now(),
    '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004', now());
 insert into public.invites (code, household_id, created_by, expires_at) values
   ('ABCDEFGH', 'aaaaaaaa-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', now() + interval '1 day');
@@ -44,6 +44,19 @@ insert into public.push_tokens (user_id, device_id, token, platform) values
   ('00000000-0000-0000-0000-000000000004', 'phone', 't4', 'ios');
 
 -- Signs in as user n for the rest of the transaction, or until the next call.
+-- P0.2: seeing and writing baby data needs the caregiver agreement (or a
+-- guardian's consent); every member here has accepted it. P0.3: and a
+-- household needs a guardian whose consent is in force, or it is frozen:
+-- each owner here is one.
+update public.memberships set is_guardian = true where role = 'owner';
+insert into public.consents (user_id, policy_version)
+  select user_id, public.consent_version() from public.memberships where role = 'owner'
+  on conflict do nothing;
+insert into public.consent_events (user_id, purpose, version, action, text_key, household_id)
+  select user_id, 'caregiver_agreement', public.caregiver_agreement_version(), 'grant', 'test',
+         household_id
+  from public.memberships;
+
 create function pg_temp.login(n int) returns void language sql as $$
   select set_config('request.jwt.claims', json_build_object(
     'sub', ('00000000-0000-0000-0000-00000000000' || n)::uuid, 'role', 'authenticated')::text, true)::void

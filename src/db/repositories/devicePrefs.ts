@@ -98,6 +98,54 @@ export const DEVICE_PREFS = {
       .nullable(),
     default: null,
   },
+  /**
+   * This account agreeing to the Terms of Use (P0.9), by version: the server
+   * holds the record (consent_events); this copy says whether to ask again.
+   */
+  terms: {
+    key: 'pref.terms',
+    schema: z.object({ userId: z.uuid(), version: z.string().min(1) }).nullable(),
+    default: null,
+  },
+  /**
+   * Whether this account's guardian declaration for its household is on the
+   * server's record (P0.1): an owner without one is asked once, and their
+   * entries wait until they answer. Null until the server has been asked.
+   */
+  guardianDeclaration: {
+    key: 'pref.guardian_declaration',
+    schema: z.object({ userId: z.uuid(), householdId: z.uuid(), onRecord: z.boolean() }).nullable(),
+    default: null,
+  },
+  /**
+   * What the server last said this account may do with its household's baby
+   * data (P0.2, `my_membership_status`). Until it says `granted`, nothing is
+   * sent or read, and the screen for what is missing is shown. Null until the
+   * server has been asked.
+   */
+  householdAccess: {
+    key: 'pref.household_access',
+    schema: z
+      .object({
+        userId: z.string().min(1),
+        householdId: z.string().min(1),
+        access: z.enum(['granted', 'needs_consent', 'needs_agreement', 'frozen']),
+        isGuardian: z.boolean(),
+      })
+      .nullable(),
+    default: null,
+  },
+  /**
+   * Why this phone was just cleared of its household (P0.5), shown once and
+   * then set back to null: the account was removed from it, the household
+   * was deleted, or the account itself was. Kept through the reset it
+   * explains, and about no household, so nothing of the old one is in it.
+   */
+  revokedNotice: {
+    key: 'pref.revoked_notice',
+    schema: z.enum(['not_member', 'household_gone', 'account_gone']).nullable(),
+    default: null,
+  },
 } as const;
 
 export type DevicePrefName = keyof typeof DEVICE_PREFS;

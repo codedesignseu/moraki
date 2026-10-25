@@ -9,7 +9,7 @@ import type { OutboxRepository } from './repositories/outbox';
 import { babies, events, memberships, meta, outbox, syncErrors } from './schema';
 
 export type ResetScope = {
-  /** Also forget this account's consent record: true when the account itself is gone. */
+  /** Also forget this account's consent and Terms records: true when the account itself is gone. */
   forgetAccount: boolean;
 };
 
@@ -33,7 +33,9 @@ export function resetPhone(db: SyncDb, scope: ResetScope, newId: () => string): 
     DEVICE_PREFS.accountHousehold.key,
     DEVICE_PREFS.localEntries.key,
     DEVICE_PREFS.keptDuplicates.key,
-    ...(scope.forgetAccount ? [DEVICE_PREFS.consent.key] : []),
+    DEVICE_PREFS.guardianDeclaration.key,
+    DEVICE_PREFS.householdAccess.key,
+    ...(scope.forgetAccount ? [DEVICE_PREFS.consent.key, DEVICE_PREFS.terms.key] : []),
   ];
 
   db.transaction((tx) => {

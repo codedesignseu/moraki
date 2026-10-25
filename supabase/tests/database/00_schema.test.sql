@@ -6,16 +6,17 @@ select plan(36);
 select tables_are(
   'public',
   array['households', 'memberships', 'babies', 'events', 'invites', 'consents', 'push_tokens',
-        'feedback', 'invite_attempts'],
-  'public has exactly the SDD 4.2 tables, plus feedback (P4-13) and invite_attempts (P2-F7)'
+        'feedback', 'invite_attempts', 'consent_events'],
+  'public has exactly the SDD 4.2 tables, plus feedback (P4-13), invite_attempts (P2-F7) and consent_events (P0.4)'
 );
 select enum_has_labels('public', 'member_role', array['owner', 'caregiver', 'viewer'], 'member_role values');
 
 -- events: every column, its type and nullability, as sync depends on them.
 select columns_are('public', 'events', array[
   'id', 'household_id', 'baby_id', 'type', 'occurred_at', 'ended_at', 'payload', 'group_id',
-  'created_by', 'updated_by', 'client_created_at', 'server_updated_at', 'deleted_at', 'seq'
-], 'events has the SDD columns');
+  'created_by', 'updated_by', 'client_created_at', 'server_updated_at', 'deleted_at', 'seq',
+  'purged_at'
+], 'events has the SDD columns, plus purged_at (P0.6)');
 select col_type_is('public', 'events', 'id', 'uuid', 'events.id is uuid');
 select col_type_is('public', 'events', 'occurred_at', 'timestamp with time zone', 'occurred_at is timestamptz');
 select col_type_is('public', 'events', 'payload', 'jsonb', 'payload is jsonb');

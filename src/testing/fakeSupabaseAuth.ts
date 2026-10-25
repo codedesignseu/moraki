@@ -103,10 +103,31 @@ export function authServer(
     /** Rows a pull finds; `seq` is the PostgREST filter, e.g. "gt.7". */
     events?: (seq: string) => unknown[];
     acceptInvite?: () => Response;
+    /** GET /auth/v1/user (P0.5): whether the account still exists. Defaults to it does. */
+    user?: () => Response;
+    /** invite_preview (P0.2): the role a code would give. Defaults to caregiver. */
+    previewInvite?: () => Response;
+    /**
+     * my_membership_status (P0.2): where the account stands with a household.
+     * Defaults to a member with access, in the role `memberships` gives (an
+     * owner otherwise), a guardian if an owner, with the first baby.
+     */
+    membershipStatus?: (body: Record<string, unknown>) => Record<string, unknown> | Response;
     /** record_invite_attempt (P2-F7), called before accept_invite. Defaults to success. */
     recordInviteAttempt?: () => Response;
     /** A message left through the feedback form (P4-13), and a way to refuse one. */
     feedback?: (row: Record<string, unknown>) => Response | undefined;
+    /**
+     * The account's guardian_declaration rows in consent_events (P0.1).
+     * Defaults to one, on record; a Response answers instead (an outage).
+     */
+    guardianEvents?: () => unknown[] | Response;
+    /** The account's Terms rows in consent_events (P0.9). Defaults to one, agreed. */
+    termsEvents?: () => unknown[] | Response;
+    /** record_consent (P0.4): called with the body; a Response refuses it. */
+    recordConsent?: (body: Record<string, unknown>) => Response | undefined;
+    /** declare_guardian (P0.1): called with the body; a Response refuses it. */
+    declareGuardian?: (body: Record<string, unknown>) => Response | undefined;
     /** grant_consent and withdraw_consent (P3-09). */
     consent?: (path: string) => Response;
     createHousehold?: () => Response;
@@ -145,6 +166,8 @@ export function authServer(
         // grant_type=id_token; email OTP's own refresh calls never reach a
         // fake that never expires a session within a test's lifetime.
         return options.idToken?.() ?? json(200, session(Math.floor(Date.now() / 1000) + HOUR_S));
+      case '/auth/v1/user':
+        return options.user?.() ?? json(200, session(Math.floor(Date.now() / 1000) + HOUR_S).user);
       case '/auth/v1/logout':
         return new Response(null, { status: 204 });
       case '/rest/v1/events': {
@@ -277,6 +300,33 @@ export function authServer(
             }),
           )
         );
+      case '/rest/v1/rpc/invite_preview':
+        return options.previewInvite?.() ?? json(200, one({ role: 'caregiver' }));
+      case '/rest/v1/rpc/my_membership_status': {
+        const answer = options.membershipStatus?.(body);
+        if (answer instanceof Response) return answer;
+        const role = options.memberships?.[0]?.role ?? 'owner';
+        const baby = options.babies?.[0];
+        return json(200, [
+          answer ?? {
+            status: 'member',
+            role,
+            is_guardian: role === 'owner',
+            access: 'granted',
+            baby_id: baby?.id ?? null,
+            baby_name: baby?.name ?? null,
+          },
+        ]);
+      }
+      case '/rest/v1/consent_events': {
+        const terms = url.searchParams.get('purpose') === 'eq.terms';
+        const rows = (terms ? options.termsEvents : options.guardianEvents)?.() ?? [{ id: 1 }];
+        return rows instanceof Response ? rows : json(200, rows);
+      }
+      case '/rest/v1/rpc/record_consent':
+        return options.recordConsent?.(body) ?? json(200, new Date().toISOString());
+      case '/rest/v1/rpc/declare_guardian':
+        return options.declareGuardian?.(body) ?? json(200, new Date().toISOString());
       case '/rest/v1/rpc/grant_consent':
       case '/rest/v1/rpc/withdraw_consent':
         return options.consent?.(url.pathname) ?? json(200, new Date().toISOString());
