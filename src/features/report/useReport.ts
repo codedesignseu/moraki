@@ -7,6 +7,7 @@ import { useDevicePref, useEvents } from '@/db/react';
 import { buildReport, type Report, type ReportRange } from '@/domain/report/buildReport';
 import { formatDateTime } from '@/domain/time/formatDateTime';
 import { dateLocale } from '@/i18n';
+import { removeQuietly } from '@/privacy/removeQuietly';
 import { deviceTimeZone } from '@/ui/deviceTimeZone';
 import { useNow } from '@/ui/useNow';
 
@@ -29,7 +30,9 @@ export type ReportView = {
 /**
  * A report and the PDF made from it (SDD 6.5). The PDF is rendered on the
  * device by expo-print, so health data never leaves the phone to become one,
- * and the share sheet decides where it goes from there.
+ * and the share sheet decides where it goes from there. The file expo-print
+ * wrote to the cache is deleted once the share sheet closes, or once sharing
+ * fails, so no copy of the report is left behind (P1.2).
  */
 export function useReport(range: ReportRange): ReportView {
   const events = useEvents();
@@ -79,11 +82,16 @@ export function useReport(range: ReportRange): ReportView {
       const { uri } = await Print.printToFileAsync({
         html: reportHtml(report, labels, i18n.language),
       });
-      await Sharing.shareAsync(uri, {
-        mimeType: 'application/pdf',
-        UTI: 'com.adobe.pdf',
-        dialogTitle: labels.title,
-      });
+      try {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          UTI: 'com.adobe.pdf',
+          dialogTitle: labels.title,
+        });
+      } finally {
+        // Handed on or failed: either way the report must not sit in the cache.
+        removeQuietly(uri);
+      }
     } catch {
       // The reason is never shown or logged: it can name a file holding
       // health data (rule 8).
