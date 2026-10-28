@@ -116,8 +116,8 @@ export function guardianStatus(
  * moraki.app. Bumping TERMS_VERSION asks every signed-in account to agree
  * again before their entries sync (P1.4).
  */
-export const TERMS_VERSION = '2026-10-24';
-export const PRIVACY_VERSION = '2026-10-24';
+export const TERMS_VERSION = '2026-10-28';
+export const PRIVACY_VERSION = '2026-10-28';
 
 /** What this phone remembers about an account agreeing to the Terms. */
 export type TermsRecord = { userId: string; version: string };
