@@ -99,7 +99,7 @@ Source: https://moraki.app/faq/
 
 Short answers to the questions we hear most about Moraki. Can’t find yours? Our support page has a way to reach us.
 
-Last updated: [date]
+Last updated: 28 October 2026
 
 ## Getting started
 
