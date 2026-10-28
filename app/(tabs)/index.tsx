@@ -1,6 +1,8 @@
 import { useRouter } from 'expo-router';
 
 import { HomeScreen, type LogKind } from '@/features/home/HomeScreen';
+import { useAuth } from '@/sync/AuthProvider';
+import { useAccountHousehold } from '@/sync/useAccountHousehold';
 
 const LOG_ROUTES = {
   feed: '/log/feed',
@@ -13,6 +15,12 @@ const LOG_ROUTES = {
 
 export default function Home() {
   const router = useRouter();
+  // Joining needs the server; the household is undefined when signed out,
+  // null when signed in without one.
+  const { auth } = useAuth();
+  const { household } = useAccountHousehold();
+  const canJoin = auth !== null && !household;
+  const join = { onJoin: () => router.push('/onboarding/join') };
   return (
     <HomeScreen
       onLog={(kind) => router.push(LOG_ROUTES[kind])}
@@ -23,6 +31,7 @@ export default function Home() {
           ? router.push('/log/appointment')
           : router.push({ pathname: '/entry/[id]', params: { id } })
       }
+      {...(canJoin ? join : {})}
     />
   );
 }

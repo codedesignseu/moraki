@@ -14,6 +14,7 @@ import {
   Logo,
   PillButton,
   StatCell,
+  TextButton,
   TimerText,
 } from '@/ui/primitives';
 import { useTheme, type Theme } from '@/ui/theme';
@@ -35,6 +36,7 @@ export function HomeScreen({
   onOpenEntry,
   onAdjustStock,
   onAppointment,
+  onJoin,
 }: {
   /** Opens a log sheet. Supplied by app/, which owns navigation. */
   onLog?: (kind: LogKind) => void;
@@ -44,6 +46,8 @@ export function HomeScreen({
   onAdjustStock?: (place: 'fridge' | 'freezer') => void;
   /** Opens an appointment to edit, or the sheet to add one (P3-12). */
   onAppointment?: (id?: string) => void;
+  /** Opens joining by code, offered while nothing is logged and the phone is in no household. */
+  onJoin?: () => void;
 }) {
   const { t: typedT } = useTranslation();
   // Keys from activity modules are checked by the registry completeness test.
@@ -99,6 +103,9 @@ export function HomeScreen({
       {/* G3: Home keeps all its cards when nothing is logged; this is G's empty hint. */}
       {onLog && home.recent.length === 0 && (
         <Text style={[theme.type.detail, s.soft, s.centre]}>{t('home.emptyHint')}</Text>
+      )}
+      {onLog && onJoin && home.recent.length === 0 && (
+        <TextButton label={t('home.joinWithCode')} align="center" onPress={onJoin} />
       )}
 
       {onLog && (

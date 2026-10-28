@@ -443,3 +443,39 @@ describe('joining through the link', () => {
     ).toBeOnTheScreen();
   });
 });
+
+describe('joining without the link', () => {
+  const JOIN_HINT = 'Have an invite code? Join a household';
+  const signedOut = () =>
+    renderApp(h.repo, {
+      auth: createAuth(TEST_SUPABASE_ENV, keychain().store, authServer().fetchImpl),
+    });
+
+  it('offers Join household in Settings when signed out, and asks to sign in first', async () => {
+    await signedOut();
+    await press(/Settings/);
+    await press('Join household');
+    expect(await screen.findByText('Sign in to join this household.')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeOnTheScreen();
+  });
+
+  it('offers joining from an empty Home on a new install', async () => {
+    await signedOut();
+    await press(JOIN_HINT);
+    expect(await screen.findByText('Sign in to join this household.')).toBeOnTheScreen();
+  });
+
+  it('offers it to a signed-in account with no household', async () => {
+    await signedIn();
+    await press(JOIN_HINT);
+    expect(await screen.findByLabelText('Invite code')).toBeOnTheScreen();
+  });
+
+  it('leaves it off Home once the account is in a household', async () => {
+    await signedIn(owner);
+    await press(/Settings/);
+    await screen.findByLabelText('Household: Ella');
+    await press(/Home/);
+    expect(screen.queryByRole('button', { name: JOIN_HINT })).toBeNull();
+  });
+});
