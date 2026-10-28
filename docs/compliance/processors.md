@@ -22,21 +22,15 @@ than forgotten.
 | Legal             | **No separate signature required.** Supabase incorporates its Data Processing Addendum into its Terms of Service, so it applies to every organisation automatically (confirmed 2026-09-27; an earlier signed DPA, if any, stays binding). Keep a dated copy of that statement — Article 28 wants a contract in writing, and incorporation by reference qualifies only if you can show what the terms said on the day |
 | Status            | live                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
-### Google Workspace — sign-in code delivery (SMTP)
+### Google Workspace — no longer used
 
-|                   |                                                                                                                             |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| What it processes | the recipient's email address, and the sign-in code in the message body                                                     |
-| Why               | Supabase's built-in sender only mails project team members, a few per hour, so nobody else could sign in without it (P2-F5) |
-| Region            | Google's EU infrastructure under the Workspace terms; confirm the data region setting on the account                        |
-| Legal             | Google Workspace DPA, accepted with the Workspace agreement                                                                 |
-| Status            | live. It carries no health data — an address and a six-digit code                                                           |
+Supabase Auth's sign-in code emails moved from Google Workspace SMTP to Brevo (owner, 2026-10-28). Privacy §7 was updated the same day with the lawyer's wording. Google Workspace now processes no Moraki user data.
 
-### Brevo — inactivity warning emails
+### Brevo — sign-in codes, warning emails and the erasure journal
 
 |                   |                                                                                                                                                                                                                                                                |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| What it processes | a member's email address (possibly an Apple private relay), the email's language (English and Greek together today) and the household's deletion date. Nothing else: no name, no baby, no entry, no health data                                                |
+| What it processes | sign-in codes: the recipient's email address and the six-digit code (Supabase Auth custom SMTP). Warnings: a member's email address (possibly an Apple private relay), the email's language (English and Greek together today) and the household's deletion date. Nothing else: no name, no baby, no entry, no health data                                                |
 | Why               | warning a household 30 days before the 24-month inactivity deletion (owner decision 2026-10-24, `retention.md`)                                                                                                                                                |
 | Region            | **EU, France** (Brevo SAS, Paris)                                                                                                                                                                                                                              |
 | Sub-processors    | Brevo's own list, published on its site; check it when signing                                                                                                                                                                                                 |

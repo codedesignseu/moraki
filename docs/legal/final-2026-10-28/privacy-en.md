@@ -118,9 +118,8 @@ We use the following providers for specific functions:
 - **Supabase:** user authentication, database storage, household synchronisation and server functions; primary production region Frankfurt, Germany.
 - **Sentry:** limited crash diagnostics processed in its EU environment; crash reports are retained for 30 days. IP storage is disabled and privacy scrubbing is configured.
 - **Expo / EAS Update:** application updates. Technical information, including IP address, device/application details and an installation identifier, may be processed in the United States.
-- **Google Workspace:** email-code delivery and associated email infrastructure.
 - **Apple and Google:** identity authentication where chosen by the user.
-- **Brevo:** operational email notifications, including inactivity and paused-household warnings, and restricted deletion-journal communications.
+- **Brevo:** Delivery of email sign-in verification codes, operational notifications (including inactivity and paused-household warnings), and restricted deletion-journal communications. Brevo processes the recipient's email address and the information necessary to deliver these messages.
 - **A2 Hosting:** website and support email hosting, reported as hosted in the Netherlands.
 - **Cloudflare:** website delivery, DNS and security.
 
