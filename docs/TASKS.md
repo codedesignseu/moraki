@@ -367,7 +367,7 @@ Restyle only; no feature added or removed. Mapping, gaps and review notes are in
 - [x] SAGE-01 `docs(design): map the app to the Sage design` — done 2026-10-09 (#132)
 - [x] SAGE-02 `feat(ui): Sage tokens, icons, components, app icon and splash` — done 2026-10-09 (#133, #134, #135, #136)
 - [x] SAGE-03 `feat(ui): restyle every screen` — done 2026-10-09 (#137 to #144)
-- [ ] SAGE-04 `release: merge design/sage-refresh into main` — depends: owner review and the EAS preview build — status: pending (owner) — 2026-10-17: goes to main together with direction G (G-04), since `design/direction-g` contains it
+- [x] SAGE-04 `release: merge design/sage-refresh into main` — done with direction G (G-04, #179)
 
 ### Found while working (Sage)
 
@@ -385,10 +385,29 @@ Final app design (`design/moraki-final-app/`). Restyle plus the small derived wi
 - [x] G-01 `docs(design): map the app to direction G` — done 2026-10-16
 - [x] G-02 `feat(ui): tokens, fonts, icons, components, tab bar, form sheets` — done 2026-10-16 (#151 to #157)
 - [x] G-03 `feat(ui): restyle every screen` — done 2026-10-16 (#158 to #177); preview build 8e37597f (2026-10-16) succeeded
-- [ ] G-04 `release: merge design/direction-g into main` — depends: owner's phone check — status: pending (owner)
+- [x] G-04 `release: merge design/direction-g into main` — done (#179)
 
 ### Found while working (G)
 
 - [x] G-F1 the startup failure line promised "Your entries are kept", which a phone restored without its keychain key can't keep — done 2026-10-17: it now says to reopen the app and write to support
 - [x] G-F2 owner approved 2026-10-17: health notes and medication take a time (back-dating), and the dose hint "e.g. 1 drop or 2.5 ml" stays — recorded, no change needed
-- [ ] G-F3 Greek glossary terms (κινητό, καταχωρίσεις) inside legal text are unchanged — waits for the lawyer review of the policy texts — status: pending (owner)
+- [x] G-F3 Greek glossary terms (κινητό, καταχωρίσεις) inside legal text are unchanged — done 2026-10-28: the legal pages now carry the lawyer's final Greek texts as written (#228)
+
+## Launch — v1.0 (iOS, Cyprus and Greece)
+
+Steps and status in `docs/11-go-live.md`, sections F and G.
+
+- [x] L-01 `docs(web): publish the lawyer's final legal texts` — done 2026-10-28 (#228, #230, #231)
+- [x] L-02 `feat(consent): Terms and Privacy version 2026-10-28` — done 2026-10-28 (#229; `supabase db push` run by the owner)
+- [x] L-03 submit build 12 for App Review, manual release — done 2026-10-28 (owner)
+- [ ] L-04 release in App Store Connect — depends: L-03 approved — status: pending (owner)
+- [ ] L-05 `eas update` with #232 to the production channel — depends: L-04 — status: pending
+- [ ] L-06 build 13 from main — depends: the EAS iOS build allowance resetting on 2026-11-01 — status: pending
+- [ ] L-07 Search Console and Bing: verify the domain, submit the sitemap — depends: L-04 — status: pending (owner)
+
+### Found while working (launch)
+
+- [x] L-F1 Settings offered Join household only when signed in, so a signed-out phone couldn't type a code — done 2026-10-28 (#232), ships in L-05 and L-06
+- [ ] L-F2 `.easignore`: the EAS upload archive is 238 MB — status: pending
+- [ ] L-F3 the owner's flow improvements, list to come after release — status: pending (owner)
+- [ ] L-F4 data-request register, staging Supabase project, Android — deferred by the owner — status: pending
