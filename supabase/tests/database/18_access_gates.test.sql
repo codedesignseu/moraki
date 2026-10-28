@@ -70,7 +70,7 @@ select ok(not has_function_privilege('anon', 'public.invite_preview(text)', 'exe
   'anon can''t preview an invite');
 select hasnt_function('public', 'accept_invite', array['text', 'text', 'text'],
   'the old accept_invite, which joined without the agreement, is gone');
-select is(public.terms_version(), '2026-10-24', 'the Terms in force');
+select is(public.terms_version(), '2026-10-28', 'the Terms in force');
 select is(public.caregiver_agreement_version(), '2026-10-24', 'the caregiver agreement in force');
 
 set local role authenticated;

@@ -89,7 +89,7 @@ describe('agreeing to the Terms when signing in (P0.9)', () => {
         version: TERMS_VERSION,
         action: 'grant',
         locale: 'en',
-        text_key: 'terms;privacy=2026-10-24',
+        text_key: 'terms;privacy=2026-10-28',
       }),
     );
     await waitFor(() =>
