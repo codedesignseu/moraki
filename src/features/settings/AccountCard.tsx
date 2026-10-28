@@ -50,6 +50,12 @@ export function AccountCard({
       <SettingsCard icon="invite" title={t('settings.account.title')} testID="settings-account">
         <Text style={[theme.type.body, s.ink]}>{t('settings.account.signedOutHint')}</Text>
         <Button label={t('settings.account.signIn')} onPress={onSignIn} />
+        {/* An invite code can be typed without the link; joining asks to sign in first. */}
+        <Button
+          label={t('settings.account.joinHousehold')}
+          variant="secondary"
+          onPress={onJoinHousehold}
+        />
       </SettingsCard>
     );
   }

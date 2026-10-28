@@ -164,7 +164,8 @@
       "running": "Sleeping",
       "awake": "Awake {{duration}}"
     },
-    "emptyHint": "Nothing logged yet. Tap a tile to start."
+    "emptyHint": "Nothing logged yet. Tap a tile to start.",
+    "joinWithCode": "Have an invite code? Join a household"
   },
   "log": {
     "save": "Save",
