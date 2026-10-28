@@ -411,3 +411,5 @@ Steps and status in `docs/11-go-live.md`, sections F and G.
 - [ ] L-F2 `.easignore`: the EAS upload archive is 238 MB — status: pending
 - [ ] L-F3 the owner's flow improvements, list to come after release — status: pending (owner)
 - [ ] L-F4 data-request register, staging Supabase project, Android — deferred by the owner — status: pending
+- [ ] L-F5 `feat(ops): daily health email` — a nightly pg_cron job and Edge Function email the owner a summary through Brevo: failed cron runs in the last 24 hours, Edge Function errors, failed sign-in emails, API error count, household count. Counts only: no names, addresses or baby data. One "all OK" line when nothing is wrong. Needs pgTAP tests and a processors.md note — depends: L-04 (after launch, owner 2026-10-29) — status: pending
+- [ ] L-F6 `docs(ops): monitoring runbook` (`docs/12-monitoring.md`) — where to look for each symptom (can't sign in, not syncing, no warning emails, crash), with the SQL to run — depends: L-04 — status: pending

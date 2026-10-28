@@ -134,6 +134,8 @@ Until the Apple steps are done, an account signed in with Apple can't be deleted
 
 - [ ] Google Search Console and Bing Webmaster Tools: verify moraki.app with a DNS TXT record in Cloudflare, and submit `https://moraki.app/sitemap.xml`.
 - [ ] **Build 13** after the EAS free-plan iOS build allowance resets on 2026-11-01. Pull main into `~/Projects/moraki` first, and check that `eas build:list` shows the build's commit equal to origin/main (build 11 was made from a stale checkout).
+- [ ] **Alerts (owner, 5 minutes).** Sentry → Alerts → Create Alert → Issues: "a new issue is created", and "more than 20 events in an issue in 1 hour", both emailing the owner. Supabase → Organization → Billing: spend and usage notifications on.
+- [ ] **Claude:** the daily health email and the monitoring runbook (TASKS L-F5, L-F6).
 - [ ] The owner's list of flow improvements.
 - [ ] Add a `.easignore`: the upload archive is 238 MB, mostly the untracked `design/` folders.
 
