@@ -423,6 +423,6 @@ Brought forward from v1.1 by the owner on 2026-11-09, running alongside the iOS 
 - [ ] A-03 Play Console setup: account check, app, App content, store listing, countries, managed publishing (`13-android-play.md` steps 1–5) — status: pending (owner)
 - [ ] A-04 service account in EAS credentials for `eas submit` (step 6) — status: pending (owner)
 - [ ] A-05 first upload to internal testing, by hand (step 7) — depends: A-03 — status: pending (owner)
-- [ ] A-06 feature graphic 1024×500 and 1080×1920 screenshots, EN and EL — status: pending (Claude)
+- [ ] A-06 feature graphic 1024×500 and 1080×1920 screenshots, EN and EL — status: in review (#235, 2026-11-12); files in `~/Downloads/moraki-play-screenshots/{en,el}` plus `app-icon-512.png`
 - [ ] A-07 Play signing SHA-256 in `assetlinks.json` (P2-F13) and the site zip rebuilt; Android OAuth clients with both SHA-1s (step 8) — depends: A-05 — status: pending (Claude, then owner)
 - [ ] A-08 phone pass from the Play install, then production review with managed publishing (steps 9–10) — depends: A-07 — status: pending
