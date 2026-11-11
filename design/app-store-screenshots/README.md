@@ -54,3 +54,15 @@ see the top of that file.
 
 Baby "Baby" (Greek "Μωρό"), viewed by Parent 1, with Parent 2 and Grandparent logging too.
 Entries by Parent 1 read "You", as the app shows them. Day screens are set at Tue 13 Oct, 16:25. The night screen is at 04:02.
+
+## Google Play
+
+```sh
+node design/app-store-screenshots/render.mjs --play       # 12 phone screenshots, 1080 × 1920 (9:16)
+node design/app-store-screenshots/render.mjs --feature    # feature graphic, 1024 × 500, en and el
+```
+
+Output goes to `~/Downloads/moraki-play-screenshots/{en,el}/`. Play refuses a long side more than twice
+the short one, so the App Store's 1320 × 2868 shots can't be uploaded there. `--play` uses the same frame
+with a shorter canvas and a smaller phone. The feature graphic is `feature.html`; its words are `FEATURE`
+in `render.mjs`. The 512 px app icon is `icons/android/play-store-512.png` in the brand assets.
