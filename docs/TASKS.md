@@ -408,8 +408,21 @@ Steps and status in `docs/11-go-live.md`, sections F and G.
 ### Found while working (launch)
 
 - [x] L-F1 Settings offered Join household only when signed in, so a signed-out phone couldn't type a code — done 2026-10-28 (#232), ships in L-05 and L-06
-- [ ] L-F2 `.easignore`: the EAS upload archive is 238 MB — status: pending
+- [ ] L-F2 `.easignore`: the EAS upload archive is 238 MB — status: in review (#234, 2026-11-09: upload now 27.8 MB; merge needs the owner)
 - [ ] L-F3 the owner's flow improvements, list to come after release — status: pending (owner)
-- [ ] L-F4 data-request register, staging Supabase project, Android — deferred by the owner — status: pending
+- [ ] L-F4 data-request register, staging Supabase project — deferred by the owner — status: pending (Android moved to its own section below, 2026-11-09)
 - [ ] L-F5 `feat(ops): daily health email` — a nightly pg_cron job and Edge Function email the owner a summary through Brevo: failed cron runs in the last 24 hours, Edge Function errors, failed sign-in emails, API error count, household count. Counts only: no names, addresses or baby data. One "all OK" line when nothing is wrong. Needs pgTAP tests and a processors.md note — depends: L-04 (after launch, owner 2026-10-29) — status: pending
 - [ ] L-F6 `docs(ops): monitoring runbook` (`docs/12-monitoring.md`) — where to look for each symptom (can't sign in, not syncing, no warning emails, crash), with the SQL to run — depends: L-04 — status: pending
+
+## Launch — Android (Google Play, Cyprus and Greece)
+
+Brought forward from v1.1 by the owner on 2026-11-09, running alongside the iOS review. Steps, links and status in `docs/13-android-play.md`. Rule while Apple reviews build 12: no `eas update` to the production channel.
+
+- [ ] A-01 `build(android): play internal track submit config and .easignore` — status: in review (#234, checks green; merge needs the owner)
+- [x] A-02 first Android production build — done 2026-11-09: 1.0.0 (versionCode 2), EAS build `06fcab15`, from `build/android-play` (main `f228944c` plus #234's config)
+- [ ] A-03 Play Console setup: account check, app, App content, store listing, countries, managed publishing (`13-android-play.md` steps 1–5) — status: pending (owner)
+- [ ] A-04 service account in EAS credentials for `eas submit` (step 6) — status: pending (owner)
+- [ ] A-05 first upload to internal testing, by hand (step 7) — depends: A-03 — status: pending (owner)
+- [ ] A-06 feature graphic 1024×500 and 1080×1920 screenshots, EN and EL — status: pending (Claude)
+- [ ] A-07 Play signing SHA-256 in `assetlinks.json` (P2-F13) and the site zip rebuilt; Android OAuth clients with both SHA-1s (step 8) — depends: A-05 — status: pending (Claude, then owner)
+- [ ] A-08 phone pass from the Play install, then production review with managed publishing (steps 9–10) — depends: A-07 — status: pending

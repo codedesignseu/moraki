@@ -1,11 +1,12 @@
 # Go-live checklist: from main to the App Store
 
-Status on 2026-10-28:
+Status on 2026-11-11:
 
 - **Submitted:** build 12 (commit 048fec97) went to App Review on 2026-10-28 with manual release. Sections A to E are done.
 - **On main, not in build 12:** #232, joining by a typed code without the link. It ships as an over-the-air update after release, then in build 13.
 - **Legal:** the lawyer's final texts are live on moraki.app (#228, #230, #231).
-- **Next:** section F, then G.
+- **Next:** section F, then G. Still waiting for Apple's decision on build 12 (day 14 on 2026-11-11). The invite code in the review notes has expired: make a fresh one and update the notes.
+- **Android:** brought forward from v1.1 on 2026-11-09. Build 1.0.0 (2) is ready, and Play Console setup is next. Everything is in `docs/13-android-play.md`. Until Apple decides, no `eas update` to production.
 - **Who does what:** "Owner" means Makis. "Claude" means Claude Code, on the owner's go-ahead.
 - **Merges:** merges and the production build need the owner to say so, naming the PR numbers.
 
@@ -137,11 +138,11 @@ Until the Apple steps are done, an account signed in with Apple can't be deleted
 - [ ] **Alerts (owner, 5 minutes).** Sentry → Alerts → Create Alert → Issues: "a new issue is created", and "more than 20 events in an issue in 1 hour", both emailing the owner. Supabase → Organization → Billing: spend and usage notifications on.
 - [ ] **Claude:** the daily health email and the monitoring runbook (TASKS L-F5, L-F6).
 - [ ] The owner's list of flow improvements.
-- [ ] Add a `.easignore`: the upload archive is 238 MB, mostly the untracked `design/` folders.
+- [ ] Add a `.easignore`: the upload archive is 238 MB, mostly the untracked `design/` folders. In #234 (27.8 MB), waiting for the merge.
 
 ## Later (v1.1)
 
-- Android and Google Play (the Data safety answers are in `app-privacy-answers.md`).
+- ~~Android and Google Play~~: brought forward, see `docs/13-android-play.md`.
 - Push notifications.
 - Live Activity and widgets.
 - Payments.
