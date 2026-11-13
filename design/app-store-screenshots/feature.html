@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1024">
+<title>Moraki Play feature graphic</title>
+<!--
+  Google Play feature graphic: 1024 × 500. render.mjs --feature loads this file at 2× and
+  calls window.setFeature({...}), then scales the PNG to 1024 × 500.
+  Play may crop or overlay the edges, so text keeps a wide margin and nothing sits in the corners.
+-->
+<style>
+  @font-face { font-family: 'Comfortaa'; font-weight: 700; src: url('../../node_modules/@expo-google-fonts/comfortaa/700Bold/Comfortaa_700Bold.ttf') format('truetype'); }
+  @font-face { font-family: 'Manrope'; font-weight: 600; src: url('../../node_modules/@expo-google-fonts/manrope/600SemiBold/Manrope_600SemiBold.ttf') format('truetype'); }
+
+  :root { --bg: #F7EBC0; --ink: #161412; --soft: #5C5852; --honey: #C9802F; --bezel: #141210; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 1024px; height: 500px; overflow: hidden; position: relative;
+    background: var(--bg); color: var(--ink);
+    font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased;
+  }
+  .copy { position: absolute; left: 72px; top: 0; bottom: 0; width: 540px;
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 18px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand svg { width: 58px; height: 46px; }
+  .brand span { font-family: 'Comfortaa', sans-serif; font-weight: 700; font-size: 40px; letter-spacing: -0.01em; }
+  h1 { margin: 6px 0 0; font-family: 'Comfortaa', sans-serif; font-weight: 700;
+    font-size: 40px; line-height: 1.18; letter-spacing: -0.01em; white-space: pre-line; }
+  p { margin: 0; font-weight: 600; font-size: 22px; line-height: 1.35; color: var(--soft); }
+
+  /* The phone runs off the bottom edge, showing the top of the home screen. */
+  .phone { position: absolute; right: 72px; top: 52px; width: 300px; height: 652px;
+    box-sizing: border-box; padding: 8px; border-radius: 46px; background: var(--bezel);
+    box-shadow: 0 20px 50px rgba(22, 20, 18, 0.22); }
+  .screen { width: 284px; height: 636px; border-radius: 38px; overflow: hidden; background: #F3F2EE; }
+  .screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <div class="brand">
+      <svg viewBox="11 19 78 62" aria-hidden="true"><path d="M16 76V48a13 13 0 0 1 26 0v28M58 76V48a13 13 0 0 1 26 0v28" fill="none" stroke="#C9802F" stroke-width="10" stroke-linecap="round"/><circle cx="50" cy="26" r="7" fill="#C9802F"/></svg>
+      <span>moraki</span>
+    </div>
+    <h1 id="headline"></h1>
+    <p id="sub"></p>
+  </div>
+  <div class="phone"><div class="screen"><img id="screen" alt=""></div></div>
+<script>
+  window.setFeature = function (f) {
+    document.documentElement.lang = f.lang || 'en';
+    document.getElementById('headline').textContent = f.headline || '';
+    document.getElementById('sub').textContent = f.sub || '';
+    const img = document.getElementById('screen');
+    return new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = () => reject(new Error('screen image did not load'));
+      img.src = f.screen;
+    }).then(() => document.fonts.ready).then(() => {
+      const copy = document.querySelector('.copy').getBoundingClientRect();
+      const phone = document.querySelector('.phone').getBoundingClientRect();
+      const h1 = document.getElementById('headline').getBoundingClientRect();
+      const sub = document.getElementById('sub').getBoundingClientRect();
+      const out = [];
+      if (Math.max(h1.right, sub.right) > phone.left - 24) out.push('text runs into the phone');
+      if (h1.top < 40 || sub.bottom > 460) out.push('text too close to the top or bottom edge');
+      if (copy.height > 500) out.push('copy taller than the canvas');
+      return out;
+    });
+  };
+</script>
+</body>
+</html>
