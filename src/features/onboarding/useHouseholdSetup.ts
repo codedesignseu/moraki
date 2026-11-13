@@ -48,8 +48,11 @@ export function useHouseholdSetup(onDone: () => void) {
   const [, setConsentRecord] = useDevicePref('consent');
   const terms = useTerms();
   const consent = useConsent();
-  const { i18n } = useTranslation();
-  const [displayName, setDisplayName] = useState('');
+  const { i18n, t } = useTranslation();
+  // What the sign-in provider already gave (Apple, Google), so it isn't asked for again.
+  const [displayName, setDisplayName] = useState(() =>
+    state.status === 'signedIn' ? (state.user.name ?? '') : '',
+  );
   const [relation, setRelation] = useState<Relation | null>(null);
   const [babyName, setBabyName] = useState('');
   const [bornDaysAgo, setBornDaysAgo] = useState(0);
@@ -72,7 +75,6 @@ export function useHouseholdSetup(onDone: () => void) {
     // P0.9: a household is made only by someone who agreed to the Terms.
     if (!(await terms.ensure())) return setProblem('terms');
     const weight = birthWeight.trim() === '' ? null : Number(birthWeight);
-    if (displayName.trim() === '') return setProblem('display_name');
     if (babyName.trim() === '') return setProblem('baby_name');
     if (
       weight !== null &&
@@ -98,7 +100,12 @@ export function useHouseholdSetup(onDone: () => void) {
           babyName,
           bornAt,
           birthWeightG: weight,
-          displayName,
+          // Optional (App Store guideline 4): left empty, the role stands in for it.
+          displayName:
+            displayName.trim() ||
+            t(
+              `householdSetup.relation.${relation && relation !== 'other' ? relation : 'caregiver'}`,
+            ).slice(0, LIMITS.displayName),
           relation,
           guardianDeclared,
           locale: consentLocale(i18n.language),

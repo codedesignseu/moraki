@@ -46,13 +46,35 @@ describe('Sign in with Apple (P5-04)', () => {
     expect(mockSignInAsync).toHaveBeenCalledWith(
       expect.objectContaining({ nonce: 'hashed(the-raw-nonce)' }),
     );
-    expect(result).toEqual({ identityToken: 'the-identity-token', nonce: 'the-raw-nonce' });
+    expect(result).toEqual({
+      identityToken: 'the-identity-token',
+      nonce: 'the-raw-nonce',
+      fullName: null,
+    });
   });
 
-  it('asks Apple for the email only, never the name it would not use (P5-F3)', async () => {
+  it('asks Apple for the name too, so the app never asks for it again (guideline 4)', async () => {
     mockSignInAsync.mockResolvedValue({ identityToken: 'the-identity-token' });
     await signInWithApple();
-    expect(mockSignInAsync).toHaveBeenCalledWith(expect.objectContaining({ requestedScopes: [1] }));
+    expect(mockSignInAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ requestedScopes: [0, 1] }),
+    );
+  });
+
+  it('hands on the name Apple shares on the first sign in', async () => {
+    mockSignInAsync.mockResolvedValue({
+      identityToken: 'the-identity-token',
+      fullName: { givenName: ' Maria ', middleName: null, familyName: 'Georgiou' },
+    });
+    expect((await signInWithApple()).fullName).toBe('Maria Georgiou');
+  });
+
+  it('hands on no name when Apple sends none (every later sign in)', async () => {
+    mockSignInAsync.mockResolvedValue({
+      identityToken: 'the-identity-token',
+      fullName: { givenName: null, middleName: null, familyName: null },
+    });
+    expect((await signInWithApple()).fullName).toBeNull();
   });
 
   it('turns a dismissed sheet into a cancellation, not a failure to explain', async () => {

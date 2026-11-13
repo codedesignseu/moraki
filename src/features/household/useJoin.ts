@@ -32,7 +32,10 @@ export function useJoin(initialCode: string, onDone: () => void) {
   const { auth, state } = useAuth();
   const { household, remember } = useAccountHousehold();
   const [code, setCode] = useState(() => normaliseCode(initialCode));
-  const [displayName, setDisplayName] = useState('');
+  // What the sign-in provider already gave (Apple, Google), so it isn't asked for again.
+  const [displayName, setDisplayName] = useState(() =>
+    state.status === 'signedIn' ? (state.user.name ?? '') : '',
+  );
   const [relation, setRelation] = useState<Relation | null>(null);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<JoinProblem | null>(null);
@@ -40,13 +43,12 @@ export function useJoin(initialCode: string, onDone: () => void) {
   const [role, setRole] = useState<InviteRole | null>(null);
   const [, setAccess] = useDevicePref('householdAccess');
   const terms = useTerms();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   /** Checks the code and shows what joining means. */
   async function next() {
     if (!auth || state.status !== 'signedIn') return setProblem('signed_out');
     if (code.length !== CODE_LENGTH) return setProblem('short_code');
-    if (displayName.trim() === '') return setProblem('display_name');
     // P0.9: joining is for someone who agreed to the Terms.
     if (!(await terms.ensure())) return setProblem('terms');
     setBusy(true);
@@ -70,7 +72,11 @@ export function useJoin(initialCode: string, onDone: () => void) {
       const joined = await acceptInvite(
         auth,
         code,
-        displayName,
+        // Optional (App Store guideline 4): left empty, the role stands in for it.
+        (
+          displayName.trim() ||
+          t(`householdSetup.relation.${relation && relation !== 'other' ? relation : 'caregiver'}`)
+        ).slice(0, 40),
         relation,
         consentLocale(i18n.language),
       );

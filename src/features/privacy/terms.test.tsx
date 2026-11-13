@@ -178,7 +178,7 @@ describe('the Terms from Settings (P0.9)', () => {
     await press('Not now');
     await press(/Settings/);
     await press('Set up household');
-    await fireEvent.changeText(screen.getByLabelText('Your name'), 'Maria');
+    await fireEvent.changeText(screen.getByLabelText('Your name (optional)'), 'Maria');
     await fireEvent.changeText(screen.getByLabelText('Name'), 'Ella');
     await fireEvent.press(screen.getByRole('checkbox', { name: /parent or legal guardian/ }));
     await press('Create household');

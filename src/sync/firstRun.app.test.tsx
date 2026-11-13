@@ -177,7 +177,7 @@ describe('a phone that gets its household while the app is open', () => {
 
   it('a second caregiver accepting an invite sees the household on home', async () => {
     await openSignedIn(server(null), `/join/${CODE}`);
-    await fireEvent.changeText(await screen.findByLabelText('Your name'), 'Nik');
+    await fireEvent.changeText(await screen.findByLabelText('Your name (optional)'), 'Nik');
     await acceptAndJoin();
     await grantConsent();
 

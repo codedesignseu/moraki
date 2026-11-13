@@ -3,7 +3,14 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { chunkedStorage, type SecureKeyValueStore } from './chunkedStorage';
 import type { SupabaseEnv } from './supabaseEnv';
 
-export type AuthUser = { id: string; email: string | null };
+/**
+ * `name` is the account's own name when the sign-in provider gave one: Apple
+ * hands it over once, on the first sign in, and it is kept in the user's
+ * metadata from then on; Google's token carries it every time. The household
+ * screens start from it so no one is asked for what they already shared
+ * (App Store guideline 4, Sign in with Apple).
+ */
+export type AuthUser = { id: string; email: string | null; name?: string };
 
 /** Why a request failed, in terms the sign-in screen can explain. Never carries the address or code. */
 export type AuthFailure = 'invalid_code' | 'rate_limited' | 'offline' | 'server' | 'unknown';
@@ -13,6 +20,18 @@ export class AuthError extends Error {
   constructor(readonly reason: AuthFailure) {
     super(`Sign in failed: ${reason}`);
   }
+}
+
+/** Longest name kept; the household's display name allows 40 characters. */
+const NAME_MAX = 40;
+
+/** The account's name from Supabase user metadata: `full_name` first, then `name`. */
+function metadataName(metadata: Record<string, unknown> | undefined): string | undefined {
+  for (const key of ['full_name', 'name']) {
+    const value = metadata?.[key];
+    if (typeof value === 'string' && value.trim() !== '') return value.trim().slice(0, NAME_MAX);
+  }
+  return undefined;
 }
 
 /** Where the session lives in SecureStore. Fixed, so the app can read it without the client. */
@@ -73,8 +92,15 @@ export function createAuth(env: SupabaseEnv, store: SecureKeyValueStore, fetchIm
   const storage = chunkedStorage(store);
   const client = createSupabaseClient(env, storage, fetchImpl);
   const toUser = (
-    user: { id: string; email?: string | null } | null | undefined,
-  ): AuthUser | null => (user ? { id: user.id, email: user.email ?? null } : null);
+    user:
+      | { id: string; email?: string | null; user_metadata?: Record<string, unknown> }
+      | null
+      | undefined,
+  ): AuthUser | null => {
+    if (!user) return null;
+    const name = metadataName(user.user_metadata);
+    return { id: user.id, email: user.email ?? null, ...(name ? { name } : {}) };
+  };
 
   return {
     /** For sync (P2-07 onwards): requests made with it carry the signed-in user's token. */
@@ -106,6 +132,7 @@ export function createAuth(env: SupabaseEnv, store: SecureKeyValueStore, fetchIm
       provider: 'apple' | 'google',
       idToken: string,
       nonce?: string,
+      fullName?: string | null,
     ): Promise<AuthUser> {
       const { data, error } = await client.auth.signInWithIdToken({
         provider,
@@ -115,7 +142,19 @@ export function createAuth(env: SupabaseEnv, store: SecureKeyValueStore, fetchIm
       if (error) throw failure(error);
       const user = toUser(data.user);
       if (!user) throw new AuthError('unknown');
-      return user;
+      // Apple sends the name only with the very first sign in, outside the
+      // token, so it is kept in the account's metadata for every later
+      // screen and phone. Not keeping it costs a prefilled field, nothing
+      // more: the sign in itself has already succeeded.
+      const name = fullName?.trim().slice(0, NAME_MAX);
+      if (!name || user.name) return user;
+      try {
+        const { error: saveError } = await client.auth.updateUser({ data: { full_name: name } });
+        if (saveError) return user;
+      } catch {
+        return user;
+      }
+      return { ...user, name };
     },
 
     /** Ends this device's session only; other phones stay signed in. */
