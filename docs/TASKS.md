@@ -417,13 +417,14 @@ Steps and status in `docs/11-go-live.md`, sections F and G.
 
 ## Launch — Android (Google Play, Cyprus and Greece)
 
-Brought forward from v1.1 by the owner on 2026-11-09, running alongside the iOS review. Steps, links and status in `docs/13-android-play.md`. Rule while Apple reviews build 12: no `eas update` to the production channel.
+Brought forward from v1.1 by the owner on 2026-11-09, running alongside the iOS review. Steps, links and status in `docs/13-android-play.md`. Rule while Apple reviews an iOS build: no `eas update` to the production channel.
 
-- [ ] A-01 `build(android): play internal track submit config and .easignore` — status: in review (#234, checks green; merge needs the owner)
+- [x] A-01 `build(android): play internal track submit config and .easignore` — done 2026-11-13 (#234)
 - [x] A-02 first Android production build — done 2026-11-09: 1.0.0 (versionCode 2), EAS build `06fcab15`, from `build/android-play` (main `f228944c` plus #234's config)
-- [ ] A-03 Play Console setup: account check, app, App content, store listing, countries, managed publishing (`13-android-play.md` steps 1–5) — status: pending (owner)
+- [x] A-03 Play Console setup: account check, app, App content, store listing, countries, managed publishing (`13-android-play.md` steps 1–5) — done 2026-11-12 (owner); Advertising ID declared No (the build has no `AD_ID`)
 - [ ] A-04 service account in EAS credentials for `eas submit` (step 6) — status: pending (owner)
-- [ ] A-05 first upload to internal testing, by hand (step 7) — depends: A-03 — status: pending (owner)
-- [ ] A-06 feature graphic 1024×500 and 1080×1920 screenshots, EN and EL — status: in review (#235, 2026-11-12); files in `~/Downloads/moraki-play-screenshots/{en,el}` plus `app-icon-512.png`
-- [ ] A-07 Play signing SHA-256 in `assetlinks.json` (P2-F13) and the site zip rebuilt; Android OAuth clients with both SHA-1s (step 8) — depends: A-05 — status: pending (Claude, then owner)
-- [ ] A-08 phone pass from the Play install, then production review with managed publishing (steps 9–10) — depends: A-07 — status: pending
+- [x] A-05 first upload to internal testing, by hand (step 7) — done 2026-11-12: 1.0.0 (2) available to the `Moraki team` list, Play App Signing with a Google-generated key
+- [x] A-06 feature graphic 1024×500 and 1080×1920 screenshots, EN and EL — done 2026-11-13 (#235); files in `~/Downloads/moraki-play-screenshots/{en,el}` plus `app-icon-512.png`
+- [ ] A-07 Play signing SHA-256 in `assetlinks.json` (P2-F13) and the site zip rebuilt; Android OAuth clients with both SHA-1s (step 8) — status: in progress. #237 merged 2026-11-13 (Play key `C9:6A:…:65:7B` plus the EAS key); the owner uploads `moraki-site-upload.zip`. OAuth: the EAS SHA-1 client already existed; `Moraki Android (Play)` made with SHA-1 `20:E0:…:95:27`
+- [ ] A-08 phone pass from the Play install, then production review with managed publishing (steps 9–10) — depends: A-07, A-09 — status: pending. After the Play release: Google Cloud → Credentials → verify app ownership of both Android OAuth clients ("App security" warning). App Check for the iOS client is skipped: no Firebase
+- [ ] A-09 Android build 1.0.0 (3) from main: the Sign in with Apple name fix (#236), and `android.blockedPermissions` for `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` (Expo defaults Moraki never uses) — status: pending (Claude)

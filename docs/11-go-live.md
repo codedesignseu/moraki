@@ -1,12 +1,13 @@
 # Go-live checklist: from main to the App Store
 
-Status on 2026-11-11:
+Status on 2026-11-13:
 
-- **Submitted:** build 12 (commit 048fec97) went to App Review on 2026-10-28 with manual release. Sections A to E are done.
-- **On main, not in build 12:** #232, joining by a typed code without the link. It ships as an over-the-air update after release, then in build 13.
+- **Build 12 rejected** on 2026-11-12 (guideline 4): after Sign in with Apple, household setup required a name Apple already gives. Fixed in #236: Apple's name fills in "Your name", which is now optional, falling back to the role picked or "Caregiver".
+- **Resubmitted:** build 1.0.0 (14), from main `6063b0df`, with a fresh invite code in the review notes and a reply in the App Review thread. Build 14 also carries #232 (joining by a typed code).
+- **Sentry MORAKI-6** (2026-11-13, owner's own test of build 14): `Linking.openURL` failed once for `https://moraki.app/terms/`. Not reproduced. Next build: catch the failure and open links in an in-app browser.
 - **Legal:** the lawyer's final texts are live on moraki.app (#228, #230, #231).
-- **Next:** section F, then G. Still waiting for Apple's decision on build 12 (day 14 on 2026-11-11). The invite code in the review notes has expired: make a fresh one and update the notes.
-- **Android:** brought forward from v1.1 on 2026-11-09. Build 1.0.0 (2) is ready, and Play Console setup is next. Everything is in `docs/13-android-play.md`. Until Apple decides, no `eas update` to production.
+- **Android:** 1.0.0 (2) is on internal testing; Play's key is in `assetlinks.json` (#237). Status in `docs/13-android-play.md` and TASKS "Launch — Android".
+- **Rule:** until Apple decides on build 14, no `eas update` to the production channel.
 - **Who does what:** "Owner" means Makis. "Claude" means Claude Code, on the owner's go-ahead.
 - **Merges:** merges and the production build need the owner to say so, naming the PR numbers.
 
