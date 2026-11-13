@@ -98,8 +98,8 @@ export function useSignIn(onDone: (user: AuthUser) => void) {
     appleAvailable,
     continueWithApple: () =>
       run(async () => {
-        const { identityToken, nonce } = await signInWithApple();
-        onDone(await auth!.signInWithIdToken('apple', identityToken, nonce));
+        const { identityToken, nonce, fullName } = await signInWithApple();
+        onDone(await auth!.signInWithIdToken('apple', identityToken, nonce, fullName));
       }),
     googleAvailable: googleWebClientId !== undefined,
     continueWithGoogle: () =>
