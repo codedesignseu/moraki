@@ -21,17 +21,30 @@ export const isAppleSignInAvailable = (): Promise<boolean> =>
  * forms have to travel: the hash to Apple's sheet, the original alongside
  * the token to `Auth.signInWithIdToken`.
  */
-export async function signInWithApple(): Promise<{ identityToken: string; nonce: string }> {
+export async function signInWithApple(): Promise<{
+  identityToken: string;
+  nonce: string;
+  /** Only on the first sign in with this Apple ID, and only if the person shared it. */
+  fullName: string | null;
+}> {
   const nonce = Crypto.randomUUID();
   const hashedNonce = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, nonce);
   try {
     const credential = await AppleAuthentication.signInAsync({
-      // Email only: the name Apple would hand over is never used, so it isn't asked for (P5-F3).
-      requestedScopes: [AppleAuthentication.AppleAuthenticationScope.EMAIL],
+      // The name fills in "Your name" on the household screens, so the app
+      // never asks again for what Apple already gave (App Store guideline 4).
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+      ],
       nonce: hashedNonce,
     });
     if (!credential.identityToken) throw new Error('Apple sign in returned no identity token');
-    return { identityToken: credential.identityToken, nonce };
+    const fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
+      .map((part) => part?.trim())
+      .filter(Boolean)
+      .join(' ');
+    return { identityToken: credential.identityToken, nonce, fullName: fullName || null };
   } catch (error) {
     if (error instanceof Error && (error as { code?: string }).code === 'ERR_REQUEST_CANCELED') {
       throw new SocialSignInCancelled();

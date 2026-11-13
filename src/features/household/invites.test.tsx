@@ -244,7 +244,7 @@ describe('joining through the link', () => {
     const server = await signedIn({}, { initialUrl: `/join/${CODE}` });
     expect(await screen.findByLabelText('Invite code')).toHaveProp('value', 'ABCD-2345');
 
-    await type('Your name', ' Nik ');
+    await type('Your name (optional)', ' Nik ');
     await fireEvent.press(screen.getByRole('togglebutton', { name: 'Father' }));
     await continueAndAccept();
 
@@ -293,7 +293,7 @@ describe('joining through the link', () => {
     await press(/Settings/);
     await press('Join household');
     await type('Invite code', ' abcd-2345 ');
-    await type('Your name', 'Nik');
+    await type('Your name (optional)', 'Nik');
     await continueAndAccept();
 
     expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
@@ -302,16 +302,26 @@ describe('joining through the link', () => {
     ).toMatchObject({ code: CODE });
   });
 
-  it('asks for the code and a name before calling the server', async () => {
+  it('left without a name, joins under the role picked (App Store guideline 4)', async () => {
+    const server = await signedIn({}, { initialUrl: `/join/${CODE}` });
+    expect(await screen.findByLabelText('Invite code')).toHaveProp('value', 'ABCD-2345');
+
+    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Grandparent' }));
+    await continueAndAccept();
+
+    expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
+    expect(
+      server.calls.find((c) => c.path === '/rest/v1/rpc/accept_invite')?.body.display_name,
+    ).toBe('Grandparent');
+  });
+
+  it('asks for the code before calling the server; the name is optional', async () => {
     const server = await signedIn();
     await press(/Settings/);
     await press('Join household');
 
     await press('Continue');
     expect(screen.getByText('Error: The code is 8 characters.')).toBeOnTheScreen();
-    await type('Invite code', CODE);
-    await press('Continue');
-    expect(screen.getByText('Error: Enter your name.')).toBeOnTheScreen();
     expect(server.calls.some((c) => c.path === '/rest/v1/rpc/accept_invite')).toBe(false);
   });
 
@@ -332,7 +342,7 @@ describe('joining through the link', () => {
       },
       { initialUrl: `/join/${CODE}` },
     );
-    await type('Your name', 'Nik');
+    await type('Your name (optional)', 'Nik');
     await continueAndAccept();
     expect(await screen.findByText(`Error: ${message}`)).toBeOnTheScreen();
     await waitFor(() => expect(h.prefs.get('accountHousehold')).toBeNull());
@@ -349,7 +359,7 @@ describe('joining through the link', () => {
       },
       { initialUrl: `/join/${CODE}` },
     );
-    await type('Your name', 'Nik');
+    await type('Your name (optional)', 'Nik');
     await press('Continue');
     expect(
       await screen.findByText('Error: Too many attempts. Wait a while, then try again.'),
@@ -360,7 +370,7 @@ describe('joining through the link', () => {
 
   it('calls record_invite_attempt before accept_invite, every time', async () => {
     const server = await signedIn({}, { initialUrl: `/join/${CODE}` });
-    await type('Your name', 'Nik');
+    await type('Your name (optional)', 'Nik');
     await continueAndAccept();
     await screen.findByRole('button', { name: 'Log feed' });
 
@@ -397,7 +407,7 @@ describe('joining through the link', () => {
       auth: createAuth(TEST_SUPABASE_ENV, store, flaky),
       initialUrl: `/join/${CODE}`,
     });
-    await type('Your name', 'Nik');
+    await type('Your name (optional)', 'Nik');
     online = false;
     await press('Continue');
 
@@ -411,7 +421,7 @@ describe('joining through the link', () => {
       { previewInvite: () => json({ role: 'viewer' }) },
       { initialUrl: `/join/${CODE}` },
     );
-    await type('Your name', 'Nik');
+    await type('Your name (optional)', 'Nik');
     await press('Continue');
 
     const card = within(await screen.findByTestId('join-agreement'));
@@ -429,7 +439,7 @@ describe('joining through the link', () => {
 
     // Back to the code and name, and forward again.
     await press('Back');
-    expect(screen.getByLabelText('Your name')).toHaveProp('value', 'Nik');
+    expect(screen.getByLabelText('Your name (optional)')).toHaveProp('value', 'Nik');
     await continueAndAccept();
     expect(await screen.findByRole('button', { name: 'Log feed' })).toBeOnTheScreen();
   });
