@@ -6,6 +6,8 @@
 //   node design/app-store-screenshots/render.mjs --only 03       one screen, both languages
 //   node design/app-store-screenshots/render.mjs --only 01 --lang en --raw ~/Desktop/IMG_0001.PNG
 //                                                                frame a real phone screenshot instead
+//   --play        Google Play: 1080 × 1920 (9:16), default out ~/Downloads/moraki-play-screenshots
+//   --feature     Google Play feature graphic, 1024 × 500, one per language (with --play's out folder)
 //   --out <dir>   output folder (default ~/Downloads/moraki-app-store-screenshots)
 //
 // Playwright is not a repo dependency. It is loaded from ~/.cache/moraki-web-check
@@ -26,6 +28,12 @@ const { chromium } = createRequire(join(pwDir, 'package.json'))('playwright');
 // ---------------------------------------------------------------- the shots
 
 const TINT = { feed: '#F7EBC0', sleep: '#F4E4DE', diaper: '#E1E3F7', pump: '#E0EEE7', night: '#171411' };
+
+// The Play feature graphic's words, beside the top of the home screen.
+const FEATURE = {
+  en: ['One shared notebook\nfor everyone who helps', 'Feeds, diapers and sleep, on every phone.'],
+  el: ['Ένα κοινό τετράδιο\nγια όσους βοηθούν', 'Ταΐσματα, πάνες και ύπνος, σε κάθε κινητό.'],
+};
 
 export const SHOTS = [
   {
@@ -63,7 +71,7 @@ export const SHOTS = [
 // ---------------------------------------------------------------- options
 
 function parseArgs(argv) {
-  const o = { langs: ['en', 'el'], only: null, raw: null, out: join(homedir(), 'Downloads/moraki-app-store-screenshots') };
+  const o = { langs: ['en', 'el'], only: null, raw: null, play: false, feature: false, out: null };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     const next = () => {
@@ -74,6 +82,8 @@ function parseArgs(argv) {
     if (a === '--lang') o.langs = [next()];
     else if (a === '--only') o.only = next();
     else if (a === '--raw') o.raw = resolve(next().replace(/^~/, homedir()));
+    else if (a === '--play') o.play = true;
+    else if (a === '--feature') o.feature = true;
     else if (a === '--out') o.out = resolve(next().replace(/^~/, homedir()));
     else if (a === '--help' || a === '-h') {
       console.log(readFileSync(fileURLToPath(import.meta.url), 'utf8').split('\n').slice(1, 12).join('\n'));
@@ -83,6 +93,7 @@ function parseArgs(argv) {
   if (o.raw && (!o.only || o.langs.length !== 1)) {
     throw new Error('--raw replaces one screen: pass --only <id> and --lang <en|el> with it');
   }
+  o.out ??= join(homedir(), o.play || o.feature ? 'Downloads/moraki-play-screenshots' : 'Downloads/moraki-app-store-screenshots');
   if (o.raw && !existsSync(o.raw)) throw new Error(`no such file: ${o.raw}`);
   return o;
 }
@@ -127,8 +138,8 @@ async function renderScreen(browser, htmlPath) {
   return png;
 }
 
-async function renderFrame(browser, shot, lang, screenPng) {
-  const page = await browser.newPage({ viewport: { width: 1320, height: 2868 }, deviceScaleFactor: 1 });
+async function renderFrame(browser, shot, lang, screenPng, play = false) {
+  const page = await browser.newPage({ viewport: { width: 1320, height: play ? 2347 : 2868 }, deviceScaleFactor: 1 });
   await page.goto(pathToFileURL(join(here, 'frame.html')).href);
   const [caption, sub] = shot[lang];
   await page.evaluate((s) => window.setShot(s), {
@@ -137,6 +148,7 @@ async function renderFrame(browser, shot, lang, screenPng) {
     lang,
     bg: shot.bg,
     theme: shot.theme ?? 'day',
+    play,
     screen: `data:image/png;base64,${screenPng.toString('base64')}`,
   });
   // Layout checks: the caption block must not overflow its box or crowd the phone.
@@ -158,9 +170,28 @@ async function renderFrame(browser, shot, lang, screenPng) {
   return png;
 }
 
+/** The Play feature graphic: rendered at 2×, then scaled to 1024 × 500 by finish(). */
+async function renderFeature(browser, lang, screenPng) {
+  const page = await browser.newPage({ viewport: { width: 1024, height: 500 }, deviceScaleFactor: 2 });
+  await page.goto(pathToFileURL(join(here, 'feature.html')).href);
+  const [headline, sub] = FEATURE[lang];
+  const problems = await page.evaluate((f) => window.setFeature(f), {
+    headline,
+    sub,
+    lang,
+    screen: `data:image/png;base64,${screenPng.toString('base64')}`,
+  });
+  if (problems.length) console.warn(`  ! feature ${lang}: ${problems.join('; ')}`);
+  const png = await page.screenshot({ type: 'png', omitBackground: false });
+  await page.close();
+  return png;
+}
+
 /** Flatten (no alpha) and tag sRGB with macOS sips; elsewhere keep Chromium's output. */
-function finish(file) {
+function finish(file, size) {
   if (process.platform !== 'darwin') return;
+  // sips -z takes height, then width.
+  if (size) execFileSync('sips', ['-z', String(size[1]), String(size[0]), file], { stdio: 'ignore' });
   const srgb = '/System/Library/ColorSync/Profiles/sRGB Profile.icc';
   const hasAlpha = execFileSync('sips', ['-g', 'hasAlpha', file], { encoding: 'utf8' }).includes('hasAlpha: yes');
   if (hasAlpha) {
@@ -182,14 +213,22 @@ async function main() {
     for (const lang of o.langs) {
       if (!['en', 'el'].includes(lang)) throw new Error(`--lang must be en or el, not ${lang}`);
       mkdirSync(join(o.out, lang), { recursive: true });
+      if (o.feature) {
+        const screen = await renderScreen(browser, join(here, 'screens', lang, '01-home.html'));
+        const file = join(o.out, lang, 'feature-graphic.png');
+        writeFileSync(file, await renderFeature(browser, lang, screen));
+        finish(file, [1024, 500]);
+        console.log(`  ${lang}/feature-graphic.png`);
+        continue;
+      }
       for (const shot of shots) {
         const screen = o.raw
           ? readFileSync(o.raw)
           : await renderScreen(browser, join(here, 'screens', lang, `${shot.id}.html`));
-        const png = await renderFrame(browser, shot, lang, screen);
+        const png = await renderFrame(browser, shot, lang, screen, o.play);
         const file = join(o.out, lang, `${shot.id}.png`);
         writeFileSync(file, png);
-        finish(file);
+        finish(file, o.play ? [1080, 1920] : null);
         console.log(`  ${lang}/${shot.id}.png${o.raw ? `  (raw: ${o.raw})` : ''}`);
       }
     }

@@ -368,7 +368,7 @@ Restyle only; no feature added or removed. Mapping, gaps and review notes are in
 - [x] SAGE-01 `docs(design): map the app to the Sage design` — done 2026-10-09 (#132)
 - [x] SAGE-02 `feat(ui): Sage tokens, icons, components, app icon and splash` — done 2026-10-09 (#133, #134, #135, #136)
 - [x] SAGE-03 `feat(ui): restyle every screen` — done 2026-10-09 (#137 to #144)
-- [ ] SAGE-04 `release: merge design/sage-refresh into main` — depends: owner review and the EAS preview build — status: pending (owner) — 2026-10-17: goes to main together with direction G (G-04), since `design/direction-g` contains it
+- [x] SAGE-04 `release: merge design/sage-refresh into main` — done with direction G (G-04, #179)
 
 ### Found while working (Sage)
 
@@ -386,10 +386,45 @@ Final app design (`design/moraki-final-app/`). Restyle plus the small derived wi
 - [x] G-01 `docs(design): map the app to direction G` — done 2026-10-16
 - [x] G-02 `feat(ui): tokens, fonts, icons, components, tab bar, form sheets` — done 2026-10-16 (#151 to #157)
 - [x] G-03 `feat(ui): restyle every screen` — done 2026-10-16 (#158 to #177); preview build 8e37597f (2026-10-16) succeeded
-- [ ] G-04 `release: merge design/direction-g into main` — depends: owner's phone check — status: pending (owner)
+- [x] G-04 `release: merge design/direction-g into main` — done (#179)
 
 ### Found while working (G)
 
 - [x] G-F1 the startup failure line promised "Your entries are kept", which a phone restored without its keychain key can't keep — done 2026-10-17: it now says to reopen the app and write to support
 - [x] G-F2 owner approved 2026-10-17: health notes and medication take a time (back-dating), and the dose hint "e.g. 1 drop or 2.5 ml" stays — recorded, no change needed
-- [ ] G-F3 Greek glossary terms (κινητό, καταχωρίσεις) inside legal text are unchanged — waits for the lawyer review of the policy texts — status: pending (owner)
+- [x] G-F3 Greek glossary terms (κινητό, καταχωρίσεις) inside legal text are unchanged — done 2026-10-28: the legal pages now carry the lawyer's final Greek texts as written (#228)
+
+## Launch — v1.0 (iOS, Cyprus and Greece)
+
+Steps and status in `docs/11-go-live.md`, sections F and G.
+
+- [x] L-01 `docs(web): publish the lawyer's final legal texts` — done 2026-10-28 (#228, #230, #231)
+- [x] L-02 `feat(consent): Terms and Privacy version 2026-10-28` — done 2026-10-28 (#229; `supabase db push` run by the owner)
+- [x] L-03 submit build 12 for App Review, manual release — done 2026-10-28 (owner)
+- [ ] L-04 release in App Store Connect — depends: L-03 approved — status: pending (owner)
+- [ ] L-05 `eas update` with #232 to the production channel — depends: L-04 — status: pending
+- [ ] L-06 build 13 from main — depends: the EAS iOS build allowance resetting on 2026-11-01 — status: pending
+- [ ] L-07 Search Console and Bing: verify the domain, submit the sitemap — depends: L-04 — status: pending (owner)
+
+### Found while working (launch)
+
+- [x] L-F1 Settings offered Join household only when signed in, so a signed-out phone couldn't type a code — done 2026-10-28 (#232), ships in L-05 and L-06
+- [ ] L-F2 `.easignore`: the EAS upload archive is 238 MB — status: in review (#234, 2026-11-09: upload now 27.8 MB; merge needs the owner)
+- [ ] L-F3 the owner's flow improvements, list to come after release — status: pending (owner)
+- [ ] L-F4 data-request register, staging Supabase project — deferred by the owner — status: pending (Android moved to its own section below, 2026-11-09)
+- [ ] L-F5 `feat(ops): daily health email` — a nightly pg_cron job and Edge Function email the owner a summary through Brevo: failed cron runs in the last 24 hours, Edge Function errors, failed sign-in emails, API error count, household count. Counts only: no names, addresses or baby data. One "all OK" line when nothing is wrong. Needs pgTAP tests and a processors.md note — depends: L-04 (after launch, owner 2026-10-29) — status: pending
+- [ ] L-F6 `docs(ops): monitoring runbook` (`docs/12-monitoring.md`) — where to look for each symptom (can't sign in, not syncing, no warning emails, crash), with the SQL to run — depends: L-04 — status: pending
+
+## Launch — Android (Google Play, Cyprus and Greece)
+
+Brought forward from v1.1 by the owner on 2026-11-09, running alongside the iOS review. Steps, links and status in `docs/13-android-play.md`. Rule while Apple reviews an iOS build: no `eas update` to the production channel.
+
+- [x] A-01 `build(android): play internal track submit config and .easignore` — done 2026-11-13 (#234)
+- [x] A-02 first Android production build — done 2026-11-09: 1.0.0 (versionCode 2), EAS build `06fcab15`, from `build/android-play` (main `f228944c` plus #234's config)
+- [x] A-03 Play Console setup: account check, app, App content, store listing, countries, managed publishing (`13-android-play.md` steps 1–5) — done 2026-11-12 (owner); Advertising ID declared No (the build has no `AD_ID`)
+- [ ] A-04 service account in EAS credentials for `eas submit` (step 6) — status: pending (owner)
+- [x] A-05 first upload to internal testing, by hand (step 7) — done 2026-11-12: 1.0.0 (2) available to the `Moraki team` list, Play App Signing with a Google-generated key
+- [x] A-06 feature graphic 1024×500 and 1080×1920 screenshots, EN and EL — done 2026-11-13 (#235); files in `~/Downloads/moraki-play-screenshots/{en,el}` plus `app-icon-512.png`
+- [ ] A-07 Play signing SHA-256 in `assetlinks.json` (P2-F13) and the site zip rebuilt; Android OAuth clients with both SHA-1s (step 8) — status: in progress. #237 merged 2026-11-13 (Play key `C9:6A:…:65:7B` plus the EAS key); the owner uploads `moraki-site-upload.zip`. OAuth: the EAS SHA-1 client already existed; `Moraki Android (Play)` made with SHA-1 `20:E0:…:95:27`
+- [ ] A-08 phone pass from the Play install, then production review with managed publishing (steps 9–10) — depends: A-07, A-09 — status: pending. After the Play release: Google Cloud → Credentials → verify app ownership of both Android OAuth clients ("App security" warning). App Check for the iOS client is skipped: no Firebase
+- [ ] A-09 Android build 1.0.0 (3) from main: the Sign in with Apple name fix (#236), and `android.blockedPermissions` for `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` (Expo defaults Moraki never uses) — status: pending (Claude)
