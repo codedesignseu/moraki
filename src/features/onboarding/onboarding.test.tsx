@@ -11,6 +11,7 @@ import {
   authServer,
   keychain,
   offline,
+  session,
   type ServerBaby,
 } from '@/testing/fakeSupabaseAuth';
 
@@ -57,7 +58,7 @@ async function signedIn(options: Parameters<typeof authServer>[0] = {}, fetchImp
 }
 
 async function fillIn() {
-  await type('Your name', ' Maria ');
+  await type('Your name (optional)', ' Maria ');
   await fireEvent.press(screen.getByRole('togglebutton', { name: 'Mother' }));
   await type('Name', ' Ella ');
   // Two days ago, through the Stepper's accessibility action, as VoiceOver does.
@@ -77,6 +78,53 @@ async function agreeToConsent() {
   await press(await screen.findByRole('button', { name: 'I agree' }).then(() => 'I agree'));
   await screen.findByText('You agreed to health data being processed.');
 }
+
+/** A session whose account already has a name, as Apple and Google sign in leave it. */
+const namedSession = (fullName: string) => () => {
+  const s = session(Math.floor(Date.now() / 1000) + 3600);
+  return new Response(
+    JSON.stringify({ ...s, user: { ...s.user, user_metadata: { full_name: fullName } } }),
+    { status: 200, headers: { 'content-type': 'application/json' } },
+  );
+};
+
+/** Everything but your own name, then create. */
+async function createWithoutName() {
+  await type('Name', 'Ella');
+  await fireEvent.press(screen.getByRole('checkbox', { name: GUARDIAN }));
+  await agreeToConsent();
+  await press('Create household');
+  await screen.findByRole('button', { name: 'Log feed' });
+}
+
+const createdAs = (server: Awaited<ReturnType<typeof signedIn>>) =>
+  server.calls.find((c) => c.path === '/rest/v1/rpc/create_household')?.body.display_name;
+
+describe('your name, never asked for again (App Store guideline 4)', () => {
+  it('starts from the name the account already has', async () => {
+    const server = await signedIn({ verify: namedSession('Maria Georgiou') });
+    await press('Set up household');
+    expect(screen.getByLabelText('Your name (optional)')).toHaveProp('value', 'Maria Georgiou');
+    await createWithoutName();
+    expect(createdAs(server)).toBe('Maria Georgiou');
+  });
+
+  it('left empty, the role picked stands in for it', async () => {
+    const server = await signedIn();
+    await press('Set up household');
+    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Father' }));
+    await createWithoutName();
+    expect(createdAs(server)).toBe('Father');
+  });
+
+  it('left empty with no role, or “Other”, it says Caregiver', async () => {
+    const server = await signedIn();
+    await press('Set up household');
+    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Other' }));
+    await createWithoutName();
+    expect(createdAs(server)).toBe('Caregiver');
+  });
+});
 
 describe('household setup', () => {
   it('a new user ends on home with an empty baby', async () => {
@@ -178,9 +226,7 @@ describe('household setup', () => {
     const server = await signedIn();
     await press('Set up household');
 
-    await press('Create household');
-    expect(screen.getByText('Error: Enter your name.')).toBeOnTheScreen();
-    await type('Your name', 'Maria');
+    // Your name is optional (App Store guideline 4): the baby's is not.
     await press('Create household');
     expect(screen.getByText('Error: Enter your baby’s name.')).toBeOnTheScreen();
     await type('Name', 'Ella');
@@ -197,7 +243,7 @@ describe('household setup', () => {
     const server = await signedIn();
     await press('Set up household');
     expect(screen.getByRole('checkbox', { name: GUARDIAN })).not.toBeChecked();
-    await type('Your name', 'Maria');
+    await type('Your name (optional)', 'Maria');
     await type('Name', 'Ella');
 
     await press('Create household');
@@ -217,7 +263,7 @@ describe('household setup', () => {
   it('needs health-data consent first, on its own screen (P0.2)', async () => {
     const server = await signedIn();
     await press('Set up household');
-    await type('Your name', 'Maria');
+    await type('Your name (optional)', 'Maria');
     await type('Name', 'Ella');
     await fireEvent.press(screen.getByRole('checkbox', { name: GUARDIAN }));
 

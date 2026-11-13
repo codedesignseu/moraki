@@ -209,6 +209,7 @@ describe('Sign in with Apple (P5-04)', () => {
     mockSignInWithApple.mockResolvedValue({
       identityToken: 'the-identity-token',
       nonce: 'the-raw-nonce',
+      fullName: null,
     });
     const server = authServer();
 
@@ -227,6 +228,31 @@ describe('Sign in with Apple (P5-04)', () => {
         id_token: 'the-identity-token',
         nonce: 'the-raw-nonce',
       }),
+    });
+    // No name from Apple: nothing to keep.
+    expect(server.calls.some((c) => c.path === '/auth/v1/user')).toBe(false);
+  });
+
+  it('keeps the name Apple shares on the first sign in with the account (guideline 4)', async () => {
+    mockAppleAvailable.mockResolvedValue(true);
+    mockSignInWithApple.mockResolvedValue({
+      identityToken: 'the-identity-token',
+      nonce: 'the-raw-nonce',
+      fullName: 'Maria Georgiou',
+    });
+    const server = authServer();
+
+    await openSettings(createAuth(TEST_SUPABASE_ENV, keychain().store, server.fetchImpl));
+    await press('Sign in');
+    await agreeToTerms();
+    await screen.findByRole('button', { name: 'Continue with Apple' });
+    await agreeToTerms();
+    await press('Continue with Apple');
+
+    expect(await screen.findByLabelText(`Signed in as ${EMAIL}`)).toBeOnTheScreen();
+    expect(server.calls.find((c) => c.path === '/auth/v1/user')).toEqual({
+      path: '/auth/v1/user',
+      body: expect.objectContaining({ data: { full_name: 'Maria Georgiou' } }),
     });
   });
 
