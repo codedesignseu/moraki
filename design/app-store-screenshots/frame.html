@@ -70,6 +70,12 @@
   }
   body.night .screen { background: #171411; }
   .screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+
+  /* Google Play: 9:16, rendered at 1320 × 2347 and scaled to 1080 × 1920 by render.mjs --play.
+     Play refuses a long side more than twice the short one, so the 1320 × 2868 canvas can't go up. */
+  body.play, body.play .canvas { height: 2347px; }
+  body.play .copy { top: 110px; height: 400px; }
+  body.play .phone { bottom: 70px; transform: translateX(-50%) scale(0.803); transform-origin: bottom center; }
 </style>
 </head>
 <body>
@@ -81,10 +87,11 @@
   <div class="phone"><div class="screen"><img id="screen" alt=""></div></div>
 </div>
 <script>
-  // Fields: caption, sub (a \n forces a line break), bg (hex), theme ('day' | 'night'), screen (image URL), lang.
+  // Fields: caption, sub (a \n forces a line break), bg (hex), theme ('day' | 'night'), screen (image URL), lang, play (9:16).
   window.setShot = function (shot) {
     document.documentElement.lang = shot.lang || 'en';
     document.body.classList.toggle('night', shot.theme === 'night');
+    document.body.classList.toggle('play', !!shot.play);
     if (shot.bg) document.body.style.setProperty('--bg', shot.bg);
     document.getElementById('caption').textContent = shot.caption || '';
     document.getElementById('sub').textContent = shot.sub || '';
