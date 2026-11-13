@@ -29,16 +29,16 @@ App Tracking Transparency prompt.
 
 ### Data types
 
-| Data type (Apple's name)              | Collected | Linked to the user | Tracking | Purpose           |
-| ------------------------------------- | --------- | ------------------ | -------- | ----------------- |
-| Health & Fitness → **Health**         | Yes       | Yes                | No       | App Functionality |
-| Contact Info → **Email Address**      | Yes       | Yes                | No       | App Functionality |
-| Contact Info → **Name**               | Yes       | Yes                | No       | App Functionality |
-| Identifiers → **User ID**             | Yes       | Yes                | No       | App Functionality |
-| Diagnostics → **Crash Data**          | Yes       | **No**             | No       | App Functionality |
-| Identifiers → **Device ID**           | Yes       | **No**             | No       | App Functionality |
-| Diagnostics → **Other Diagnostic Data** | Yes     | **No**             | No       | App Functionality |
-| User Content → **Other User Content** | Yes       | Yes                | No       | App Functionality |
+| Data type (Apple's name)                | Collected | Linked to the user | Tracking | Purpose           |
+| --------------------------------------- | --------- | ------------------ | -------- | ----------------- |
+| Health & Fitness → **Health**           | Yes       | Yes                | No       | App Functionality |
+| Contact Info → **Email Address**        | Yes       | Yes                | No       | App Functionality |
+| Contact Info → **Name**                 | Yes       | Yes                | No       | App Functionality |
+| Identifiers → **User ID**               | Yes       | Yes                | No       | App Functionality |
+| Diagnostics → **Crash Data**            | Yes       | **No**             | No       | App Functionality |
+| Identifiers → **Device ID**             | Yes       | **No**             | No       | App Functionality |
+| Diagnostics → **Other Diagnostic Data** | Yes       | **No**             | No       | App Functionality |
+| User Content → **Other User Content**   | Yes       | Yes                | No       | App Functionality |
 
 Not collected, so answered "No" or left unticked: Financial Info, Location (precise and coarse),
 Sensitive Info, Contacts, Emails or Text Messages, Photos or Videos, Audio Data, Gameplay
@@ -66,9 +66,11 @@ address, if the person chooses Sign in with Apple's hide-my-email, is still an e
 
 **Name — linked, App Functionality.** `display_name`, 1–40 characters, shown to other caregivers
 on each entry (RoP 58). It is a first name or a nickname, but Apple's "Name" covers a first name,
-so declare it. Also covered here, though not yet written into RoP: Google's sign-in token carries
-the Google account's name (and a profile picture URL), which Supabase Auth keeps in the user's
-identity record. Moraki never reads them. See "Gaps" below.
+so declare it. Also covered here: Sign in with Apple shares the person's name on the first sign
+in, and Google's token carries the Google account's name (and a profile picture URL). Supabase
+Auth keeps the name in the user's metadata, and the app uses it only to fill in "Your name" on the
+household screens, which stays optional (App Store guideline 4, after the build 12 rejection on
+2026-11-12). The profile picture URL is never read.
 
 **User ID — linked, App Functionality.** Every account has a Supabase user id. It is stored on
 every membership, every entry it authored (RoP 90–91), every consent row (RoP 61) and every

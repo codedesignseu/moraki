@@ -127,7 +127,7 @@ describe('a phone holding another account’s entries (P5-F11)', () => {
   it('accepting an invite as another account neither asks to move them nor moves them', async () => {
     const mine = keptFromFirstAccount();
     await openAsSecondAccount(null, `/join/${CODE}`);
-    await fireEvent.changeText(await screen.findByLabelText('Your name'), 'Nik');
+    await fireEvent.changeText(await screen.findByLabelText('Your name (optional)'), 'Nik');
     await acceptAndJoin();
     await waitFor(() => expect(h.prefs.get('accountHousehold')).not.toBeNull());
 
