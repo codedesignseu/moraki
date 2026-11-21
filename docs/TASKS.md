@@ -409,11 +409,12 @@ Steps and status in `docs/11-go-live.md`, sections F and G.
 ### Found while working (launch)
 
 - [x] L-F1 Settings offered Join household only when signed in, so a signed-out phone couldn't type a code — done 2026-10-28 (#232), ships in L-05 and L-06
-- [ ] L-F2 `.easignore`: the EAS upload archive is 238 MB — status: in review (#234, 2026-11-09: upload now 27.8 MB; merge needs the owner)
+- [x] L-F2 `.easignore`: the EAS upload archive was 238 MB — done 2026-11-13 (#234, upload now 27.8 MB)
 - [ ] L-F3 the owner's flow improvements, list to come after release — status: pending (owner)
 - [ ] L-F4 data-request register, staging Supabase project — deferred by the owner — status: pending (Android moved to its own section below, 2026-11-09)
 - [ ] L-F5 `feat(ops): daily health email` — a nightly pg_cron job and Edge Function email the owner a summary through Brevo: failed cron runs in the last 24 hours, Edge Function errors, failed sign-in emails, API error count, household count. Counts only: no names, addresses or baby data. One "all OK" line when nothing is wrong. Needs pgTAP tests and a processors.md note — depends: L-04 (after launch, owner 2026-10-29) — status: pending
 - [ ] L-F6 `docs(ops): monitoring runbook` (`docs/12-monitoring.md`) — where to look for each symptom (can't sign in, not syncing, no warning emails, crash), with the SQL to run — depends: L-04 — status: pending
+- [ ] L-F7 MORAKI-6: `Linking.openURL` failed for the terms page on build 14 — catch the failure and/or open links with `expo-web-browser` (native, needs a new build: iOS 15, Android versionCode 4). Same build: make `android.hardware.screen.portrait` not required — depends: Apple's decision on build 14 — status: pending
 
 ## Launch — Android (Google Play, Cyprus and Greece)
 
@@ -425,6 +426,6 @@ Brought forward from v1.1 by the owner on 2026-11-09, running alongside the iOS 
 - [ ] A-04 service account in EAS credentials for `eas submit` (step 6) — status: pending (owner)
 - [x] A-05 first upload to internal testing, by hand (step 7) — done 2026-11-12: 1.0.0 (2) available to the `Moraki team` list, Play App Signing with a Google-generated key
 - [x] A-06 feature graphic 1024×500 and 1080×1920 screenshots, EN and EL — done 2026-11-13 (#235); files in `~/Downloads/moraki-play-screenshots/{en,el}` plus `app-icon-512.png`
-- [ ] A-07 Play signing SHA-256 in `assetlinks.json` (P2-F13) and the site zip rebuilt; Android OAuth clients with both SHA-1s (step 8) — status: in progress. #237 merged 2026-11-13 (Play key `C9:6A:…:65:7B` plus the EAS key); the owner uploads `moraki-site-upload.zip`. OAuth: the EAS SHA-1 client already existed; `Moraki Android (Play)` made with SHA-1 `20:E0:…:95:27`
-- [ ] A-08 phone pass from the Play install, then production review with managed publishing (steps 9–10) — depends: A-07, A-09 — status: pending. After the Play release: Google Cloud → Credentials → verify app ownership of both Android OAuth clients ("App security" warning). App Check for the iOS client is skipped: no Firebase
-- [ ] A-09 Android build 1.0.0 (3) from main: the Sign in with Apple name fix (#236), and `android.blockedPermissions` for `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` (Expo defaults Moraki never uses) — status: pending (Claude)
+- [x] A-07 Play signing SHA-256 in `assetlinks.json` (P2-F13) and the site zip rebuilt; Android OAuth clients with both SHA-1s (step 8) — done by 2026-11-17: #237 merged 2026-11-13 (Play key `C9:6A:…:65:7B` plus the EAS key); the site zip was uploaded and verified. OAuth: the EAS SHA-1 client already existed; `Moraki Android (Play)` made with SHA-1 `20:E0:…:95:27`
+- [ ] A-08 phone pass from the Play install, then production review with managed publishing (steps 9–10) — depends: A-07, A-09 — status: in review. Sent 2026-11-14; rejected 2026-11-21 for the Health apps declaration, fixed in the form and resubmitted the same day; waiting for approval, then Publish changes (owner). After the Play release: Google Cloud → Credentials → verify app ownership of both Android OAuth clients ("App security" warning). App Check for the iOS client is skipped: no Firebase
+- [x] A-09 Android build 1.0.0 (3) from main: the Sign in with Apple name fix (#236), and `android.blockedPermissions` for `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` (Expo defaults Moraki never uses) — done 2026-11-14: 1.0.0 (3), main `fbe1e15a` (#238), EAS build `572ebb9d`

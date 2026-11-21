@@ -1,13 +1,17 @@
 # Go-live checklist: from main to the App Store
 
-Status on 2026-11-13:
+Status on 2026-11-21:
 
 - **Build 12 rejected** on 2026-11-12 (guideline 4): after Sign in with Apple, household setup required a name Apple already gives. Fixed in #236: Apple's name fills in "Your name", which is now optional, falling back to the role picked or "Caregiver".
-- **Resubmitted:** build 1.0.0 (14), from main `6063b0df`, with a fresh invite code in the review notes and a reply in the App Review thread. Build 14 also carries #232 (joining by a typed code).
-- **Sentry MORAKI-6** (2026-11-13, owner's own test of build 14): `Linking.openURL` failed once for `https://moraki.app/terms/`. Not reproduced. Next build: catch the failure and open links in an in-app browser.
+- **Build 1.0.0 (14) Waiting for Review** since 2026-11-13 12:37, from main `6063b0df`, with manual release and a reply in the App Review thread. Build 14 also carries #232 (joining by a typed code).
+- **2026-11-21:** still waiting after 8 days, with no new message from Apple.
+  - The review notes' invite codes had expired on 2026-11-20. The notes now give a fresh typed code made that day, and the `moraki.app/join/…` link sentence was removed. Editing notes during review doesn't resubmit.
+  - An **expedited review** was requested and accepted ("We'll expedite review"). If this review rejects, the resubmission returns to the expedited queue on its own.
+- **Sentry MORAKI-6** (2026-11-13, owner's own test of build 14): `Linking.openURL` failed once for `https://moraki.app/terms/`. Not reproduced. Next build: catch the failure and open links in an in-app browser (call sites: `app/about.tsx`, onboarding `consent`, `sign-in`, `terms`).
 - **Legal:** the lawyer's final texts are live on moraki.app (#228, #230, #231).
-- **Android:** 1.0.0 (2) is on internal testing; Play's key is in `assetlinks.json` (#237). Status in `docs/13-android-play.md` and TASKS "Launch — Android".
+- **Android:** 1.0.0 (3) is in Play production review (resubmitted 2026-11-21 after a Health declaration rejection). Status in `docs/13-android-play.md` and TASKS "Launch — Android".
 - **Rule:** until Apple decides on build 14, no `eas update` to the production channel.
+- **Launch day:** the owner releases in App Store Connect and clicks Publish changes in Play on the same day.
 - **Who does what:** "Owner" means Makis. "Claude" means Claude Code, on the owner's go-ahead.
 - **Merges:** merges and the production build need the owner to say so, naming the PR numbers.
 
@@ -126,7 +130,7 @@ Until the Apple steps are done, an account signed in with Apple can't be deleted
 ## F. Launch day
 
 - [ ] Apple approves (status "Pending Developer Release"). If rejected, the Resolution Center message goes to Claude.
-- [ ] If still waiting after 5 days: make a fresh invite code and update the review notes. Codes expire after 7 days.
+- [x] If still waiting after 5 days: make a fresh invite code and update the review notes. Codes expire after 7 days. Done 2026-11-21, together with an expedited review request.
 - [ ] Press Release in App Store Connect.
 - [ ] **Claude**, on "publish the join fix": `eas update --branch production --message "Join by code without the link (#232)"`.
 - [ ] Check that the App Store badge on moraki.app opens the listing.
@@ -139,7 +143,7 @@ Until the Apple steps are done, an account signed in with Apple can't be deleted
 - [ ] **Alerts (owner, 5 minutes).** Sentry → Alerts → Create Alert → Issues: "a new issue is created", and "more than 20 events in an issue in 1 hour", both emailing the owner. Supabase → Organization → Billing: spend and usage notifications on.
 - [ ] **Claude:** the daily health email and the monitoring runbook (TASKS L-F5, L-F6).
 - [ ] The owner's list of flow improvements.
-- [ ] Add a `.easignore`: the upload archive is 238 MB, mostly the untracked `design/` folders. In #234 (27.8 MB), waiting for the merge.
+- [x] Add a `.easignore`: the upload archive was 238 MB, mostly the untracked `design/` folders. Merged in #234 (27.8 MB).
 
 ## Later (v1.1)
 
