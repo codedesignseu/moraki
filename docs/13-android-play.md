@@ -1,14 +1,16 @@
 # Android: from EAS to Google Play
 
-Status on 2026-11-11:
+Status on 2026-11-21:
 
 - **Decided 2026-11-09 (owner):** Android comes forward from v1.1 and runs alongside the iOS review.
-- **Build ready:** the first production Android build, version 1.0.0, versionCode 2, signed with the EAS upload key (Build Credentials `X_qGMyqXCa`). It was made on 2026-11-09 from branch `build/android-play`, which is `main` at `f228944c` (it includes #232) plus the two config files below.
-  - Build: https://expo.dev/accounts/ce-code-designs-ltd/projects/moraki/builds/06fcab15-2c8e-4113-befd-f2ec9a274ebf
-  - `.aab`: https://expo.dev/artifacts/eas/eAXvupVSUbIm0rZde0qNcg633C_BtRnB2mWHNs1Kdgo.aab
-- **PR #234 (open, checks green):** `eas.json` gets `submit.production.android` (internal track, draft release), and `.easignore` takes the EAS upload from 238 MB to 27.8 MB (L-F2). It needs the owner's go-ahead to merge.
-- **Next:** the owner works through steps 1 to 8 in Play Console. Claude makes the feature graphic and the 1080×1920 screenshots, then updates `assetlinks.json` once the step 8 fingerprints arrive.
-- **Task IDs:** A-01 to A-08 in `docs/TASKS.md`, "Launch — Android".
+- **Build in review:** 1.0.0 (3), versionCode 3, from main `fbe1e15a`, EAS build `572ebb9d-30a5-439b-9c04-3130a876f707`. It carries #236 (the Sign in with Apple name fix) and strips `AD_ID`, `SYSTEM_ALERT_WINDOW` and external storage through `android.blockedPermissions` (#238).
+  - It is on internal testing. The production full rollout was first sent for review on 2026-11-14.
+- **Rejected 2026-11-21: "Inaccurate Health Apps Declaration".** Play matched the store description against four health categories that weren't declared. The fix was form-only, with no new build (step 3, item 9).
+- **Resubmitted 2026-11-21:** the production rollout, two Alpha tester changes, the Health declaration and a fresh App access code.
+  - Sending the code change restarted the review begun earlier that day.
+  - The pre-check warning about `android.hardware.screen.portrait` (it excludes some tablets, desktops and XR) was ignored. Making it optional in the manifest is for the next build.
+- **Managed publishing is on.** After approval, the owner clicks **Publish changes** on the same day as the iOS release.
+- **Task IDs:** A-01 to A-09 in `docs/TASKS.md`, "Launch — Android".
 
 ## Effect on the iOS review (build 12)
 
@@ -61,6 +63,8 @@ Policy and programs → App content. Do every card.
    or email code. Then Settings → Join household → enter code XXXX-XXXX.
    ```
 
+   Each code is single-use. When a review runs longer than the code, a new code goes in as a separate change, and sending it restarts the review in progress (as happened on 2026-11-21).
+
 3. **Ads:** No.
 4. **Content rating:**
    - Email: `hello@moraki.app`. Category: "All other app types".
@@ -75,7 +79,14 @@ Policy and programs → App content. Do every card.
    - Deletion URL: `https://moraki.app/support#delete`
    - For every row: collected yes, shared no, processed ephemerally no.
 8. **Government apps:** No. **Financial features:** none.
-9. **Health:** pick the tracking / wellness type closest to baby-care logging. It is not a medical device or clinical app, matching the App Store's "Regulated Medical Device: No".
+9. **Health:** tick every category the store description touches. Play checks the declaration against the listing text, and rejected the app on 2026-11-21 when only "Other" was ticked. Declared since then:
+   - Nutrition and weight management (feeds, pumping, milk stock, weight);
+   - Sleep management;
+   - Healthcare services and management (appointments, the pediatrician summary);
+   - Medication and treatment management (medication log);
+   - Other, with the existing "newborn care log … no diagnosis, dosing advice or medical interpretation" text.
+
+   Leave every medical device, clinical decision and research option unticked. This matches the App Store's "Regulated Medical Device: No". If the description gains a new feature, check this card again.
 10. **Advertising ID:** No. If Play warns that the build declares `AD_ID`, Claude strips the permission in the next build.
 11. **Sensitive permissions:** this card appears after the first upload. For exact alarms, declare "user-set reminders" (feed and appointment reminders). Send Claude anything else that appears.
 
@@ -155,8 +166,8 @@ JavaScript-only fixes ship as an over-the-air update **only after Apple has deci
 ## Step 10. Production
 
 1. The Dashboard shows every "Set up your app" task ticked.
-2. Production → Create new release → Add from library → `1.0.0 (2)`, with the same notes.
-3. Publishing overview → Send changes for review. A first review takes from hours to about 7 days. Forward any rejection to Claude.
+2. Production → Create new release → Add from library → `1.0.0 (3)`, with the same notes. Done 2026-11-14.
+3. Publishing overview → Send changes for review. A first review takes from hours to about 7 days. Forward any rejection to Claude. Sent 2026-11-14, rejected 2026-11-21 (Health declaration), resubmitted the same day.
 4. Once approved, click **Publish changes** at the time agreed with the iOS release.
 5. Claude adds the Google Play badge to moraki.app.
 
