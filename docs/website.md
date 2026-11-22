@@ -162,6 +162,10 @@ that script would change its hash.
 
 ## Before going live
 
+- **App Store link.** The app is only in Cyprus and Greece, and the link without a
+  country returned 404 on 2026-11-22. English pages use
+  `apps.apple.com/cy/app/id6819394944`, Greek pages `/gr/`. Change them when more
+  countries open.
 - **App Store badge.** `images/app-store-badge-black.svg` and `-white.svg` are
   placeholders. Download Apple's official badges from
   https://developer.apple.com/app-store/marketing/guidelines/ and save them under
