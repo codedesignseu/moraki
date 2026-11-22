@@ -12,7 +12,7 @@
 - **Languages**: English and Greek
 - **Where data is stored**: In the European Union
 - **Ads**: None
-- **Account needed**: No. You sign in only to share with your household.
+- **Account needed**: Not to start. You sign in to add your baby’s profile, sync or share.
 - **Made by**: C.E. CODE DESIGNS LTD, Cyprus
 
 ## Pages in English
@@ -20,7 +20,7 @@
 - [Home](https://moraki.app/): What Moraki is, how it works, and what you can log.
 - [Features](https://moraki.app/features/): Everything Moraki does: logging, history, sharing, night mode, offline use, the doctor report and privacy.
 - [Age guides](https://moraki.app/age-guides/): What changes for you in the baby’s first year, stage by stage, and how Moraki can help. Not medical advice.
-- [Our story](https://moraki.app/our-story/): Why a dad in Cyprus built Moraki, and its promises: no ads, nothing sold, no account needed, data in the EU.
+- [Our story](https://moraki.app/our-story/): Why a dad in Cyprus built Moraki, and its promises: no ads, nothing sold, no account needed to start, data in the EU.
 - [FAQ](https://moraki.app/faq/): Short answers about price, accounts, sharing with your household, privacy, offline use and health questions.
 - [Privacy policy](https://moraki.app/privacy/): How Moraki handles your data.
 - [Terms of use](https://moraki.app/terms/): The rules for using Moraki.
@@ -35,7 +35,7 @@
 - [Αρχική](https://moraki.app/el/): Home, in Greek. What Moraki is, how it works, and what you can log.
 - [Λειτουργίες](https://moraki.app/el/features/): Features, in Greek. Everything Moraki does: logging, history, sharing, night mode, offline use, the doctor report and privacy.
 - [Οδηγοί ηλικίας](https://moraki.app/el/age-guides/): Age guides, in Greek. What changes for you in the baby’s first year, stage by stage, and how Moraki can help. Not medical advice.
-- [Η ιστορία μας](https://moraki.app/el/our-story/): Our story, in Greek. Why a dad in Cyprus built Moraki, and its promises: no ads, nothing sold, no account needed, data in the EU.
+- [Η ιστορία μας](https://moraki.app/el/our-story/): Our story, in Greek. Why a dad in Cyprus built Moraki, and its promises: no ads, nothing sold, no account needed to start, data in the EU.
 - [Συχνές ερωτήσεις](https://moraki.app/el/faq/): FAQ, in Greek. Short answers about price, accounts, sharing with your household, privacy, offline use and health questions.
 - [Πολιτική απορρήτου](https://moraki.app/el/privacy/): Privacy policy, in Greek. How Moraki handles your data.
 - [Όροι χρήσης](https://moraki.app/el/terms/): Terms of use, in Greek. The rules for using Moraki.

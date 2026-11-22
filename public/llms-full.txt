@@ -66,7 +66,7 @@ Moraki is a notebook, not medical advice. If you’re worried about your baby, c
 - **No ads**: Moraki shows no ads. Not now, not later.
 - **No data sold**: We don’t sell your data or hand it to anyone.
 - **No analytics**: No trackers and no analytics, in the app or on this site.
-- **No account needed**: Start logging right away. Sign in only when you want to share.
+- **No account to start**: Start logging right away. Sign in to add your baby’s profile, sync or share.
 - **Export or delete**: Download or delete everything from Settings, whenever you like.
 
 Read the privacy policy
@@ -88,7 +88,7 @@ Free on iPhone. Invite the others whenever you’re ready.
 - **Languages**: English and Greek
 - **Where data is stored**: In the European Union
 - **Ads**: None
-- **Account needed**: No. You sign in only to share with your household.
+- **Account needed**: Not to start. You sign in to add your baby’s profile, sync or share.
 - **Made by**: C.E. CODE DESIGNS LTD, Cyprus
 
 ---
@@ -109,7 +109,7 @@ Yes. Moraki is free to download and free to use. There are no ads.
 
 ### Do I need an account?
 
-No. You can start logging right away. You only sign in when you want to share the notebook with someone else.
+Not to start logging. You sign in to create your baby’s profile, sync between phones, invite others or send feedback.
 
 ### Is there an Android version?
 
