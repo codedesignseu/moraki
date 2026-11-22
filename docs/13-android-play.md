@@ -1,6 +1,6 @@
 # Android: from EAS to Google Play
 
-Status on 2026-11-21:
+Status on 2026-11-22 (Publishing overview still shows the resubmitted changes in review):
 
 - **Decided 2026-11-09 (owner):** Android comes forward from v1.1 and runs alongside the iOS review.
 - **Build in review:** 1.0.0 (3), versionCode 3, from main `fbe1e15a`, EAS build `572ebb9d-30a5-439b-9c04-3130a876f707`. It carries #236 (the Sign in with Apple name fix) and strips `AD_ID`, `SYSTEM_ALERT_WINDOW` and external storage through `android.blockedPermissions` (#238).
@@ -9,14 +9,14 @@ Status on 2026-11-21:
 - **Resubmitted 2026-11-21:** the production rollout, two Alpha tester changes, the Health declaration and a fresh App access code.
   - Sending the code change restarted the review begun earlier that day.
   - The pre-check warning about `android.hardware.screen.portrait` (it excludes some tablets, desktops and XR) was ignored. Making it optional in the manifest is for the next build.
-- **Managed publishing is on.** After approval, the owner clicks **Publish changes** on the same day as the iOS release.
+- **Managed publishing is on.** After approval, the owner clicks **Publish changes**. iOS was released first, on 2026-11-22.
 - **Task IDs:** A-01 to A-09 in `docs/TASKS.md`, "Launch — Android".
 
-## Effect on the iOS review (build 12)
+## Effect on the iOS review (over: released 2026-11-22)
 
-None, as long as one rule holds: **no `eas update --branch production` until Apple has decided.**
+The rule is now about Play: **no `eas update --branch production` until Play has decided on 1.0.0 (3).**
 
-- The review build and the Android build both listen to the `production` update channel. A published update would reach the reviewer's app.
+- The iOS and Android builds both listen to the `production` update channel. A published update would reach the Play reviewer's app.
 - Building Android publishes no update. It has its own versionCode and its own EAS build allowance.
 - The website change in step 8 edits `assetlinks.json` only. Leave `apple-app-site-association` as it is, and check it still loads after uploading the site again.
 - Google Cloud: a new Android OAuth client doesn't change the Web or iOS clients.
@@ -87,6 +87,7 @@ Policy and programs → App content. Do every card.
    - Other, with the existing "newborn care log … no diagnosis, dosing advice or medical interpretation" text.
 
    Leave every medical device, clinical decision and research option unticked. This matches the App Store's "Regulated Medical Device: No". If the description gains a new feature, check this card again.
+
 10. **Advertising ID:** No. If Play warns that the build declares `AD_ID`, Claude strips the permission in the next build.
 11. **Sensitive permissions:** this card appears after the first upload. For exact alarms, declare "user-set reminders" (feed and appointment reminders). Send Claude anything else that appears.
 
@@ -161,7 +162,7 @@ From the second build on: `eas build --profile production --platform android --a
 - [ ] Share PDF and Export.
 - [ ] Deleting a test account.
 
-JavaScript-only fixes ship as an over-the-air update **only after Apple has decided on build 12**.
+JavaScript-only fixes ship as an over-the-air update **only after Play has decided on 1.0.0 (3)**.
 
 ## Step 10. Production
 
