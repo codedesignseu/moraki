@@ -139,7 +139,7 @@ Until the Apple steps are done, an account signed in with Apple can't be deleted
 - [x] If still waiting after 5 days: make a fresh invite code and update the review notes. Codes expire after 7 days. Done 2026-11-21, together with an expedited review request.
 - [x] Press Release in App Store Connect (owner, 2026-11-22).
 - [x] ~~`eas update` with #232~~: not needed. Build 14 (`6063b0df`) already contains #232, and main had no app code change after it on release day.
-- [ ] Check that the App Store badge on moraki.app opens the listing, on an iPhone and on a computer. The link without a country returned 404 on 2026-11-22, so the English pages use `/cy/` and the Greek ones `/gr/`, from the next site upload.
+- [ ] Check that the App Store badge on moraki.app opens the listing, on an iPhone and on a computer. The link without a country returned 404 on 2026-11-22, so the English pages use `/cy/` and the Greek ones `/gr/`. Uploaded and checked from a computer the same day; left: the tap on an iPhone.
 - [ ] For the first days, watch Sentry (crashes) and the `hello@moraki.app` inbox.
 
 ## G. After launch
