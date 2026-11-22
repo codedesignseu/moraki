@@ -1,19 +1,20 @@
 import { Stack, useRouter } from 'expo-router';
-import { Linking } from 'react-native';
 
 import { SignInScreen } from '@/features/auth/SignInScreen';
 import { PAGE_OPTIONS } from '@/ui/pageOptions';
+import { useOpenLink } from '@/privacy/useOpenLink';
 import { useTerms } from '@/privacy/useTerms';
 
 export default function SignIn() {
   const router = useRouter();
+  const openLink = useOpenLink();
   const { agree } = useTerms();
   return (
     <>
       <Stack.Screen options={PAGE_OPTIONS} />
       <SignInScreen
         onClose={() => router.back()}
-        onOpenLink={(url) => void Linking.openURL(url)}
+        onOpenLink={openLink}
         // Back to where signing in started. Health-data consent is the
         // parent's or guardian's (P0.2): it is asked when they set up a
         // household, or when the server says a guardian's is missing, and

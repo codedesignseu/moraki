@@ -1,5 +1,5 @@
-import { fireEvent, screen, within } from 'expo-router/testing-library';
-import { Linking } from 'react-native';
+import { fireEvent, screen, waitFor, within } from 'expo-router/testing-library';
+import { Alert, Linking } from 'react-native';
 
 import type { EventsRepository } from '@/db/repositories/events';
 import { legalLink } from '@/features/privacy/AboutScreen';
@@ -14,6 +14,7 @@ beforeEach(async () => {
   ({ repo } = await createHarness(NOW));
 });
 afterEach(() => {
+  jest.restoreAllMocks();
   jest.useRealTimers();
 });
 
@@ -74,6 +75,30 @@ describe('the disclaimer', () => {
       'mailto:hello@moraki.app',
     ]);
     expect(legal.getByText(/hello@moraki.app/)).toBeOnTheScreen();
+  });
+
+  it.each([
+    ['Terms of use', 'moraki.app/terms'],
+    ['Email us', 'hello@moraki.app'],
+  ])('gives the address when the phone cannot open "%s" (MORAKI-6)', async (name, address) => {
+    jest.spyOn(Linking, 'openURL').mockRejectedValue(new Error('Unable to open URL'));
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    await openAbout();
+    const legal = within(screen.getByTestId('about-legal'));
+    await fireEvent.press(legal.getByRole('button', { name }));
+    await waitFor(() => expect(alert).toHaveBeenCalledTimes(1));
+    expect(alert).toHaveBeenCalledWith('The link didn’t open', `You can find it at ${address}.`, [
+      { text: 'OK' },
+    ]);
+  });
+
+  it('says nothing when the link opens', async () => {
+    jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    await openAbout();
+    const legal = within(screen.getByTestId('about-legal'));
+    await fireEvent.press(legal.getByRole('button', { name: 'Terms of use' }));
+    expect(alert).not.toHaveBeenCalled();
   });
 });
 
