@@ -146,7 +146,7 @@ Until the Apple steps are done, an account signed in with Apple can't be deleted
 
 - [ ] Google Search Console and Bing Webmaster Tools: verify moraki.app with a DNS TXT record in Cloudflare, and submit `https://moraki.app/sitemap.xml`.
 - [x] ~~**Build 13**~~, superseded by build 14. For any build: pull main into `~/Projects/moraki` first, and check that `eas build:list` shows the build's commit equal to origin/main (build 11 was made from a stale checkout).
-- [ ] **Alerts (owner, 5 minutes).** Sentry → Alerts → Create Alert → Issues: "a new issue is created", and "more than 20 events in an issue in 1 hour", both emailing the owner. Supabase → Organization → Billing: spend and usage notifications on.
+- [x] **Alerts (2026-11-22).** Sentry: "Moraki: new issue" and "Moraki: over 20 events in 1 hour" (at most one email per issue per hour), both emailing the owner. Supabase: the Billing page has no usage notification to turn on. The spend cap is on, so there are no overage charges, but a project can go read-only past its quota: check Organization → Usage before a big push (every quota under 1% on 2026-11-22). Sign-in emails are limited to 100 an hour.
 - [ ] **Claude:** the daily health email and the monitoring runbook (TASKS L-F5, L-F6).
 - [ ] **Age rating (owner, by 2027-01-15):** answer Location Sharing and Dating in App Information.
 - [ ] The owner's list of flow improvements.
