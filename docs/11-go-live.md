@@ -1,6 +1,12 @@
 # Go-live checklist: from main to the App Store
 
-Status on 2026-11-21:
+Status on 2026-11-22:
+
+- **iOS 1.0 (14) released 2026-11-22.** Apple approved it and the owner pressed Release. App Store Connect shows Ready for Distribution, with Cyprus and Greece Available. The public listing can take up to 24 hours.
+- **Checked in App Store Connect before release:** Free Apps Agreement active to 2027-09-25, Digital Services Act trader active, regulated medical device declared no, App Privacy published, price zero.
+- **Due by 2027-01-15:** the new age rating questions (Location Sharing and Dating) in App Information. Apple's China notices don't apply: China isn't in the availability.
+
+Background and rules:
 
 - **Build 12 rejected** on 2026-11-12 (guideline 4): after Sign in with Apple, household setup required a name Apple already gives. Fixed in #236: Apple's name fills in "Your name", which is now optional, falling back to the role picked or "Caregiver".
 - **Build 1.0.0 (14) Waiting for Review** since 2026-11-13 12:37, from main `6063b0df`, with manual release and a reply in the App Review thread. Build 14 also carries #232 (joining by a typed code).
@@ -10,8 +16,8 @@ Status on 2026-11-21:
 - **Sentry MORAKI-6** (2026-11-13, owner's own test of build 14): `Linking.openURL` failed once for `https://moraki.app/terms/`. Not reproduced. Next build: catch the failure and open links in an in-app browser (call sites: `app/about.tsx`, onboarding `consent`, `sign-in`, `terms`).
 - **Legal:** the lawyer's final texts are live on moraki.app (#228, #230, #231).
 - **Android:** 1.0.0 (3) is in Play production review (resubmitted 2026-11-21 after a Health declaration rejection). Status in `docs/13-android-play.md` and TASKS "Launch — Android".
-- **Rule:** until Apple decides on build 14, no `eas update` to the production channel.
-- **Launch day:** the owner releases in App Store Connect and clicks Publish changes in Play on the same day.
+- **Rule:** no `eas update` to the production channel while Play reviews 1.0.0 (3): the Android build listens to the same channel.
+- **Launch day:** iOS went first. The owner clicks Publish changes in Play once it approves.
 - **Who does what:** "Owner" means Makis. "Claude" means Claude Code, on the owner's go-ahead.
 - **Merges:** merges and the production build need the owner to say so, naming the PR numbers.
 
@@ -129,19 +135,20 @@ Until the Apple steps are done, an account signed in with Apple can't be deleted
 
 ## F. Launch day
 
-- [ ] Apple approves (status "Pending Developer Release"). If rejected, the Resolution Center message goes to Claude.
+- [x] Apple approves (status "Pending Developer Release"), 2026-11-22. If rejected, the Resolution Center message goes to Claude.
 - [x] If still waiting after 5 days: make a fresh invite code and update the review notes. Codes expire after 7 days. Done 2026-11-21, together with an expedited review request.
-- [ ] Press Release in App Store Connect.
-- [ ] **Claude**, on "publish the join fix": `eas update --branch production --message "Join by code without the link (#232)"`.
-- [ ] Check that the App Store badge on moraki.app opens the listing.
+- [x] Press Release in App Store Connect (owner, 2026-11-22).
+- [x] ~~`eas update` with #232~~: not needed. Build 14 (`6063b0df`) already contains #232, and main had no app code change after it on release day.
+- [ ] Check that the App Store badge on moraki.app opens the listing, on an iPhone and on a computer. The link has no country (`apps.apple.com/app/id6819394944`) and the app is only in Cyprus and Greece: if it fails, use `/cy/` on the English pages and `/gr/` on the Greek ones.
 - [ ] For the first days, watch Sentry (crashes) and the `hello@moraki.app` inbox.
 
 ## G. After launch
 
 - [ ] Google Search Console and Bing Webmaster Tools: verify moraki.app with a DNS TXT record in Cloudflare, and submit `https://moraki.app/sitemap.xml`.
-- [ ] **Build 13** after the EAS free-plan iOS build allowance resets on 2026-11-01. Pull main into `~/Projects/moraki` first, and check that `eas build:list` shows the build's commit equal to origin/main (build 11 was made from a stale checkout).
+- [x] ~~**Build 13**~~, superseded by build 14. For any build: pull main into `~/Projects/moraki` first, and check that `eas build:list` shows the build's commit equal to origin/main (build 11 was made from a stale checkout).
 - [ ] **Alerts (owner, 5 minutes).** Sentry → Alerts → Create Alert → Issues: "a new issue is created", and "more than 20 events in an issue in 1 hour", both emailing the owner. Supabase → Organization → Billing: spend and usage notifications on.
 - [ ] **Claude:** the daily health email and the monitoring runbook (TASKS L-F5, L-F6).
+- [ ] **Age rating (owner, by 2027-01-15):** answer Location Sharing and Dating in App Information.
 - [ ] The owner's list of flow improvements.
 - [x] Add a `.easignore`: the upload archive was 238 MB, mostly the untracked `design/` folders. Merged in #234 (27.8 MB).
 
