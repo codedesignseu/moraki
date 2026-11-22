@@ -401,9 +401,9 @@ Steps and status in `docs/11-go-live.md`, sections F and G.
 - [x] L-01 `docs(web): publish the lawyer's final legal texts` — done 2026-10-28 (#228, #230, #231)
 - [x] L-02 `feat(consent): Terms and Privacy version 2026-10-28` — done 2026-10-28 (#229; `supabase db push` run by the owner)
 - [x] L-03 submit build 12 for App Review, manual release — done 2026-10-28 (owner)
-- [ ] L-04 release in App Store Connect — depends: L-03 approved — status: pending (owner)
-- [ ] L-05 `eas update` with #232 to the production channel — depends: L-04 — status: pending
-- [ ] L-06 build 13 from main — depends: the EAS iOS build allowance resetting on 2026-11-01 — status: pending
+- [x] L-04 release in App Store Connect — depends: L-03 approved — done 2026-11-22 (owner): build 14 approved and released, Cyprus and Greece Available in App Store Connect
+- [x] L-05 `eas update` with #232 to the production channel — depends: L-04 — closed 2026-11-22, not needed: build 14 (`6063b0df`) contains #232
+- [x] L-06 build 13 from main — closed 2026-11-22: superseded by build 14 (number 13 was skipped by the remote auto-increment)
 - [ ] L-07 Search Console and Bing: verify the domain, submit the sitemap — depends: L-04 — status: pending (owner)
 
 ### Found while working (launch)
@@ -414,7 +414,10 @@ Steps and status in `docs/11-go-live.md`, sections F and G.
 - [ ] L-F4 data-request register, staging Supabase project — deferred by the owner — status: pending (Android moved to its own section below, 2026-11-09)
 - [ ] L-F5 `feat(ops): daily health email` — a nightly pg_cron job and Edge Function email the owner a summary through Brevo: failed cron runs in the last 24 hours, Edge Function errors, failed sign-in emails, API error count, household count. Counts only: no names, addresses or baby data. One "all OK" line when nothing is wrong. Needs pgTAP tests and a processors.md note — depends: L-04 (after launch, owner 2026-10-29) — status: pending
 - [ ] L-F6 `docs(ops): monitoring runbook` (`docs/12-monitoring.md`) — where to look for each symptom (can't sign in, not syncing, no warning emails, crash), with the SQL to run — depends: L-04 — status: pending
-- [ ] L-F7 MORAKI-6: `Linking.openURL` failed for the terms page on build 14 — catch the failure and/or open links with `expo-web-browser` (native, needs a new build: iOS 15, Android versionCode 4). Same build: make `android.hardware.screen.portrait` not required — depends: Apple's decision on build 14 — status: pending
+- [ ] L-F8 answer Apple's new age rating questions (Location Sharing and Dating) in App Information by 2027-01-15 — status: pending (owner)
+- [ ] L-F9 the store badges' App Store link has no country: check it opens on a computer once the listing is public, else use `/cy/` and `/gr/` — depends: L-04 — status: pending
+- [ ] L-F10 record the Play Data safety answers as submitted, from the public listing, in `docs/store/app-privacy-answers.md` — depends: A-08 — status: pending
+- [ ] L-F7 MORAKI-6: `Linking.openURL` failed for the terms page on build 14 — catch the failure and/or open links with `expo-web-browser` (native, needs a new build: iOS 15, Android versionCode 4). Same build: make `android.hardware.screen.portrait` not required — status: in_progress 2026-11-22: catching the failure is on `fix/open-link-failure` (JavaScript only, can go out over the air once Play has decided). The in-app browser and the portrait feature wait for the next native build
 
 ## Launch — Android (Google Play, Cyprus and Greece)
 
