@@ -56,10 +56,10 @@ Shared feeds, diapers & sleep
 ### Promotional text
 
 ```text
-Log a bottle in two taps, one-handed, at 4am. Everyone caring for your baby sees the same feeds, diapers and sleep, on their own phone, even with no signal.
+No account to start: log a bottle in two taps, one-handed, at 4am. Sign in when you want everyone caring for your baby to share the same notebook.
 ```
 
-156 characters (limit 170).
+146 characters (limit 170).
 
 ### Description
 
@@ -139,10 +139,10 @@ Moraki: Ημερολόγιο μωρού
 ### Promotional text
 
 ```text
-Κατέγραψε ένα μπιμπερό με δύο αγγίγματα, με το ένα χέρι, στις 4 το πρωί. Όλοι όσοι φροντίζουν το μωρό βλέπουν τα ίδια ταΐσματα, πάνες και ύπνο, ακόμα και χωρίς σήμα.
+Ξεκινάς χωρίς λογαριασμό: μπιμπερό με δύο αγγίγματα, με το ένα χέρι, στις 4 το πρωί. Συνδέεσαι όταν θέλεις κοινό τετράδιο με όσους φροντίζουν το μωρό.
 ```
 
-165 characters (limit 170).
+150 characters (limit 170).
 
 ### Description
 
