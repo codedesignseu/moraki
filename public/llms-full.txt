@@ -21,7 +21,7 @@ Tap a tile and a short sheet slides up. Pick what happened with big buttons, and
 
 - **Weight**: Write it down after a check-up or a home weigh-in.
 - **Temperature**: Keep each reading with the time you took it.
-- **Medication**: Name, amount and time, so nobody gives a second dose by mistake.
+- **Medication**: Name, amount and time, so everyone sees what was given.
 - **Health notes**: A rash, a cough, a question. Write it while you remember.
 - **Appointments**: Date, place and the questions you want to ask.
 - **Milk stock**: See how much milk you have in the fridge and the freezer.
