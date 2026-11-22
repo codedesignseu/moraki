@@ -1112,5 +1112,10 @@
     "household_gone": "The household was deleted. Its entries are cleared from this phone, and its reminders are cancelled. You’re still signed in.",
     "account_gone": "This account was deleted, so it’s signed out here. The household’s entries are cleared from this phone, and its reminders are cancelled.",
     "ok": "OK"
+  },
+  "openLink": {
+    "title": "The link didn’t open",
+    "body": "You can find it at {{address}}.",
+    "ok": "OK"
   }
 }
