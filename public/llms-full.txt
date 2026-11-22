@@ -131,7 +131,7 @@ Caregivers can log and edit. Viewers can see everything but can’t log.
 
 ### How do I join a household?
 
-Install Moraki, open Settings and tap Join with a code. Type in the code you got.
+Install Moraki, open Settings and tap Join household. Type in the code you got.
 
 ### Can I take an invite back?
 
@@ -153,7 +153,7 @@ No. We don’t sell your data, we don’t share it for ads, and Moraki shows no 
 
 ### Can I delete everything?
 
-Yes. Open Settings and go to Your data. You can download everything or delete it all.
+Yes. In Settings, Data export makes a copy for you. Leave or delete deletes your account, or the household if you are its owner.
 
 ## Everyday use
 
