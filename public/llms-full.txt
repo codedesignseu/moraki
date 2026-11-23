@@ -99,7 +99,7 @@ Source: https://moraki.app/faq/
 
 Short answers to the questions we hear most about Moraki. Can’t find yours? Our support page has a way to reach us.
 
-Last updated: 28 October 2026
+Last updated: 23 November 2026
 
 ## Getting started
 
@@ -145,7 +145,7 @@ On your phone, encrypted. Without an account, your entries stay there. If you cr
 
 ### What if I lose or change my phone?
 
-If you’re in a household, sign in on the new phone and the entries that had synced come back. Without an account, your entries are only on that phone. If it’s lost, or you delete the app, they’re gone, and a phone backup won’t bring them to a new phone. Data export in Settings makes a copy you can keep, but Moraki can’t load it back in.
+If you use Moraki without an account, your entries are stored only on your device and aren’t backed up to Moraki’s cloud. If your phone is lost or damaged, you may not be able to recover them. If you use a shared household, entries that have successfully synced can be downloaded again after you sign in on another device.
 
 ### Who can see my baby’s data?
 
