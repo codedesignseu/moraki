@@ -172,7 +172,7 @@ We retain information according to its purpose and the implemented lifecycle:
 - **Feedback:** up to 24 months or until account deletion, whichever occurs first.
 - **Invitations:** expire after seven days and are generally removed 90 days after use or expiry.
 - **Crash reports:** 30 days.
-- **Social-media messages and enquiries:** deleted when no longer needed, at most 12 months after the conversation ends.
+- **Social-media messages and enquiries:** messages stay on the platform and are also governed by its privacy policy. We delete conversations from our inbox once we no longer need them, at most 12 months after the conversation ends. You can ask us to delete them sooner.
 - **Inactive households:** after 23 months without qualifying activity, an email warning is sent. Deletion can occur after 24 months if the warning conditions and at least 30 days' notice have been satisfied, with no intervening activity.
 - **Households paused following explicit final-guardian withdrawal:** warning after 90 days, with possible deletion at least 30 days later if still paused.
 - **Deletion audit records:** retained for 35 days. Restricted daily journal emails containing deletion identifiers are also retained for at least 35 days to assist backup recovery.
