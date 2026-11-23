@@ -1,6 +1,6 @@
 # Privacy Policy — Moraki
 
-**Effective date: 28 October 2026**  
+**Effective date: 23 November 2026**  
 **Data controller:** C.E. CODE DESIGNS LTD  
 **Contact:** hello@moraki.app  
 **Website:** https://moraki.app
@@ -129,7 +129,27 @@ Some technical information may be processed outside the European Economic Area, 
 
 We do not sell personal information, operate personalised advertising based on baby records or use those records to train AI models.
 
-## 8. Storage and security
+## 8. Social media and community interactions
+
+Moraki maintains official accounts on Instagram and Facebook and may operate accounts on other platforms, including TikTok.
+
+When you follow our accounts, interact with our posts, comment, mention us or send us a direct message, we may process your public username, profile information made available to us, message content and interaction details.
+
+We use this information to communicate with our community, respond to enquiries, provide support, manage our social media presence and understand the performance of our content.
+
+Where applicable, we rely on our legitimate interests under Article 6(1)(f) GDPR in managing our communications and responding to interactions, or on another appropriate lawful basis depending on the nature of the communication.
+
+Social media platforms independently process personal data according to their own privacy policies. They may provide us with aggregated statistics about reach, engagement and audience characteristics.
+
+For certain processing associated with Facebook Page Insights, C.E. CODE DESIGNS LTD and Meta Platforms Ireland Limited act as joint controllers under the applicable Page Insights arrangement. Meta is responsible for the obligations allocated to it under that arrangement. You may exercise applicable data-protection rights with either joint controller.
+
+Our use of Instagram and Facebook does not mean that Moraki shares baby-care records from the app with these platforms. We do not currently use Meta Pixel, TikTok Pixel or social-media tracking scripts on moraki.app.
+
+Please do not share personal health information about your child through public comments or social media messages. For privacy-related requests, contact hello@moraki.app.
+
+If we activate an official TikTok account, the same general principles will apply to our interactions on that platform, subject to TikTok's applicable privacy terms.
+
+## 9. Storage and security
 
 Local app records are held in an encrypted SQLite database using SQLCipher. The encryption key is protected through device secure storage.
 
@@ -141,7 +161,7 @@ No service can guarantee absolute security. You should protect your device, emai
 
 Device backups managed by Apple and copies saved or shared by users operate under the relevant device and destination settings. Moraki cannot revoke files that have already been exported elsewhere.
 
-## 9. Retention
+## 10. Retention
 
 We retain information according to its purpose and the implemented lifecycle:
 
@@ -152,6 +172,7 @@ We retain information according to its purpose and the implemented lifecycle:
 - **Feedback:** up to 24 months or until account deletion, whichever occurs first.
 - **Invitations:** expire after seven days and are generally removed 90 days after use or expiry.
 - **Crash reports:** 30 days.
+- **Social-media messages and enquiries:** deleted when no longer needed, at most 12 months after the conversation ends.
 - **Inactive households:** after 23 months without qualifying activity, an email warning is sent. Deletion can occur after 24 months if the warning conditions and at least 30 days' notice have been satisfied, with no intervening activity.
 - **Households paused following explicit final-guardian withdrawal:** warning after 90 days, with possible deletion at least 30 days later if still paused.
 - **Deletion audit records:** retained for 35 days. Restricted daily journal emails containing deletion identifiers are also retained for at least 35 days to assist backup recovery.
@@ -159,7 +180,7 @@ We retain information according to its purpose and the implemented lifecycle:
 
 Retention periods may be affected by lawful requests, applicable legal obligations and narrowly justified exceptions.
 
-## 10. Your rights
+## 11. Your rights
 
 Subject to applicable law and verification, you may request access, correction, erasure, restriction, portability, withdrawal of consent or objection to certain processing.
 
@@ -171,7 +192,7 @@ Requests about a child's information are assessed in light of parental authority
 
 You may also lodge a complaint with the **Office of the Commissioner for Personal Data Protection, Republic of Cyprus**, or another competent data-protection supervisory authority.
 
-## 11. Account and household deletion
+## 12. Account and household deletion
 
 In the app, use **Settings → Leave or delete**.
 
@@ -183,13 +204,13 @@ In-app deletion also attempts to revoke Moraki's Apple or Google access, where a
 
 For a full explanation, see https://moraki.app/data-deletion/.
 
-## 12. Changes to this Policy
+## 13. Changes to this Policy
 
 We may update this Policy when functionality, providers, legal requirements or data handling changes.
 
 The current version will be published on our website. We will provide additional notification or obtain renewed agreement where required by law or the nature of the change.
 
-## 13. Contact
+## 14. Contact
 
 **C.E. CODE DESIGNS LTD**  
 Akropoleos 4, Paphos, Cyprus  
