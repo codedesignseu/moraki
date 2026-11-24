@@ -1,0 +1,15 @@
+{
+  "prefetch": [
+    {
+      "tag": "moraki-prefetch",
+      "where": {
+        "and": [
+          { "href_matches": "/*" },
+          { "not": { "href_matches": "/join/*" } },
+          { "not": { "selector_matches": "[rel~=nofollow]" } }
+        ]
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}

@@ -90,6 +90,9 @@ index index.html;
 location = /.well-known/apple-app-site-association {
   default_type application/json;
 }
+location = /speculationrules.json {
+  default_type application/speculationrules+json;
+}
 location /join/ {
   try_files $uri $uri/ /join/index.html;
 }
@@ -108,7 +111,7 @@ gzip_types text/css text/javascript application/javascript application/json imag
 location /fonts/  { add_header Cache-Control "public, max-age=31536000, immutable"; }
 location /images/ { add_header Cache-Control "public, max-age=31536000, immutable"; }
 location ~* \.(css|js)$ { add_header Cache-Control "public, max-age=31536000, immutable"; }
-location ~* \.html$ { add_header Cache-Control "public, max-age=300"; }
+location ~* \.html$ { add_header Cache-Control "public, max-age=300"; add_header Speculation-Rules '"/speculationrules.json"'; }
 ```
 
 nginx drops server-level `add_header` lines inside a `location` that has its own,
@@ -116,6 +119,11 @@ so repeat the security headers in the `/fonts/` and `/images/` blocks, or use an
 `include` file.
 
 ## Speed
+
+Chrome prefetches same-site links the reader is about to open (hover or touch
+start), from the rules in `public/speculationrules.json`. The rules come from
+the `Speculation-Rules` response header, not an inline script, so the
+Content-Security-Policy needs no new hash. `/join/` is excluded.
 
 The pages aim for Lighthouse mobile scores of 95 or more (Performance) and 100
 (Accessibility, Best Practices, SEO), LCP under 1.8 s, CLS under 0.05, and under
