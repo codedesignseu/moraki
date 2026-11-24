@@ -8,6 +8,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
   X-Frame-Options: DENY
   Cache-Control: public, max-age=300
+  Speculation-Rules: "/speculationrules.json"
 
 # HTML and text files keep the short time above. Fonts and images keep their
 # names for good, and the CSS and JS are linked with a ?v= version query, so all
@@ -42,3 +43,6 @@
 # Stated anyway, so neither file depends on a host's guess.
 /.well-known/assetlinks.json
   Content-Type: application/json
+
+/speculationrules.json
+  Content-Type: application/speculationrules+json

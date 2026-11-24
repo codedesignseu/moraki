@@ -48,4 +48,7 @@
 ## More
 
 - [Full text of Features and FAQ](https://moraki.app/llms-full.txt)
+- [Moraki on the App Store](https://apps.apple.com/cy/app/id6819394944): free, iPhone.
+- [Moraki on Google Play](https://play.google.com/store/apps/details?id=eu.codedesigns.moraki): free, Android.
+- [Instagram](https://www.instagram.com/moraki.app/) and [Facebook](https://www.facebook.com/morakiapp): official Moraki accounts.
 - Contact: hello@moraki.app

@@ -9,6 +9,12 @@
   ForceType application/json
 </Files>
 
+# Chrome reads the prefetch rules from this file (Speculation-Rules header below).
+# It must be served with this exact type or Chrome ignores it.
+<Files "speculationrules.json">
+  ForceType application/speculationrules+json
+</Files>
+
 AddType font/woff2 .woff2
 AddType image/svg+xml .svg
 AddCharset utf-8 .html .css .js .txt .xml .json
@@ -46,6 +52,11 @@ ErrorDocument 404 /404.html
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
   Header always set X-Frame-Options "DENY"
   Header set Cache-Control "public, max-age=300"
+  # Prefetch same-site links on hover (Chrome). A file, not an inline script,
+  # so the Content-Security-Policy above needs no new hash.
+  <FilesMatch "\.html$">
+    Header set Speculation-Rules "\"/speculationrules.json\""
+  </FilesMatch>
   # Fonts and images never change name, and the CSS and JS are linked with a
   # ?v= version query, so they can be cached for a year. HTML stays at 5 minutes.
   <FilesMatch "\.(woff2|png|svg|ico|css|js)$">
