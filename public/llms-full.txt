@@ -77,14 +77,14 @@ Use Moraki in English or Greek. Each person in the household can pick their own.
 
 ## Start your notebook tonight
 
-Free on iPhone. Invite the others whenever you’re ready.
+Free on iPhone and Android. Invite the others whenever you’re ready.
 
 ## Moraki at a glance
 
 - **What it is**: A free newborn tracker: one shared baby log for feeds, diapers, sleep and pumping.
 - **Who it’s for**: Parents and everyone who looks after a newborn, like a partner, a grandparent or a nanny.
 - **Price**: Free
-- **Platform**: iPhone. Android is planned.
+- **Platform**: iPhone and Android
 - **Languages**: English and Greek
 - **Where data is stored**: On your phone. If you sync, also in the European Union.
 - **Ads**: None
@@ -113,7 +113,7 @@ Not to start. Open Moraki and log right away. You sign in to create your baby’
 
 ### Is there an Android version?
 
-Not yet. Moraki is on iPhone first. Android comes next.
+Yes. Moraki is free on Google Play and on the App Store.
 
 ### Which languages does it speak?
 
@@ -193,4 +193,4 @@ Go to Support
 
 ## Start your notebook tonight
 
-Free on iPhone. Invite the others whenever you’re ready.
+Free on iPhone and Android. Invite the others whenever you’re ready.

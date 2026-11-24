@@ -1,6 +1,6 @@
 # Moraki
 
-> Moraki is a free iPhone app for the people looking after a newborn: one shared notebook for feeds, diapers, sleep and pumping.
+> Moraki is a free iPhone and Android app for the people looking after a newborn: one shared notebook for feeds, diapers, sleep and pumping.
 > Start without an account and log with no signal. In a shared household, every phone shows the entry once it’s online. Moraki is a notebook, not medical advice.
 
 ## Key facts
@@ -8,7 +8,7 @@
 - **What it is**: A free newborn tracker: one shared baby log for feeds, diapers, sleep and pumping.
 - **Who it’s for**: Parents and everyone who looks after a newborn, like a partner, a grandparent or a nanny.
 - **Price**: Free
-- **Platform**: iPhone. Android is planned.
+- **Platform**: iPhone and Android
 - **Languages**: English and Greek
 - **Where data is stored**: On your phone. If you sync, also in the European Union.
 - **Ads**: None
