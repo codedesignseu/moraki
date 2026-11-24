@@ -322,6 +322,16 @@ p {
 .badge-night {
   display: none;
 }
+.badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+.badge img.badge-play {
+  width: 175px;
+}
 :root[data-theme='dark'] .badge-day {
   display: none;
 }
