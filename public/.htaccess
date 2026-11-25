@@ -55,7 +55,7 @@ ErrorDocument 404 /404.html
   # Prefetch same-site links on hover (Chrome). A file, not an inline script,
   # so the Content-Security-Policy above needs no new hash.
   <FilesMatch "\.html$">
-    Header set Speculation-Rules "\"/speculationrules.json\""
+    Header set Speculation-Rules '"/speculationrules.json"'
   </FilesMatch>
   # Fonts and images never change name, and the CSS and JS are linked with a
   # ?v= version query, so they can be cached for a year. HTML stays at 5 minutes.
